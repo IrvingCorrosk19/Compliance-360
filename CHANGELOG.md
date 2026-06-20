@@ -2,6 +2,22 @@
 
 All notable changes to Compliance 360 will be documented in this file.
 
+## v0.2.0-identity-foundation - 2026-06-20
+
+### Added
+
+- Implemented Identity Foundation application services for login, logout, token refresh, password changes, role assignment, permission changes, MFA configuration, and account unlock.
+- Added domain support for PasswordHistory, UserSession, MfaConfiguration, account lockout, refresh token session linking, and session revocation.
+- Added secure password policy validation, PBKDF2 password hashing, short JWT access token generation, and rotating refresh token flow.
+- Added EF Core repository and persistence mappings for Identity Foundation.
+- Added Identity module tests covering authentication, authorization, RBAC, token rotation, password policy/history, lockout, session revocation, tenant isolation, audit creation, and MFA readiness.
+
+### Validation
+
+- Build completed successfully with zero warnings and zero errors.
+- Test suite completed successfully.
+- Identity module coverage reached 91.51%.
+
 ## v0.1.0-tenant-management - 2026-06-20
 
 ### Added

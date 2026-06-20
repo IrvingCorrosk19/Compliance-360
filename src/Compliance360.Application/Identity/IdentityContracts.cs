@@ -1,0 +1,143 @@
+using Compliance360.Domain.Audit;
+using Compliance360.Domain.Identity;
+using Compliance360.Shared;
+
+namespace Compliance360.Application.Identity;
+
+public interface IIdentityService
+{
+    Task<Result<AuthenticationResult>> LoginAsync(LoginCommand command, CancellationToken cancellationToken = default);
+
+    Task<Result<AuthenticationResult>> RefreshTokenAsync(RefreshTokenCommand command, CancellationToken cancellationToken = default);
+
+    Task<Result> LogoutAsync(LogoutCommand command, CancellationToken cancellationToken = default);
+
+    Task<Result> ChangePasswordAsync(ChangePasswordCommand command, CancellationToken cancellationToken = default);
+
+    Task<Result> AssignRoleAsync(AssignRoleCommand command, CancellationToken cancellationToken = default);
+
+    Task<Result> GrantPermissionAsync(GrantPermissionCommand command, CancellationToken cancellationToken = default);
+
+    Task<Result> ConfigureMfaAsync(ConfigureMfaCommand command, CancellationToken cancellationToken = default);
+
+    Task<Result> UnlockAccountAsync(UnlockAccountCommand command, CancellationToken cancellationToken = default);
+}
+
+public interface IIdentityRepository
+{
+    Task<User?> GetUserByEmailAsync(Guid tenantId, string normalizedEmail, CancellationToken cancellationToken = default);
+
+    Task<User?> GetUserByIdAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default);
+
+    Task<Role?> GetRoleByIdAsync(Guid tenantId, Guid roleId, CancellationToken cancellationToken = default);
+
+    Task<Permission?> GetPermissionByIdAsync(Guid permissionId, CancellationToken cancellationToken = default);
+
+    Task<RefreshToken?> GetRefreshTokenByHashAsync(string tokenHash, CancellationToken cancellationToken = default);
+
+    Task AddRefreshTokenAsync(RefreshToken refreshToken, CancellationToken cancellationToken = default);
+
+    Task AddSessionAsync(UserSession session, CancellationToken cancellationToken = default);
+
+    Task AddMfaConfigurationAsync(MfaConfiguration configuration, CancellationToken cancellationToken = default);
+
+    Task AddAuditLogAsync(AuditLog auditLog, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<string>> GetRoleNamesAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<string>> GetPermissionCodesAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default);
+}
+
+public interface IPasswordPolicyValidator
+{
+    Result Validate(string password);
+}
+
+public sealed record LoginCommand(
+    Guid TenantId,
+    string Email,
+    string Password,
+    string? IpAddress,
+    string? UserAgent);
+
+public sealed record RefreshTokenCommand(
+    string RefreshToken,
+    string? IpAddress,
+    string? UserAgent);
+
+public sealed record LogoutCommand(
+    Guid TenantId,
+    Guid UserId,
+    string RefreshTokenHash,
+    string? IpAddress,
+    string? UserAgent);
+
+public sealed record ChangePasswordCommand(
+    Guid TenantId,
+    Guid UserId,
+    string CurrentPassword,
+    string NewPassword,
+    string? IpAddress,
+    string? UserAgent);
+
+public sealed record AssignRoleCommand(
+    Guid TenantId,
+    Guid UserId,
+    Guid RoleId,
+    Guid RequestedByUserId);
+
+public sealed record GrantPermissionCommand(
+    Guid TenantId,
+    Guid RoleId,
+    Guid PermissionId,
+    Guid RequestedByUserId);
+
+public sealed record ConfigureMfaCommand(
+    Guid TenantId,
+    Guid UserId,
+    MfaMethod Method,
+    string SecretEncrypted,
+    Guid RequestedByUserId);
+
+public sealed record UnlockAccountCommand(
+    Guid TenantId,
+    Guid UserId,
+    Guid RequestedByUserId);
+
+public sealed record AuthenticationResult(
+    Guid UserId,
+    Guid TenantId,
+    string Email,
+    string AccessToken,
+    DateTimeOffset AccessTokenExpiresAtUtc,
+    string RefreshToken,
+    string RefreshTokenHash,
+    DateTimeOffset RefreshTokenExpiresAtUtc,
+    Guid SessionId,
+    bool MfaRequired);
+
+public sealed class PasswordPolicyOptions
+{
+    public const string SectionName = "PasswordPolicy";
+
+    public int MinimumLength { get; set; } = 12;
+
+    public bool RequireUppercase { get; set; } = true;
+
+    public bool RequireLowercase { get; set; } = true;
+
+    public bool RequireDigit { get; set; } = true;
+
+    public bool RequireSymbol { get; set; } = true;
+
+    public int PasswordHistoryLimit { get; set; } = 5;
+}
+
+public sealed class LockoutOptions
+{
+    public const string SectionName = "Lockout";
+
+    public int MaxFailedAttempts { get; set; } = 5;
+
+    public int LockoutMinutes { get; set; } = 15;
+}

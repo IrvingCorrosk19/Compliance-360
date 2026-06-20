@@ -1,5 +1,7 @@
 using Compliance360.Application;
+using Compliance360.Application.Identity;
 using Compliance360.Application.TenantManagement;
+using Compliance360.Infrastructure.Identity;
 using Compliance360.Infrastructure.Persistence;
 using Compliance360.Infrastructure.Security;
 using Compliance360.Infrastructure.Storage;
@@ -17,13 +19,17 @@ public static class DependencyInjection
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services.Configure<RefreshTokenOptions>(configuration.GetSection(RefreshTokenOptions.SectionName));
         services.Configure<StorageOptions>(configuration.GetSection(StorageOptions.SectionName));
+        services.Configure<PasswordPolicyOptions>(configuration.GetSection(PasswordPolicyOptions.SectionName));
+        services.Configure<LockoutOptions>(configuration.GetSection(LockoutOptions.SectionName));
 
         services.AddSingleton<IClock, SystemClock>();
+        services.AddScoped<IPasswordPolicyValidator, PasswordPolicyValidator>();
         services.AddScoped<IPasswordHasher, Pbkdf2PasswordHasher>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IRefreshTokenGenerator, RefreshTokenGenerator>();
         services.AddScoped<IFileStorageService, LocalFileStorageService>();
         services.AddScoped<ITenantManagementService, TenantManagementService>();
+        services.AddScoped<IIdentityService, IdentityService>();
 
         var connectionString = configuration.GetConnectionString("Compliance360");
         if (!string.IsNullOrWhiteSpace(connectionString))
@@ -31,6 +37,7 @@ public static class DependencyInjection
             services.AddDbContext<Compliance360DbContext>(options => options.UseNpgsql(connectionString));
             services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<Compliance360DbContext>());
             services.AddScoped<ITenantManagementRepository, EfTenantManagementRepository>();
+            services.AddScoped<IIdentityRepository, EfIdentityRepository>();
         }
 
         return services;

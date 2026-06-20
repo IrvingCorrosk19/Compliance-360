@@ -13,7 +13,16 @@ public enum AuditAction
     Rejected = 6,
     LoginSucceeded = 7,
     LoginFailed = 8,
-    PermissionDenied = 9
+    PermissionDenied = 9,
+    Logout = 10,
+    PasswordChanged = 11,
+    RoleAssigned = 12,
+    PermissionChanged = 13,
+    SessionRevoked = 14,
+    TokenRefreshed = 15,
+    MfaConfigured = 16,
+    AccountLocked = 17,
+    AccountUnlocked = 18
 }
 
 public sealed class AuditLog : Entity

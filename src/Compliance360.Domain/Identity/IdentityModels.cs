@@ -22,10 +22,18 @@ public enum PermissionAction
     Manage = 7
 }
 
+public enum MfaMethod
+{
+    Totp = 0,
+    Email = 1
+}
+
 public sealed class User : TenantEntity
 {
     private readonly List<UserRole> _roles = [];
     private readonly List<RefreshToken> _refreshTokens = [];
+    private readonly List<PasswordHistory> _passwordHistory = [];
+    private readonly List<UserSession> _sessions = [];
 
     private User()
     {
@@ -63,9 +71,24 @@ public sealed class User : TenantEntity
 
     public DateTimeOffset? LastLoginAtUtc { get; private set; }
 
+    public int AccessFailedCount { get; private set; }
+
+    public DateTimeOffset? LockoutEndAtUtc { get; private set; }
+
+    public DateTimeOffset? PasswordChangedAtUtc { get; private set; }
+
     public IReadOnlyCollection<UserRole> Roles => _roles.AsReadOnly();
 
     public IReadOnlyCollection<RefreshToken> RefreshTokens => _refreshTokens.AsReadOnly();
+
+    public IReadOnlyCollection<PasswordHistory> PasswordHistory => _passwordHistory.AsReadOnly();
+
+    public IReadOnlyCollection<UserSession> Sessions => _sessions.AsReadOnly();
+
+    public bool IsLocked(DateTimeOffset nowUtc)
+    {
+        return Status == UserStatus.Locked && LockoutEndAtUtc > nowUtc;
+    }
 
     public void AssignToCompany(Guid companyId)
     {
@@ -75,7 +98,26 @@ public sealed class User : TenantEntity
     public void SetPasswordHash(string passwordHash)
     {
         PasswordHash = Guard.AgainstNullOrWhiteSpace(passwordHash, nameof(passwordHash), 1_000);
+        PasswordChangedAtUtc = DateTimeOffset.UtcNow;
         Status = UserStatus.Active;
+    }
+
+    public PasswordHistory ChangePassword(string newPasswordHash, DateTimeOffset changedAtUtc)
+    {
+        var previousHash = PasswordHash;
+        SetPasswordHash(newPasswordHash);
+        PasswordChangedAtUtc = changedAtUtc;
+
+        if (!string.IsNullOrWhiteSpace(previousHash))
+        {
+            var history = new PasswordHistory(TenantId, Id, previousHash, changedAtUtc);
+            _passwordHistory.Add(history);
+            return history;
+        }
+
+        var initialHistory = new PasswordHistory(TenantId, Id, newPasswordHash, changedAtUtc);
+        _passwordHistory.Add(initialHistory);
+        return initialHistory;
     }
 
     public void EnableMfa(string encryptedSecret)
@@ -93,6 +135,37 @@ public sealed class User : TenantEntity
     public void RegisterLogin(DateTimeOffset occurredAtUtc)
     {
         LastLoginAtUtc = occurredAtUtc;
+        AccessFailedCount = 0;
+        LockoutEndAtUtc = null;
+        if (Status == UserStatus.Locked)
+        {
+            Status = UserStatus.Active;
+        }
+    }
+
+    public bool RegisterFailedLogin(int maxFailedAttempts, DateTimeOffset lockoutEndAtUtc)
+    {
+        AccessFailedCount++;
+        if (AccessFailedCount < maxFailedAttempts)
+        {
+            return false;
+        }
+
+        Status = UserStatus.Locked;
+        LockoutEndAtUtc = lockoutEndAtUtc;
+        return true;
+    }
+
+    public void Unlock()
+    {
+        Status = UserStatus.Active;
+        AccessFailedCount = 0;
+        LockoutEndAtUtc = null;
+    }
+
+    public void Disable()
+    {
+        Status = UserStatus.Disabled;
     }
 
     public void AssignRole(Guid roleId)
@@ -115,6 +188,16 @@ public sealed class User : TenantEntity
         }
 
         _refreshTokens.Add(refreshToken);
+    }
+
+    public void AddSession(UserSession session)
+    {
+        if (session.TenantId != TenantId || session.UserId != Id)
+        {
+            throw new DomainException("Session must belong to the same tenant and user.");
+        }
+
+        _sessions.Add(session);
     }
 }
 
@@ -244,6 +327,8 @@ public sealed class RefreshToken : TenantEntity
 
     public string? ReplacedByTokenHash { get; private set; }
 
+    public Guid? SessionId { get; private set; }
+
     public bool IsActive(DateTimeOffset nowUtc)
     {
         return RevokedAtUtc is null && ExpiresAtUtc > nowUtc;
@@ -253,5 +338,98 @@ public sealed class RefreshToken : TenantEntity
     {
         RevokedAtUtc = revokedAtUtc;
         ReplacedByTokenHash = string.IsNullOrWhiteSpace(replacedByTokenHash) ? null : replacedByTokenHash.Trim();
+    }
+
+    public void LinkSession(Guid sessionId)
+    {
+        SessionId = Guard.AgainstEmpty(sessionId, nameof(sessionId));
+    }
+}
+
+public sealed class PasswordHistory : TenantEntity
+{
+    private PasswordHistory()
+    {
+        PasswordHash = string.Empty;
+    }
+
+    public PasswordHistory(Guid tenantId, Guid userId, string passwordHash, DateTimeOffset changedAtUtc)
+        : base(tenantId)
+    {
+        UserId = Guard.AgainstEmpty(userId, nameof(userId));
+        PasswordHash = Guard.AgainstNullOrWhiteSpace(passwordHash, nameof(passwordHash), 1_000);
+        ChangedAtUtc = changedAtUtc;
+    }
+
+    public Guid UserId { get; private set; }
+
+    public string PasswordHash { get; private set; }
+
+    public DateTimeOffset ChangedAtUtc { get; private set; }
+}
+
+public sealed class UserSession : TenantEntity
+{
+    private UserSession()
+    {
+    }
+
+    public UserSession(Guid tenantId, Guid userId, DateTimeOffset createdAtUtc, DateTimeOffset expiresAtUtc)
+        : base(tenantId)
+    {
+        UserId = Guard.AgainstEmpty(userId, nameof(userId));
+        CreatedAt = createdAtUtc;
+        ExpiresAtUtc = expiresAtUtc;
+    }
+
+    public Guid UserId { get; private set; }
+
+    public DateTimeOffset CreatedAt { get; private set; }
+
+    public DateTimeOffset ExpiresAtUtc { get; private set; }
+
+    public DateTimeOffset? RevokedAtUtc { get; private set; }
+
+    public bool IsActive(DateTimeOffset nowUtc)
+    {
+        return RevokedAtUtc is null && ExpiresAtUtc > nowUtc;
+    }
+
+    public void Revoke(DateTimeOffset revokedAtUtc)
+    {
+        RevokedAtUtc = revokedAtUtc;
+    }
+}
+
+public sealed class MfaConfiguration : TenantEntity
+{
+    private MfaConfiguration()
+    {
+        SecretEncrypted = string.Empty;
+    }
+
+    public MfaConfiguration(Guid tenantId, Guid userId, MfaMethod method, string secretEncrypted, DateTimeOffset configuredAtUtc)
+        : base(tenantId)
+    {
+        UserId = Guard.AgainstEmpty(userId, nameof(userId));
+        Method = method;
+        SecretEncrypted = Guard.AgainstNullOrWhiteSpace(secretEncrypted, nameof(secretEncrypted), 2_000);
+        ConfiguredAtUtc = configuredAtUtc;
+        IsEnabled = true;
+    }
+
+    public Guid UserId { get; private set; }
+
+    public MfaMethod Method { get; private set; }
+
+    public string SecretEncrypted { get; private set; }
+
+    public bool IsEnabled { get; private set; }
+
+    public DateTimeOffset ConfiguredAtUtc { get; private set; }
+
+    public void Disable()
+    {
+        IsEnabled = false;
     }
 }

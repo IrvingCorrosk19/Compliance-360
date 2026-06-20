@@ -40,6 +40,12 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
 
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
+    public DbSet<PasswordHistory> PasswordHistory => Set<PasswordHistory>();
+
+    public DbSet<UserSession> UserSessions => Set<UserSession>();
+
+    public DbSet<MfaConfiguration> MfaConfigurations => Set<MfaConfiguration>();
+
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
     public DbSet<StoredFile> StoredFiles => Set<StoredFile>();
@@ -138,8 +144,12 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.HasIndex(user => new { user.TenantId, user.NormalizedEmail }).IsUnique();
             entity.HasMany(user => user.Roles).WithOne().HasForeignKey(userRole => userRole.UserId);
             entity.HasMany(user => user.RefreshTokens).WithOne().HasForeignKey(refreshToken => refreshToken.UserId);
+            entity.HasMany(user => user.PasswordHistory).WithOne().HasForeignKey(passwordHistory => passwordHistory.UserId);
+            entity.HasMany(user => user.Sessions).WithOne().HasForeignKey(session => session.UserId);
             entity.Navigation(user => user.Roles).UsePropertyAccessMode(PropertyAccessMode.Field);
             entity.Navigation(user => user.RefreshTokens).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(user => user.PasswordHistory).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(user => user.Sessions).UsePropertyAccessMode(PropertyAccessMode.Field);
         });
 
         modelBuilder.Entity<Role>(entity =>
@@ -186,6 +196,30 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.Property(refreshToken => refreshToken.ReplacedByTokenHash).HasMaxLength(512);
             entity.HasIndex(refreshToken => new { refreshToken.TenantId, refreshToken.UserId });
             entity.HasIndex(refreshToken => refreshToken.TokenHash).IsUnique();
+        });
+
+        modelBuilder.Entity<PasswordHistory>(entity =>
+        {
+            entity.ToTable("password_history");
+            entity.HasKey(passwordHistory => passwordHistory.Id);
+            entity.Property(passwordHistory => passwordHistory.PasswordHash).HasMaxLength(1_000).IsRequired();
+            entity.HasIndex(passwordHistory => new { passwordHistory.TenantId, passwordHistory.UserId, passwordHistory.ChangedAtUtc });
+        });
+
+        modelBuilder.Entity<UserSession>(entity =>
+        {
+            entity.ToTable("user_sessions");
+            entity.HasKey(session => session.Id);
+            entity.HasIndex(session => new { session.TenantId, session.UserId, session.ExpiresAtUtc });
+        });
+
+        modelBuilder.Entity<MfaConfiguration>(entity =>
+        {
+            entity.ToTable("mfa_configurations");
+            entity.HasKey(configuration => configuration.Id);
+            entity.Property(configuration => configuration.Method).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(configuration => configuration.SecretEncrypted).HasMaxLength(2_000).IsRequired();
+            entity.HasIndex(configuration => new { configuration.TenantId, configuration.UserId, configuration.Method }).IsUnique();
         });
     }
 
