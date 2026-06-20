@@ -2,6 +2,21 @@
 
 All notable changes to Compliance 360 will be documented in this file.
 
+## v0.3.0-audit-foundation - 2026-06-20
+
+### Added
+
+- Implemented Audit Foundation domain model with AuditLog, AuditEvent, AuditCategory, AuditMetadata, AuditContext, and AuditSnapshot.
+- Added append-only audit rules, tenant-scoped search, RBAC-based audit read authorization, retention evaluation, and sensitive payload redaction.
+- Added EF Core audit repository, indexed audit mappings, SaveChanges audit interceptor, request audit context middleware, and dependency injection wiring.
+- Added audit coverage for creation, query, tenant isolation, security validation, search, retention, append-only enforcement, repository behavior, and automatic EF interception.
+
+### Validation
+
+- Build completed successfully with zero warnings and zero errors.
+- Test suite completed successfully.
+- Audit module coverage reached 91.94%.
+
 ## v0.2.0-identity-foundation - 2026-06-20
 
 ### Added

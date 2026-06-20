@@ -231,11 +231,19 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.HasKey(auditLog => auditLog.Id);
             entity.Property(auditLog => auditLog.EntityName).HasMaxLength(160).IsRequired();
             entity.Property(auditLog => auditLog.Action).HasConversion<string>().HasMaxLength(60).IsRequired();
+            entity.Property(auditLog => auditLog.Category).HasConversion<string>().HasMaxLength(60).IsRequired();
+            entity.Property(auditLog => auditLog.UserName).HasMaxLength(180);
+            entity.Property(auditLog => auditLog.Role).HasMaxLength(120);
             entity.Property(auditLog => auditLog.IpAddress).HasMaxLength(80);
             entity.Property(auditLog => auditLog.UserAgent).HasMaxLength(500);
             entity.Property(auditLog => auditLog.CorrelationId).HasMaxLength(120);
+            entity.Property(auditLog => auditLog.RequestId).HasMaxLength(120);
+            entity.Property(auditLog => auditLog.ErrorMessage).HasMaxLength(1_000);
             entity.HasIndex(auditLog => new { auditLog.TenantId, auditLog.OccurredAtUtc });
             entity.HasIndex(auditLog => new { auditLog.EntityName, auditLog.EntityId });
+            entity.HasIndex(auditLog => new { auditLog.TenantId, auditLog.Category, auditLog.OccurredAtUtc });
+            entity.HasIndex(auditLog => new { auditLog.TenantId, auditLog.Action, auditLog.OccurredAtUtc });
+            entity.HasIndex(auditLog => new { auditLog.TenantId, auditLog.UserId, auditLog.OccurredAtUtc });
         });
     }
 

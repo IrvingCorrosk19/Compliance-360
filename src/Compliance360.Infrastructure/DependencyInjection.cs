@@ -1,6 +1,8 @@
 using Compliance360.Application;
+using Compliance360.Application.Audit;
 using Compliance360.Application.Identity;
 using Compliance360.Application.TenantManagement;
+using Compliance360.Infrastructure.Audit;
 using Compliance360.Infrastructure.Identity;
 using Compliance360.Infrastructure.Persistence;
 using Compliance360.Infrastructure.Security;
@@ -21,8 +23,13 @@ public static class DependencyInjection
         services.Configure<StorageOptions>(configuration.GetSection(StorageOptions.SectionName));
         services.Configure<PasswordPolicyOptions>(configuration.GetSection(PasswordPolicyOptions.SectionName));
         services.Configure<LockoutOptions>(configuration.GetSection(LockoutOptions.SectionName));
+        services.Configure<AuditOptions>(configuration.GetSection(AuditOptions.SectionName));
 
         services.AddSingleton<IClock, SystemClock>();
+        services.AddSingleton<IAuditContextAccessor, AuditContextAccessor>();
+        services.AddScoped<IAuditPermissionEvaluator, AuditPermissionEvaluator>();
+        services.AddScoped<IAuditService, AuditService>();
+        services.AddScoped<AuditSaveChangesInterceptor>();
         services.AddScoped<IPasswordPolicyValidator, PasswordPolicyValidator>();
         services.AddScoped<IPasswordHasher, Pbkdf2PasswordHasher>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
@@ -34,8 +41,14 @@ public static class DependencyInjection
         var connectionString = configuration.GetConnectionString("Compliance360");
         if (!string.IsNullOrWhiteSpace(connectionString))
         {
-            services.AddDbContext<Compliance360DbContext>(options => options.UseNpgsql(connectionString));
+            services.AddDbContext<Compliance360DbContext>((provider, options) =>
+            {
+                options
+                    .UseNpgsql(connectionString)
+                    .AddInterceptors(provider.GetRequiredService<AuditSaveChangesInterceptor>());
+            });
             services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<Compliance360DbContext>());
+            services.AddScoped<IAuditRepository, EfAuditRepository>();
             services.AddScoped<ITenantManagementRepository, EfTenantManagementRepository>();
             services.AddScoped<IIdentityRepository, EfIdentityRepository>();
         }

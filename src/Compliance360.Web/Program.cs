@@ -1,6 +1,7 @@
 using System.Text;
 using Compliance360.Application;
 using Compliance360.Infrastructure;
+using Compliance360.Web.Audit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -31,6 +32,7 @@ if (!string.IsNullOrWhiteSpace(jwtOptions?.SigningKey))
 
 var app = builder.Build();
 
+app.UseMiddleware<AuditContextMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
