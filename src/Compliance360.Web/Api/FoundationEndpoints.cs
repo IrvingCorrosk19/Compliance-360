@@ -8,6 +8,7 @@ using Compliance360.Application.Mfa;
 using Compliance360.Application.Notifications;
 using Compliance360.Application.QualityIndicators;
 using Compliance360.Application.Rbac;
+using Compliance360.Application.Reporting;
 using Compliance360.Application.RiskManagement;
 using Compliance360.Application.Storage;
 using Compliance360.Application.Suppliers;
@@ -19,6 +20,7 @@ using Compliance360.Domain.AuditManagement;
 using Compliance360.Domain.CapaManagement;
 using Compliance360.Domain.Identity;
 using Compliance360.Domain.QualityIndicators;
+using Compliance360.Domain.Reporting;
 using Compliance360.Domain.RiskManagement;
 using Compliance360.Domain.Suppliers;
 using Compliance360.Domain.TechnicalSheets;
@@ -50,6 +52,7 @@ public static class FoundationEndpoints
         MapCapaManagement(api);
         MapRiskManagement(api);
         MapQualityIndicators(api);
+        MapReportingEngine(api);
 
         return api;
     }
@@ -995,6 +998,76 @@ public static class FoundationEndpoints
         indicators.MapPost("/export", async (Guid tenantId, IndicatorStatus? status, IndicatorType? type, string? format, HttpContext httpContext, IQualityIndicatorService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.ExportAsync(new IndicatorExportQuery(ApiContext.TenantId(httpContext, tenantId), status, type, format ?? "csv", ApiContext.UserId(httpContext)), cancellationToken)))
             .RequireAuthorization(PermissionPolicies.IndicatorExport);
+    }
+
+    private static void MapReportingEngine(RouteGroupBuilder api)
+    {
+        var reports = api.MapGroup("/tenants/{tenantId:guid}/reports")
+            .WithTags("Reporting Engine");
+
+        reports.MapGet("/standard", async (IReportingEngineService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GetStandardReportsAsync(cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.ReportRead);
+
+        reports.MapPost("/standard/seed", async (Guid tenantId, HttpContext httpContext, IReportingEngineService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.SeedStandardReportsAsync(new SeedStandardReportsCommand(ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.ReportManage);
+
+        reports.MapPost("/categories", async (Guid tenantId, CreateReportCategoryRequest request, HttpContext httpContext, IReportingEngineService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CreateCategoryAsync(new CreateReportCategoryCommand(ApiContext.TenantId(httpContext, tenantId), request.Name, request.Code, request.Module, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.ReportManage);
+
+        reports.MapPost("/", async (Guid tenantId, CreateReportDefinitionRequest request, HttpContext httpContext, IReportingEngineService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CreateDefinitionAsync(new CreateReportDefinitionCommand(ApiContext.TenantId(httpContext, tenantId), request.CategoryId, request.Name, request.Code, request.Description, request.Module, request.DatasetKey, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.ReportManage);
+
+        reports.MapPost("/{reportDefinitionId:guid}/templates", async (Guid tenantId, Guid reportDefinitionId, AddReportTemplateRequest request, HttpContext httpContext, IReportingEngineService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddTemplateAsync(new AddReportTemplateCommand(ApiContext.TenantId(httpContext, tenantId), reportDefinitionId, request.Name, request.Format, request.Content, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.ReportManage);
+
+        reports.MapPost("/{reportDefinitionId:guid}/parameters", async (Guid tenantId, Guid reportDefinitionId, AddReportParameterRequest request, HttpContext httpContext, IReportingEngineService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddParameterAsync(new AddReportParameterCommand(ApiContext.TenantId(httpContext, tenantId), reportDefinitionId, request.Name, request.Label, request.Type, request.IsRequired, request.DefaultValue, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.ReportManage);
+
+        reports.MapPost("/{reportDefinitionId:guid}/permissions", async (Guid tenantId, Guid reportDefinitionId, GrantReportPermissionRequest request, HttpContext httpContext, IReportingEngineService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GrantPermissionAsync(new GrantReportPermissionCommand(ApiContext.TenantId(httpContext, tenantId), reportDefinitionId, request.Scope, request.Subject, request.CanExecute, request.CanExport, request.CanSchedule, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.ReportManage);
+
+        reports.MapPost("/{reportDefinitionId:guid}/activate", async (Guid tenantId, Guid reportDefinitionId, HttpContext httpContext, IReportingEngineService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ActivateAsync(new ReportActionCommand(ApiContext.TenantId(httpContext, tenantId), reportDefinitionId, ApiContext.UserId(httpContext), Permissions(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.ReportManage);
+
+        reports.MapPost("/{reportDefinitionId:guid}/execute", async (Guid tenantId, Guid reportDefinitionId, ExecuteReportRequest request, HttpContext httpContext, IReportingEngineService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ExecuteAsync(new ExecuteReportCommand(ApiContext.TenantId(httpContext, tenantId), reportDefinitionId, request.ParametersJson, ApiContext.UserId(httpContext), Permissions(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.ReportExecute);
+
+        reports.MapPost("/{reportDefinitionId:guid}/complete", async (Guid tenantId, Guid reportDefinitionId, CompleteReportExecutionRequest request, HttpContext httpContext, IReportingEngineService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CompleteExecutionAsync(new CompleteReportExecutionCommand(ApiContext.TenantId(httpContext, tenantId), reportDefinitionId, request.ExecutionId, request.RowCount, request.DatasetDescriptorJson, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.ReportExecute);
+
+        reports.MapPost("/{reportDefinitionId:guid}/export", async (Guid tenantId, Guid reportDefinitionId, ExportReportRequest request, HttpContext httpContext, IReportingEngineService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ExportAsync(new ExportReportCommand(ApiContext.TenantId(httpContext, tenantId), reportDefinitionId, request.ExecutionId, request.Format, ApiContext.UserId(httpContext), Permissions(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.ReportExport);
+
+        reports.MapPost("/{reportDefinitionId:guid}/schedules", async (Guid tenantId, Guid reportDefinitionId, ScheduleReportRequest request, HttpContext httpContext, IReportingEngineService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ScheduleAsync(new ScheduleReportCommand(ApiContext.TenantId(httpContext, tenantId), reportDefinitionId, request.Frequency, request.NextRunUtc, ApiContext.UserId(httpContext), Permissions(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.ReportSchedule);
+
+        reports.MapPost("/{reportDefinitionId:guid}/subscriptions", async (Guid tenantId, Guid reportDefinitionId, SubscribeReportRequest request, HttpContext httpContext, IReportingEngineService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.SubscribeAsync(new SubscribeReportCommand(ApiContext.TenantId(httpContext, tenantId), reportDefinitionId, request.Recipient, request.Format, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.ReportSchedule);
+
+        reports.MapPost("/{reportDefinitionId:guid}/dashboard-bindings", async (Guid tenantId, Guid reportDefinitionId, BindReportDashboardRequest request, HttpContext httpContext, IReportingEngineService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.BindDashboardAsync(new BindReportDashboardCommand(ApiContext.TenantId(httpContext, tenantId), reportDefinitionId, request.DashboardKey, request.DatasetKey, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.ReportManage);
+
+        reports.MapGet("/", async (Guid tenantId, string? searchText, ReportModule? module, ReportDefinitionStatus? status, int page, int pageSize, HttpContext httpContext, IReportingEngineService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.SearchAsync(new ReportSearchQuery(ApiContext.TenantId(httpContext, tenantId), searchText, module, status, page, pageSize), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.ReportRead);
+
+        reports.MapGet("/dashboard-datasets", async (Guid tenantId, HttpContext httpContext, IReportingEngineService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GetDashboardDatasetsAsync(ApiContext.TenantId(httpContext, tenantId), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.ReportRead);
     }
 
     private static IReadOnlyCollection<string> Permissions(HttpContext httpContext)

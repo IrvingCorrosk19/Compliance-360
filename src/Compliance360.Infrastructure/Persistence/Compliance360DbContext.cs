@@ -7,6 +7,7 @@ using Compliance360.Domain.Documents;
 using Compliance360.Domain.Identity;
 using Compliance360.Domain.Notifications;
 using Compliance360.Domain.QualityIndicators;
+using Compliance360.Domain.Reporting;
 using Compliance360.Domain.RiskManagement;
 using Compliance360.Domain.Storage;
 using Compliance360.Domain.Suppliers;
@@ -227,6 +228,30 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
 
     public DbSet<IndicatorAttachment> IndicatorAttachments => Set<IndicatorAttachment>();
 
+    public DbSet<ReportCategory> ReportCategories => Set<ReportCategory>();
+
+    public DbSet<ReportDefinition> ReportDefinitions => Set<ReportDefinition>();
+
+    public DbSet<ReportTemplate> ReportTemplates => Set<ReportTemplate>();
+
+    public DbSet<ReportParameter> ReportParameters => Set<ReportParameter>();
+
+    public DbSet<ReportExecution> ReportExecutions => Set<ReportExecution>();
+
+    public DbSet<ReportSchedule> ReportSchedules => Set<ReportSchedule>();
+
+    public DbSet<ReportSubscription> ReportSubscriptions => Set<ReportSubscription>();
+
+    public DbSet<ReportOutput> ReportOutputs => Set<ReportOutput>();
+
+    public DbSet<ReportHistory> ReportHistory => Set<ReportHistory>();
+
+    public DbSet<ReportExport> ReportExports => Set<ReportExport>();
+
+    public DbSet<ReportPermission> ReportPermissions => Set<ReportPermission>();
+
+    public DbSet<ReportDashboardBinding> ReportDashboardBindings => Set<ReportDashboardBinding>();
+
     public override int SaveChanges()
     {
         ApplyFoundationRules();
@@ -256,6 +281,7 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
         ConfigureCapaManagement(modelBuilder);
         ConfigureRiskManagement(modelBuilder);
         ConfigureQualityIndicators(modelBuilder);
+        ConfigureReportingEngine(modelBuilder);
     }
 
     private static void ConfigureTenantManagement(ModelBuilder modelBuilder)
@@ -1419,6 +1445,146 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.Property(attachment => attachment.FileName).HasMaxLength(260).IsRequired();
             entity.Property(attachment => attachment.ContentType).HasMaxLength(120).IsRequired();
             entity.Property(attachment => attachment.Sha256Hash).HasMaxLength(128).IsRequired();
+        });
+    }
+
+    private static void ConfigureReportingEngine(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<ReportCategory>(entity =>
+        {
+            entity.ToTable("report_categories");
+            entity.HasKey(category => category.Id);
+            entity.Property(category => category.Name).HasMaxLength(180).IsRequired();
+            entity.Property(category => category.Code).HasMaxLength(80).IsRequired();
+            entity.Property(category => category.Module).HasConversion<string>().HasMaxLength(80).IsRequired();
+            entity.HasIndex(category => new { category.TenantId, category.Code }).IsUnique();
+            entity.HasIndex(category => new { category.TenantId, category.Module });
+        });
+
+        modelBuilder.Entity<ReportDefinition>(entity =>
+        {
+            entity.ToTable("report_definitions");
+            entity.HasKey(definition => definition.Id);
+            entity.Property(definition => definition.Name).HasMaxLength(220).IsRequired();
+            entity.Property(definition => definition.Code).HasMaxLength(120).IsRequired();
+            entity.Property(definition => definition.Description).HasMaxLength(2_000).IsRequired();
+            entity.Property(definition => definition.Module).HasConversion<string>().HasMaxLength(80).IsRequired();
+            entity.Property(definition => definition.DatasetKey).HasMaxLength(160).IsRequired();
+            entity.Property(definition => definition.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.HasIndex(definition => new { definition.TenantId, definition.Code }).IsUnique();
+            entity.HasIndex(definition => new { definition.TenantId, definition.Module, definition.Status });
+            entity.HasMany(definition => definition.Templates).WithOne().HasForeignKey(template => template.ReportDefinitionId);
+            entity.HasMany(definition => definition.Parameters).WithOne().HasForeignKey(parameter => parameter.ReportDefinitionId);
+            entity.HasMany(definition => definition.Executions).WithOne().HasForeignKey(execution => execution.ReportDefinitionId);
+            entity.HasMany(definition => definition.Schedules).WithOne().HasForeignKey(schedule => schedule.ReportDefinitionId);
+            entity.HasMany(definition => definition.Subscriptions).WithOne().HasForeignKey(subscription => subscription.ReportDefinitionId);
+            entity.HasMany(definition => definition.History).WithOne().HasForeignKey(history => history.ReportDefinitionId);
+            entity.HasMany(definition => definition.Permissions).WithOne().HasForeignKey(permission => permission.ReportDefinitionId);
+            entity.HasMany(definition => definition.DashboardBindings).WithOne().HasForeignKey(binding => binding.ReportDefinitionId);
+            entity.Navigation(definition => definition.Templates).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(definition => definition.Parameters).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(definition => definition.Executions).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(definition => definition.Schedules).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(definition => definition.Subscriptions).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(definition => definition.History).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(definition => definition.Permissions).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(definition => definition.DashboardBindings).UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+
+        modelBuilder.Entity<ReportTemplate>(entity =>
+        {
+            entity.ToTable("report_templates");
+            entity.HasKey(template => template.Id);
+            entity.Property(template => template.Name).HasMaxLength(180).IsRequired();
+            entity.Property(template => template.Format).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(template => template.Content).HasMaxLength(10_000).IsRequired();
+            entity.HasIndex(template => new { template.TenantId, template.ReportDefinitionId, template.Format, template.Version });
+        });
+
+        modelBuilder.Entity<ReportParameter>(entity =>
+        {
+            entity.ToTable("report_parameters");
+            entity.HasKey(parameter => parameter.Id);
+            entity.Property(parameter => parameter.Name).HasMaxLength(120).IsRequired();
+            entity.Property(parameter => parameter.Label).HasMaxLength(180).IsRequired();
+            entity.Property(parameter => parameter.Type).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(parameter => parameter.DefaultValue).HasMaxLength(1_000);
+            entity.HasIndex(parameter => new { parameter.TenantId, parameter.ReportDefinitionId, parameter.Name }).IsUnique();
+        });
+
+        modelBuilder.Entity<ReportExecution>(entity =>
+        {
+            entity.ToTable("report_executions");
+            entity.HasKey(execution => execution.Id);
+            entity.Property(execution => execution.ParametersJson).HasMaxLength(10_000).IsRequired();
+            entity.Property(execution => execution.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(execution => execution.FailureReason).HasMaxLength(1_000);
+            entity.HasIndex(execution => new { execution.TenantId, execution.ReportDefinitionId, execution.Status, execution.QueuedAtUtc });
+            entity.HasMany(execution => execution.Outputs).WithOne().HasForeignKey(output => output.ReportExecutionId);
+            entity.HasMany(execution => execution.Exports).WithOne().HasForeignKey(export => export.ReportExecutionId);
+            entity.Navigation(execution => execution.Outputs).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(execution => execution.Exports).UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+
+        modelBuilder.Entity<ReportOutput>(entity =>
+        {
+            entity.ToTable("report_outputs");
+            entity.HasKey(output => output.Id);
+            entity.Property(output => output.DatasetDescriptorJson).HasMaxLength(10_000).IsRequired();
+            entity.HasIndex(output => new { output.TenantId, output.ReportDefinitionId, output.ReportExecutionId });
+        });
+
+        modelBuilder.Entity<ReportExport>(entity =>
+        {
+            entity.ToTable("report_exports");
+            entity.HasKey(export => export.Id);
+            entity.Property(export => export.Format).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(export => export.FileName).HasMaxLength(260).IsRequired();
+            entity.Property(export => export.ContentType).HasMaxLength(160).IsRequired();
+            entity.HasIndex(export => new { export.TenantId, export.ReportDefinitionId, export.Format, export.ExportedAtUtc });
+        });
+
+        modelBuilder.Entity<ReportSchedule>(entity =>
+        {
+            entity.ToTable("report_schedules");
+            entity.HasKey(schedule => schedule.Id);
+            entity.Property(schedule => schedule.Frequency).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.HasIndex(schedule => new { schedule.TenantId, schedule.ReportDefinitionId, schedule.IsActive, schedule.NextRunUtc });
+        });
+
+        modelBuilder.Entity<ReportSubscription>(entity =>
+        {
+            entity.ToTable("report_subscriptions");
+            entity.HasKey(subscription => subscription.Id);
+            entity.Property(subscription => subscription.Recipient).HasMaxLength(260).IsRequired();
+            entity.Property(subscription => subscription.Format).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.HasIndex(subscription => new { subscription.TenantId, subscription.ReportDefinitionId, subscription.IsActive });
+        });
+
+        modelBuilder.Entity<ReportPermission>(entity =>
+        {
+            entity.ToTable("report_permissions");
+            entity.HasKey(permission => permission.Id);
+            entity.Property(permission => permission.Scope).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(permission => permission.Subject).HasMaxLength(180).IsRequired();
+            entity.HasIndex(permission => new { permission.TenantId, permission.ReportDefinitionId, permission.Scope, permission.Subject });
+        });
+
+        modelBuilder.Entity<ReportDashboardBinding>(entity =>
+        {
+            entity.ToTable("report_dashboard_bindings");
+            entity.HasKey(binding => binding.Id);
+            entity.Property(binding => binding.DashboardKey).HasMaxLength(160).IsRequired();
+            entity.Property(binding => binding.DatasetKey).HasMaxLength(160).IsRequired();
+            entity.HasIndex(binding => new { binding.TenantId, binding.DashboardKey, binding.DatasetKey });
+        });
+
+        modelBuilder.Entity<ReportHistory>(entity =>
+        {
+            entity.ToTable("report_history");
+            entity.HasKey(history => history.Id);
+            entity.Property(history => history.Action).HasMaxLength(1_200).IsRequired();
+            entity.HasIndex(history => new { history.TenantId, history.ReportDefinitionId, history.OccurredAtUtc });
         });
     }
 

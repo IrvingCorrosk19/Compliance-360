@@ -21,6 +21,11 @@ public static class PermissionPolicies
     public const string IndicatorRead = "Indicator.Read";
     public const string IndicatorApprove = "Indicator.Approve";
     public const string IndicatorExport = "Indicator.Export";
+    public const string ReportManage = "Report.Manage";
+    public const string ReportRead = "Report.Read";
+    public const string ReportExecute = "Report.Execute";
+    public const string ReportExport = "Report.Export";
+    public const string ReportSchedule = "Report.Schedule";
     public const string StorageManage = "Storage.Manage";
     public const string NotificationManage = "Notification.Manage";
     public const string DocumentManage = "Document.Manage";
@@ -47,6 +52,11 @@ public static class PermissionPolicies
         options.AddPolicy(IndicatorRead, policy => policy.RequireAssertion(context => HasPermission(context, "INDICATOR.READ") || HasPermission(context, "INDICATOR.MANAGE")));
         options.AddPolicy(IndicatorApprove, policy => policy.RequireAssertion(context => HasPermission(context, "INDICATOR.APPROVE") || HasPermission(context, "INDICATOR.MANAGE")));
         options.AddPolicy(IndicatorExport, policy => policy.RequireAssertion(context => HasPermission(context, "INDICATOR.EXPORT") || HasPermission(context, "INDICATOR.MANAGE")));
+        options.AddPolicy(ReportManage, policy => policy.RequireAssertion(context => HasPermission(context, "REPORT.MANAGE")));
+        options.AddPolicy(ReportRead, policy => policy.RequireAssertion(context => HasPermission(context, "REPORT.READ") || HasPermission(context, "REPORT.MANAGE")));
+        options.AddPolicy(ReportExecute, policy => policy.RequireAssertion(context => HasPermission(context, "REPORT.EXECUTE") || HasPermission(context, "REPORT.MANAGE")));
+        options.AddPolicy(ReportExport, policy => policy.RequireAssertion(context => HasPermission(context, "REPORT.EXPORT") || HasPermission(context, "REPORT.MANAGE")));
+        options.AddPolicy(ReportSchedule, policy => policy.RequireAssertion(context => HasPermission(context, "REPORT.SCHEDULE") || HasPermission(context, "REPORT.MANAGE")));
         options.AddPolicy(StorageManage, policy => policy.RequireAssertion(context => HasPermission(context, "STORAGE.MANAGE")));
         options.AddPolicy(NotificationManage, policy => policy.RequireAssertion(context => HasPermission(context, "NOTIFICATION.MANAGE")));
         options.AddPolicy(DocumentManage, policy => policy.RequireAssertion(context => HasPermission(context, "DOCUMENT.MANAGE")));

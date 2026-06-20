@@ -5,6 +5,7 @@ using Compliance360.Domain.Documents;
 using Compliance360.Domain.Identity;
 using Compliance360.Domain.Notifications;
 using Compliance360.Domain.QualityIndicators;
+using Compliance360.Domain.Reporting;
 using Compliance360.Domain.RiskManagement;
 using Compliance360.Domain.Suppliers;
 using Compliance360.Domain.TenantManagement;
@@ -237,3 +238,25 @@ public sealed record CalculateIndicatorResultRequest(Guid PeriodId, Guid Measure
 public sealed record AddIndicatorAttachmentRequest(Guid StoredFileId, string FileName, string ContentType, long SizeBytes, string Sha256Hash);
 
 public sealed record AttachIndicatorWorkflowRequest(Guid WorkflowInstanceId);
+
+public sealed record CreateReportCategoryRequest(string Name, string Code, ReportModule Module);
+
+public sealed record CreateReportDefinitionRequest(Guid CategoryId, string Name, string Code, string Description, ReportModule Module, string DatasetKey);
+
+public sealed record AddReportTemplateRequest(string Name, ReportFormat Format, string Content);
+
+public sealed record AddReportParameterRequest(string Name, string Label, ReportParameterType Type, bool IsRequired, string? DefaultValue);
+
+public sealed record GrantReportPermissionRequest(ReportPermissionScope Scope, string Subject, bool CanExecute, bool CanExport, bool CanSchedule);
+
+public sealed record ExecuteReportRequest(string ParametersJson);
+
+public sealed record CompleteReportExecutionRequest(Guid ExecutionId, int RowCount, string DatasetDescriptorJson);
+
+public sealed record ExportReportRequest(Guid ExecutionId, ReportFormat Format);
+
+public sealed record ScheduleReportRequest(ReportScheduleFrequency Frequency, DateTimeOffset NextRunUtc);
+
+public sealed record SubscribeReportRequest(string Recipient, ReportFormat Format);
+
+public sealed record BindReportDashboardRequest(string DashboardKey, string DatasetKey);

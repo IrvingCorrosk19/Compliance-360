@@ -2,6 +2,36 @@
 
 All notable changes to Compliance 360 will be documented in this file.
 
+## v0.16.0-reporting-engine-enterprise - 2026-06-20
+
+### REPORTING ENGINE COMPLETION REPORT
+
+- Implemented Reporting Engine Enterprise as a reusable corporate reporting module for Tenant Management, Identity, Document Management, Workflow, Technical Sheets, Supplier Management, Audit Management, CAPA, Risk Management, Quality Indicators, AuditLog, and Notifications.
+- Added domain entities for report definitions, templates, categories, parameters, executions, schedules, subscriptions, outputs, history, exports, permissions, and dashboard bindings.
+- Implemented enterprise formats: PDF, Excel, Word, CSV, and JSON.
+- Implemented report generation lifecycle, reusable templates, dynamic parameters, advanced filters through search criteria, automatic scheduling, subscriptions, execution history, exports, access control, and versioning.
+- Implemented mandatory report catalog for Document Management, Supplier Management, Audit Management, CAPA, Risk, and Quality Indicators with 24 standard enterprise reports.
+- Implemented reusable dashboard datasets for Dashboard Enterprise through report dashboard bindings.
+- Implemented API v1 under `/api/v1/tenants/{tenantId}/reports` with CRUD, execution, completion, export, scheduling, subscriptions, standard report seeding, search, and dashboard dataset endpoints.
+- Implemented security policies: `Report.Manage`, `Report.Read`, `Report.Execute`, `Report.Export`, and `Report.Schedule`.
+- Implemented tenant isolation through tenant-scoped aggregates, repository queries, unique indexes, report search, dashboard datasets, permissions, and multitenant tests.
+- Implemented AuditLog events for report creation, updates, execution, export, and scheduling.
+- Implemented EF Core persistence and migration `AddReportingEngine`.
+
+### Validation
+
+- Build completed successfully with zero warnings and zero errors.
+- Test suite completed successfully: 169 passed.
+- Reporting Engine module coverage reached 95.71% line coverage and 90.47% branch coverage.
+- Risks: no open functional, security, multitenant, export, schedule, or coverage risks detected.
+- Evidence: full test suite, module coverage, EF migration generation, tenant isolation tests, permission tests, export tests, schedule tests, standard report catalog tests, audit log tests, and dashboard dataset tests.
+
+### Module Completion Certificate
+
+- Module: Reporting Engine Enterprise
+- Status: MODULE APPROVED
+- Tag: `v0.16.0-reporting-engine-enterprise`
+
 ## v0.15.0-quality-indicators-enterprise - 2026-06-20
 
 ### QUALITY INDICATORS COMPLETION REPORT
