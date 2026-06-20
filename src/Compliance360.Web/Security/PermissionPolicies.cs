@@ -9,6 +9,10 @@ public static class PermissionPolicies
     public const string RbacManage = "Rbac.Manage";
     public const string AuditRead = "Audit.Read";
     public const string AuditManagementManage = "AuditManagement.Manage";
+    public const string CapaManage = "Capa.Manage";
+    public const string CapaRead = "Capa.Read";
+    public const string CapaApprove = "Capa.Approve";
+    public const string CapaClose = "Capa.Close";
     public const string StorageManage = "Storage.Manage";
     public const string NotificationManage = "Notification.Manage";
     public const string DocumentManage = "Document.Manage";
@@ -23,6 +27,10 @@ public static class PermissionPolicies
         options.AddPolicy(RbacManage, policy => policy.RequireAssertion(context => HasPermission(context, "RBAC.MANAGE")));
         options.AddPolicy(AuditRead, policy => policy.RequireAssertion(context => HasPermission(context, "AUDIT.READ") || HasPermission(context, "AUDIT.MANAGE")));
         options.AddPolicy(AuditManagementManage, policy => policy.RequireAssertion(context => HasPermission(context, "AUDITMANAGEMENT.MANAGE") || HasPermission(context, "AUDIT.MANAGE")));
+        options.AddPolicy(CapaManage, policy => policy.RequireAssertion(context => HasPermission(context, "CAPA.MANAGE")));
+        options.AddPolicy(CapaRead, policy => policy.RequireAssertion(context => HasPermission(context, "CAPA.READ") || HasPermission(context, "CAPA.MANAGE")));
+        options.AddPolicy(CapaApprove, policy => policy.RequireAssertion(context => HasPermission(context, "CAPA.APPROVE") || HasPermission(context, "CAPA.MANAGE")));
+        options.AddPolicy(CapaClose, policy => policy.RequireAssertion(context => HasPermission(context, "CAPA.CLOSE") || HasPermission(context, "CAPA.MANAGE")));
         options.AddPolicy(StorageManage, policy => policy.RequireAssertion(context => HasPermission(context, "STORAGE.MANAGE")));
         options.AddPolicy(NotificationManage, policy => policy.RequireAssertion(context => HasPermission(context, "NOTIFICATION.MANAGE")));
         options.AddPolicy(DocumentManage, policy => policy.RequireAssertion(context => HasPermission(context, "DOCUMENT.MANAGE")));

@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Compliance360.Application.Audit;
 using Compliance360.Application.AuditManagement;
+using Compliance360.Application.CapaManagement;
 using Compliance360.Application.Documents;
 using Compliance360.Application.Identity;
 using Compliance360.Application.Mfa;
@@ -13,6 +14,7 @@ using Compliance360.Application.TenantManagement;
 using Compliance360.Application.Workflows;
 using Compliance360.Domain.Documents;
 using Compliance360.Domain.AuditManagement;
+using Compliance360.Domain.CapaManagement;
 using Compliance360.Domain.Identity;
 using Compliance360.Domain.Suppliers;
 using Compliance360.Domain.TechnicalSheets;
@@ -41,6 +43,7 @@ public static class FoundationEndpoints
         MapTechnicalSheets(api);
         MapSuppliers(api);
         MapAuditManagement(api);
+        MapCapaManagement(api);
 
         return api;
     }
@@ -667,6 +670,157 @@ public static class FoundationEndpoints
             ApiResult.From(await service.ExportAsync(
                 new ManagedAuditExportQuery(ApiContext.TenantId(httpContext, tenantId), type, status, format ?? "csv", ApiContext.UserId(httpContext)),
                 cancellationToken)));
+    }
+
+    private static void MapCapaManagement(RouteGroupBuilder api)
+    {
+        var capas = api.MapGroup("/tenants/{tenantId:guid}/capas")
+            .WithTags("CAPA Management");
+
+        capas.MapPost("/", async (Guid tenantId, CreateCapaRequest request, HttpContext httpContext, ICapaManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CreateAsync(
+                new CreateCapaCommand(ApiContext.TenantId(httpContext, tenantId), request.Title, request.Code, request.Description, request.Priority, request.RiskLevel, request.SourceType, request.SourceEntityId, request.SupplierId, request.DocumentId, request.AuditId, ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.CapaManage);
+
+        capas.MapPost("/{capaId:guid}/classify", async (Guid tenantId, Guid capaId, ClassifyCapaRequest request, HttpContext httpContext, ICapaManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ClassifyAsync(
+                new ClassifyCapaCommand(ApiContext.TenantId(httpContext, tenantId), capaId, request.Priority, request.RiskLevel, request.CommitmentDueAtUtc, ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.CapaManage);
+
+        capas.MapPost("/{capaId:guid}/owners", async (Guid tenantId, Guid capaId, AssignCapaOwnerRequest request, HttpContext httpContext, ICapaManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AssignOwnerAsync(
+                new AssignCapaOwnerCommand(ApiContext.TenantId(httpContext, tenantId), capaId, request.OwnerUserId, request.DueAtUtc, ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.CapaManage);
+
+        capas.MapPost("/{capaId:guid}/approvers", async (Guid tenantId, Guid capaId, AddCapaApproverRequest request, HttpContext httpContext, ICapaManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddApproverAsync(
+                new AddCapaApproverCommand(ApiContext.TenantId(httpContext, tenantId), capaId, request.ApproverUserId, ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.CapaApprove);
+
+        capas.MapPost("/{capaId:guid}/root-cause", async (Guid tenantId, Guid capaId, DefineCapaRootCauseRequest request, HttpContext httpContext, ICapaManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.DefineRootCauseAsync(
+                new DefineCapaRootCauseCommand(ApiContext.TenantId(httpContext, tenantId), capaId, request.Description, request.Method, ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.CapaManage);
+
+        capas.MapPost("/{capaId:guid}/analysis/5-why", async (Guid tenantId, Guid capaId, AddCapaFiveWhyRequest request, HttpContext httpContext, ICapaManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddFiveWhyAsync(
+                new AddCapaFiveWhyCommand(ApiContext.TenantId(httpContext, tenantId), capaId, request.Why1, request.Why2, request.Why3, request.Why4, request.Why5, ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.CapaManage);
+
+        capas.MapPost("/{capaId:guid}/analysis/ishikawa", async (Guid tenantId, Guid capaId, AddCapaIshikawaRequest request, HttpContext httpContext, ICapaManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddIshikawaAsync(
+                new AddCapaIshikawaCommand(ApiContext.TenantId(httpContext, tenantId), capaId, request.People, request.Process, request.Equipment, request.Material, request.Environment, request.Measurement, ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.CapaManage);
+
+        capas.MapPost("/{capaId:guid}/containment-actions", async (Guid tenantId, Guid capaId, AddCapaActionRequest request, HttpContext httpContext, ICapaManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddContainmentActionAsync(
+                new AddCapaActionCommand(ApiContext.TenantId(httpContext, tenantId), capaId, request.Description, request.ResponsibleUserId, request.DueAtUtc, ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.CapaManage);
+
+        capas.MapPost("/{capaId:guid}/corrective-actions", async (Guid tenantId, Guid capaId, AddCapaActionRequest request, HttpContext httpContext, ICapaManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddCorrectiveActionAsync(
+                new AddCapaActionCommand(ApiContext.TenantId(httpContext, tenantId), capaId, request.Description, request.ResponsibleUserId, request.DueAtUtc, ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.CapaManage);
+
+        capas.MapPost("/{capaId:guid}/preventive-actions", async (Guid tenantId, Guid capaId, AddCapaActionRequest request, HttpContext httpContext, ICapaManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddPreventiveActionAsync(
+                new AddCapaActionCommand(ApiContext.TenantId(httpContext, tenantId), capaId, request.Description, request.ResponsibleUserId, request.DueAtUtc, ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.CapaManage);
+
+        capas.MapPost("/{capaId:guid}/evidence", async (Guid tenantId, Guid capaId, AddCapaEvidenceRequest request, HttpContext httpContext, ICapaManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddEvidenceAsync(
+                new AddCapaEvidenceCommand(ApiContext.TenantId(httpContext, tenantId), capaId, request.StoredFileId, request.FileName, request.ContentType, request.SizeBytes, request.Sha256Hash, ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.CapaManage);
+
+        capas.MapPost("/{capaId:guid}/attachments", async (Guid tenantId, Guid capaId, AddCapaAttachmentRequest request, HttpContext httpContext, ICapaManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddAttachmentAsync(
+                new AddCapaAttachmentCommand(ApiContext.TenantId(httpContext, tenantId), capaId, request.StoredFileId, request.FileName, request.ContentType, request.SizeBytes, request.Sha256Hash, ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.CapaManage);
+
+        capas.MapPost("/{capaId:guid}/follow-up", async (Guid tenantId, Guid capaId, RegisterCapaFollowUpRequest request, HttpContext httpContext, ICapaManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.RegisterFollowUpAsync(
+                new CapaFollowUpCommand(ApiContext.TenantId(httpContext, tenantId), capaId, request.Notes, ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.CapaManage);
+
+        capas.MapPost("/{capaId:guid}/escalate-overdue", async (Guid tenantId, Guid capaId, HttpContext httpContext, ICapaManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.EscalateOverdueAsync(
+                new CapaActionCommand(ApiContext.TenantId(httpContext, tenantId), capaId, ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.CapaManage);
+
+        capas.MapPost("/{capaId:guid}/effectiveness", async (Guid tenantId, Guid capaId, VerifyCapaEffectivenessRequest request, HttpContext httpContext, ICapaManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.VerifyEffectivenessAsync(
+                new VerifyCapaEffectivenessCommand(ApiContext.TenantId(httpContext, tenantId), capaId, request.IsEffective, request.VerificationSummary, ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.CapaManage);
+
+        capas.MapPost("/{capaId:guid}/workflow", async (Guid tenantId, Guid capaId, AttachCapaWorkflowRequest request, HttpContext httpContext, ICapaManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AttachWorkflowAsync(
+                new AttachCapaWorkflowCommand(ApiContext.TenantId(httpContext, tenantId), capaId, request.WorkflowInstanceId, ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.WorkflowManage);
+
+        capas.MapPost("/{capaId:guid}/approve-closure", async (Guid tenantId, Guid capaId, HttpContext httpContext, ICapaManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ApproveClosureAsync(
+                new CapaActionCommand(ApiContext.TenantId(httpContext, tenantId), capaId, ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.CapaClose);
+
+        capas.MapPost("/{capaId:guid}/reopen", async (Guid tenantId, Guid capaId, ReopenCapaRequest request, HttpContext httpContext, ICapaManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ReopenAsync(
+                new ReopenCapaCommand(ApiContext.TenantId(httpContext, tenantId), capaId, request.Reason, ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.CapaManage);
+
+        capas.MapGet("/", async (
+                Guid tenantId,
+                string? searchText,
+                CapaStatus? status,
+                CapaPriority? priority,
+                CapaRiskLevel? riskLevel,
+                Guid? ownerUserId,
+                Guid? supplierId,
+                Guid? auditId,
+                int page,
+                int pageSize,
+                HttpContext httpContext,
+                ICapaManagementService service,
+                CancellationToken cancellationToken) =>
+            ApiResult.From(await service.SearchAsync(
+                new CapaSearchQuery(ApiContext.TenantId(httpContext, tenantId), searchText, status, priority, riskLevel, ownerUserId, supplierId, auditId, page, pageSize),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.CapaRead);
+
+        capas.MapGet("/dashboard", async (Guid tenantId, HttpContext httpContext, ICapaManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GetDashboardAsync(ApiContext.TenantId(httpContext, tenantId), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.CapaRead);
+
+        capas.MapPost("/export", async (
+                Guid tenantId,
+                CapaStatus? status,
+                CapaPriority? priority,
+                CapaRiskLevel? riskLevel,
+                string? format,
+                HttpContext httpContext,
+                ICapaManagementService service,
+                CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ExportAsync(
+                new CapaExportQuery(ApiContext.TenantId(httpContext, tenantId), status, priority, riskLevel, format ?? "csv", ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.CapaRead);
     }
 
     private static IReadOnlyCollection<string> Permissions(HttpContext httpContext)

@@ -1,5 +1,6 @@
 using Compliance360.Domain.Audit;
 using Compliance360.Domain.AuditManagement;
+using Compliance360.Domain.CapaManagement;
 using Compliance360.Domain.Documents;
 using Compliance360.Domain.Identity;
 using Compliance360.Domain.Notifications;
@@ -152,3 +153,31 @@ public sealed record AddAuditRecommendationRequest(Guid FindingId, string Recomm
 public sealed record LinkAuditCorrectiveActionRequest(Guid FindingId, Guid CorrectiveActionId);
 
 public sealed record AddAuditAttachmentRequest(Guid StoredFileId, string FileName, string ContentType, long SizeBytes, string Sha256Hash);
+
+public sealed record CreateCapaRequest(string Title, string Code, string Description, CapaPriority Priority, CapaRiskLevel RiskLevel, CapaSourceType SourceType, Guid? SourceEntityId, Guid? SupplierId, Guid? DocumentId, Guid? AuditId);
+
+public sealed record ClassifyCapaRequest(CapaPriority Priority, CapaRiskLevel RiskLevel, DateTimeOffset? CommitmentDueAtUtc);
+
+public sealed record AssignCapaOwnerRequest(Guid OwnerUserId, DateTimeOffset DueAtUtc);
+
+public sealed record AddCapaApproverRequest(Guid ApproverUserId);
+
+public sealed record DefineCapaRootCauseRequest(string Description, CapaRootCauseMethod Method);
+
+public sealed record AddCapaFiveWhyRequest(string Why1, string Why2, string Why3, string Why4, string Why5);
+
+public sealed record AddCapaIshikawaRequest(string People, string Process, string Equipment, string Material, string Environment, string Measurement);
+
+public sealed record AddCapaActionRequest(string Description, Guid ResponsibleUserId, DateTimeOffset DueAtUtc);
+
+public sealed record AddCapaEvidenceRequest(Guid StoredFileId, string FileName, string ContentType, long SizeBytes, string Sha256Hash);
+
+public sealed record AddCapaAttachmentRequest(Guid StoredFileId, string FileName, string ContentType, long SizeBytes, string Sha256Hash);
+
+public sealed record RegisterCapaFollowUpRequest(string Notes);
+
+public sealed record VerifyCapaEffectivenessRequest(bool IsEffective, string VerificationSummary);
+
+public sealed record AttachCapaWorkflowRequest(Guid WorkflowInstanceId);
+
+public sealed record ReopenCapaRequest(string Reason);

@@ -106,6 +106,38 @@ All notable changes to Compliance 360 will be documented in this file.
 - Evidence Integrity: APPROVED, stored file metadata, content type, size, SHA-256 hash, and upload actor captured
 - Status: APPROVED
 
+## v0.13.0-capa-management-enterprise - 2026-06-20
+
+### Added
+
+- Implemented CAPA Management Enterprise with CAPA lifecycle, classification, ownership, approvers, root cause analysis, 5 Why, Ishikawa/Fishbone, containment actions, corrective actions, preventive actions, follow-up, overdue escalation, effectiveness verification, closure approval, reopening, evidence, attachments, history, dashboard metrics, search, pagination, and export descriptors.
+- Added integrations by reference for Audit Management findings/non-conformities/recommendations, suppliers, documents/evidences, workflow instances, notification follow-up surface, and AuditLog traceability.
+- Added tenant-scoped API v1 endpoints for CAPA creation, classification, assignment, approvers, RCA, 5 Why, Ishikawa, containment/corrective/preventive actions, evidence, attachments, follow-up, overdue escalation, effectiveness, workflow attachment, closure approval, reopening, search, dashboard, and export.
+- Added security policies `Capa.Manage`, `Capa.Read`, `Capa.Approve`, and `Capa.Close`.
+- Added EF Core repository, PostgreSQL mappings, tenant-scoped indexes, aggregate graph persistence, and migration `AddCapaManagement`.
+- Added tests covering complete CAPA lifecycle, workflow/effectiveness/closure paths, multitenant search/dashboard/export, audit log persistence, security policy surface, domain rules, evidence integrity, negative paths, and EF repository persistence.
+
+### Validation
+
+- Build completed successfully with zero warnings and zero errors.
+- Test suite completed successfully: 150 passed.
+- CAPA Management module coverage reached 98.55% line coverage and 97.27% branch coverage.
+- Linter check completed with no errors.
+
+### Module Completion Certificate
+
+- Module: CAPA Management Enterprise
+- Date: 2026-06-20
+- Coverage: 98.55% line, 97.27% branch
+- Tests: 150 passed
+- Build: APPROVED, 0 warnings, 0 errors
+- Security: APPROVED, `Capa.Manage`, `Capa.Read`, `Capa.Approve`, and `Capa.Close` policies implemented
+- Multitenant: APPROVED, tenant-scoped repositories, filters, indexes, dashboard, export, and tenant isolation tests
+- Audit: APPROVED, CAPA create/update/close/reopen/export actions persisted to append-only `AuditLog`
+- Integrations: APPROVED, Audit Management, Supplier Management, Document Management, Workflow Engine, Notification follow-up surface, and AuditLog integration points implemented
+- Evidence Integrity: APPROVED, stored file metadata, content type, size, SHA-256 hash, and upload actor captured
+- Status: APPROVED
+
 ## v0.7.0-notification-foundation - 2026-06-20
 
 ### Added

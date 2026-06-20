@@ -1,6 +1,7 @@
 using Compliance360.Application;
 using Compliance360.Domain.Audit;
 using Compliance360.Domain.AuditManagement;
+using Compliance360.Domain.CapaManagement;
 using Compliance360.Domain.Common;
 using Compliance360.Domain.Documents;
 using Compliance360.Domain.Identity;
@@ -148,6 +149,30 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
 
     public DbSet<AuditAttachment> AuditAttachments => Set<AuditAttachment>();
 
+    public DbSet<Capa> Capas => Set<Capa>();
+
+    public DbSet<CapaOwner> CapaOwners => Set<CapaOwner>();
+
+    public DbSet<CapaApprover> CapaApprovers => Set<CapaApprover>();
+
+    public DbSet<CapaRootCause> CapaRootCauses => Set<CapaRootCause>();
+
+    public DbSet<CapaCauseAnalysis> CapaCauseAnalyses => Set<CapaCauseAnalysis>();
+
+    public DbSet<CapaContainmentAction> CapaContainmentActions => Set<CapaContainmentAction>();
+
+    public DbSet<CapaCorrectiveAction> CapaCorrectiveActions => Set<CapaCorrectiveAction>();
+
+    public DbSet<CapaPreventiveAction> CapaPreventiveActions => Set<CapaPreventiveAction>();
+
+    public DbSet<CapaEffectivenessCheck> CapaEffectivenessChecks => Set<CapaEffectivenessCheck>();
+
+    public DbSet<CapaEvidence> CapaEvidence => Set<CapaEvidence>();
+
+    public DbSet<CapaAttachment> CapaAttachments => Set<CapaAttachment>();
+
+    public DbSet<CapaHistory> CapaHistory => Set<CapaHistory>();
+
     public override int SaveChanges()
     {
         ApplyFoundationRules();
@@ -174,6 +199,7 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
         ConfigureTechnicalSheets(modelBuilder);
         ConfigureSuppliers(modelBuilder);
         ConfigureAuditManagement(modelBuilder);
+        ConfigureCapaManagement(modelBuilder);
     }
 
     private static void ConfigureTenantManagement(ModelBuilder modelBuilder)
@@ -877,6 +903,165 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.Property(attachment => attachment.ContentType).HasMaxLength(120).IsRequired();
             entity.Property(attachment => attachment.Sha256Hash).HasMaxLength(128).IsRequired();
             entity.HasIndex(attachment => new { attachment.TenantId, attachment.AuditId });
+        });
+    }
+
+    private static void ConfigureCapaManagement(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Capa>(entity =>
+        {
+            entity.ToTable("capas");
+            entity.HasKey(capa => capa.Id);
+            entity.Property(capa => capa.Title).HasMaxLength(220).IsRequired();
+            entity.Property(capa => capa.Code).HasMaxLength(100).IsRequired();
+            entity.Property(capa => capa.Description).HasMaxLength(2_000).IsRequired();
+            entity.Property(capa => capa.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(capa => capa.Priority).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(capa => capa.RiskLevel).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(capa => capa.SourceType).HasConversion<string>().HasMaxLength(60).IsRequired();
+            entity.HasIndex(capa => new { capa.TenantId, capa.Code }).IsUnique();
+            entity.HasIndex(capa => new { capa.TenantId, capa.Status, capa.Priority, capa.RiskLevel });
+            entity.HasIndex(capa => new { capa.TenantId, capa.SupplierId });
+            entity.HasIndex(capa => new { capa.TenantId, capa.AuditId });
+            entity.HasIndex(capa => new { capa.TenantId, capa.CommitmentDueAtUtc });
+            entity.HasMany(capa => capa.Owners).WithOne().HasForeignKey(owner => owner.CapaId);
+            entity.HasMany(capa => capa.Approvers).WithOne().HasForeignKey(approver => approver.CapaId);
+            entity.HasMany(capa => capa.RootCauses).WithOne().HasForeignKey(rootCause => rootCause.CapaId);
+            entity.HasMany(capa => capa.CauseAnalyses).WithOne().HasForeignKey(analysis => analysis.CapaId);
+            entity.HasMany(capa => capa.ContainmentActions).WithOne().HasForeignKey(action => action.CapaId);
+            entity.HasMany(capa => capa.CorrectiveActions).WithOne().HasForeignKey(action => action.CapaId);
+            entity.HasMany(capa => capa.PreventiveActions).WithOne().HasForeignKey(action => action.CapaId);
+            entity.HasMany(capa => capa.EffectivenessChecks).WithOne().HasForeignKey(check => check.CapaId);
+            entity.HasMany(capa => capa.Evidence).WithOne().HasForeignKey(evidence => evidence.CapaId);
+            entity.HasMany(capa => capa.Attachments).WithOne().HasForeignKey(attachment => attachment.CapaId);
+            entity.HasMany(capa => capa.History).WithOne().HasForeignKey(history => history.CapaId);
+            entity.Navigation(capa => capa.Owners).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(capa => capa.Approvers).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(capa => capa.RootCauses).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(capa => capa.CauseAnalyses).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(capa => capa.ContainmentActions).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(capa => capa.CorrectiveActions).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(capa => capa.PreventiveActions).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(capa => capa.EffectivenessChecks).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(capa => capa.Evidence).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(capa => capa.Attachments).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(capa => capa.History).UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+
+        modelBuilder.Entity<CapaOwner>(entity =>
+        {
+            entity.ToTable("capa_owners");
+            entity.HasKey(owner => owner.Id);
+            entity.HasIndex(owner => new { owner.TenantId, owner.UserId, owner.IsActive, owner.DueAtUtc });
+            entity.HasIndex(owner => new { owner.TenantId, owner.CapaId, owner.UserId }).IsUnique();
+        });
+
+        modelBuilder.Entity<CapaApprover>(entity =>
+        {
+            entity.ToTable("capa_approvers");
+            entity.HasKey(approver => approver.Id);
+            entity.HasIndex(approver => new { approver.TenantId, approver.CapaId, approver.UserId }).IsUnique();
+        });
+
+        modelBuilder.Entity<CapaRootCause>(entity =>
+        {
+            entity.ToTable("capa_root_causes");
+            entity.HasKey(rootCause => rootCause.Id);
+            entity.Property(rootCause => rootCause.Description).HasMaxLength(2_000).IsRequired();
+            entity.Property(rootCause => rootCause.Method).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.HasIndex(rootCause => new { rootCause.TenantId, rootCause.CapaId, rootCause.Method });
+        });
+
+        modelBuilder.Entity<CapaCauseAnalysis>(entity =>
+        {
+            entity.ToTable("capa_cause_analyses");
+            entity.HasKey(analysis => analysis.Id);
+            entity.Property(analysis => analysis.Method).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(analysis => analysis.Why1).HasMaxLength(500);
+            entity.Property(analysis => analysis.Why2).HasMaxLength(500);
+            entity.Property(analysis => analysis.Why3).HasMaxLength(500);
+            entity.Property(analysis => analysis.Why4).HasMaxLength(500);
+            entity.Property(analysis => analysis.Why5).HasMaxLength(500);
+            entity.Property(analysis => analysis.People).HasMaxLength(500);
+            entity.Property(analysis => analysis.Process).HasMaxLength(500);
+            entity.Property(analysis => analysis.Equipment).HasMaxLength(500);
+            entity.Property(analysis => analysis.Material).HasMaxLength(500);
+            entity.Property(analysis => analysis.Environment).HasMaxLength(500);
+            entity.Property(analysis => analysis.Measurement).HasMaxLength(500);
+            entity.HasIndex(analysis => new { analysis.TenantId, analysis.CapaId, analysis.Method });
+        });
+
+        ConfigureCapaActions(modelBuilder);
+
+        modelBuilder.Entity<CapaEffectivenessCheck>(entity =>
+        {
+            entity.ToTable("capa_effectiveness_checks");
+            entity.HasKey(check => check.Id);
+            entity.Property(check => check.VerificationSummary).HasMaxLength(1_000).IsRequired();
+            entity.HasIndex(check => new { check.TenantId, check.CapaId, check.VerifiedAtUtc });
+            entity.HasIndex(check => new { check.TenantId, check.IsEffective });
+        });
+
+        modelBuilder.Entity<CapaEvidence>(entity =>
+        {
+            entity.ToTable("capa_evidence");
+            entity.HasKey(evidence => evidence.Id);
+            entity.Property(evidence => evidence.FileName).HasMaxLength(260).IsRequired();
+            entity.Property(evidence => evidence.ContentType).HasMaxLength(120).IsRequired();
+            entity.Property(evidence => evidence.Sha256Hash).HasMaxLength(128).IsRequired();
+            entity.HasIndex(evidence => new { evidence.TenantId, evidence.CapaId });
+            entity.HasIndex(evidence => new { evidence.TenantId, evidence.Sha256Hash });
+        });
+
+        modelBuilder.Entity<CapaAttachment>(entity =>
+        {
+            entity.ToTable("capa_attachments");
+            entity.HasKey(attachment => attachment.Id);
+            entity.Property(attachment => attachment.FileName).HasMaxLength(260).IsRequired();
+            entity.Property(attachment => attachment.ContentType).HasMaxLength(120).IsRequired();
+            entity.Property(attachment => attachment.Sha256Hash).HasMaxLength(128).IsRequired();
+            entity.HasIndex(attachment => new { attachment.TenantId, attachment.CapaId });
+        });
+
+        modelBuilder.Entity<CapaHistory>(entity =>
+        {
+            entity.ToTable("capa_history");
+            entity.HasKey(history => history.Id);
+            entity.Property(history => history.Action).HasMaxLength(1_200).IsRequired();
+            entity.HasIndex(history => new { history.TenantId, history.CapaId, history.OccurredAtUtc });
+        });
+    }
+
+    private static void ConfigureCapaActions(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<CapaContainmentAction>(entity =>
+        {
+            entity.ToTable("capa_containment_actions");
+            entity.HasKey(action => action.Id);
+            entity.Property(action => action.Description).HasMaxLength(1_000).IsRequired();
+            entity.Property(action => action.Type).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(action => action.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.HasIndex(action => new { action.TenantId, action.CapaId, action.Status, action.DueAtUtc });
+        });
+
+        modelBuilder.Entity<CapaCorrectiveAction>(entity =>
+        {
+            entity.ToTable("capa_corrective_actions");
+            entity.HasKey(action => action.Id);
+            entity.Property(action => action.Description).HasMaxLength(1_000).IsRequired();
+            entity.Property(action => action.Type).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(action => action.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.HasIndex(action => new { action.TenantId, action.CapaId, action.Status, action.DueAtUtc });
+        });
+
+        modelBuilder.Entity<CapaPreventiveAction>(entity =>
+        {
+            entity.ToTable("capa_preventive_actions");
+            entity.HasKey(action => action.Id);
+            entity.Property(action => action.Description).HasMaxLength(1_000).IsRequired();
+            entity.Property(action => action.Type).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(action => action.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.HasIndex(action => new { action.TenantId, action.CapaId, action.Status, action.DueAtUtc });
         });
     }
 

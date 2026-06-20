@@ -49,7 +49,12 @@ public enum AuditAction
     AuditCreated = 42,
     AuditUpdated = 43,
     AuditClosed = 44,
-    AuditReopened = 45
+    AuditReopened = 45,
+    CapaCreated = 46,
+    CapaUpdated = 47,
+    CapaApproved = 48,
+    CapaClosed = 49,
+    CapaReopened = 50
 }
 
 public enum AuditCategory
@@ -68,7 +73,8 @@ public enum AuditCategory
     Security = 11,
     Administration = 12,
     System = 13,
-    AuditManagement = 14
+    AuditManagement = 14,
+    CapaManagement = 15
 }
 
 public sealed record AuditContext(
@@ -268,6 +274,7 @@ public sealed class AuditLog : Entity
             AuditAction.AdministrativeEvent => AuditCategory.Administration,
             AuditAction.NotificationQueued or AuditAction.NotificationSent or AuditAction.NotificationFailed => AuditCategory.System,
             AuditAction.AuditCreated or AuditAction.AuditUpdated or AuditAction.AuditClosed or AuditAction.AuditReopened => AuditCategory.AuditManagement,
+            AuditAction.CapaCreated or AuditAction.CapaUpdated or AuditAction.CapaApproved or AuditAction.CapaClosed or AuditAction.CapaReopened => AuditCategory.CapaManagement,
             _ => AuditCategory.System
         };
     }
