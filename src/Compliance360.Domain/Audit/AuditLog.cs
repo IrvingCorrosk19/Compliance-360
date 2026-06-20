@@ -59,7 +59,11 @@ public enum AuditAction
     RiskUpdated = 52,
     RiskApproved = 53,
     RiskClosed = 54,
-    RiskReopened = 55
+    RiskReopened = 55,
+    IndicatorCreated = 56,
+    IndicatorUpdated = 57,
+    IndicatorApproved = 58,
+    IndicatorExported = 59
 }
 
 public enum AuditCategory
@@ -80,7 +84,8 @@ public enum AuditCategory
     System = 13,
     AuditManagement = 14,
     CapaManagement = 15,
-    RiskManagement = 16
+    RiskManagement = 16,
+    QualityIndicators = 17
 }
 
 public sealed record AuditContext(
@@ -282,6 +287,7 @@ public sealed class AuditLog : Entity
             AuditAction.AuditCreated or AuditAction.AuditUpdated or AuditAction.AuditClosed or AuditAction.AuditReopened => AuditCategory.AuditManagement,
             AuditAction.CapaCreated or AuditAction.CapaUpdated or AuditAction.CapaApproved or AuditAction.CapaClosed or AuditAction.CapaReopened => AuditCategory.CapaManagement,
             AuditAction.RiskCreated or AuditAction.RiskUpdated or AuditAction.RiskApproved or AuditAction.RiskClosed or AuditAction.RiskReopened => AuditCategory.RiskManagement,
+            AuditAction.IndicatorCreated or AuditAction.IndicatorUpdated or AuditAction.IndicatorApproved or AuditAction.IndicatorExported => AuditCategory.QualityIndicators,
             _ => AuditCategory.System
         };
     }

@@ -17,6 +17,10 @@ public static class PermissionPolicies
     public const string RiskRead = "Risk.Read";
     public const string RiskApprove = "Risk.Approve";
     public const string RiskClose = "Risk.Close";
+    public const string IndicatorManage = "Indicator.Manage";
+    public const string IndicatorRead = "Indicator.Read";
+    public const string IndicatorApprove = "Indicator.Approve";
+    public const string IndicatorExport = "Indicator.Export";
     public const string StorageManage = "Storage.Manage";
     public const string NotificationManage = "Notification.Manage";
     public const string DocumentManage = "Document.Manage";
@@ -39,6 +43,10 @@ public static class PermissionPolicies
         options.AddPolicy(RiskRead, policy => policy.RequireAssertion(context => HasPermission(context, "RISK.READ") || HasPermission(context, "RISK.MANAGE")));
         options.AddPolicy(RiskApprove, policy => policy.RequireAssertion(context => HasPermission(context, "RISK.APPROVE") || HasPermission(context, "RISK.MANAGE")));
         options.AddPolicy(RiskClose, policy => policy.RequireAssertion(context => HasPermission(context, "RISK.CLOSE") || HasPermission(context, "RISK.MANAGE")));
+        options.AddPolicy(IndicatorManage, policy => policy.RequireAssertion(context => HasPermission(context, "INDICATOR.MANAGE")));
+        options.AddPolicy(IndicatorRead, policy => policy.RequireAssertion(context => HasPermission(context, "INDICATOR.READ") || HasPermission(context, "INDICATOR.MANAGE")));
+        options.AddPolicy(IndicatorApprove, policy => policy.RequireAssertion(context => HasPermission(context, "INDICATOR.APPROVE") || HasPermission(context, "INDICATOR.MANAGE")));
+        options.AddPolicy(IndicatorExport, policy => policy.RequireAssertion(context => HasPermission(context, "INDICATOR.EXPORT") || HasPermission(context, "INDICATOR.MANAGE")));
         options.AddPolicy(StorageManage, policy => policy.RequireAssertion(context => HasPermission(context, "STORAGE.MANAGE")));
         options.AddPolicy(NotificationManage, policy => policy.RequireAssertion(context => HasPermission(context, "NOTIFICATION.MANAGE")));
         options.AddPolicy(DocumentManage, policy => policy.RequireAssertion(context => HasPermission(context, "DOCUMENT.MANAGE")));

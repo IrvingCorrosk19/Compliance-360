@@ -6,6 +6,7 @@ using Compliance360.Application.Documents;
 using Compliance360.Application.Identity;
 using Compliance360.Application.Mfa;
 using Compliance360.Application.Notifications;
+using Compliance360.Application.QualityIndicators;
 using Compliance360.Application.Rbac;
 using Compliance360.Application.RiskManagement;
 using Compliance360.Application.Storage;
@@ -17,6 +18,7 @@ using Compliance360.Domain.Documents;
 using Compliance360.Domain.AuditManagement;
 using Compliance360.Domain.CapaManagement;
 using Compliance360.Domain.Identity;
+using Compliance360.Domain.QualityIndicators;
 using Compliance360.Domain.RiskManagement;
 using Compliance360.Domain.Suppliers;
 using Compliance360.Domain.TechnicalSheets;
@@ -47,6 +49,7 @@ public static class FoundationEndpoints
         MapAuditManagement(api);
         MapCapaManagement(api);
         MapRiskManagement(api);
+        MapQualityIndicators(api);
 
         return api;
     }
@@ -918,6 +921,80 @@ public static class FoundationEndpoints
         risks.MapPost("/export", async (Guid tenantId, RiskStatus? status, RiskType? type, RiskLevel? level, string? format, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.ExportAsync(new RiskExportQuery(ApiContext.TenantId(httpContext, tenantId), status, type, level, format ?? "csv", ApiContext.UserId(httpContext)), cancellationToken)))
             .RequireAuthorization(PermissionPolicies.RiskRead);
+    }
+
+    private static void MapQualityIndicators(RouteGroupBuilder api)
+    {
+        var indicators = api.MapGroup("/tenants/{tenantId:guid}/indicators")
+            .WithTags("Quality Indicators");
+
+        indicators.MapPost("/categories", async (Guid tenantId, CreateIndicatorCategoryRequest request, HttpContext httpContext, IQualityIndicatorService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CreateCategoryAsync(new CreateIndicatorCategoryCommand(ApiContext.TenantId(httpContext, tenantId), request.Name, request.Code, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.IndicatorManage);
+
+        indicators.MapPost("/", async (Guid tenantId, CreateQualityIndicatorRequest request, HttpContext httpContext, IQualityIndicatorService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CreateIndicatorAsync(new CreateQualityIndicatorCommand(ApiContext.TenantId(httpContext, tenantId), request.CategoryId, request.Name, request.Code, request.Description, request.Type, request.Frequency, request.CalculationType, request.Unit, request.SupplierId, request.AuditId, request.CapaId, request.RiskId, request.DocumentId, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.IndicatorManage);
+
+        indicators.MapPost("/{indicatorId:guid}/activate", async (Guid tenantId, Guid indicatorId, HttpContext httpContext, IQualityIndicatorService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ActivateAsync(new IndicatorActionCommand(ApiContext.TenantId(httpContext, tenantId), indicatorId, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.IndicatorManage);
+
+        indicators.MapPost("/{indicatorId:guid}/formula", async (Guid tenantId, Guid indicatorId, DefineIndicatorFormulaRequest request, HttpContext httpContext, IQualityIndicatorService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.DefineFormulaAsync(new DefineIndicatorFormulaCommand(ApiContext.TenantId(httpContext, tenantId), indicatorId, request.Expression, request.CalculationType, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.IndicatorManage);
+
+        indicators.MapPost("/{indicatorId:guid}/target", async (Guid tenantId, Guid indicatorId, DefineIndicatorTargetRequest request, HttpContext httpContext, IQualityIndicatorService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.DefineTargetAsync(new DefineIndicatorTargetCommand(ApiContext.TenantId(httpContext, tenantId), indicatorId, request.TargetValue, request.EffectiveFromUtc, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.IndicatorManage);
+
+        indicators.MapPost("/{indicatorId:guid}/threshold", async (Guid tenantId, Guid indicatorId, DefineIndicatorThresholdRequest request, HttpContext httpContext, IQualityIndicatorService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.DefineThresholdAsync(new DefineIndicatorThresholdCommand(ApiContext.TenantId(httpContext, tenantId), indicatorId, request.WarningMinimum, request.CriticalMinimum, request.ExcellentMinimum, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.IndicatorManage);
+
+        indicators.MapPost("/{indicatorId:guid}/periods", async (Guid tenantId, Guid indicatorId, AddIndicatorPeriodRequest request, HttpContext httpContext, IQualityIndicatorService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddPeriodAsync(new AddIndicatorPeriodCommand(ApiContext.TenantId(httpContext, tenantId), indicatorId, request.Year, request.PeriodNumber, request.StartUtc, request.EndUtc, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.IndicatorManage);
+
+        indicators.MapPost("/{indicatorId:guid}/processes", async (Guid tenantId, Guid indicatorId, AssociateIndicatorProcessRequest request, HttpContext httpContext, IQualityIndicatorService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AssociateProcessAsync(new AssociateIndicatorProcessCommand(ApiContext.TenantId(httpContext, tenantId), indicatorId, request.ProcessName, request.Area, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.IndicatorManage);
+
+        indicators.MapPost("/{indicatorId:guid}/measurements", async (Guid tenantId, Guid indicatorId, CaptureIndicatorMeasurementRequest request, HttpContext httpContext, IQualityIndicatorService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CaptureMeasurementAsync(new CaptureIndicatorMeasurementCommand(ApiContext.TenantId(httpContext, tenantId), indicatorId, request.PeriodId, request.Numerator, request.Denominator, request.IsAutomatic, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.IndicatorManage);
+
+        indicators.MapPost("/{indicatorId:guid}/results", async (Guid tenantId, Guid indicatorId, CalculateIndicatorResultRequest request, HttpContext httpContext, IQualityIndicatorService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CalculateResultAsync(new CalculateIndicatorResultCommand(ApiContext.TenantId(httpContext, tenantId), indicatorId, request.PeriodId, request.MeasurementId, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.IndicatorManage);
+
+        indicators.MapPost("/{indicatorId:guid}/attachments", async (Guid tenantId, Guid indicatorId, AddIndicatorAttachmentRequest request, HttpContext httpContext, IQualityIndicatorService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddAttachmentAsync(new AddIndicatorAttachmentCommand(ApiContext.TenantId(httpContext, tenantId), indicatorId, request.StoredFileId, request.FileName, request.ContentType, request.SizeBytes, request.Sha256Hash, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.IndicatorManage);
+
+        indicators.MapPost("/{indicatorId:guid}/workflow", async (Guid tenantId, Guid indicatorId, AttachIndicatorWorkflowRequest request, HttpContext httpContext, IQualityIndicatorService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AttachWorkflowAsync(new AttachIndicatorWorkflowCommand(ApiContext.TenantId(httpContext, tenantId), indicatorId, request.WorkflowInstanceId, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.WorkflowManage);
+
+        indicators.MapPost("/{indicatorId:guid}/approve", async (Guid tenantId, Guid indicatorId, HttpContext httpContext, IQualityIndicatorService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ApproveAsync(new IndicatorActionCommand(ApiContext.TenantId(httpContext, tenantId), indicatorId, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.IndicatorApprove);
+
+        indicators.MapGet("/", async (Guid tenantId, string? searchText, IndicatorStatus? status, IndicatorType? type, IndicatorFrequency? frequency, Guid? supplierId, Guid? auditId, Guid? capaId, Guid? riskId, int page, int pageSize, HttpContext httpContext, IQualityIndicatorService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.SearchAsync(new IndicatorSearchQuery(ApiContext.TenantId(httpContext, tenantId), searchText, status, type, frequency, supplierId, auditId, capaId, riskId, page, pageSize), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.IndicatorRead);
+
+        indicators.MapGet("/dashboard", async (Guid tenantId, HttpContext httpContext, IQualityIndicatorService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GetDashboardAsync(ApiContext.TenantId(httpContext, tenantId), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.IndicatorRead);
+
+        indicators.MapGet("/trends", async (Guid tenantId, Guid? indicatorId, HttpContext httpContext, IQualityIndicatorService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GetTrendsAsync(ApiContext.TenantId(httpContext, tenantId), indicatorId, cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.IndicatorRead);
+
+        indicators.MapPost("/export", async (Guid tenantId, IndicatorStatus? status, IndicatorType? type, string? format, HttpContext httpContext, IQualityIndicatorService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ExportAsync(new IndicatorExportQuery(ApiContext.TenantId(httpContext, tenantId), status, type, format ?? "csv", ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.IndicatorExport);
     }
 
     private static IReadOnlyCollection<string> Permissions(HttpContext httpContext)

@@ -2,6 +2,34 @@
 
 All notable changes to Compliance 360 will be documented in this file.
 
+## v0.15.0-quality-indicators-enterprise - 2026-06-20
+
+### QUALITY INDICATORS COMPLETION REPORT
+
+- Implemented Quality Indicators Enterprise with ISO 9001, BPM, HACCP, operational, strategic, process, supplier, audit, CAPA, and risk indicator support.
+- Added domain entities for indicators, categories, formulas, measurements, targets, thresholds, results, periods, processes, dashboards, alerts, trends, history, and attachments.
+- Implemented calculations for monthly, quarterly, semiannual, annual, accumulated, average, percentage, ratio, and custom formulas.
+- Implemented manual and automatic measurement capture, targets, thresholds, semaforizacion, trends, alerts, historical traceability, comparative dashboard data, trend data, search, pagination, and export descriptors.
+- Implemented integrations through supplier/audit/CAPA/risk/document references, workflow attachment, notification-ready alerts, and append-only AuditLog events.
+- Implemented API v1 under `/api/v1/tenants/{tenantId}/indicators` with creation, filters, searches, pagination, dashboard data, trend data, export descriptors, and Swagger/OpenAPI-discoverable contracts.
+- Implemented security policies: `Indicator.Manage`, `Indicator.Read`, `Indicator.Approve`, and `Indicator.Export`.
+- Implemented tenant isolation through tenant-scoped aggregates, repository queries, unique indexes, dashboard/trend/export filters, and multitenant tests.
+- Implemented EF Core persistence and migration `AddQualityIndicators`.
+
+### Validation
+
+- Build completed successfully with zero warnings and zero errors.
+- Test suite completed successfully: 162 passed.
+- Quality Indicators module coverage reached 96.67% line coverage and 90.76% branch coverage.
+- Risks: no open functional, security, multitenant, or coverage risks detected.
+- Evidence: build, full test suite, module coverage, EF migration generation, tenant isolation tests, audit log tests, dashboard/trend/export tests.
+
+### Module Completion Certificate
+
+- Module: Quality Indicators Enterprise
+- Status: MODULE APPROVED
+- Tag: `v0.15.0-quality-indicators-enterprise`
+
 ## v0.8.0-platform-documents-enterprise - 2026-06-20
 
 ### Added

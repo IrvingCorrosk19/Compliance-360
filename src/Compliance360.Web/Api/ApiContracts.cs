@@ -4,6 +4,7 @@ using Compliance360.Domain.CapaManagement;
 using Compliance360.Domain.Documents;
 using Compliance360.Domain.Identity;
 using Compliance360.Domain.Notifications;
+using Compliance360.Domain.QualityIndicators;
 using Compliance360.Domain.RiskManagement;
 using Compliance360.Domain.Suppliers;
 using Compliance360.Domain.TenantManagement;
@@ -214,3 +215,25 @@ public sealed record AddRiskIndicatorRequest(string Name, decimal Value, decimal
 public sealed record AttachRiskWorkflowRequest(Guid WorkflowInstanceId);
 
 public sealed record ReopenRiskRequest(string Reason);
+
+public sealed record CreateIndicatorCategoryRequest(string Name, string Code);
+
+public sealed record CreateQualityIndicatorRequest(Guid CategoryId, string Name, string Code, string Description, IndicatorType Type, IndicatorFrequency Frequency, IndicatorCalculationType CalculationType, string Unit, Guid? SupplierId, Guid? AuditId, Guid? CapaId, Guid? RiskId, Guid? DocumentId);
+
+public sealed record DefineIndicatorFormulaRequest(string Expression, IndicatorCalculationType CalculationType);
+
+public sealed record DefineIndicatorTargetRequest(decimal TargetValue, DateTimeOffset EffectiveFromUtc);
+
+public sealed record DefineIndicatorThresholdRequest(decimal WarningMinimum, decimal CriticalMinimum, decimal ExcellentMinimum);
+
+public sealed record AddIndicatorPeriodRequest(int Year, int PeriodNumber, DateTimeOffset StartUtc, DateTimeOffset EndUtc);
+
+public sealed record AssociateIndicatorProcessRequest(string ProcessName, string Area);
+
+public sealed record CaptureIndicatorMeasurementRequest(Guid PeriodId, decimal Numerator, decimal? Denominator, bool IsAutomatic);
+
+public sealed record CalculateIndicatorResultRequest(Guid PeriodId, Guid MeasurementId);
+
+public sealed record AddIndicatorAttachmentRequest(Guid StoredFileId, string FileName, string ContentType, long SizeBytes, string Sha256Hash);
+
+public sealed record AttachIndicatorWorkflowRequest(Guid WorkflowInstanceId);

@@ -6,6 +6,7 @@ using Compliance360.Domain.Common;
 using Compliance360.Domain.Documents;
 using Compliance360.Domain.Identity;
 using Compliance360.Domain.Notifications;
+using Compliance360.Domain.QualityIndicators;
 using Compliance360.Domain.RiskManagement;
 using Compliance360.Domain.Storage;
 using Compliance360.Domain.Suppliers;
@@ -200,6 +201,32 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
 
     public DbSet<RiskHistory> RiskHistory => Set<RiskHistory>();
 
+    public DbSet<IndicatorCategory> IndicatorCategories => Set<IndicatorCategory>();
+
+    public DbSet<QualityIndicator> QualityIndicators => Set<QualityIndicator>();
+
+    public DbSet<IndicatorFormula> IndicatorFormulas => Set<IndicatorFormula>();
+
+    public DbSet<IndicatorMeasurement> IndicatorMeasurements => Set<IndicatorMeasurement>();
+
+    public DbSet<IndicatorTarget> IndicatorTargets => Set<IndicatorTarget>();
+
+    public DbSet<IndicatorThreshold> IndicatorThresholds => Set<IndicatorThreshold>();
+
+    public DbSet<IndicatorResult> IndicatorResults => Set<IndicatorResult>();
+
+    public DbSet<IndicatorPeriod> IndicatorPeriods => Set<IndicatorPeriod>();
+
+    public DbSet<IndicatorProcess> IndicatorProcesses => Set<IndicatorProcess>();
+
+    public DbSet<IndicatorAlert> IndicatorAlerts => Set<IndicatorAlert>();
+
+    public DbSet<IndicatorTrend> IndicatorTrends => Set<IndicatorTrend>();
+
+    public DbSet<IndicatorHistory> IndicatorHistory => Set<IndicatorHistory>();
+
+    public DbSet<IndicatorAttachment> IndicatorAttachments => Set<IndicatorAttachment>();
+
     public override int SaveChanges()
     {
         ApplyFoundationRules();
@@ -228,6 +255,7 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
         ConfigureAuditManagement(modelBuilder);
         ConfigureCapaManagement(modelBuilder);
         ConfigureRiskManagement(modelBuilder);
+        ConfigureQualityIndicators(modelBuilder);
     }
 
     private static void ConfigureTenantManagement(ModelBuilder modelBuilder)
@@ -1243,6 +1271,154 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.HasKey(history => history.Id);
             entity.Property(history => history.Action).HasMaxLength(1_200).IsRequired();
             entity.HasIndex(history => new { history.TenantId, history.RiskId, history.OccurredAtUtc });
+        });
+    }
+
+    private static void ConfigureQualityIndicators(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<IndicatorCategory>(entity =>
+        {
+            entity.ToTable("indicator_categories");
+            entity.HasKey(category => category.Id);
+            entity.Property(category => category.Name).HasMaxLength(180).IsRequired();
+            entity.Property(category => category.Code).HasMaxLength(80).IsRequired();
+            entity.HasIndex(category => new { category.TenantId, category.Code }).IsUnique();
+        });
+
+        modelBuilder.Entity<QualityIndicator>(entity =>
+        {
+            entity.ToTable("quality_indicators");
+            entity.HasKey(indicator => indicator.Id);
+            entity.Property(indicator => indicator.Name).HasMaxLength(220).IsRequired();
+            entity.Property(indicator => indicator.Code).HasMaxLength(100).IsRequired();
+            entity.Property(indicator => indicator.Description).HasMaxLength(2_000).IsRequired();
+            entity.Property(indicator => indicator.Type).HasConversion<string>().HasMaxLength(60).IsRequired();
+            entity.Property(indicator => indicator.Frequency).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(indicator => indicator.CalculationType).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(indicator => indicator.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(indicator => indicator.Unit).HasMaxLength(40).IsRequired();
+            entity.HasIndex(indicator => new { indicator.TenantId, indicator.Code }).IsUnique();
+            entity.HasIndex(indicator => new { indicator.TenantId, indicator.Status, indicator.Type, indicator.Frequency });
+            entity.HasIndex(indicator => new { indicator.TenantId, indicator.SupplierId });
+            entity.HasIndex(indicator => new { indicator.TenantId, indicator.AuditId });
+            entity.HasIndex(indicator => new { indicator.TenantId, indicator.CapaId });
+            entity.HasIndex(indicator => new { indicator.TenantId, indicator.RiskId });
+            entity.HasMany(indicator => indicator.Formulas).WithOne().HasForeignKey(formula => formula.IndicatorId);
+            entity.HasMany(indicator => indicator.Targets).WithOne().HasForeignKey(target => target.IndicatorId);
+            entity.HasMany(indicator => indicator.Thresholds).WithOne().HasForeignKey(threshold => threshold.IndicatorId);
+            entity.HasMany(indicator => indicator.Measurements).WithOne().HasForeignKey(measurement => measurement.IndicatorId);
+            entity.HasMany(indicator => indicator.Results).WithOne().HasForeignKey(result => result.IndicatorId);
+            entity.HasMany(indicator => indicator.Periods).WithOne().HasForeignKey(period => period.IndicatorId);
+            entity.HasMany(indicator => indicator.Processes).WithOne().HasForeignKey(process => process.IndicatorId);
+            entity.HasMany(indicator => indicator.Alerts).WithOne().HasForeignKey(alert => alert.IndicatorId);
+            entity.HasMany(indicator => indicator.Trends).WithOne().HasForeignKey(trend => trend.IndicatorId);
+            entity.HasMany(indicator => indicator.History).WithOne().HasForeignKey(history => history.IndicatorId);
+            entity.HasMany(indicator => indicator.Attachments).WithOne().HasForeignKey(attachment => attachment.IndicatorId);
+            entity.Navigation(indicator => indicator.Formulas).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(indicator => indicator.Targets).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(indicator => indicator.Thresholds).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(indicator => indicator.Measurements).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(indicator => indicator.Results).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(indicator => indicator.Periods).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(indicator => indicator.Processes).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(indicator => indicator.Alerts).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(indicator => indicator.Trends).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(indicator => indicator.History).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(indicator => indicator.Attachments).UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+
+        modelBuilder.Entity<IndicatorFormula>(entity =>
+        {
+            entity.ToTable("indicator_formulas");
+            entity.HasKey(formula => formula.Id);
+            entity.Property(formula => formula.Expression).HasMaxLength(1_000).IsRequired();
+            entity.Property(formula => formula.CalculationType).HasConversion<string>().HasMaxLength(40).IsRequired();
+        });
+
+        modelBuilder.Entity<IndicatorTarget>(entity =>
+        {
+            entity.ToTable("indicator_targets");
+            entity.HasKey(target => target.Id);
+            entity.Property(target => target.TargetValue).HasPrecision(18, 4);
+        });
+
+        modelBuilder.Entity<IndicatorThreshold>(entity =>
+        {
+            entity.ToTable("indicator_thresholds");
+            entity.HasKey(threshold => threshold.Id);
+            entity.Property(threshold => threshold.WarningMinimum).HasPrecision(18, 4);
+            entity.Property(threshold => threshold.CriticalMinimum).HasPrecision(18, 4);
+            entity.Property(threshold => threshold.ExcellentMinimum).HasPrecision(18, 4);
+        });
+
+        modelBuilder.Entity<IndicatorPeriod>(entity =>
+        {
+            entity.ToTable("indicator_periods");
+            entity.HasKey(period => period.Id);
+            entity.HasIndex(period => new { period.TenantId, period.IndicatorId, period.Year, period.PeriodNumber }).IsUnique();
+        });
+
+        modelBuilder.Entity<IndicatorProcess>(entity =>
+        {
+            entity.ToTable("indicator_processes");
+            entity.HasKey(process => process.Id);
+            entity.Property(process => process.ProcessName).HasMaxLength(180).IsRequired();
+            entity.Property(process => process.Area).HasMaxLength(160).IsRequired();
+            entity.HasIndex(process => new { process.TenantId, process.Area, process.ProcessName });
+        });
+
+        modelBuilder.Entity<IndicatorMeasurement>(entity =>
+        {
+            entity.ToTable("indicator_measurements");
+            entity.HasKey(measurement => measurement.Id);
+            entity.Property(measurement => measurement.Numerator).HasPrecision(18, 4);
+            entity.Property(measurement => measurement.Denominator).HasPrecision(18, 4);
+            entity.HasIndex(measurement => new { measurement.TenantId, measurement.IndicatorId, measurement.PeriodId });
+        });
+
+        modelBuilder.Entity<IndicatorResult>(entity =>
+        {
+            entity.ToTable("indicator_results");
+            entity.HasKey(result => result.Id);
+            entity.Property(result => result.Value).HasPrecision(18, 4);
+            entity.Property(result => result.TargetValue).HasPrecision(18, 4);
+            entity.Property(result => result.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.HasIndex(result => new { result.TenantId, result.IndicatorId, result.PeriodId, result.Status });
+        });
+
+        modelBuilder.Entity<IndicatorAlert>(entity =>
+        {
+            entity.ToTable("indicator_alerts");
+            entity.HasKey(alert => alert.Id);
+            entity.Property(alert => alert.Type).HasConversion<string>().HasMaxLength(60).IsRequired();
+            entity.HasIndex(alert => new { alert.TenantId, alert.IndicatorId, alert.Type, alert.IsAcknowledged });
+        });
+
+        modelBuilder.Entity<IndicatorTrend>(entity =>
+        {
+            entity.ToTable("indicator_trends");
+            entity.HasKey(trend => trend.Id);
+            entity.Property(trend => trend.Direction).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(trend => trend.Value).HasPrecision(18, 4);
+            entity.Property(trend => trend.PreviousValue).HasPrecision(18, 4);
+            entity.HasIndex(trend => new { trend.TenantId, trend.IndicatorId, trend.Direction });
+        });
+
+        modelBuilder.Entity<IndicatorHistory>(entity =>
+        {
+            entity.ToTable("indicator_history");
+            entity.HasKey(history => history.Id);
+            entity.Property(history => history.Action).HasMaxLength(1_200).IsRequired();
+            entity.HasIndex(history => new { history.TenantId, history.IndicatorId, history.OccurredAtUtc });
+        });
+
+        modelBuilder.Entity<IndicatorAttachment>(entity =>
+        {
+            entity.ToTable("indicator_attachments");
+            entity.HasKey(attachment => attachment.Id);
+            entity.Property(attachment => attachment.FileName).HasMaxLength(260).IsRequired();
+            entity.Property(attachment => attachment.ContentType).HasMaxLength(120).IsRequired();
+            entity.Property(attachment => attachment.Sha256Hash).HasMaxLength(128).IsRequired();
         });
     }
 
