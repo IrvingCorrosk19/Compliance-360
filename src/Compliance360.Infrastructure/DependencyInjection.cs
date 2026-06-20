@@ -1,10 +1,12 @@
 using Compliance360.Application;
 using Compliance360.Application.Audit;
 using Compliance360.Application.Identity;
+using Compliance360.Application.Mfa;
 using Compliance360.Application.Rbac;
 using Compliance360.Application.TenantManagement;
 using Compliance360.Infrastructure.Audit;
 using Compliance360.Infrastructure.Identity;
+using Compliance360.Infrastructure.Mfa;
 using Compliance360.Infrastructure.Persistence;
 using Compliance360.Infrastructure.Rbac;
 using Compliance360.Infrastructure.Security;
@@ -32,6 +34,9 @@ public static class DependencyInjection
         services.AddScoped<IAuditPermissionEvaluator, AuditPermissionEvaluator>();
         services.AddScoped<IAuditService, AuditService>();
         services.AddScoped<AuditSaveChangesInterceptor>();
+        services.AddScoped<IMfaSecretProtector, Base64MfaSecretProtector>();
+        services.AddScoped<ITotpService, TotpService>();
+        services.AddScoped<IMfaService, MfaService>();
         services.AddScoped<IPasswordPolicyValidator, PasswordPolicyValidator>();
         services.AddScoped<IPasswordHasher, Pbkdf2PasswordHasher>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
@@ -55,6 +60,7 @@ public static class DependencyInjection
             services.AddScoped<ITenantManagementRepository, EfTenantManagementRepository>();
             services.AddScoped<IIdentityRepository, EfIdentityRepository>();
             services.AddScoped<IRbacRepository, EfRbacRepository>();
+            services.AddScoped<IMfaRepository, EfMfaRepository>();
         }
 
         return services;

@@ -2,6 +2,20 @@
 
 All notable changes to Compliance 360 will be documented in this file.
 
+## v0.5.0-mfa-foundation - 2026-06-20
+
+### Added
+
+- Implemented MFA Foundation service for setup, enable, verification, and disable flows.
+- Added TOTP generation and verification, MFA secret protection, tenant-scoped MFA repository, audit integration, and failed verification tracking.
+- Added MFA coverage for setup, duplicate prevention, invalid challenge handling, enable/disable flows, tenant isolation, TOTP behavior, secret protection, and EF repository persistence.
+
+### Validation
+
+- Build completed successfully with zero warnings and zero errors.
+- Test suite completed successfully.
+- MFA module coverage reached 92.50%.
+
 ## v0.4.0-rbac-foundation - 2026-06-20
 
 ### Added

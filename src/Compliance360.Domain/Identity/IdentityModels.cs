@@ -428,8 +428,28 @@ public sealed class MfaConfiguration : TenantEntity
 
     public DateTimeOffset ConfiguredAtUtc { get; private set; }
 
+    public DateTimeOffset? LastVerifiedAtUtc { get; private set; }
+
+    public int FailedAttempts { get; private set; }
+
     public void Disable()
     {
         IsEnabled = false;
+    }
+
+    public void Enable()
+    {
+        IsEnabled = true;
+    }
+
+    public void RegisterSuccessfulVerification(DateTimeOffset verifiedAtUtc)
+    {
+        LastVerifiedAtUtc = verifiedAtUtc;
+        FailedAttempts = 0;
+    }
+
+    public void RegisterFailedVerification()
+    {
+        FailedAttempts++;
     }
 }

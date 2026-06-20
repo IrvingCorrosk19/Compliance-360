@@ -220,6 +220,7 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.Property(configuration => configuration.Method).HasConversion<string>().HasMaxLength(40).IsRequired();
             entity.Property(configuration => configuration.SecretEncrypted).HasMaxLength(2_000).IsRequired();
             entity.HasIndex(configuration => new { configuration.TenantId, configuration.UserId, configuration.Method }).IsUnique();
+            entity.HasIndex(configuration => new { configuration.TenantId, configuration.IsEnabled });
         });
     }
 
