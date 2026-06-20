@@ -1,21 +1,30 @@
 using System.Security.Cryptography;
 using System.Text;
 using Compliance360.Application.Mfa;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace Compliance360.Infrastructure.Mfa;
 
-public sealed class Base64MfaSecretProtector : IMfaSecretProtector
+public sealed class DataProtectionMfaSecretProtector : IMfaSecretProtector
 {
+    private const string Purpose = "Compliance360.MfaSecrets.v1";
+    private readonly IDataProtector _protector;
+
+    public DataProtectionMfaSecretProtector(IDataProtectionProvider dataProtectionProvider)
+    {
+        _protector = dataProtectionProvider.CreateProtector(Purpose);
+    }
+
     public string Protect(string secret)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(secret);
-        return Convert.ToBase64String(Encoding.UTF8.GetBytes(secret));
+        return _protector.Protect(secret);
     }
 
     public string Unprotect(string encryptedSecret)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(encryptedSecret);
-        return Encoding.UTF8.GetString(Convert.FromBase64String(encryptedSecret));
+        return _protector.Unprotect(encryptedSecret);
     }
 }
 

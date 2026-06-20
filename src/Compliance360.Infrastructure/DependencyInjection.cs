@@ -1,12 +1,17 @@
 using Compliance360.Application;
 using Compliance360.Application.Audit;
+using Compliance360.Application.Documents;
 using Compliance360.Application.Identity;
 using Compliance360.Application.Mfa;
 using Compliance360.Application.Notifications;
 using Compliance360.Application.Rbac;
 using Compliance360.Application.Storage;
+using Compliance360.Application.Suppliers;
+using Compliance360.Application.TechnicalSheets;
 using Compliance360.Application.TenantManagement;
+using Compliance360.Application.Workflows;
 using Compliance360.Infrastructure.Audit;
+using Compliance360.Infrastructure.Documents;
 using Compliance360.Infrastructure.Identity;
 using Compliance360.Infrastructure.Mfa;
 using Compliance360.Infrastructure.Notifications;
@@ -14,7 +19,10 @@ using Compliance360.Infrastructure.Persistence;
 using Compliance360.Infrastructure.Rbac;
 using Compliance360.Infrastructure.Security;
 using Compliance360.Infrastructure.Storage;
+using Compliance360.Infrastructure.Suppliers;
+using Compliance360.Infrastructure.TechnicalSheets;
 using Compliance360.Infrastructure.TenantManagement;
+using Compliance360.Infrastructure.Workflows;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,13 +39,18 @@ public static class DependencyInjection
         services.Configure<PasswordPolicyOptions>(configuration.GetSection(PasswordPolicyOptions.SectionName));
         services.Configure<LockoutOptions>(configuration.GetSection(LockoutOptions.SectionName));
         services.Configure<AuditOptions>(configuration.GetSection(AuditOptions.SectionName));
+        services.Configure<DocumentManagementOptions>(configuration.GetSection(DocumentManagementOptions.SectionName));
+        services.Configure<WorkflowEngineOptions>(configuration.GetSection(WorkflowEngineOptions.SectionName));
+        services.Configure<TechnicalSheetOptions>(configuration.GetSection(TechnicalSheetOptions.SectionName));
+        services.Configure<SupplierManagementOptions>(configuration.GetSection(SupplierManagementOptions.SectionName));
 
+        services.AddDataProtection();
         services.AddSingleton<IClock, SystemClock>();
         services.AddSingleton<IAuditContextAccessor, AuditContextAccessor>();
         services.AddScoped<IAuditPermissionEvaluator, AuditPermissionEvaluator>();
         services.AddScoped<IAuditService, AuditService>();
         services.AddScoped<AuditSaveChangesInterceptor>();
-        services.AddScoped<IMfaSecretProtector, Base64MfaSecretProtector>();
+        services.AddScoped<IMfaSecretProtector, DataProtectionMfaSecretProtector>();
         services.AddScoped<ITotpService, TotpService>();
         services.AddScoped<IMfaService, MfaService>();
         services.AddScoped<IPasswordPolicyValidator, PasswordPolicyValidator>();
@@ -48,6 +61,10 @@ public static class DependencyInjection
         services.AddScoped<IStorageFoundationService, StorageFoundationService>();
         services.AddScoped<INotificationDispatcher, NoOpNotificationDispatcher>();
         services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<IDocumentManagementService, DocumentManagementService>();
+        services.AddScoped<IWorkflowEngineService, WorkflowEngineService>();
+        services.AddScoped<ITechnicalSheetService, TechnicalSheetService>();
+        services.AddScoped<ISupplierManagementService, SupplierManagementService>();
         services.AddScoped<ITenantManagementService, TenantManagementService>();
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IRbacService, RbacService>();
@@ -69,6 +86,10 @@ public static class DependencyInjection
             services.AddScoped<IMfaRepository, EfMfaRepository>();
             services.AddScoped<IStorageRepository, EfStorageRepository>();
             services.AddScoped<INotificationRepository, EfNotificationRepository>();
+            services.AddScoped<IDocumentRepository, EfDocumentRepository>();
+            services.AddScoped<IWorkflowRepository, EfWorkflowRepository>();
+            services.AddScoped<ITechnicalSheetRepository, EfTechnicalSheetRepository>();
+            services.AddScoped<ISupplierRepository, EfSupplierRepository>();
         }
 
         return services;

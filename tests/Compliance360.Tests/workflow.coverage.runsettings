@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat Code Coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <ExcludeByFile>
+            **/Program.cs,
+            **/WorkflowContracts.cs,
+            **/Common/*.cs,
+            **/TenantManagement/*.cs,
+            **/Identity/*.cs,
+            **/Mfa/*.cs,
+            **/Rbac/*.cs,
+            **/Audit/*.cs,
+            **/Security/*.cs,
+            **/Storage/*.cs,
+            **/Notifications/*.cs,
+            **/Documents/*.cs,
+            **/Api/*.cs,
+            **/Errors/*.cs,
+            **/Persistence/*.cs,
+            **/Persistence/Migrations/*.cs,
+            **/DependencyInjection.cs,
+            **/Shared/*.cs,
+            **/FoundationAbstractions.cs
+          </ExcludeByFile>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

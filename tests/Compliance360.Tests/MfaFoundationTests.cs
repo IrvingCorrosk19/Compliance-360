@@ -4,6 +4,7 @@ using Compliance360.Domain.Audit;
 using Compliance360.Domain.Identity;
 using Compliance360.Infrastructure.Mfa;
 using Compliance360.Infrastructure.Persistence;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 
 namespace Compliance360.Tests;
@@ -131,7 +132,7 @@ public sealed class MfaFoundationTests
     [Fact]
     public void SecretProtector_RoundTrips_Secret()
     {
-        var protector = new Base64MfaSecretProtector();
+        var protector = new DataProtectionMfaSecretProtector(new EphemeralDataProtectionProvider());
 
         var protectedSecret = protector.Protect("SECRET");
 
@@ -179,7 +180,7 @@ public sealed class MfaFoundationTests
             AdminUserId = Guid.NewGuid();
             Clock = new FixedClock();
             Repository = new InMemoryMfaRepository();
-            Protector = new Base64MfaSecretProtector();
+            Protector = new DataProtectionMfaSecretProtector(new EphemeralDataProtectionProvider());
             TotpService = new TotpService();
             User = new User(TenantId, "qa@example.com", "Quality Manager");
             Repository.Users.Add(User);
@@ -190,7 +191,7 @@ public sealed class MfaFoundationTests
         public Guid AdminUserId { get; }
         public FixedClock Clock { get; }
         public InMemoryMfaRepository Repository { get; }
-        public Base64MfaSecretProtector Protector { get; }
+        public DataProtectionMfaSecretProtector Protector { get; }
         public TotpService TotpService { get; }
         public User User { get; }
         public MfaService Service { get; }

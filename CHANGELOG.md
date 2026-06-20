@@ -2,6 +2,80 @@
 
 All notable changes to Compliance 360 will be documented in this file.
 
+## v0.8.0-platform-documents-enterprise - 2026-06-20
+
+### Added
+
+- Implemented API Enterprise v1 with Swagger/OpenAPI, JWT enforcement, RBAC authorization policies, tenant context checks, rate limiting, security headers, global exception handling, and health endpoints.
+- Added PostgreSQL EF Core migration baseline plus design-time DbContext factory and aligned EF package graph to eliminate version conflicts.
+- Replaced MFA Base64 secret protection with ASP.NET Core Data Protection.
+- Implemented Document Management Enterprise foundation with document types, categories, documents, versions, approval/rejection, obsolescence, permissions, history, expiration, search, API endpoints, EF repository, and migrations.
+
+### Validation
+
+- Build completed successfully with zero warnings and zero errors.
+- Test suite completed successfully: 107 passed.
+- API integration tests validate health, Swagger, and authentication enforcement.
+- Document Management tests validate workflow, tenant-isolated search, domain rules, negative paths, and EF repository persistence.
+- Document Management module coverage reached 90.13% line coverage and 90.47% branch coverage.
+
+## v0.9.0-workflow-engine-enterprise - 2026-06-20
+
+### Added
+
+- Implemented Workflow Engine Enterprise with configurable workflows, steps, transitions, rules, assignments, instances, history, escalations, reminders, and workflow notifications.
+- Added workflow API v1 endpoints for configuration, activation, instance startup, assignment, completion, escalation, reminders, and instance search.
+- Added EF Core repository, tenant-scoped indexes, graph mappings, and PostgreSQL migration for workflow tables.
+- Added workflow audit integration for configuration changes, workflow start, approval, rejection, updates, and queued notifications.
+
+### Validation
+
+- Build completed successfully with zero warnings and zero errors.
+- Test suite completed successfully: 122 passed.
+- Workflow Engine module coverage reached 91.23% line coverage and 90.78% branch coverage.
+
+## v0.10.0-technical-sheets-enterprise - 2026-06-20
+
+### Added
+
+- Implemented Technical Sheets Enterprise with products, technical sheets, ingredients, nutrients, certifications, versions, approvals/rejections, PDF attachment metadata, obsolescence, and audit integration.
+- Added tenant-scoped API v1 endpoints for product creation, sheet creation, versioning, ingredients, nutrients, certifications, submit/decision, PDF attachment, obsolescence, and search.
+- Added EF Core repository, PostgreSQL mappings, indexes, and migration for product and technical sheet tables.
+- Added tests covering complete approval flow, rejection/obsolescence, PDF metadata, tenant-isolated search, domain validations, and EF persistence.
+
+### Validation
+
+- Build completed successfully with zero warnings and zero errors.
+- Test suite completed successfully: 129 passed.
+- Technical Sheets module coverage reached 91.51% line coverage and 92.50% branch coverage.
+
+## v0.11.0-supplier-management-enterprise - 2026-06-20
+
+### Added
+
+- Implemented Supplier Management Enterprise with suppliers, homologation, required documents, RUC, aviso de operaciones, BPM, HACCP, registro sanitario, evaluations, expiration alerts, rejection, suspension, and audit integration.
+- Added tenant-scoped API v1 endpoints for supplier creation, document upload metadata, document validation/rejection, evaluations, homologation, expiration alerts, suspension, and search.
+- Added EF Core repository, PostgreSQL mappings, indexes, and migration for supplier management tables.
+- Added tests covering full homologation, required document enforcement, low score/expired document rejection, tenant isolation, domain validations, alerts, suspension, and EF persistence.
+
+### Validation
+
+- Build completed successfully with zero warnings and zero errors.
+- Test suite completed successfully: 136 passed.
+- Supplier Management module coverage reached 91.88% line coverage and 90.00% branch coverage.
+
+### Module Completion Certificate
+
+- Module: Supplier Management Enterprise
+- Date: 2026-06-20
+- Coverage: 91.88% line, 90.00% branch
+- Tests: 136 passed
+- Build: APPROVED, 0 warnings, 0 errors
+- Security: APPROVED, tenant-scoped authorization policy and user context enforced at API boundary
+- Multitenant: APPROVED, tenant-scoped repositories and tests
+- Audit: APPROVED, supplier created/updated audit events persisted
+- Status: APPROVED
+
 ## v0.7.0-notification-foundation - 2026-06-20
 
 ### Added
