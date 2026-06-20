@@ -1,5 +1,6 @@
 using Compliance360.Application;
 using Compliance360.Domain.Audit;
+using Compliance360.Domain.AuditManagement;
 using Compliance360.Domain.Common;
 using Compliance360.Domain.Documents;
 using Compliance360.Domain.Identity;
@@ -113,6 +114,40 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
 
     public DbSet<SupplierExpirationAlert> SupplierExpirationAlerts => Set<SupplierExpirationAlert>();
 
+    public DbSet<AuditProgram> AuditPrograms => Set<AuditProgram>();
+
+    public DbSet<AuditPlan> AuditPlans => Set<AuditPlan>();
+
+    public DbSet<AuditChecklist> AuditChecklists => Set<AuditChecklist>();
+
+    public DbSet<AuditChecklistItem> AuditChecklistItems => Set<AuditChecklistItem>();
+
+    public DbSet<ManagedAudit> ManagedAudits => Set<ManagedAudit>();
+
+    public DbSet<AuditSchedule> AuditSchedules => Set<AuditSchedule>();
+
+    public DbSet<AuditParticipant> AuditParticipants => Set<AuditParticipant>();
+
+    public DbSet<AuditAuditor> AuditAuditors => Set<AuditAuditor>();
+
+    public DbSet<AuditArea> AuditAreas => Set<AuditArea>();
+
+    public DbSet<AuditFinding> AuditFindings => Set<AuditFinding>();
+
+    public DbSet<AuditEvidence> AuditEvidence => Set<AuditEvidence>();
+
+    public DbSet<AuditObservation> AuditObservations => Set<AuditObservation>();
+
+    public DbSet<AuditNonConformity> AuditNonConformities => Set<AuditNonConformity>();
+
+    public DbSet<AuditRecommendation> AuditRecommendations => Set<AuditRecommendation>();
+
+    public DbSet<AuditCorrectiveActionLink> AuditCorrectiveActionLinks => Set<AuditCorrectiveActionLink>();
+
+    public DbSet<AuditHistory> ManagedAuditHistory => Set<AuditHistory>();
+
+    public DbSet<AuditAttachment> AuditAttachments => Set<AuditAttachment>();
+
     public override int SaveChanges()
     {
         ApplyFoundationRules();
@@ -138,6 +173,7 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
         ConfigureWorkflows(modelBuilder);
         ConfigureTechnicalSheets(modelBuilder);
         ConfigureSuppliers(modelBuilder);
+        ConfigureAuditManagement(modelBuilder);
     }
 
     private static void ConfigureTenantManagement(ModelBuilder modelBuilder)
@@ -659,6 +695,188 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.Property(alert => alert.DocumentType).HasConversion<string>().HasMaxLength(60).IsRequired();
             entity.Property(alert => alert.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
             entity.HasIndex(alert => new { alert.TenantId, alert.Status, alert.ExpiresAtUtc });
+        });
+    }
+
+    private static void ConfigureAuditManagement(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<AuditProgram>(entity =>
+        {
+            entity.ToTable("audit_programs");
+            entity.HasKey(program => program.Id);
+            entity.Property(program => program.Name).HasMaxLength(180).IsRequired();
+            entity.Property(program => program.Code).HasMaxLength(80).IsRequired();
+            entity.HasIndex(program => new { program.TenantId, program.Code }).IsUnique();
+            entity.HasIndex(program => new { program.TenantId, program.Year, program.IsActive });
+        });
+
+        modelBuilder.Entity<AuditChecklist>(entity =>
+        {
+            entity.ToTable("audit_checklists");
+            entity.HasKey(checklist => checklist.Id);
+            entity.Property(checklist => checklist.Name).HasMaxLength(180).IsRequired();
+            entity.Property(checklist => checklist.Code).HasMaxLength(80).IsRequired();
+            entity.Property(checklist => checklist.Type).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.HasIndex(checklist => new { checklist.TenantId, checklist.Code, checklist.Version }).IsUnique();
+            entity.HasMany(checklist => checklist.Items).WithOne().HasForeignKey(item => item.ChecklistId);
+            entity.Navigation(checklist => checklist.Items).UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+
+        modelBuilder.Entity<AuditChecklistItem>(entity =>
+        {
+            entity.ToTable("audit_checklist_items");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.Clause).HasMaxLength(120).IsRequired();
+            entity.Property(item => item.Question).HasMaxLength(1_000).IsRequired();
+            entity.HasIndex(item => new { item.TenantId, item.ChecklistId, item.Clause });
+        });
+
+        modelBuilder.Entity<AuditPlan>(entity =>
+        {
+            entity.ToTable("audit_plans");
+            entity.HasKey(plan => plan.Id);
+            entity.Property(plan => plan.Scope).HasMaxLength(2_000).IsRequired();
+            entity.Property(plan => plan.Criteria).HasMaxLength(2_000).IsRequired();
+            entity.HasIndex(plan => new { plan.TenantId, plan.AuditProgramId, plan.PlannedStartUtc });
+        });
+
+        modelBuilder.Entity<ManagedAudit>(entity =>
+        {
+            entity.ToTable("managed_audits");
+            entity.HasKey(audit => audit.Id);
+            entity.Property(audit => audit.Title).HasMaxLength(220).IsRequired();
+            entity.Property(audit => audit.Code).HasMaxLength(100).IsRequired();
+            entity.Property(audit => audit.Type).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(audit => audit.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.HasIndex(audit => new { audit.TenantId, audit.Code }).IsUnique();
+            entity.HasIndex(audit => new { audit.TenantId, audit.Type, audit.Status });
+            entity.HasIndex(audit => new { audit.TenantId, audit.ClosedAtUtc });
+            entity.HasMany(audit => audit.Schedules).WithOne().HasForeignKey(schedule => schedule.AuditId);
+            entity.HasMany(audit => audit.Participants).WithOne().HasForeignKey(participant => participant.AuditId);
+            entity.HasMany(audit => audit.Areas).WithOne().HasForeignKey(area => area.AuditId);
+            entity.HasMany(audit => audit.Findings).WithOne().HasForeignKey(finding => finding.AuditId);
+            entity.HasMany(audit => audit.Evidence).WithOne().HasForeignKey(evidence => evidence.AuditId);
+            entity.HasMany(audit => audit.Observations).WithOne().HasForeignKey(observation => observation.AuditId);
+            entity.HasMany(audit => audit.NonConformities).WithOne().HasForeignKey(nonConformity => nonConformity.AuditId);
+            entity.HasMany(audit => audit.Recommendations).WithOne().HasForeignKey(recommendation => recommendation.AuditId);
+            entity.HasMany(audit => audit.CorrectiveActionLinks).WithOne().HasForeignKey(link => link.AuditId);
+            entity.HasMany(audit => audit.History).WithOne().HasForeignKey(history => history.AuditId);
+            entity.HasMany(audit => audit.Attachments).WithOne().HasForeignKey(attachment => attachment.AuditId);
+            entity.Navigation(audit => audit.Schedules).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(audit => audit.Participants).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(audit => audit.Areas).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(audit => audit.Findings).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(audit => audit.Evidence).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(audit => audit.Observations).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(audit => audit.NonConformities).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(audit => audit.Recommendations).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(audit => audit.CorrectiveActionLinks).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(audit => audit.History).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(audit => audit.Attachments).UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+
+        modelBuilder.Entity<AuditSchedule>(entity =>
+        {
+            entity.ToTable("audit_schedules");
+            entity.HasKey(schedule => schedule.Id);
+            entity.Property(schedule => schedule.Location).HasMaxLength(250).IsRequired();
+            entity.HasIndex(schedule => new { schedule.TenantId, schedule.AuditId, schedule.StartUtc });
+        });
+
+        modelBuilder.Entity<AuditParticipant>(entity =>
+        {
+            entity.ToTable("audit_participants");
+            entity.HasKey(participant => participant.Id);
+            entity.Property(participant => participant.Role).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.HasIndex(participant => new { participant.TenantId, participant.AuditId, participant.UserId, participant.Role }).IsUnique();
+        });
+
+        modelBuilder.Entity<AuditAuditor>(entity =>
+        {
+            entity.ToTable("audit_auditors");
+            entity.HasKey(auditor => auditor.Id);
+            entity.HasIndex(auditor => new { auditor.TenantId, auditor.AuditId, auditor.UserId }).IsUnique();
+        });
+
+        modelBuilder.Entity<AuditArea>(entity =>
+        {
+            entity.ToTable("audit_areas");
+            entity.HasKey(area => area.Id);
+            entity.Property(area => area.Name).HasMaxLength(180).IsRequired();
+            entity.Property(area => area.Process).HasMaxLength(180).IsRequired();
+            entity.HasIndex(area => new { area.TenantId, area.AuditId, area.Name });
+        });
+
+        modelBuilder.Entity<AuditFinding>(entity =>
+        {
+            entity.ToTable("audit_findings");
+            entity.HasKey(finding => finding.Id);
+            entity.Property(finding => finding.Title).HasMaxLength(220).IsRequired();
+            entity.Property(finding => finding.Description).HasMaxLength(2_000).IsRequired();
+            entity.Property(finding => finding.Severity).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.HasIndex(finding => new { finding.TenantId, finding.AuditId, finding.Severity });
+            entity.HasIndex(finding => new { finding.TenantId, finding.ReportedAtUtc });
+        });
+
+        modelBuilder.Entity<AuditEvidence>(entity =>
+        {
+            entity.ToTable("audit_evidence");
+            entity.HasKey(evidence => evidence.Id);
+            entity.Property(evidence => evidence.Type).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(evidence => evidence.FileName).HasMaxLength(260).IsRequired();
+            entity.Property(evidence => evidence.ContentType).HasMaxLength(120).IsRequired();
+            entity.Property(evidence => evidence.Sha256Hash).HasMaxLength(128).IsRequired();
+            entity.HasIndex(evidence => new { evidence.TenantId, evidence.FindingId });
+            entity.HasIndex(evidence => new { evidence.TenantId, evidence.Sha256Hash });
+        });
+
+        modelBuilder.Entity<AuditObservation>(entity =>
+        {
+            entity.ToTable("audit_observations");
+            entity.HasKey(observation => observation.Id);
+            entity.Property(observation => observation.Description).HasMaxLength(2_000).IsRequired();
+            entity.HasIndex(observation => new { observation.TenantId, observation.AuditId, observation.ReportedAtUtc });
+        });
+
+        modelBuilder.Entity<AuditNonConformity>(entity =>
+        {
+            entity.ToTable("audit_non_conformities");
+            entity.HasKey(nonConformity => nonConformity.Id);
+            entity.Property(nonConformity => nonConformity.Requirement).HasMaxLength(1_000).IsRequired();
+            entity.HasIndex(nonConformity => new { nonConformity.TenantId, nonConformity.FindingId });
+        });
+
+        modelBuilder.Entity<AuditRecommendation>(entity =>
+        {
+            entity.ToTable("audit_recommendations");
+            entity.HasKey(recommendation => recommendation.Id);
+            entity.Property(recommendation => recommendation.Recommendation).HasMaxLength(1_000).IsRequired();
+            entity.HasIndex(recommendation => new { recommendation.TenantId, recommendation.FindingId });
+        });
+
+        modelBuilder.Entity<AuditCorrectiveActionLink>(entity =>
+        {
+            entity.ToTable("audit_corrective_action_links");
+            entity.HasKey(link => link.Id);
+            entity.HasIndex(link => new { link.TenantId, link.FindingId, link.CorrectiveActionId }).IsUnique();
+        });
+
+        modelBuilder.Entity<AuditHistory>(entity =>
+        {
+            entity.ToTable("managed_audit_history");
+            entity.HasKey(history => history.Id);
+            entity.Property(history => history.Action).HasMaxLength(500).IsRequired();
+            entity.HasIndex(history => new { history.TenantId, history.AuditId, history.OccurredAtUtc });
+        });
+
+        modelBuilder.Entity<AuditAttachment>(entity =>
+        {
+            entity.ToTable("audit_attachments");
+            entity.HasKey(attachment => attachment.Id);
+            entity.Property(attachment => attachment.FileName).HasMaxLength(260).IsRequired();
+            entity.Property(attachment => attachment.ContentType).HasMaxLength(120).IsRequired();
+            entity.Property(attachment => attachment.Sha256Hash).HasMaxLength(128).IsRequired();
+            entity.HasIndex(attachment => new { attachment.TenantId, attachment.AuditId });
         });
     }
 

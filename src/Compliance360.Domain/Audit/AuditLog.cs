@@ -45,7 +45,11 @@ public enum AuditAction
     AdministrativeEvent = 38,
     NotificationQueued = 39,
     NotificationSent = 40,
-    NotificationFailed = 41
+    NotificationFailed = 41,
+    AuditCreated = 42,
+    AuditUpdated = 43,
+    AuditClosed = 44,
+    AuditReopened = 45
 }
 
 public enum AuditCategory
@@ -63,7 +67,8 @@ public enum AuditCategory
     FileStorage = 10,
     Security = 11,
     Administration = 12,
-    System = 13
+    System = 13,
+    AuditManagement = 14
 }
 
 public sealed record AuditContext(
@@ -262,6 +267,7 @@ public sealed class AuditLog : Entity
             AuditAction.SecurityEvent or AuditAction.TokenRefreshed => AuditCategory.Security,
             AuditAction.AdministrativeEvent => AuditCategory.Administration,
             AuditAction.NotificationQueued or AuditAction.NotificationSent or AuditAction.NotificationFailed => AuditCategory.System,
+            AuditAction.AuditCreated or AuditAction.AuditUpdated or AuditAction.AuditClosed or AuditAction.AuditReopened => AuditCategory.AuditManagement,
             _ => AuditCategory.System
         };
     }

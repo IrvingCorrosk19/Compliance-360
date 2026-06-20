@@ -1,4 +1,5 @@
 using Compliance360.Domain.Audit;
+using Compliance360.Domain.AuditManagement;
 using Compliance360.Domain.Documents;
 using Compliance360.Domain.Identity;
 using Compliance360.Domain.Notifications;
@@ -119,3 +120,35 @@ public sealed record RejectSupplierDocumentRequest(string Reason);
 public sealed record AddSupplierEvaluationRequest(int Score, string Comments);
 
 public sealed record SuspendSupplierRequest(string Reason);
+
+public sealed record CreateAuditProgramRequest(string Name, string Code, int Year);
+
+public sealed record CreateAuditChecklistRequest(string Name, string Code, AuditChecklistType Type, int Version);
+
+public sealed record AddAuditChecklistItemRequest(string Clause, string Question, int Weight);
+
+public sealed record CreateAuditPlanRequest(Guid AuditProgramId, string Scope, string Criteria, DateTimeOffset PlannedStartUtc, DateTimeOffset PlannedEndUtc);
+
+public sealed record CreateManagedAuditRequest(Guid AuditProgramId, Guid AuditPlanId, string Title, string Code, ManagedAuditType Type);
+
+public sealed record AssignAuditChecklistRequest(Guid ChecklistId);
+
+public sealed record ScheduleAuditRequest(DateTimeOffset StartUtc, DateTimeOffset EndUtc, string Location);
+
+public sealed record AddAuditParticipantRequest(Guid UserId, AuditParticipantRole Role);
+
+public sealed record AddAuditAreaRequest(string Name, string Process);
+
+public sealed record AddAuditFindingRequest(string Title, string Description, AuditFindingSeverity Severity, Guid? ChecklistItemId);
+
+public sealed record AddAuditEvidenceRequest(Guid FindingId, AuditEvidenceType Type, Guid StoredFileId, string FileName, string ContentType, long SizeBytes, string Sha256Hash);
+
+public sealed record AddAuditObservationRequest(string Description);
+
+public sealed record AddAuditNonConformityRequest(Guid FindingId, string Requirement);
+
+public sealed record AddAuditRecommendationRequest(Guid FindingId, string Recommendation);
+
+public sealed record LinkAuditCorrectiveActionRequest(Guid FindingId, Guid CorrectiveActionId);
+
+public sealed record AddAuditAttachmentRequest(Guid StoredFileId, string FileName, string ContentType, long SizeBytes, string Sha256Hash);

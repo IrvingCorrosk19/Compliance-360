@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Compliance360.Application.Audit;
+using Compliance360.Application.AuditManagement;
 using Compliance360.Application.Documents;
 using Compliance360.Application.Identity;
 using Compliance360.Application.Mfa;
@@ -11,6 +12,7 @@ using Compliance360.Application.TechnicalSheets;
 using Compliance360.Application.TenantManagement;
 using Compliance360.Application.Workflows;
 using Compliance360.Domain.Documents;
+using Compliance360.Domain.AuditManagement;
 using Compliance360.Domain.Identity;
 using Compliance360.Domain.Suppliers;
 using Compliance360.Domain.TechnicalSheets;
@@ -38,6 +40,7 @@ public static class FoundationEndpoints
         MapWorkflows(api);
         MapTechnicalSheets(api);
         MapSuppliers(api);
+        MapAuditManagement(api);
 
         return api;
     }
@@ -527,6 +530,142 @@ public static class FoundationEndpoints
                 CancellationToken cancellationToken) =>
             ApiResult.From(await service.SearchAsync(
                 new SupplierSearchQuery(ApiContext.TenantId(httpContext, tenantId), searchText, status, page, pageSize),
+                cancellationToken)));
+    }
+
+    private static void MapAuditManagement(RouteGroupBuilder api)
+    {
+        var audits = api.MapGroup("/tenants/{tenantId:guid}/audit-management")
+            .WithTags("Audit Management")
+            .RequireAuthorization(PermissionPolicies.AuditManagementManage);
+
+        audits.MapPost("/programs", async (Guid tenantId, CreateAuditProgramRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CreateProgramAsync(
+                new CreateAuditProgramCommand(ApiContext.TenantId(httpContext, tenantId), request.Name, request.Code, request.Year, ApiContext.UserId(httpContext)),
+                cancellationToken)));
+
+        audits.MapPost("/checklists", async (Guid tenantId, CreateAuditChecklistRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CreateChecklistAsync(
+                new CreateAuditChecklistCommand(ApiContext.TenantId(httpContext, tenantId), request.Name, request.Code, request.Type, request.Version, ApiContext.UserId(httpContext)),
+                cancellationToken)));
+
+        audits.MapPost("/checklists/{checklistId:guid}/items", async (Guid tenantId, Guid checklistId, AddAuditChecklistItemRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddChecklistItemAsync(
+                new AddAuditChecklistItemCommand(ApiContext.TenantId(httpContext, tenantId), checklistId, request.Clause, request.Question, request.Weight, ApiContext.UserId(httpContext)),
+                cancellationToken)));
+
+        audits.MapPost("/plans", async (Guid tenantId, CreateAuditPlanRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CreatePlanAsync(
+                new CreateAuditPlanCommand(ApiContext.TenantId(httpContext, tenantId), request.AuditProgramId, request.Scope, request.Criteria, request.PlannedStartUtc, request.PlannedEndUtc, ApiContext.UserId(httpContext)),
+                cancellationToken)));
+
+        audits.MapPost("/", async (Guid tenantId, CreateManagedAuditRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CreateAuditAsync(
+                new CreateManagedAuditCommand(ApiContext.TenantId(httpContext, tenantId), request.AuditProgramId, request.AuditPlanId, request.Title, request.Code, request.Type, ApiContext.UserId(httpContext)),
+                cancellationToken)));
+
+        audits.MapPost("/{auditId:guid}/checklist", async (Guid tenantId, Guid auditId, AssignAuditChecklistRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AssignChecklistAsync(
+                new AssignAuditChecklistCommand(ApiContext.TenantId(httpContext, tenantId), auditId, request.ChecklistId, ApiContext.UserId(httpContext)),
+                cancellationToken)));
+
+        audits.MapPost("/{auditId:guid}/schedule", async (Guid tenantId, Guid auditId, ScheduleAuditRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ScheduleAsync(
+                new ScheduleAuditCommand(ApiContext.TenantId(httpContext, tenantId), auditId, request.StartUtc, request.EndUtc, request.Location, ApiContext.UserId(httpContext)),
+                cancellationToken)));
+
+        audits.MapPost("/{auditId:guid}/participants", async (Guid tenantId, Guid auditId, AddAuditParticipantRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddParticipantAsync(
+                new AddAuditParticipantCommand(ApiContext.TenantId(httpContext, tenantId), auditId, request.UserId, request.Role, ApiContext.UserId(httpContext)),
+                cancellationToken)));
+
+        audits.MapPost("/{auditId:guid}/areas", async (Guid tenantId, Guid auditId, AddAuditAreaRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddAreaAsync(
+                new AddAuditAreaCommand(ApiContext.TenantId(httpContext, tenantId), auditId, request.Name, request.Process, ApiContext.UserId(httpContext)),
+                cancellationToken)));
+
+        audits.MapPost("/{auditId:guid}/start", async (Guid tenantId, Guid auditId, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.StartAsync(
+                new ManagedAuditActionCommand(ApiContext.TenantId(httpContext, tenantId), auditId, ApiContext.UserId(httpContext)),
+                cancellationToken)));
+
+        audits.MapPost("/{auditId:guid}/findings", async (Guid tenantId, Guid auditId, AddAuditFindingRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddFindingAsync(
+                new AddAuditFindingCommand(ApiContext.TenantId(httpContext, tenantId), auditId, request.Title, request.Description, request.Severity, request.ChecklistItemId, ApiContext.UserId(httpContext)),
+                cancellationToken)));
+
+        audits.MapPost("/{auditId:guid}/evidence", async (Guid tenantId, Guid auditId, AddAuditEvidenceRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddEvidenceAsync(
+                new AddAuditEvidenceCommand(ApiContext.TenantId(httpContext, tenantId), auditId, request.FindingId, request.Type, request.StoredFileId, request.FileName, request.ContentType, request.SizeBytes, request.Sha256Hash, ApiContext.UserId(httpContext)),
+                cancellationToken)));
+
+        audits.MapPost("/{auditId:guid}/observations", async (Guid tenantId, Guid auditId, AddAuditObservationRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddObservationAsync(
+                new AddAuditObservationCommand(ApiContext.TenantId(httpContext, tenantId), auditId, request.Description, ApiContext.UserId(httpContext)),
+                cancellationToken)));
+
+        audits.MapPost("/{auditId:guid}/non-conformities", async (Guid tenantId, Guid auditId, AddAuditNonConformityRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddNonConformityAsync(
+                new AddAuditNonConformityCommand(ApiContext.TenantId(httpContext, tenantId), auditId, request.FindingId, request.Requirement, ApiContext.UserId(httpContext)),
+                cancellationToken)));
+
+        audits.MapPost("/{auditId:guid}/recommendations", async (Guid tenantId, Guid auditId, AddAuditRecommendationRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddRecommendationAsync(
+                new AddAuditRecommendationCommand(ApiContext.TenantId(httpContext, tenantId), auditId, request.FindingId, request.Recommendation, ApiContext.UserId(httpContext)),
+                cancellationToken)));
+
+        audits.MapPost("/{auditId:guid}/corrective-actions", async (Guid tenantId, Guid auditId, LinkAuditCorrectiveActionRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.LinkCorrectiveActionAsync(
+                new LinkAuditCorrectiveActionCommand(ApiContext.TenantId(httpContext, tenantId), auditId, request.FindingId, request.CorrectiveActionId, ApiContext.UserId(httpContext)),
+                cancellationToken)));
+
+        audits.MapPost("/{auditId:guid}/attachments", async (Guid tenantId, Guid auditId, AddAuditAttachmentRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddAttachmentAsync(
+                new AddAuditAttachmentCommand(ApiContext.TenantId(httpContext, tenantId), auditId, request.StoredFileId, request.FileName, request.ContentType, request.SizeBytes, request.Sha256Hash, ApiContext.UserId(httpContext)),
+                cancellationToken)));
+
+        audits.MapPost("/{auditId:guid}/complete", async (Guid tenantId, Guid auditId, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CompleteAsync(
+                new ManagedAuditActionCommand(ApiContext.TenantId(httpContext, tenantId), auditId, ApiContext.UserId(httpContext)),
+                cancellationToken)));
+
+        audits.MapPost("/{auditId:guid}/close", async (Guid tenantId, Guid auditId, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CloseAsync(
+                new ManagedAuditActionCommand(ApiContext.TenantId(httpContext, tenantId), auditId, ApiContext.UserId(httpContext)),
+                cancellationToken)));
+
+        audits.MapPost("/{auditId:guid}/reopen", async (Guid tenantId, Guid auditId, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ReopenAsync(
+                new ManagedAuditActionCommand(ApiContext.TenantId(httpContext, tenantId), auditId, ApiContext.UserId(httpContext)),
+                cancellationToken)));
+
+        audits.MapGet("/", async (
+                Guid tenantId,
+                string? searchText,
+                ManagedAuditType? type,
+                ManagedAuditStatus? status,
+                int page,
+                int pageSize,
+                HttpContext httpContext,
+                IAuditManagementService service,
+                CancellationToken cancellationToken) =>
+            ApiResult.From(await service.SearchAsync(
+                new ManagedAuditSearchQuery(ApiContext.TenantId(httpContext, tenantId), searchText, type, status, page, pageSize),
+                cancellationToken)));
+
+        audits.MapGet("/dashboard", async (Guid tenantId, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GetDashboardAsync(ApiContext.TenantId(httpContext, tenantId), cancellationToken)));
+
+        audits.MapPost("/export", async (
+                Guid tenantId,
+                ManagedAuditType? type,
+                ManagedAuditStatus? status,
+                string? format,
+                HttpContext httpContext,
+                IAuditManagementService service,
+                CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ExportAsync(
+                new ManagedAuditExportQuery(ApiContext.TenantId(httpContext, tenantId), type, status, format ?? "csv", ApiContext.UserId(httpContext)),
                 cancellationToken)));
     }
 

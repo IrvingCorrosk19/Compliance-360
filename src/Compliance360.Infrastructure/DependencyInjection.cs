@@ -1,5 +1,6 @@
 using Compliance360.Application;
 using Compliance360.Application.Audit;
+using Compliance360.Application.AuditManagement;
 using Compliance360.Application.Documents;
 using Compliance360.Application.Identity;
 using Compliance360.Application.Mfa;
@@ -11,6 +12,7 @@ using Compliance360.Application.TechnicalSheets;
 using Compliance360.Application.TenantManagement;
 using Compliance360.Application.Workflows;
 using Compliance360.Infrastructure.Audit;
+using Compliance360.Infrastructure.AuditManagement;
 using Compliance360.Infrastructure.Documents;
 using Compliance360.Infrastructure.Identity;
 using Compliance360.Infrastructure.Mfa;
@@ -49,6 +51,7 @@ public static class DependencyInjection
         services.AddSingleton<IAuditContextAccessor, AuditContextAccessor>();
         services.AddScoped<IAuditPermissionEvaluator, AuditPermissionEvaluator>();
         services.AddScoped<IAuditService, AuditService>();
+        services.AddScoped<IAuditManagementService, AuditManagementService>();
         services.AddScoped<AuditSaveChangesInterceptor>();
         services.AddScoped<IMfaSecretProtector, DataProtectionMfaSecretProtector>();
         services.AddScoped<ITotpService, TotpService>();
@@ -80,6 +83,7 @@ public static class DependencyInjection
             });
             services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<Compliance360DbContext>());
             services.AddScoped<IAuditRepository, EfAuditRepository>();
+            services.AddScoped<IAuditManagementRepository, EfAuditManagementRepository>();
             services.AddScoped<ITenantManagementRepository, EfTenantManagementRepository>();
             services.AddScoped<IIdentityRepository, EfIdentityRepository>();
             services.AddScoped<IRbacRepository, EfRbacRepository>();

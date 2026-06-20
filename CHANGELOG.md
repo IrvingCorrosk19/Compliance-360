@@ -76,6 +76,36 @@ All notable changes to Compliance 360 will be documented in this file.
 - Audit: APPROVED, supplier created/updated audit events persisted
 - Status: APPROVED
 
+## v0.12.0-audit-management-enterprise - 2026-06-20
+
+### Added
+
+- Implemented Audit Management Enterprise with audit programs, audit plans, schedules, reusable versioned checklists, checklist items, managed audits, participants, auditors, areas, findings, evidences, observations, non-conformities, recommendations, corrective action links, attachments, history, dashboard metrics, search, pagination, and export descriptors.
+- Added tenant-scoped API v1 endpoints for audit program/checklist/plan/audit creation, checklist assignment, scheduling, participant and area management, start/complete/close/reopen, findings, evidences, observations, non-conformities, recommendations, CAPA links, attachments, dashboard, search, and export.
+- Added EF Core repository, PostgreSQL mappings, tenant-scoped indexes, aggregate graph persistence, and migration `AddAuditManagement`.
+- Added `AuditManagement.Manage` authorization policy and module-specific `AuditLog` actions/category for created, updated, closed, reopened, and exported audit operations.
+- Added tests covering full enterprise audit lifecycle, workflow transitions, negative paths, tenant-isolated search/dashboard/export, audit log persistence, security policy surface, domain invariants, evidence metadata integrity, and EF repository persistence.
+
+### Validation
+
+- Build completed successfully with zero warnings and zero errors.
+- Test suite completed successfully: 144 passed.
+- Audit Management module coverage reached 93.14% line coverage and 95.91% branch coverage.
+- Linter check completed with no errors.
+
+### Module Completion Certificate
+
+- Module: Audit Management Enterprise
+- Date: 2026-06-20
+- Coverage: 93.14% line, 95.91% branch
+- Tests: 144 passed
+- Build: APPROVED, 0 warnings, 0 errors
+- Security: APPROVED, `AuditManagement.Manage` policy and tenant/user context enforced at API boundary
+- Multitenant: APPROVED, tenant-scoped repositories, filters, indexes, and tenant isolation tests
+- Audit: APPROVED, all module actions append `AuditLog` records with Audit Management category/actions
+- Evidence Integrity: APPROVED, stored file metadata, content type, size, SHA-256 hash, and upload actor captured
+- Status: APPROVED
+
 ## v0.7.0-notification-foundation - 2026-06-20
 
 ### Added

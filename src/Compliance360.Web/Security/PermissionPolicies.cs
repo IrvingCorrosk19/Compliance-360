@@ -8,6 +8,7 @@ public static class PermissionPolicies
     public const string IdentityManage = "Identity.Manage";
     public const string RbacManage = "Rbac.Manage";
     public const string AuditRead = "Audit.Read";
+    public const string AuditManagementManage = "AuditManagement.Manage";
     public const string StorageManage = "Storage.Manage";
     public const string NotificationManage = "Notification.Manage";
     public const string DocumentManage = "Document.Manage";
@@ -21,6 +22,7 @@ public static class PermissionPolicies
         options.AddPolicy(IdentityManage, policy => policy.RequireAssertion(context => HasPermission(context, "IDENTITY.MANAGE")));
         options.AddPolicy(RbacManage, policy => policy.RequireAssertion(context => HasPermission(context, "RBAC.MANAGE")));
         options.AddPolicy(AuditRead, policy => policy.RequireAssertion(context => HasPermission(context, "AUDIT.READ") || HasPermission(context, "AUDIT.MANAGE")));
+        options.AddPolicy(AuditManagementManage, policy => policy.RequireAssertion(context => HasPermission(context, "AUDITMANAGEMENT.MANAGE") || HasPermission(context, "AUDIT.MANAGE")));
         options.AddPolicy(StorageManage, policy => policy.RequireAssertion(context => HasPermission(context, "STORAGE.MANAGE")));
         options.AddPolicy(NotificationManage, policy => policy.RequireAssertion(context => HasPermission(context, "NOTIFICATION.MANAGE")));
         options.AddPolicy(DocumentManage, policy => policy.RequireAssertion(context => HasPermission(context, "DOCUMENT.MANAGE")));
