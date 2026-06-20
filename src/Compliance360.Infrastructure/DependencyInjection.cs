@@ -2,12 +2,14 @@ using Compliance360.Application;
 using Compliance360.Application.Audit;
 using Compliance360.Application.Identity;
 using Compliance360.Application.Mfa;
+using Compliance360.Application.Notifications;
 using Compliance360.Application.Rbac;
 using Compliance360.Application.Storage;
 using Compliance360.Application.TenantManagement;
 using Compliance360.Infrastructure.Audit;
 using Compliance360.Infrastructure.Identity;
 using Compliance360.Infrastructure.Mfa;
+using Compliance360.Infrastructure.Notifications;
 using Compliance360.Infrastructure.Persistence;
 using Compliance360.Infrastructure.Rbac;
 using Compliance360.Infrastructure.Security;
@@ -44,6 +46,8 @@ public static class DependencyInjection
         services.AddScoped<IRefreshTokenGenerator, RefreshTokenGenerator>();
         services.AddScoped<IFileStorageService, LocalFileStorageService>();
         services.AddScoped<IStorageFoundationService, StorageFoundationService>();
+        services.AddScoped<INotificationDispatcher, NoOpNotificationDispatcher>();
+        services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<ITenantManagementService, TenantManagementService>();
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IRbacService, RbacService>();
@@ -64,6 +68,7 @@ public static class DependencyInjection
             services.AddScoped<IRbacRepository, EfRbacRepository>();
             services.AddScoped<IMfaRepository, EfMfaRepository>();
             services.AddScoped<IStorageRepository, EfStorageRepository>();
+            services.AddScoped<INotificationRepository, EfNotificationRepository>();
         }
 
         return services;

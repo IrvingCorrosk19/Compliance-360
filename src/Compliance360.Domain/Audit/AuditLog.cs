@@ -42,7 +42,10 @@ public enum AuditAction
     FileUploaded = 35,
     FileDownloaded = 36,
     SecurityEvent = 37,
-    AdministrativeEvent = 38
+    AdministrativeEvent = 38,
+    NotificationQueued = 39,
+    NotificationSent = 40,
+    NotificationFailed = 41
 }
 
 public enum AuditCategory
@@ -258,6 +261,7 @@ public sealed class AuditLog : Entity
             AuditAction.FileUploaded or AuditAction.FileDownloaded or AuditAction.Downloaded => AuditCategory.FileStorage,
             AuditAction.SecurityEvent or AuditAction.TokenRefreshed => AuditCategory.Security,
             AuditAction.AdministrativeEvent => AuditCategory.Administration,
+            AuditAction.NotificationQueued or AuditAction.NotificationSent or AuditAction.NotificationFailed => AuditCategory.System,
             _ => AuditCategory.System
         };
     }

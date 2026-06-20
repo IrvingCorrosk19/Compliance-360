@@ -2,6 +2,7 @@ using Compliance360.Application;
 using Compliance360.Domain.Audit;
 using Compliance360.Domain.Common;
 using Compliance360.Domain.Identity;
+using Compliance360.Domain.Notifications;
 using Compliance360.Domain.Storage;
 using Compliance360.Domain.TenantManagement;
 using Microsoft.EntityFrameworkCore;
@@ -50,6 +51,10 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
 
     public DbSet<StoredFile> StoredFiles => Set<StoredFile>();
 
+    public DbSet<NotificationTemplate> NotificationTemplates => Set<NotificationTemplate>();
+
+    public DbSet<NotificationMessage> NotificationMessages => Set<NotificationMessage>();
+
     public override int SaveChanges()
     {
         ApplyFoundationRules();
@@ -70,6 +75,7 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
         ConfigureIdentity(modelBuilder);
         ConfigureAudit(modelBuilder);
         ConfigureStorage(modelBuilder);
+        ConfigureNotifications(modelBuilder);
     }
 
     private static void ConfigureTenantManagement(ModelBuilder modelBuilder)
@@ -264,6 +270,35 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.Property(storedFile => storedFile.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
             entity.HasIndex(storedFile => new { storedFile.TenantId, storedFile.OwnerEntityName, storedFile.OwnerEntityId });
             entity.HasIndex(storedFile => new { storedFile.ContainerName, storedFile.ObjectKey }).IsUnique();
+        });
+    }
+
+    private static void ConfigureNotifications(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<NotificationTemplate>(entity =>
+        {
+            entity.ToTable("notification_templates");
+            entity.HasKey(template => template.Id);
+            entity.Property(template => template.Code).HasMaxLength(120).IsRequired();
+            entity.Property(template => template.Channel).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(template => template.Subject).HasMaxLength(250).IsRequired();
+            entity.Property(template => template.Body).HasMaxLength(4_000).IsRequired();
+            entity.HasIndex(template => new { template.TenantId, template.Code, template.Channel }).IsUnique();
+        });
+
+        modelBuilder.Entity<NotificationMessage>(entity =>
+        {
+            entity.ToTable("notification_messages");
+            entity.HasKey(message => message.Id);
+            entity.Property(message => message.Channel).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(message => message.Recipient).HasMaxLength(320).IsRequired();
+            entity.Property(message => message.Subject).HasMaxLength(250).IsRequired();
+            entity.Property(message => message.Body).HasMaxLength(4_000).IsRequired();
+            entity.Property(message => message.Priority).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(message => message.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(message => message.FailureReason).HasMaxLength(1_000);
+            entity.HasIndex(message => new { message.TenantId, message.Status, message.Priority, message.QueuedAtUtc });
+            entity.HasIndex(message => new { message.TenantId, message.TargetUserId, message.QueuedAtUtc });
         });
     }
 

@@ -2,6 +2,20 @@
 
 All notable changes to Compliance 360 will be documented in this file.
 
+## v0.7.0-notification-foundation - 2026-06-20
+
+### Added
+
+- Implemented Notification Foundation with tenant-scoped templates, queued messages, priority, channel, target user, send, retry-after-failure, cancellation, and audit flows.
+- Added notification dispatcher abstraction, no-op infrastructure dispatcher, EF repository, persistence mapping, and notification audit actions.
+- Added Notification tests covering templates, duplicate prevention, rendering, queueing, successful and failed dispatch, cancellation rules, tenant isolation, domain rules, EF repository behavior, and dispatcher behavior.
+
+### Validation
+
+- Build completed successfully with zero warnings and zero errors.
+- Test suite completed successfully.
+- Notification module coverage reached 91.82%.
+
 ## v0.6.0-storage-foundation - 2026-06-20
 
 ### Added
