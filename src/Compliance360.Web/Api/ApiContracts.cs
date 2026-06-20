@@ -4,6 +4,7 @@ using Compliance360.Domain.CapaManagement;
 using Compliance360.Domain.Documents;
 using Compliance360.Domain.Identity;
 using Compliance360.Domain.Notifications;
+using Compliance360.Domain.RiskManagement;
 using Compliance360.Domain.Suppliers;
 using Compliance360.Domain.TenantManagement;
 using Compliance360.Domain.TechnicalSheets;
@@ -181,3 +182,35 @@ public sealed record VerifyCapaEffectivenessRequest(bool IsEffective, string Ver
 public sealed record AttachCapaWorkflowRequest(Guid WorkflowInstanceId);
 
 public sealed record ReopenCapaRequest(string Reason);
+
+public sealed record CreateRiskCategoryRequest(string Name, string Code);
+
+public sealed record CreateRiskMatrixRequest(string Name, int ToleranceScore);
+
+public sealed record CreateRiskRequest(Guid CategoryId, string Title, string Code, string Description, RiskType Type, string Area, string Process, Guid? SupplierId, Guid? DocumentId, Guid? AuditId, Guid? CapaId);
+
+public sealed record ClassifyRiskRequest(RiskType Type, string Area, string Process);
+
+public sealed record AssignRiskOwnerRequest(Guid OwnerUserId);
+
+public sealed record AssessRiskRequest(RiskProbability Probability, RiskImpact Impact, RiskProbability ResidualProbability, RiskImpact ResidualImpact, int ToleranceScore);
+
+public sealed record AddRiskTreatmentRequest(RiskTreatmentStrategy Strategy, string Rationale);
+
+public sealed record AddRiskMitigationPlanRequest(string Description, Guid ResponsibleUserId, DateTimeOffset DueAtUtc);
+
+public sealed record AddRiskControlRequest(string Name, RiskControlType Type, string Description, bool IsEffective);
+
+public sealed record AddRiskEvidenceRequest(Guid StoredFileId, string FileName, string ContentType, long SizeBytes, string Sha256Hash);
+
+public sealed record AddRiskAttachmentRequest(Guid StoredFileId, string FileName, string ContentType, long SizeBytes, string Sha256Hash);
+
+public sealed record ScheduleRiskReviewRequest(DateTimeOffset DueAtUtc);
+
+public sealed record CompleteRiskReviewRequest(Guid ReviewId, string Summary);
+
+public sealed record AddRiskIndicatorRequest(string Name, decimal Value, decimal Threshold);
+
+public sealed record AttachRiskWorkflowRequest(Guid WorkflowInstanceId);
+
+public sealed record ReopenRiskRequest(string Reason);

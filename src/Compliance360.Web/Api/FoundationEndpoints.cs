@@ -7,6 +7,7 @@ using Compliance360.Application.Identity;
 using Compliance360.Application.Mfa;
 using Compliance360.Application.Notifications;
 using Compliance360.Application.Rbac;
+using Compliance360.Application.RiskManagement;
 using Compliance360.Application.Storage;
 using Compliance360.Application.Suppliers;
 using Compliance360.Application.TechnicalSheets;
@@ -16,6 +17,7 @@ using Compliance360.Domain.Documents;
 using Compliance360.Domain.AuditManagement;
 using Compliance360.Domain.CapaManagement;
 using Compliance360.Domain.Identity;
+using Compliance360.Domain.RiskManagement;
 using Compliance360.Domain.Suppliers;
 using Compliance360.Domain.TechnicalSheets;
 using Compliance360.Domain.Workflows;
@@ -44,6 +46,7 @@ public static class FoundationEndpoints
         MapSuppliers(api);
         MapAuditManagement(api);
         MapCapaManagement(api);
+        MapRiskManagement(api);
 
         return api;
     }
@@ -821,6 +824,100 @@ public static class FoundationEndpoints
                 new CapaExportQuery(ApiContext.TenantId(httpContext, tenantId), status, priority, riskLevel, format ?? "csv", ApiContext.UserId(httpContext)),
                 cancellationToken)))
             .RequireAuthorization(PermissionPolicies.CapaRead);
+    }
+
+    private static void MapRiskManagement(RouteGroupBuilder api)
+    {
+        var risks = api.MapGroup("/tenants/{tenantId:guid}/risks")
+            .WithTags("Risk Management");
+
+        risks.MapPost("/categories", async (Guid tenantId, CreateRiskCategoryRequest request, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CreateCategoryAsync(new CreateRiskCategoryCommand(ApiContext.TenantId(httpContext, tenantId), request.Name, request.Code, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.RiskManage);
+
+        risks.MapPost("/matrices", async (Guid tenantId, CreateRiskMatrixRequest request, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CreateMatrixAsync(new CreateRiskMatrixCommand(ApiContext.TenantId(httpContext, tenantId), request.Name, request.ToleranceScore, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.RiskManage);
+
+        risks.MapPost("/", async (Guid tenantId, CreateRiskRequest request, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CreateRiskAsync(new CreateRiskCommand(ApiContext.TenantId(httpContext, tenantId), request.CategoryId, request.Title, request.Code, request.Description, request.Type, request.Area, request.Process, request.SupplierId, request.DocumentId, request.AuditId, request.CapaId, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.RiskManage);
+
+        risks.MapPost("/{riskId:guid}/classify", async (Guid tenantId, Guid riskId, ClassifyRiskRequest request, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ClassifyAsync(new ClassifyRiskCommand(ApiContext.TenantId(httpContext, tenantId), riskId, request.Type, request.Area, request.Process, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.RiskManage);
+
+        risks.MapPost("/{riskId:guid}/owners", async (Guid tenantId, Guid riskId, AssignRiskOwnerRequest request, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AssignOwnerAsync(new AssignRiskOwnerCommand(ApiContext.TenantId(httpContext, tenantId), riskId, request.OwnerUserId, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.RiskManage);
+
+        risks.MapPost("/{riskId:guid}/assessments", async (Guid tenantId, Guid riskId, AssessRiskRequest request, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AssessAsync(new AssessRiskCommand(ApiContext.TenantId(httpContext, tenantId), riskId, request.Probability, request.Impact, request.ResidualProbability, request.ResidualImpact, request.ToleranceScore, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.RiskManage);
+
+        risks.MapPost("/{riskId:guid}/treatments", async (Guid tenantId, Guid riskId, AddRiskTreatmentRequest request, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddTreatmentAsync(new AddRiskTreatmentCommand(ApiContext.TenantId(httpContext, tenantId), riskId, request.Strategy, request.Rationale, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.RiskApprove);
+
+        risks.MapPost("/{riskId:guid}/mitigation-plans", async (Guid tenantId, Guid riskId, AddRiskMitigationPlanRequest request, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddMitigationPlanAsync(new AddRiskMitigationPlanCommand(ApiContext.TenantId(httpContext, tenantId), riskId, request.Description, request.ResponsibleUserId, request.DueAtUtc, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.RiskManage);
+
+        risks.MapPost("/{riskId:guid}/controls", async (Guid tenantId, Guid riskId, AddRiskControlRequest request, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddControlAsync(new AddRiskControlCommand(ApiContext.TenantId(httpContext, tenantId), riskId, request.Name, request.Type, request.Description, request.IsEffective, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.RiskManage);
+
+        risks.MapPost("/{riskId:guid}/evidence", async (Guid tenantId, Guid riskId, AddRiskEvidenceRequest request, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddEvidenceAsync(new AddRiskEvidenceCommand(ApiContext.TenantId(httpContext, tenantId), riskId, request.StoredFileId, request.FileName, request.ContentType, request.SizeBytes, request.Sha256Hash, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.RiskManage);
+
+        risks.MapPost("/{riskId:guid}/attachments", async (Guid tenantId, Guid riskId, AddRiskAttachmentRequest request, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddAttachmentAsync(new AddRiskAttachmentCommand(ApiContext.TenantId(httpContext, tenantId), riskId, request.StoredFileId, request.FileName, request.ContentType, request.SizeBytes, request.Sha256Hash, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.RiskManage);
+
+        risks.MapPost("/{riskId:guid}/reviews", async (Guid tenantId, Guid riskId, ScheduleRiskReviewRequest request, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ScheduleReviewAsync(new ScheduleRiskReviewCommand(ApiContext.TenantId(httpContext, tenantId), riskId, request.DueAtUtc, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.RiskManage);
+
+        risks.MapPost("/{riskId:guid}/reviews/complete", async (Guid tenantId, Guid riskId, CompleteRiskReviewRequest request, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CompleteReviewAsync(new CompleteRiskReviewCommand(ApiContext.TenantId(httpContext, tenantId), riskId, request.ReviewId, request.Summary, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.RiskManage);
+
+        risks.MapPost("/{riskId:guid}/indicators", async (Guid tenantId, Guid riskId, AddRiskIndicatorRequest request, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddIndicatorAsync(new AddRiskIndicatorCommand(ApiContext.TenantId(httpContext, tenantId), riskId, request.Name, request.Value, request.Threshold, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.RiskManage);
+
+        risks.MapPost("/{riskId:guid}/escalate-critical", async (Guid tenantId, Guid riskId, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.EscalateCriticalAsync(new RiskActionCommand(ApiContext.TenantId(httpContext, tenantId), riskId, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.RiskApprove);
+
+        risks.MapPost("/{riskId:guid}/workflow", async (Guid tenantId, Guid riskId, AttachRiskWorkflowRequest request, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AttachWorkflowAsync(new AttachRiskWorkflowCommand(ApiContext.TenantId(httpContext, tenantId), riskId, request.WorkflowInstanceId, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.WorkflowManage);
+
+        risks.MapPost("/{riskId:guid}/close", async (Guid tenantId, Guid riskId, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CloseAsync(new RiskActionCommand(ApiContext.TenantId(httpContext, tenantId), riskId, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.RiskClose);
+
+        risks.MapPost("/{riskId:guid}/reopen", async (Guid tenantId, Guid riskId, ReopenRiskRequest request, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ReopenAsync(new ReopenRiskCommand(ApiContext.TenantId(httpContext, tenantId), riskId, request.Reason, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.RiskManage);
+
+        risks.MapGet("/", async (Guid tenantId, string? searchText, RiskStatus? status, RiskType? type, RiskLevel? level, string? area, Guid? supplierId, Guid? auditId, Guid? capaId, int page, int pageSize, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.SearchAsync(new RiskSearchQuery(ApiContext.TenantId(httpContext, tenantId), searchText, status, type, level, area, supplierId, auditId, capaId, page, pageSize), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.RiskRead);
+
+        risks.MapGet("/dashboard", async (Guid tenantId, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GetDashboardAsync(ApiContext.TenantId(httpContext, tenantId), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.RiskRead);
+
+        risks.MapGet("/heat-map", async (Guid tenantId, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GetHeatMapAsync(ApiContext.TenantId(httpContext, tenantId), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.RiskRead);
+
+        risks.MapPost("/export", async (Guid tenantId, RiskStatus? status, RiskType? type, RiskLevel? level, string? format, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ExportAsync(new RiskExportQuery(ApiContext.TenantId(httpContext, tenantId), status, type, level, format ?? "csv", ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.RiskRead);
     }
 
     private static IReadOnlyCollection<string> Permissions(HttpContext httpContext)

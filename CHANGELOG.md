@@ -138,6 +138,39 @@ All notable changes to Compliance 360 will be documented in this file.
 - Evidence Integrity: APPROVED, stored file metadata, content type, size, SHA-256 hash, and upload actor captured
 - Status: APPROVED
 
+## v0.14.0-risk-management-enterprise - 2026-06-20
+
+### Added
+
+- Implemented Risk Management Enterprise with risk categories, 5x5 risk matrices, risks, assessments, inherent/residual scoring, probability, impact, exposure level, tolerance, acceptance, treatments, mitigation plans, controls, owners, reviews, indicators, evidence, attachments, heat map data, dashboard metrics, search, pagination, and export descriptors.
+- Added integrations by reference for Audit Management, CAPA Management, Supplier Management, Document Management, Workflow Engine, notification follow-up surface, and AuditLog traceability.
+- Added tenant-scoped API v1 endpoints for category/matrix/risk creation, classification, owner assignment, assessment, treatments, mitigations, controls, evidence, attachments, reviews, indicators, critical escalation, workflow attachment, close/reopen, search, dashboard, heat map, and export.
+- Added security policies `Risk.Manage`, `Risk.Read`, `Risk.Approve`, and `Risk.Close`.
+- Added EF Core repository, PostgreSQL mappings, tenant-scoped indexes, aggregate graph persistence, and migration `AddRiskManagement`.
+- Added tests covering complete risk lifecycle, risk matrix calculations, residual/inherent scoring, dashboard, heat map, multitenant search/export, audit logs, security policy surface, negative paths, domain invariants, and EF repository persistence.
+
+### Validation
+
+- Build completed successfully with zero warnings and zero errors.
+- Test suite completed successfully: 156 passed.
+- Risk Management module coverage reached 96.23% line coverage and 92.39% branch coverage.
+- Linter check completed with no errors.
+
+### Module Completion Certificate
+
+- Module: Risk Management Enterprise
+- Date: 2026-06-20
+- Coverage: 96.23% line, 92.39% branch
+- Tests: 156 passed
+- Build: APPROVED, 0 warnings, 0 errors
+- Security: APPROVED, `Risk.Manage`, `Risk.Read`, `Risk.Approve`, and `Risk.Close` policies implemented
+- Multitenant: APPROVED, tenant-scoped repositories, filters, indexes, dashboard, heat map, export, and tenant isolation tests
+- Audit: APPROVED, risk create/update/close/reopen/export actions persisted to append-only `AuditLog`
+- Risk Matrix: APPROVED, 5x5 probability/impact matrix with inherent/residual risk and tolerance calculations implemented
+- Integrations: APPROVED, Audit Management, CAPA Management, Supplier Management, Document Management, Workflow Engine, Notifications surface, and AuditLog integration points implemented
+- Evidence Integrity: APPROVED, stored file metadata, content type, size, SHA-256 hash, and upload actor captured
+- Status: APPROVED
+
 ## v0.7.0-notification-foundation - 2026-06-20
 
 ### Added

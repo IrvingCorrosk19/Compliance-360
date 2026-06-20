@@ -6,6 +6,7 @@ using Compliance360.Domain.Common;
 using Compliance360.Domain.Documents;
 using Compliance360.Domain.Identity;
 using Compliance360.Domain.Notifications;
+using Compliance360.Domain.RiskManagement;
 using Compliance360.Domain.Storage;
 using Compliance360.Domain.Suppliers;
 using Compliance360.Domain.TechnicalSheets;
@@ -173,6 +174,32 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
 
     public DbSet<CapaHistory> CapaHistory => Set<CapaHistory>();
 
+    public DbSet<RiskCategory> RiskCategories => Set<RiskCategory>();
+
+    public DbSet<RiskMatrix> RiskMatrices => Set<RiskMatrix>();
+
+    public DbSet<Risk> Risks => Set<Risk>();
+
+    public DbSet<RiskAssessment> RiskAssessments => Set<RiskAssessment>();
+
+    public DbSet<RiskTreatment> RiskTreatments => Set<RiskTreatment>();
+
+    public DbSet<RiskMitigationPlan> RiskMitigationPlans => Set<RiskMitigationPlan>();
+
+    public DbSet<RiskControl> RiskControls => Set<RiskControl>();
+
+    public DbSet<RiskOwner> RiskOwners => Set<RiskOwner>();
+
+    public DbSet<RiskReview> RiskReviews => Set<RiskReview>();
+
+    public DbSet<RiskEvidence> RiskEvidence => Set<RiskEvidence>();
+
+    public DbSet<RiskIndicator> RiskIndicators => Set<RiskIndicator>();
+
+    public DbSet<RiskAttachment> RiskAttachments => Set<RiskAttachment>();
+
+    public DbSet<RiskHistory> RiskHistory => Set<RiskHistory>();
+
     public override int SaveChanges()
     {
         ApplyFoundationRules();
@@ -200,6 +227,7 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
         ConfigureSuppliers(modelBuilder);
         ConfigureAuditManagement(modelBuilder);
         ConfigureCapaManagement(modelBuilder);
+        ConfigureRiskManagement(modelBuilder);
     }
 
     private static void ConfigureTenantManagement(ModelBuilder modelBuilder)
@@ -1062,6 +1090,159 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.Property(action => action.Type).HasConversion<string>().HasMaxLength(40).IsRequired();
             entity.Property(action => action.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
             entity.HasIndex(action => new { action.TenantId, action.CapaId, action.Status, action.DueAtUtc });
+        });
+    }
+
+    private static void ConfigureRiskManagement(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<RiskCategory>(entity =>
+        {
+            entity.ToTable("risk_categories");
+            entity.HasKey(category => category.Id);
+            entity.Property(category => category.Name).HasMaxLength(180).IsRequired();
+            entity.Property(category => category.Code).HasMaxLength(80).IsRequired();
+            entity.HasIndex(category => new { category.TenantId, category.Code }).IsUnique();
+        });
+
+        modelBuilder.Entity<RiskMatrix>(entity =>
+        {
+            entity.ToTable("risk_matrices");
+            entity.HasKey(matrix => matrix.Id);
+            entity.Property(matrix => matrix.Name).HasMaxLength(180).IsRequired();
+            entity.HasIndex(matrix => new { matrix.TenantId, matrix.IsDefault });
+        });
+
+        modelBuilder.Entity<Risk>(entity =>
+        {
+            entity.ToTable("risks");
+            entity.HasKey(risk => risk.Id);
+            entity.Property(risk => risk.Title).HasMaxLength(220).IsRequired();
+            entity.Property(risk => risk.Code).HasMaxLength(100).IsRequired();
+            entity.Property(risk => risk.Description).HasMaxLength(2_000).IsRequired();
+            entity.Property(risk => risk.Type).HasConversion<string>().HasMaxLength(60).IsRequired();
+            entity.Property(risk => risk.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(risk => risk.InherentLevel).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(risk => risk.ResidualLevel).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(risk => risk.Area).HasMaxLength(160).IsRequired();
+            entity.Property(risk => risk.Process).HasMaxLength(160).IsRequired();
+            entity.HasIndex(risk => new { risk.TenantId, risk.Code }).IsUnique();
+            entity.HasIndex(risk => new { risk.TenantId, risk.Status, risk.Type, risk.ResidualLevel });
+            entity.HasIndex(risk => new { risk.TenantId, risk.Area, risk.Process });
+            entity.HasIndex(risk => new { risk.TenantId, risk.SupplierId });
+            entity.HasIndex(risk => new { risk.TenantId, risk.AuditId });
+            entity.HasIndex(risk => new { risk.TenantId, risk.CapaId });
+            entity.HasMany(risk => risk.Assessments).WithOne().HasForeignKey(assessment => assessment.RiskId);
+            entity.HasMany(risk => risk.Treatments).WithOne().HasForeignKey(treatment => treatment.RiskId);
+            entity.HasMany(risk => risk.MitigationPlans).WithOne().HasForeignKey(plan => plan.RiskId);
+            entity.HasMany(risk => risk.Controls).WithOne().HasForeignKey(control => control.RiskId);
+            entity.HasMany(risk => risk.Owners).WithOne().HasForeignKey(owner => owner.RiskId);
+            entity.HasMany(risk => risk.Reviews).WithOne().HasForeignKey(review => review.RiskId);
+            entity.HasMany(risk => risk.Evidence).WithOne().HasForeignKey(evidence => evidence.RiskId);
+            entity.HasMany(risk => risk.Indicators).WithOne().HasForeignKey(indicator => indicator.RiskId);
+            entity.HasMany(risk => risk.Attachments).WithOne().HasForeignKey(attachment => attachment.RiskId);
+            entity.HasMany(risk => risk.History).WithOne().HasForeignKey(history => history.RiskId);
+            entity.Navigation(risk => risk.Assessments).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(risk => risk.Treatments).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(risk => risk.MitigationPlans).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(risk => risk.Controls).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(risk => risk.Owners).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(risk => risk.Reviews).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(risk => risk.Evidence).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(risk => risk.Indicators).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(risk => risk.Attachments).UsePropertyAccessMode(PropertyAccessMode.Field);
+            entity.Navigation(risk => risk.History).UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+
+        modelBuilder.Entity<RiskAssessment>(entity =>
+        {
+            entity.ToTable("risk_assessments");
+            entity.HasKey(assessment => assessment.Id);
+            entity.Property(assessment => assessment.Probability).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(assessment => assessment.Impact).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(assessment => assessment.InherentLevel).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(assessment => assessment.ResidualProbability).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(assessment => assessment.ResidualImpact).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(assessment => assessment.ResidualLevel).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.HasIndex(assessment => new { assessment.TenantId, assessment.RiskId, assessment.AssessedAtUtc });
+        });
+
+        modelBuilder.Entity<RiskTreatment>(entity =>
+        {
+            entity.ToTable("risk_treatments");
+            entity.HasKey(treatment => treatment.Id);
+            entity.Property(treatment => treatment.Strategy).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(treatment => treatment.Rationale).HasMaxLength(1_000).IsRequired();
+        });
+
+        modelBuilder.Entity<RiskMitigationPlan>(entity =>
+        {
+            entity.ToTable("risk_mitigation_plans");
+            entity.HasKey(plan => plan.Id);
+            entity.Property(plan => plan.Description).HasMaxLength(1_000).IsRequired();
+            entity.HasIndex(plan => new { plan.TenantId, plan.ResponsibleUserId, plan.DueAtUtc, plan.IsCompleted });
+        });
+
+        modelBuilder.Entity<RiskControl>(entity =>
+        {
+            entity.ToTable("risk_controls");
+            entity.HasKey(control => control.Id);
+            entity.Property(control => control.Name).HasMaxLength(180).IsRequired();
+            entity.Property(control => control.Type).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(control => control.Description).HasMaxLength(1_000).IsRequired();
+            entity.HasIndex(control => new { control.TenantId, control.RiskId, control.Type });
+        });
+
+        modelBuilder.Entity<RiskOwner>(entity =>
+        {
+            entity.ToTable("risk_owners");
+            entity.HasKey(owner => owner.Id);
+            entity.HasIndex(owner => new { owner.TenantId, owner.RiskId, owner.UserId }).IsUnique();
+        });
+
+        modelBuilder.Entity<RiskReview>(entity =>
+        {
+            entity.ToTable("risk_reviews");
+            entity.HasKey(review => review.Id);
+            entity.Property(review => review.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(review => review.Summary).HasMaxLength(1_000);
+            entity.HasIndex(review => new { review.TenantId, review.RiskId, review.DueAtUtc, review.Status });
+        });
+
+        modelBuilder.Entity<RiskEvidence>(entity =>
+        {
+            entity.ToTable("risk_evidence");
+            entity.HasKey(evidence => evidence.Id);
+            entity.Property(evidence => evidence.FileName).HasMaxLength(260).IsRequired();
+            entity.Property(evidence => evidence.ContentType).HasMaxLength(120).IsRequired();
+            entity.Property(evidence => evidence.Sha256Hash).HasMaxLength(128).IsRequired();
+            entity.HasIndex(evidence => new { evidence.TenantId, evidence.RiskId });
+        });
+
+        modelBuilder.Entity<RiskIndicator>(entity =>
+        {
+            entity.ToTable("risk_indicators");
+            entity.HasKey(indicator => indicator.Id);
+            entity.Property(indicator => indicator.Name).HasMaxLength(180).IsRequired();
+            entity.Property(indicator => indicator.Value).HasPrecision(18, 4);
+            entity.Property(indicator => indicator.Threshold).HasPrecision(18, 4);
+            entity.HasIndex(indicator => new { indicator.TenantId, indicator.RiskId, indicator.IsBreached });
+        });
+
+        modelBuilder.Entity<RiskAttachment>(entity =>
+        {
+            entity.ToTable("risk_attachments");
+            entity.HasKey(attachment => attachment.Id);
+            entity.Property(attachment => attachment.FileName).HasMaxLength(260).IsRequired();
+            entity.Property(attachment => attachment.ContentType).HasMaxLength(120).IsRequired();
+            entity.Property(attachment => attachment.Sha256Hash).HasMaxLength(128).IsRequired();
+        });
+
+        modelBuilder.Entity<RiskHistory>(entity =>
+        {
+            entity.ToTable("risk_history");
+            entity.HasKey(history => history.Id);
+            entity.Property(history => history.Action).HasMaxLength(1_200).IsRequired();
+            entity.HasIndex(history => new { history.TenantId, history.RiskId, history.OccurredAtUtc });
         });
     }
 
