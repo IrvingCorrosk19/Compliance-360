@@ -2,6 +2,21 @@
 
 All notable changes to Compliance 360 will be documented in this file.
 
+## v0.4.0-rbac-foundation - 2026-06-20
+
+### Added
+
+- Implemented RBAC Foundation service for role creation, permission creation, role assignment, permission grants, authorization decisions, and user permission set queries.
+- Added tenant-scoped RBAC repository with EF Core implementation and audit integration.
+- Added ABAC-style tenant/entity isolation checks during authorization.
+- Added RBAC coverage for role and permission management, duplicate validation, authorization allow/deny, tenant isolation, repository behavior, and audit creation.
+
+### Validation
+
+- Build completed successfully with zero warnings and zero errors.
+- Test suite completed successfully.
+- RBAC module coverage reached 95.62%.
+
 ## v0.3.0-audit-foundation - 2026-06-20
 
 ### Added

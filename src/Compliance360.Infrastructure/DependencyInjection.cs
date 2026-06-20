@@ -1,10 +1,12 @@
 using Compliance360.Application;
 using Compliance360.Application.Audit;
 using Compliance360.Application.Identity;
+using Compliance360.Application.Rbac;
 using Compliance360.Application.TenantManagement;
 using Compliance360.Infrastructure.Audit;
 using Compliance360.Infrastructure.Identity;
 using Compliance360.Infrastructure.Persistence;
+using Compliance360.Infrastructure.Rbac;
 using Compliance360.Infrastructure.Security;
 using Compliance360.Infrastructure.Storage;
 using Compliance360.Infrastructure.TenantManagement;
@@ -37,6 +39,7 @@ public static class DependencyInjection
         services.AddScoped<IFileStorageService, LocalFileStorageService>();
         services.AddScoped<ITenantManagementService, TenantManagementService>();
         services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<IRbacService, RbacService>();
 
         var connectionString = configuration.GetConnectionString("Compliance360");
         if (!string.IsNullOrWhiteSpace(connectionString))
@@ -51,6 +54,7 @@ public static class DependencyInjection
             services.AddScoped<IAuditRepository, EfAuditRepository>();
             services.AddScoped<ITenantManagementRepository, EfTenantManagementRepository>();
             services.AddScoped<IIdentityRepository, EfIdentityRepository>();
+            services.AddScoped<IRbacRepository, EfRbacRepository>();
         }
 
         return services;
