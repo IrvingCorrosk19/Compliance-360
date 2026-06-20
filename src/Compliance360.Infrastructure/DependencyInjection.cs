@@ -3,6 +3,7 @@ using Compliance360.Application.Audit;
 using Compliance360.Application.Identity;
 using Compliance360.Application.Mfa;
 using Compliance360.Application.Rbac;
+using Compliance360.Application.Storage;
 using Compliance360.Application.TenantManagement;
 using Compliance360.Infrastructure.Audit;
 using Compliance360.Infrastructure.Identity;
@@ -42,6 +43,7 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IRefreshTokenGenerator, RefreshTokenGenerator>();
         services.AddScoped<IFileStorageService, LocalFileStorageService>();
+        services.AddScoped<IStorageFoundationService, StorageFoundationService>();
         services.AddScoped<ITenantManagementService, TenantManagementService>();
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IRbacService, RbacService>();
@@ -61,6 +63,7 @@ public static class DependencyInjection
             services.AddScoped<IIdentityRepository, EfIdentityRepository>();
             services.AddScoped<IRbacRepository, EfRbacRepository>();
             services.AddScoped<IMfaRepository, EfMfaRepository>();
+            services.AddScoped<IStorageRepository, EfStorageRepository>();
         }
 
         return services;

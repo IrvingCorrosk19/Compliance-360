@@ -2,6 +2,20 @@
 
 All notable changes to Compliance 360 will be documented in this file.
 
+## v0.6.0-storage-foundation - 2026-06-20
+
+### Added
+
+- Implemented Storage Foundation service for tenant-scoped file upload, metadata retrieval, download registration, availability, quarantine, and soft deletion flows.
+- Added EF storage repository, audit integration, SHA-256 integrity tracking, local storage size accounting, and metadata status transitions.
+- Added Storage tests covering upload, tenant isolation, download blocking, status changes, local file persistence, EF repository behavior, and domain rules.
+
+### Validation
+
+- Build completed successfully with zero warnings and zero errors.
+- Test suite completed successfully.
+- Storage module coverage reached 92.20%.
+
 ## v0.5.0-mfa-foundation - 2026-06-20
 
 ### Added

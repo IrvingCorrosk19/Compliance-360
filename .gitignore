@@ -7,5 +7,5 @@ TestResults/
 *.suo
 *.rsuser
 *.nupkg
-storage/
+/storage/
 appsettings.Local.json
