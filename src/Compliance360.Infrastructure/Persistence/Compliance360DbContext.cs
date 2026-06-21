@@ -4,6 +4,7 @@ using Compliance360.Domain.AuditManagement;
 using Compliance360.Domain.CapaManagement;
 using Compliance360.Domain.Common;
 using Compliance360.Domain.Documents;
+using Compliance360.Domain.Enterprise;
 using Compliance360.Domain.Identity;
 using Compliance360.Domain.Notifications;
 using Compliance360.Domain.QualityIndicators;
@@ -252,6 +253,8 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
 
     public DbSet<ReportDashboardBinding> ReportDashboardBindings => Set<ReportDashboardBinding>();
 
+    public DbSet<EnterpriseWorkspaceItem> EnterpriseWorkspaceItems => Set<EnterpriseWorkspaceItem>();
+
     public override int SaveChanges()
     {
         ApplyFoundationRules();
@@ -282,6 +285,7 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
         ConfigureRiskManagement(modelBuilder);
         ConfigureQualityIndicators(modelBuilder);
         ConfigureReportingEngine(modelBuilder);
+        ConfigureEnterpriseWorkspaces(modelBuilder);
     }
 
     private static void ConfigureTenantManagement(ModelBuilder modelBuilder)
@@ -1585,6 +1589,23 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.HasKey(history => history.Id);
             entity.Property(history => history.Action).HasMaxLength(1_200).IsRequired();
             entity.HasIndex(history => new { history.TenantId, history.ReportDefinitionId, history.OccurredAtUtc });
+        });
+    }
+
+    private static void ConfigureEnterpriseWorkspaces(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<EnterpriseWorkspaceItem>(entity =>
+        {
+            entity.ToTable("enterprise_workspace_items");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.Type).HasConversion<string>().HasMaxLength(80).IsRequired();
+            entity.Property(item => item.Title).HasMaxLength(220).IsRequired();
+            entity.Property(item => item.Code).HasMaxLength(100).IsRequired();
+            entity.Property(item => item.Description).HasMaxLength(2_000).IsRequired();
+            entity.Property(item => item.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(item => item.MetadataJson).HasColumnType("jsonb").IsRequired();
+            entity.HasIndex(item => new { item.TenantId, item.Code }).IsUnique();
+            entity.HasIndex(item => new { item.TenantId, item.Type, item.Status });
         });
     }
 

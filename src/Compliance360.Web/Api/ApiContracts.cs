@@ -2,6 +2,7 @@ using Compliance360.Domain.Audit;
 using Compliance360.Domain.AuditManagement;
 using Compliance360.Domain.CapaManagement;
 using Compliance360.Domain.Documents;
+using Compliance360.Domain.Enterprise;
 using Compliance360.Domain.Identity;
 using Compliance360.Domain.Notifications;
 using Compliance360.Domain.QualityIndicators;
@@ -58,6 +59,15 @@ public sealed record AuditSearchRequest(
     DateTimeOffset? ToUtc,
     int Page,
     int PageSize);
+
+public sealed record CreateEnterpriseWorkspaceItemRequest(
+    EnterpriseWorkspaceType Type,
+    string Title,
+    string Code,
+    string Description,
+    Guid? OwnerUserId,
+    DateTimeOffset? DueAtUtc,
+    string? MetadataJson);
 
 public sealed record CreateNotificationTemplateRequest(string Code, NotificationChannel Channel, string Subject, string Body);
 

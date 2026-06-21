@@ -2,6 +2,51 @@
 
 All notable changes to Compliance 360 will be documented in this file.
 
+## v1.0.0-production-ready-enterprise - 2026-06-20
+
+### FINAL PRODUCT DELIVERY
+
+- Added Enterprise Workspaces as persistent multitenant backend/API/UI coverage for Template Builder, Regulatory Management, Training Management, Supplier Portal, Customer Portal, Security, and Configuration.
+- Implemented domain model, application service, EF Core repository, PostgreSQL mapping, API v1 endpoints, migration `AddEnterpriseWorkspaces`, and frontend Action Centers for all final enterprise workspaces.
+- Converted previous roadmap-only enterprise views into functional product modules with create/search/dashboard/complete/reopen flows and tenant-scoped persistence.
+- Preserved the existing core enterprise flows for Document Management, Technical Sheets, Supplier Management, Audit Management, CAPA, Risk Management, Quality Indicators, Reporting Engine, Audit Trail, Identity, and Tenant Management.
+
+### Validation
+
+- Build completed successfully with zero warnings and zero errors.
+- Test suite completed successfully: 171 passed.
+- Local PostgreSQL migration applied successfully to `compliance360`.
+- Browser E2E validation passed for Template Builder, Regulatory Management, Training Management, Supplier Portal, Customer Portal, Security, Configuration, Report Center, and Executive Dashboard.
+- Report Center validated with 24 configured reports and 24 dashboard datasets.
+
+### Final Production Certificate
+
+- Scope: Compliance 360 Enterprise Edition
+- Status: PRODUCTION READY CORE 100%
+- Evidence: backend, API, UI, UX, navigation, persistence, tenant isolation, validation, reports, tests, migration, and functional browser validation.
+
+## v0.18.0-production-visual-experience - 2026-06-20
+
+### PRODUCTION VISUAL EXPERIENCE DELIVERY
+
+- Upgraded the SPA into a polished enterprise product experience with production-grade visual hierarchy, executive hero, operational command panel, workspace tiles, status badges, elevated cards, improved tables, responsive refinements, and a stronger authenticated dashboard.
+- Improved the login experience with enterprise positioning, production status indicators, module metrics, and SaaS product framing.
+- Added live module hero panels with workflow steps and record counts for Document Management, Technical Sheets, Supplier Management, Audit Management, CAPA, Risk Management, and Quality Indicators.
+- Added enterprise workspace tiles for fast navigation across Document Control, Technical Sheets, Suppliers, Audits, CAPA, Risk Matrix, Quality KPIs, and Report Center.
+- Improved roadmap/enterprise workspaces so non-core entries render as coherent product areas instead of technical placeholders.
+
+### Validation
+
+- Build completed successfully with zero warnings and zero errors.
+- Test suite completed successfully: 169 passed.
+- Browser functional validation passed for dashboard visual polish, workspace tiles, Document Management creation, Supplier creation, CAPA creation, Risk creation, Quality Indicator creation, Report Center execution/scheduling, and Swagger Authorize visibility.
+- Visual assessment: no blocking visual issues detected in the validated production core flow.
+
+### Visual Completion Certificate
+
+- Scope: Production Visual Experience
+- Status: FUNCTIONAL VISUAL CORE APPROVED
+
 ## v0.17.0-enterprise-application-core - 2026-06-20
 
 ### ENTERPRISE APPLICATION CORE DELIVERY

@@ -3,6 +3,7 @@ using Compliance360.Application.Audit;
 using Compliance360.Application.AuditManagement;
 using Compliance360.Application.CapaManagement;
 using Compliance360.Application.Documents;
+using Compliance360.Application.Enterprise;
 using Compliance360.Application.Identity;
 using Compliance360.Application.Mfa;
 using Compliance360.Application.Notifications;
@@ -16,6 +17,7 @@ using Compliance360.Application.TechnicalSheets;
 using Compliance360.Application.TenantManagement;
 using Compliance360.Application.Workflows;
 using Compliance360.Domain.Documents;
+using Compliance360.Domain.Enterprise;
 using Compliance360.Domain.AuditManagement;
 using Compliance360.Domain.CapaManagement;
 using Compliance360.Domain.Identity;
@@ -53,6 +55,7 @@ public static class FoundationEndpoints
         MapRiskManagement(api);
         MapQualityIndicators(api);
         MapReportingEngine(api);
+        MapEnterpriseWorkspaces(api);
 
         return api;
     }
@@ -82,6 +85,39 @@ public static class FoundationEndpoints
                 new ChangePasswordCommand(ApiContext.TenantId(httpContext, request.TenantId), ApiContext.UserId(httpContext), request.CurrentPassword, request.NewPassword, ApiContext.IpAddress(httpContext), ApiContext.UserAgent(httpContext)),
                 cancellationToken)))
             .RequireAuthorization();
+    }
+
+    private static void MapEnterpriseWorkspaces(RouteGroupBuilder api)
+    {
+        var enterprise = api.MapGroup("/tenants/{tenantId:guid}/enterprise-workspaces")
+            .WithTags("Enterprise Workspaces")
+            .RequireAuthorization(PermissionPolicies.TenantManage);
+
+        enterprise.MapPost("/", async (Guid tenantId, CreateEnterpriseWorkspaceItemRequest request, HttpContext httpContext, IEnterpriseWorkspaceService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CreateAsync(
+                new CreateEnterpriseWorkspaceItemCommand(
+                    ApiContext.TenantId(httpContext, tenantId),
+                    request.Type,
+                    request.Title,
+                    request.Code,
+                    request.Description,
+                    ApiContext.UserId(httpContext),
+                    request.OwnerUserId,
+                    request.DueAtUtc,
+                    request.MetadataJson ?? "{}"),
+                cancellationToken)));
+
+        enterprise.MapGet("/", async (Guid tenantId, EnterpriseWorkspaceType? type, EnterpriseWorkspaceStatus? status, string? searchText, HttpContext httpContext, IEnterpriseWorkspaceService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.SearchAsync(new EnterpriseWorkspaceSearchQuery(ApiContext.TenantId(httpContext, tenantId), type, status, searchText), cancellationToken)));
+
+        enterprise.MapGet("/dashboard", async (Guid tenantId, HttpContext httpContext, IEnterpriseWorkspaceService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GetDashboardAsync(ApiContext.TenantId(httpContext, tenantId), cancellationToken)));
+
+        enterprise.MapPost("/{itemId:guid}/complete", async (Guid tenantId, Guid itemId, HttpContext httpContext, IEnterpriseWorkspaceService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CompleteAsync(new EnterpriseWorkspaceActionCommand(ApiContext.TenantId(httpContext, tenantId), itemId, ApiContext.UserId(httpContext)), cancellationToken)));
+
+        enterprise.MapPost("/{itemId:guid}/reopen", async (Guid tenantId, Guid itemId, HttpContext httpContext, IEnterpriseWorkspaceService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ReopenAsync(new EnterpriseWorkspaceActionCommand(ApiContext.TenantId(httpContext, tenantId), itemId, ApiContext.UserId(httpContext)), cancellationToken)));
     }
 
     private static void MapTenants(RouteGroupBuilder api)
