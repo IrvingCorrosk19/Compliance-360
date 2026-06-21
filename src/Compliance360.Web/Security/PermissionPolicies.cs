@@ -28,6 +28,10 @@ public static class PermissionPolicies
     public const string ReportSchedule = "Report.Schedule";
     public const string StorageManage = "Storage.Manage";
     public const string NotificationManage = "Notification.Manage";
+    public const string NotificationSend = "Notification.Send";
+    public const string NotificationRead = "Notification.Read";
+    public const string NotificationTemplate = "Notification.Template";
+    public const string NotificationAdmin = "Notification.Admin";
     public const string DocumentManage = "Document.Manage";
     public const string WorkflowManage = "Workflow.Manage";
     public const string TechnicalSheetManage = "TechnicalSheet.Manage";
@@ -62,6 +66,10 @@ public static class PermissionPolicies
         options.AddPolicy(ReportSchedule, policy => policy.RequireAssertion(context => HasPermission(context, "REPORT.SCHEDULE") || HasPermission(context, "REPORT.MANAGE")));
         options.AddPolicy(StorageManage, policy => policy.RequireAssertion(context => HasPermission(context, "STORAGE.MANAGE")));
         options.AddPolicy(NotificationManage, policy => policy.RequireAssertion(context => HasPermission(context, "NOTIFICATION.MANAGE")));
+        options.AddPolicy(NotificationSend, policy => policy.RequireAssertion(context => HasPermission(context, "NOTIFICATION.SEND") || HasPermission(context, "NOTIFICATION.MANAGE") || HasPermission(context, "NOTIFICATION.ADMIN")));
+        options.AddPolicy(NotificationRead, policy => policy.RequireAssertion(context => HasPermission(context, "NOTIFICATION.READ") || HasPermission(context, "NOTIFICATION.MANAGE") || HasPermission(context, "NOTIFICATION.ADMIN")));
+        options.AddPolicy(NotificationTemplate, policy => policy.RequireAssertion(context => HasPermission(context, "NOTIFICATION.TEMPLATE") || HasPermission(context, "NOTIFICATION.MANAGE") || HasPermission(context, "NOTIFICATION.ADMIN")));
+        options.AddPolicy(NotificationAdmin, policy => policy.RequireAssertion(context => HasPermission(context, "NOTIFICATION.ADMIN")));
         options.AddPolicy(DocumentManage, policy => policy.RequireAssertion(context => HasPermission(context, "DOCUMENT.MANAGE")));
         options.AddPolicy(WorkflowManage, policy => policy.RequireAssertion(context => HasPermission(context, "WORKFLOW.MANAGE")));
         options.AddPolicy(TechnicalSheetManage, policy => policy.RequireAssertion(context => HasPermission(context, "TECHNICALSHEET.MANAGE")));

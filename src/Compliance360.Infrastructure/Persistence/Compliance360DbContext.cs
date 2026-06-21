@@ -65,6 +65,22 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
 
     public DbSet<NotificationMessage> NotificationMessages => Set<NotificationMessage>();
 
+    public DbSet<NotificationDelivery> NotificationDeliveries => Set<NotificationDelivery>();
+
+    public DbSet<NotificationRetry> NotificationRetries => Set<NotificationRetry>();
+
+    public DbSet<NotificationSubscription> NotificationSubscriptions => Set<NotificationSubscription>();
+
+    public DbSet<NotificationPreference> NotificationPreferences => Set<NotificationPreference>();
+
+    public DbSet<NotificationHistory> NotificationHistory => Set<NotificationHistory>();
+
+    public DbSet<NotificationAttachment> NotificationAttachments => Set<NotificationAttachment>();
+
+    public DbSet<NotificationProviderConfiguration> NotificationProviderConfigurations => Set<NotificationProviderConfiguration>();
+
+    public DbSet<NotificationDeadLetter> NotificationDeadLetters => Set<NotificationDeadLetter>();
+
     public DbSet<Document> Documents => Set<Document>();
 
     public DbSet<DocumentType> DocumentTypes => Set<DocumentType>();
@@ -493,6 +509,9 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.Property(template => template.Channel).HasConversion<string>().HasMaxLength(40).IsRequired();
             entity.Property(template => template.Subject).HasMaxLength(250).IsRequired();
             entity.Property(template => template.Body).HasMaxLength(4_000).IsRequired();
+            entity.Property(template => template.TextBody).HasMaxLength(4_000);
+            entity.Property(template => template.Locale).HasMaxLength(20);
+            entity.Property(template => template.BrandingJson).HasColumnType("jsonb");
             entity.HasIndex(template => new { template.TenantId, template.Code, template.Channel }).IsUnique();
         });
 
@@ -504,11 +523,86 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.Property(message => message.Recipient).HasMaxLength(320).IsRequired();
             entity.Property(message => message.Subject).HasMaxLength(250).IsRequired();
             entity.Property(message => message.Body).HasMaxLength(4_000).IsRequired();
+            entity.Property(message => message.TextBody).HasMaxLength(4_000);
             entity.Property(message => message.Priority).HasConversion<string>().HasMaxLength(40).IsRequired();
             entity.Property(message => message.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(message => message.LastProvider).HasConversion<string>().HasMaxLength(40);
             entity.Property(message => message.FailureReason).HasMaxLength(1_000);
             entity.HasIndex(message => new { message.TenantId, message.Status, message.Priority, message.QueuedAtUtc });
             entity.HasIndex(message => new { message.TenantId, message.TargetUserId, message.QueuedAtUtc });
+        });
+
+        modelBuilder.Entity<NotificationDelivery>(entity =>
+        {
+            entity.ToTable("notification_deliveries");
+            entity.HasKey(delivery => delivery.Id);
+            entity.Property(delivery => delivery.Provider).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(delivery => delivery.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(delivery => delivery.ProviderMessageId).HasMaxLength(250).IsRequired();
+            entity.HasIndex(delivery => new { delivery.TenantId, delivery.NotificationMessageId, delivery.OccurredAtUtc });
+        });
+
+        modelBuilder.Entity<NotificationRetry>(entity =>
+        {
+            entity.ToTable("notification_retries");
+            entity.HasKey(retry => retry.Id);
+            entity.Property(retry => retry.FailureReason).HasMaxLength(1_000).IsRequired();
+            entity.HasIndex(retry => new { retry.TenantId, retry.NotificationMessageId, retry.Attempt });
+        });
+
+        modelBuilder.Entity<NotificationSubscription>(entity =>
+        {
+            entity.ToTable("notification_subscriptions");
+            entity.HasKey(subscription => subscription.Id);
+            entity.Property(subscription => subscription.Topic).HasMaxLength(120).IsRequired();
+            entity.Property(subscription => subscription.Channel).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(subscription => subscription.Recipient).HasMaxLength(320).IsRequired();
+            entity.HasIndex(subscription => new { subscription.TenantId, subscription.Topic, subscription.Channel, subscription.Recipient }).IsUnique();
+        });
+
+        modelBuilder.Entity<NotificationPreference>(entity =>
+        {
+            entity.ToTable("notification_preferences");
+            entity.HasKey(preference => preference.Id);
+            entity.Property(preference => preference.Channel).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.HasIndex(preference => new { preference.TenantId, preference.UserId, preference.Channel }).IsUnique();
+        });
+
+        modelBuilder.Entity<NotificationHistory>(entity =>
+        {
+            entity.ToTable("notification_history");
+            entity.HasKey(history => history.Id);
+            entity.Property(history => history.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(history => history.EventName).HasMaxLength(160).IsRequired();
+            entity.HasIndex(history => new { history.TenantId, history.NotificationMessageId, history.OccurredAtUtc });
+        });
+
+        modelBuilder.Entity<NotificationAttachment>(entity =>
+        {
+            entity.ToTable("notification_attachments");
+            entity.HasKey(attachment => attachment.Id);
+            entity.Property(attachment => attachment.FileName).HasMaxLength(220).IsRequired();
+            entity.Property(attachment => attachment.ContentType).HasMaxLength(120).IsRequired();
+            entity.Property(attachment => attachment.StorageObjectKey).HasMaxLength(500).IsRequired();
+            entity.HasIndex(attachment => new { attachment.TenantId, attachment.NotificationMessageId });
+        });
+
+        modelBuilder.Entity<NotificationProviderConfiguration>(entity =>
+        {
+            entity.ToTable("notification_provider_configurations");
+            entity.HasKey(configuration => configuration.Id);
+            entity.Property(configuration => configuration.Provider).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(configuration => configuration.Name).HasMaxLength(120).IsRequired();
+            entity.HasIndex(configuration => new { configuration.TenantId, configuration.Provider, configuration.Name }).IsUnique();
+        });
+
+        modelBuilder.Entity<NotificationDeadLetter>(entity =>
+        {
+            entity.ToTable("notification_dead_letters");
+            entity.HasKey(deadLetter => deadLetter.Id);
+            entity.Property(deadLetter => deadLetter.Reason).HasMaxLength(1_000).IsRequired();
+            entity.Property(deadLetter => deadLetter.PayloadJson).HasColumnType("jsonb").IsRequired();
+            entity.HasIndex(deadLetter => new { deadLetter.TenantId, deadLetter.DeadLetteredAtUtc });
         });
     }
 

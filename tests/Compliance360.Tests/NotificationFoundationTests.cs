@@ -6,6 +6,7 @@ using Compliance360.Domain.Notifications;
 using Compliance360.Infrastructure.Notifications;
 using Compliance360.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Compliance360.Tests;
 
@@ -27,7 +28,7 @@ public sealed class NotificationFoundationTests
         Assert.True(result.IsSuccess);
         Assert.Equal("WELCOME", result.Value!.Code);
         Assert.Single(fixture.Repository.Templates);
-        Assert.Contains(fixture.Repository.AuditLogs, audit => audit.Action == AuditAction.ConfigurationChanged);
+        Assert.Contains(fixture.Repository.AuditLogs, audit => audit.Action == AuditAction.NotificationTemplateCreated);
     }
 
     [Fact]
@@ -103,8 +104,10 @@ public sealed class NotificationFoundationTests
         var sent = await fixture.Service.SendAsync(new SendNotificationCommand(fixture.TenantId, queued.Id, fixture.UserId));
 
         Assert.True(sent.IsSuccess);
-        Assert.Equal(NotificationStatus.Failed, sent.Value!.Status);
+        Assert.Equal(NotificationStatus.Retried, sent.Value!.Status);
         Assert.Equal("smtp unavailable", sent.Value.FailureReason);
+        Assert.Single(fixture.Repository.Retries);
+        Assert.Contains(fixture.Repository.History, history => history.Status == NotificationDeliveryStatus.Retried);
         Assert.Contains(fixture.Repository.AuditLogs, audit => audit.Action == AuditAction.NotificationFailed && !audit.Success);
     }
 
@@ -181,13 +184,23 @@ public sealed class NotificationFoundationTests
     }
 
     [Fact]
-    public async Task NoOpNotificationDispatcher_Returns_Sent()
+    public async Task EnterpriseNotificationDispatcher_Fails_When_All_Providers_Are_Unconfigured()
     {
-        var dispatcher = new NoOpNotificationDispatcher();
+        var dispatcher = new EnterpriseNotificationDispatcher(
+            new NotificationProviderFactory([new SmtpNotificationProvider()]),
+            Options.Create(new NotificationProviderOptions
+            {
+                DefaultProvider = NotificationProvider.Smtp,
+                Providers = new Dictionary<NotificationProvider, NotificationProviderEndpointOptions>
+                {
+                    [NotificationProvider.Smtp] = new()
+                }
+            }),
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<EnterpriseNotificationDispatcher>.Instance);
 
         var result = await dispatcher.DispatchAsync(new NotificationDispatchRequest(Guid.NewGuid(), Guid.NewGuid(), NotificationChannel.Email, "qa@example.com", "Subject", "Body"));
 
-        Assert.True(result.Success);
+        Assert.False(result.Success);
     }
 
     private static Compliance360DbContext CreateDbContext()
@@ -207,7 +220,11 @@ public sealed class NotificationFoundationTests
             UserId = Guid.NewGuid();
             Clock = new FixedClock();
             Repository = new InMemoryNotificationRepository();
-            Service = new NotificationService(Repository, new FakeNotificationDispatcher(dispatchResult), new FakeApplicationDbContext(), Clock);
+            var templateEngine = new NotificationTemplateEngine();
+            var retryService = new NotificationRetryService(Options.Create(new NotificationProviderOptions()));
+            var trackingService = new NotificationTrackingService(Repository);
+            var auditService = new NotificationAuditService(Repository, Clock);
+            Service = new NotificationService(Repository, new FakeNotificationDispatcher(dispatchResult), templateEngine, retryService, trackingService, auditService, new FakeApplicationDbContext(), Clock);
         }
 
         public Guid TenantId { get; }
@@ -243,6 +260,11 @@ public sealed class NotificationFoundationTests
     {
         public List<NotificationTemplate> Templates { get; } = [];
         public List<NotificationMessage> Messages { get; } = [];
+        public List<NotificationDelivery> Deliveries { get; } = [];
+        public List<NotificationRetry> Retries { get; } = [];
+        public List<NotificationHistory> History { get; } = [];
+        public List<NotificationDeadLetter> DeadLetters { get; } = [];
+        public List<NotificationProviderConfiguration> ProviderConfigurations { get; } = [];
         public List<AuditLog> AuditLogs { get; } = [];
 
         public Task AddTemplateAsync(NotificationTemplate template, CancellationToken cancellationToken = default)
@@ -266,6 +288,51 @@ public sealed class NotificationFoundationTests
         public Task<NotificationMessage?> GetMessageAsync(Guid tenantId, Guid messageId, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(Messages.SingleOrDefault(message => message.TenantId == tenantId && message.Id == messageId));
+        }
+
+        public Task<IReadOnlyCollection<NotificationMessage>> ListMessagesAsync(Guid tenantId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<IReadOnlyCollection<NotificationMessage>>(Messages.Where(message => message.TenantId == tenantId).ToArray());
+        }
+
+        public Task AddDeliveryAsync(NotificationDelivery delivery, CancellationToken cancellationToken = default)
+        {
+            Deliveries.Add(delivery);
+            return Task.CompletedTask;
+        }
+
+        public Task AddRetryAsync(NotificationRetry retry, CancellationToken cancellationToken = default)
+        {
+            Retries.Add(retry);
+            return Task.CompletedTask;
+        }
+
+        public Task AddHistoryAsync(NotificationHistory history, CancellationToken cancellationToken = default)
+        {
+            History.Add(history);
+            return Task.CompletedTask;
+        }
+
+        public Task AddDeadLetterAsync(NotificationDeadLetter deadLetter, CancellationToken cancellationToken = default)
+        {
+            DeadLetters.Add(deadLetter);
+            return Task.CompletedTask;
+        }
+
+        public Task<IReadOnlyCollection<NotificationDeadLetter>> ListDeadLettersAsync(Guid tenantId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<IReadOnlyCollection<NotificationDeadLetter>>(DeadLetters.Where(deadLetter => deadLetter.TenantId == tenantId).ToArray());
+        }
+
+        public Task AddProviderConfigurationAsync(NotificationProviderConfiguration configuration, CancellationToken cancellationToken = default)
+        {
+            ProviderConfigurations.Add(configuration);
+            return Task.CompletedTask;
+        }
+
+        public Task<IReadOnlyCollection<NotificationProviderConfiguration>> ListProviderConfigurationsAsync(Guid tenantId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<IReadOnlyCollection<NotificationProviderConfiguration>>(ProviderConfigurations.Where(configuration => configuration.TenantId == tenantId).ToArray());
         }
 
         public Task AddAuditLogAsync(AuditLog auditLog, CancellationToken cancellationToken = default)

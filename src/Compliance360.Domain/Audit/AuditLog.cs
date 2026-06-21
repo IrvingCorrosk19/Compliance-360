@@ -74,7 +74,14 @@ public enum AuditAction
     MfaChallengeFailed = 67,
     TelemetryConfigurationChanged = 68,
     MonitoringConfigurationChanged = 69,
-    AlertConfigurationChanged = 70
+    AlertConfigurationChanged = 70,
+    NotificationDelivered = 71,
+    NotificationRetried = 72,
+    NotificationDeadLettered = 73,
+    NotificationCancelled = 74,
+    NotificationTemplateCreated = 75,
+    NotificationTemplateUpdated = 76,
+    NotificationProviderChanged = 77
 }
 
 public enum AuditCategory
@@ -296,7 +303,10 @@ public sealed class AuditLog : Entity
             AuditAction.FileUploaded or AuditAction.FileDownloaded or AuditAction.Downloaded => AuditCategory.FileStorage,
             AuditAction.SecurityEvent or AuditAction.TokenRefreshed => AuditCategory.Security,
             AuditAction.AdministrativeEvent => AuditCategory.Administration,
-            AuditAction.NotificationQueued or AuditAction.NotificationSent or AuditAction.NotificationFailed => AuditCategory.System,
+            AuditAction.NotificationQueued or AuditAction.NotificationSent or AuditAction.NotificationFailed
+                or AuditAction.NotificationDelivered or AuditAction.NotificationRetried or AuditAction.NotificationDeadLettered
+                or AuditAction.NotificationCancelled or AuditAction.NotificationTemplateCreated or AuditAction.NotificationTemplateUpdated
+                or AuditAction.NotificationProviderChanged => AuditCategory.System,
             AuditAction.AuditCreated or AuditAction.AuditUpdated or AuditAction.AuditClosed or AuditAction.AuditReopened => AuditCategory.AuditManagement,
             AuditAction.CapaCreated or AuditAction.CapaUpdated or AuditAction.CapaApproved or AuditAction.CapaClosed or AuditAction.CapaReopened => AuditCategory.CapaManagement,
             AuditAction.RiskCreated or AuditAction.RiskUpdated or AuditAction.RiskApproved or AuditAction.RiskClosed or AuditAction.RiskReopened => AuditCategory.RiskManagement,

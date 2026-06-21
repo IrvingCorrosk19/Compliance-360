@@ -38,6 +38,55 @@ public sealed class EfNotificationRepository : INotificationRepository
         return _dbContext.NotificationMessages.FirstOrDefaultAsync(message => message.TenantId == tenantId && message.Id == messageId, cancellationToken);
     }
 
+    public async Task<IReadOnlyCollection<NotificationMessage>> ListMessagesAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.NotificationMessages
+            .Where(message => message.TenantId == tenantId)
+            .OrderByDescending(message => message.QueuedAtUtc)
+            .ToArrayAsync(cancellationToken);
+    }
+
+    public async Task AddDeliveryAsync(NotificationDelivery delivery, CancellationToken cancellationToken = default)
+    {
+        await _dbContext.NotificationDeliveries.AddAsync(delivery, cancellationToken);
+    }
+
+    public async Task AddRetryAsync(NotificationRetry retry, CancellationToken cancellationToken = default)
+    {
+        await _dbContext.NotificationRetries.AddAsync(retry, cancellationToken);
+    }
+
+    public async Task AddHistoryAsync(NotificationHistory history, CancellationToken cancellationToken = default)
+    {
+        await _dbContext.NotificationHistory.AddAsync(history, cancellationToken);
+    }
+
+    public async Task AddDeadLetterAsync(NotificationDeadLetter deadLetter, CancellationToken cancellationToken = default)
+    {
+        await _dbContext.NotificationDeadLetters.AddAsync(deadLetter, cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<NotificationDeadLetter>> ListDeadLettersAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.NotificationDeadLetters
+            .Where(deadLetter => deadLetter.TenantId == tenantId)
+            .OrderByDescending(deadLetter => deadLetter.DeadLetteredAtUtc)
+            .ToArrayAsync(cancellationToken);
+    }
+
+    public async Task AddProviderConfigurationAsync(NotificationProviderConfiguration configuration, CancellationToken cancellationToken = default)
+    {
+        await _dbContext.NotificationProviderConfigurations.AddAsync(configuration, cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<NotificationProviderConfiguration>> ListProviderConfigurationsAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.NotificationProviderConfigurations
+            .Where(configuration => configuration.TenantId == tenantId)
+            .OrderBy(configuration => configuration.Priority)
+            .ToArrayAsync(cancellationToken);
+    }
+
     public async Task AddAuditLogAsync(AuditLog auditLog, CancellationToken cancellationToken = default)
     {
         await _dbContext.AuditLogs.AddAsync(auditLog, cancellationToken);

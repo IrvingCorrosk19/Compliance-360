@@ -3,10 +3,12 @@ using Compliance360.Application.Notifications;
 using Compliance360.Application.Reporting;
 using Compliance360.Application.Storage;
 using Compliance360.Application.Workflows;
+using Compliance360.Domain.Notifications;
 using Compliance360.Infrastructure.Persistence;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 
 namespace Compliance360.Web.Observability;
 
@@ -61,6 +63,64 @@ public sealed class NotificationHealthCheck : IHealthCheck
         Task.FromResult(_dispatcher is not null
             ? HealthCheckResult.Healthy("Notification dispatcher is registered.")
             : HealthCheckResult.Unhealthy("Notification dispatcher is unavailable."));
+}
+
+public sealed class NotificationProviderHealthCheck : IHealthCheck
+{
+    private readonly INotificationProviderFactory _providerFactory;
+    private readonly IOptions<NotificationProviderOptions> _options;
+    private readonly NotificationProvider _provider;
+
+    public NotificationProviderHealthCheck(INotificationProviderFactory providerFactory, IOptions<NotificationProviderOptions> options, NotificationProvider provider)
+    {
+        _providerFactory = providerFactory;
+        _options = options;
+        _provider = provider;
+    }
+
+    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+    {
+        _options.Value.Providers.TryGetValue(_provider, out var providerOptions);
+        var endpoint = new NotificationProviderEndpoint(_provider, providerOptions?.Host, providerOptions?.Port, providerOptions?.Username, providerOptions?.Secret, providerOptions?.FromAddress, providerOptions?.FromName, providerOptions?.BaseUrl, providerOptions?.Domain, providerOptions?.UseSsl ?? true);
+        var result = await _providerFactory.GetProvider(_provider).CheckHealthAsync(endpoint, cancellationToken);
+        return result.Healthy ? HealthCheckResult.Healthy(result.Message) : HealthCheckResult.Degraded(result.Message);
+    }
+}
+
+public sealed class NotificationQueueHealthCheck : IHealthCheck
+{
+    private readonly Compliance360DbContext _dbContext;
+
+    public NotificationQueueHealthCheck(Compliance360DbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
+
+    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+    {
+        var queued = await _dbContext.NotificationMessages.CountAsync(message => message.Status == NotificationStatus.Queued, cancellationToken);
+        return queued < 10_000
+            ? HealthCheckResult.Healthy($"Notification queue depth is {queued}.")
+            : HealthCheckResult.Degraded($"Notification queue depth is high: {queued}.");
+    }
+}
+
+public sealed class NotificationDeadLetterHealthCheck : IHealthCheck
+{
+    private readonly Compliance360DbContext _dbContext;
+
+    public NotificationDeadLetterHealthCheck(Compliance360DbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
+
+    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+    {
+        var deadLetters = await _dbContext.NotificationDeadLetters.CountAsync(cancellationToken);
+        return deadLetters < 1_000
+            ? HealthCheckResult.Healthy($"Notification dead letter count is {deadLetters}.")
+            : HealthCheckResult.Degraded($"Notification dead letter count is high: {deadLetters}.");
+    }
 }
 
 public sealed class DataProtectionHealthCheck : IHealthCheck

@@ -56,8 +56,10 @@ public static class DependencyInjection
         services.Configure<WorkflowEngineOptions>(configuration.GetSection(WorkflowEngineOptions.SectionName));
         services.Configure<TechnicalSheetOptions>(configuration.GetSection(TechnicalSheetOptions.SectionName));
         services.Configure<SupplierManagementOptions>(configuration.GetSection(SupplierManagementOptions.SectionName));
+        services.Configure<NotificationProviderOptions>(configuration.GetSection(NotificationProviderOptions.SectionName));
 
         services.AddDataProtection();
+        services.AddHttpClient();
         services.AddSingleton<IClock, SystemClock>();
         services.AddSingleton<IAuditContextAccessor, AuditContextAccessor>();
         services.AddScoped<IAuditPermissionEvaluator, AuditPermissionEvaluator>();
@@ -79,7 +81,16 @@ public static class DependencyInjection
         services.AddScoped<IMfaChallengeTokenService, MfaChallengeTokenService>();
         services.AddScoped<IFileStorageService, LocalFileStorageService>();
         services.AddScoped<IStorageFoundationService, StorageFoundationService>();
-        services.AddScoped<INotificationDispatcher, NoOpNotificationDispatcher>();
+        services.AddScoped<INotificationTemplateEngine, NotificationTemplateEngine>();
+        services.AddScoped<INotificationRetryService, NotificationRetryService>();
+        services.AddScoped<INotificationTrackingService, NotificationTrackingService>();
+        services.AddScoped<INotificationAuditService, NotificationAuditService>();
+        services.AddScoped<INotificationProvider, SmtpNotificationProvider>();
+        services.AddScoped<INotificationProvider, SendGridNotificationProvider>();
+        services.AddScoped<INotificationProvider, MailgunNotificationProvider>();
+        services.AddScoped<INotificationProvider, ResendNotificationProvider>();
+        services.AddScoped<INotificationProviderFactory, NotificationProviderFactory>();
+        services.AddScoped<INotificationDispatcher, EnterpriseNotificationDispatcher>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IDocumentManagementService, DocumentManagementService>();
         services.AddScoped<IWorkflowEngineService, WorkflowEngineService>();

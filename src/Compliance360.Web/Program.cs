@@ -1,12 +1,14 @@
 using System.Text;
 using System.Threading.RateLimiting;
 using Compliance360.Application;
+using Compliance360.Application.Notifications;
 using Compliance360.Infrastructure;
 using Compliance360.Web.Api;
 using Compliance360.Web.Audit;
 using Compliance360.Web.Errors;
 using Compliance360.Web.Observability;
 using Compliance360.Web.Security;
+using Compliance360.Domain.Notifications;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi;
 using Microsoft.IdentityModel.Tokens;
@@ -68,6 +70,12 @@ builder.Services.AddHealthChecks()
     .AddCheck<PostgreSqlHealthCheck>("postgresql", tags: ["ready", "database"])
     .AddCheck<StorageHealthCheck>("storage", tags: ["ready", "storage"])
     .AddCheck<NotificationHealthCheck>("notification", tags: ["ready", "notification"])
+    .Add(new Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckRegistration("notification-smtp", provider => new NotificationProviderHealthCheck(provider.GetRequiredService<INotificationProviderFactory>(), provider.GetRequiredService<Microsoft.Extensions.Options.IOptions<NotificationProviderOptions>>(), NotificationProvider.Smtp), null, ["ready", "notification", "smtp"]))
+    .Add(new Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckRegistration("notification-sendgrid", provider => new NotificationProviderHealthCheck(provider.GetRequiredService<INotificationProviderFactory>(), provider.GetRequiredService<Microsoft.Extensions.Options.IOptions<NotificationProviderOptions>>(), NotificationProvider.SendGrid), null, ["ready", "notification", "sendgrid"]))
+    .Add(new Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckRegistration("notification-mailgun", provider => new NotificationProviderHealthCheck(provider.GetRequiredService<INotificationProviderFactory>(), provider.GetRequiredService<Microsoft.Extensions.Options.IOptions<NotificationProviderOptions>>(), NotificationProvider.Mailgun), null, ["ready", "notification", "mailgun"]))
+    .Add(new Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckRegistration("notification-resend", provider => new NotificationProviderHealthCheck(provider.GetRequiredService<INotificationProviderFactory>(), provider.GetRequiredService<Microsoft.Extensions.Options.IOptions<NotificationProviderOptions>>(), NotificationProvider.Resend), null, ["ready", "notification", "resend"]))
+    .AddCheck<NotificationQueueHealthCheck>("notification-queue", tags: ["ready", "notification", "queue"])
+    .AddCheck<NotificationDeadLetterHealthCheck>("notification-dead-letter", tags: ["ready", "notification", "dead-letter"])
     .AddCheck<DataProtectionHealthCheck>("data-protection", tags: ["ready", "security"])
     .AddCheck<ReportingHealthCheck>("reporting", tags: ["ready", "reporting"])
     .AddCheck<WorkflowHealthCheck>("workflow", tags: ["ready", "workflow"]);

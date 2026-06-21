@@ -297,28 +297,54 @@ public static class FoundationEndpoints
     private static void MapNotifications(RouteGroupBuilder api)
     {
         var notifications = api.MapGroup("/tenants/{tenantId:guid}/notifications")
-            .WithTags("Notifications")
-            .RequireAuthorization(PermissionPolicies.NotificationManage);
+            .WithTags("Notifications");
 
         notifications.MapPost("/templates", async (Guid tenantId, CreateNotificationTemplateRequest request, HttpContext httpContext, INotificationService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.CreateTemplateAsync(
-                new CreateNotificationTemplateCommand(ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), request.Code, request.Channel, request.Subject, request.Body),
-                cancellationToken)));
+                new CreateNotificationTemplateCommand(ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), request.Code, request.Channel, request.Subject, request.Body, request.TextBody, request.Locale, request.BrandingJson),
+                cancellationToken))).RequireAuthorization(PermissionPolicies.NotificationTemplate);
+
+        notifications.MapPost("/templates/preview", async (Guid tenantId, PreviewNotificationTemplateRequest request, HttpContext httpContext, INotificationService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.PreviewTemplateAsync(
+                new PreviewNotificationTemplateCommand(ApiContext.TenantId(httpContext, tenantId), request.Subject, request.Body, request.TextBody, request.Variables, request.Branding),
+                cancellationToken))).RequireAuthorization(PermissionPolicies.NotificationTemplate);
 
         notifications.MapPost("/messages", async (Guid tenantId, QueueNotificationRequest request, HttpContext httpContext, INotificationService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.QueueAsync(
                 new QueueNotificationCommand(ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), request.Channel, request.Recipient, request.Subject, request.Body, request.TemplateCode, request.Variables, request.Priority, request.TargetUserId),
-                cancellationToken)));
+                cancellationToken))).RequireAuthorization(PermissionPolicies.NotificationSend);
 
         notifications.MapPost("/messages/{messageId:guid}/send", async (Guid tenantId, Guid messageId, HttpContext httpContext, INotificationService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.SendAsync(
                 new SendNotificationCommand(ApiContext.TenantId(httpContext, tenantId), messageId, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken))).RequireAuthorization(PermissionPolicies.NotificationSend);
+
+        notifications.MapPost("/messages/{messageId:guid}/retry", async (Guid tenantId, Guid messageId, HttpContext httpContext, INotificationService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.RetryAsync(
+                new RetryNotificationCommand(ApiContext.TenantId(httpContext, tenantId), messageId, ApiContext.UserId(httpContext)),
+                cancellationToken))).RequireAuthorization(PermissionPolicies.NotificationSend);
 
         notifications.MapPost("/messages/{messageId:guid}/cancel", async (Guid tenantId, Guid messageId, HttpContext httpContext, INotificationService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.CancelAsync(
                 new CancelNotificationCommand(ApiContext.TenantId(httpContext, tenantId), messageId, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken))).RequireAuthorization(PermissionPolicies.NotificationManage);
+
+        notifications.MapGet("/history", async (Guid tenantId, HttpContext httpContext, INotificationService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GetHistoryAsync(ApiContext.TenantId(httpContext, tenantId), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationRead);
+
+        notifications.MapGet("/tracking/dead-letters", async (Guid tenantId, HttpContext httpContext, INotificationService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GetDeadLettersAsync(ApiContext.TenantId(httpContext, tenantId), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationRead);
+
+        notifications.MapGet("/dashboard", async (Guid tenantId, HttpContext httpContext, INotificationService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GetDashboardAsync(ApiContext.TenantId(httpContext, tenantId), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationRead);
+
+        notifications.MapPost("/providers", async (Guid tenantId, ConfigureNotificationProviderRequest request, HttpContext httpContext, INotificationService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ConfigureProviderAsync(
+                new ConfigureNotificationProviderCommand(ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), request.Provider, request.Name, request.Priority, request.IsDefault, request.IsEnabled),
+                cancellationToken))).RequireAuthorization(PermissionPolicies.NotificationAdmin);
     }
 
     private static void MapDocuments(RouteGroupBuilder api)

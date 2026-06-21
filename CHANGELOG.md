@@ -2,6 +2,30 @@
 
 All notable changes to Compliance 360 will be documented in this file.
 
+## v0.20.0-notification-provider-real - 2026-06-21
+
+### NOTIFICATION PROVIDER REAL ENTERPRISE
+
+- Replaced `NoOpNotificationDispatcher` with real SMTP, SendGrid, Mailgun, and Resend provider implementations.
+- Added provider selection, default/failover provider strategy, retry/backoff, tracking, delivery records, dead letters, and provider configuration.
+- Added enterprise notification models for deliveries, retries, subscriptions, preferences, history, attachments, provider configuration, and dead letters.
+- Added HTML/text template rendering with variables, tenant branding, localization-ready fields, versioning, and preview API.
+- Added Notification API v1 coverage for templates, send, history, tracking, retry, dead letters, dashboard, and provider configuration.
+- Added notification health checks, observability-friendly tracking, audit events, and fine-grained policies for read/send/template/admin operations.
+
+### Validation
+
+- Build completed successfully with zero warnings and zero errors.
+- Test suite completed successfully: 217 passed.
+- Notification executable coverage: 92.99% line coverage.
+- EF migration `AddNotificationProviderReal` and idempotent migration script generated successfully.
+- Lint diagnostics completed with no errors for changed Notification/Web/Test files.
+
+### Notification Completion Certificate
+
+- Scope: Omega Phase 2 - Notification Provider Real Enterprise
+- Status: NOTIFICATION PROVIDER REAL APPROVED
+
 ## v0.19.0-observability-enterprise - 2026-06-21
 
 ### OBSERVABILITY ENTERPRISE

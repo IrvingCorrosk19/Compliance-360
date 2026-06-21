@@ -1,4 +1,5 @@
 using Compliance360.Domain.Audit;
+using Compliance360.Application.Notifications;
 using Compliance360.Domain.AuditManagement;
 using Compliance360.Domain.CapaManagement;
 using Compliance360.Domain.Documents;
@@ -71,7 +72,9 @@ public sealed record CreateEnterpriseWorkspaceItemRequest(
     DateTimeOffset? DueAtUtc,
     string? MetadataJson);
 
-public sealed record CreateNotificationTemplateRequest(string Code, NotificationChannel Channel, string Subject, string Body);
+public sealed record CreateNotificationTemplateRequest(string Code, NotificationChannel Channel, string Subject, string Body, string? TextBody, string? Locale, string? BrandingJson);
+
+public sealed record PreviewNotificationTemplateRequest(string Subject, string Body, string? TextBody, IReadOnlyDictionary<string, string> Variables, TenantNotificationBranding? Branding);
 
 public sealed record QueueNotificationRequest(
     NotificationChannel Channel,
@@ -82,6 +85,8 @@ public sealed record QueueNotificationRequest(
     IReadOnlyDictionary<string, string> Variables,
     NotificationPriority Priority,
     Guid? TargetUserId);
+
+public sealed record ConfigureNotificationProviderRequest(NotificationProvider Provider, string Name, int Priority, bool IsDefault, bool IsEnabled);
 
 public sealed record CreateDocumentTypeRequest(string Name, string Code, int RetentionDays);
 

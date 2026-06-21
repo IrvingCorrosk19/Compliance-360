@@ -6,7 +6,9 @@ public enum NotificationChannel
 {
     Email = 0,
     InApp = 1,
-    Sms = 2
+    Sms = 2,
+    WhatsApp = 3,
+    Push = 4
 }
 
 public enum NotificationStatus
@@ -14,7 +16,10 @@ public enum NotificationStatus
     Queued = 0,
     Sent = 1,
     Failed = 2,
-    Cancelled = 3
+    Cancelled = 3,
+    Delivered = 4,
+    Retried = 5,
+    DeadLetter = 6
 }
 
 public enum NotificationPriority
@@ -23,6 +28,25 @@ public enum NotificationPriority
     Normal = 1,
     High = 2,
     Critical = 3
+}
+
+public enum NotificationProvider
+{
+    Smtp = 0,
+    SendGrid = 1,
+    Mailgun = 2,
+    Resend = 3
+}
+
+public enum NotificationDeliveryStatus
+{
+    Queued = 0,
+    Sent = 1,
+    Delivered = 2,
+    Failed = 3,
+    Retried = 4,
+    DeadLetter = 5,
+    Cancelled = 6
 }
 
 public sealed class NotificationTemplate : TenantEntity
@@ -52,12 +76,28 @@ public sealed class NotificationTemplate : TenantEntity
 
     public string Body { get; private set; }
 
+    public string? TextBody { get; private set; }
+
+    public string? Locale { get; private set; }
+
+    public int Version { get; private set; } = 1;
+
+    public string? BrandingJson { get; private set; }
+
     public bool IsActive { get; private set; }
 
     public void UpdateContent(string subject, string body)
     {
         Subject = Guard.AgainstNullOrWhiteSpace(subject, nameof(subject), 250);
         Body = Guard.AgainstNullOrWhiteSpace(body, nameof(body), 4_000);
+        Version++;
+    }
+
+    public void ConfigureEnterpriseContent(string? textBody, string? locale, string? brandingJson)
+    {
+        TextBody = string.IsNullOrWhiteSpace(textBody) ? null : Guard.AgainstNullOrWhiteSpace(textBody, nameof(textBody), 4_000);
+        Locale = string.IsNullOrWhiteSpace(locale) ? null : Guard.AgainstNullOrWhiteSpace(locale, nameof(locale), 20);
+        BrandingJson = string.IsNullOrWhiteSpace(brandingJson) ? null : Guard.AgainstNullOrWhiteSpace(brandingJson, nameof(brandingJson), 4_000);
     }
 
     public void Disable()
@@ -106,6 +146,8 @@ public sealed class NotificationMessage : TenantEntity
 
     public string Body { get; private set; }
 
+    public string? TextBody { get; private set; }
+
     public NotificationPriority Priority { get; private set; }
 
     public NotificationStatus Status { get; private set; }
@@ -116,7 +158,15 @@ public sealed class NotificationMessage : TenantEntity
 
     public DateTimeOffset? FailedAtUtc { get; private set; }
 
+    public DateTimeOffset? DeliveredAtUtc { get; private set; }
+
+    public DateTimeOffset? NextRetryAtUtc { get; private set; }
+
     public string? FailureReason { get; private set; }
+
+    public int RetryCount { get; private set; }
+
+    public NotificationProvider? LastProvider { get; private set; }
 
     public void LinkTemplate(Guid templateId)
     {
@@ -140,20 +190,260 @@ public sealed class NotificationMessage : TenantEntity
         FailureReason = null;
     }
 
-    public void MarkFailed(string reason, DateTimeOffset failedAtUtc)
+    public void MarkDelivered(DateTimeOffset deliveredAtUtc)
+    {
+        if (Status != NotificationStatus.Sent)
+        {
+            throw new DomainException("Only sent notifications can be marked as delivered.");
+        }
+
+        Status = NotificationStatus.Delivered;
+        DeliveredAtUtc = deliveredAtUtc;
+    }
+
+    public void MarkFailed(string reason, DateTimeOffset failedAtUtc, NotificationProvider? provider = null)
     {
         Status = NotificationStatus.Failed;
         FailedAtUtc = failedAtUtc;
         FailureReason = Guard.AgainstNullOrWhiteSpace(reason, nameof(reason), 1_000);
+        LastProvider = provider;
+    }
+
+    public void MarkRetried(DateTimeOffset nextRetryAtUtc)
+    {
+        Status = NotificationStatus.Retried;
+        RetryCount++;
+        NextRetryAtUtc = nextRetryAtUtc;
+    }
+
+    public void MoveToDeadLetter(string reason, DateTimeOffset deadLetteredAtUtc)
+    {
+        Status = NotificationStatus.DeadLetter;
+        FailedAtUtc = deadLetteredAtUtc;
+        FailureReason = Guard.AgainstNullOrWhiteSpace(reason, nameof(reason), 1_000);
+        NextRetryAtUtc = null;
     }
 
     public void Cancel()
     {
-        if (Status == NotificationStatus.Sent)
+        if (Status is NotificationStatus.Sent or NotificationStatus.Delivered)
         {
-            throw new DomainException("Sent notifications cannot be cancelled.");
+            throw new DomainException("Sent or delivered notifications cannot be cancelled.");
         }
 
         Status = NotificationStatus.Cancelled;
     }
+}
+
+public sealed class NotificationDelivery : TenantEntity
+{
+    private NotificationDelivery()
+    {
+        ProviderMessageId = string.Empty;
+    }
+
+    public NotificationDelivery(Guid tenantId, Guid messageId, NotificationProvider provider, NotificationDeliveryStatus status, string? providerMessageId, DateTimeOffset occurredAtUtc)
+        : base(tenantId)
+    {
+        NotificationMessageId = Guard.AgainstEmpty(messageId, nameof(messageId));
+        Provider = provider;
+        Status = status;
+        ProviderMessageId = string.IsNullOrWhiteSpace(providerMessageId) ? string.Empty : Guard.AgainstNullOrWhiteSpace(providerMessageId, nameof(providerMessageId), 250);
+        OccurredAtUtc = occurredAtUtc;
+    }
+
+    public Guid NotificationMessageId { get; private set; }
+
+    public NotificationProvider Provider { get; private set; }
+
+    public NotificationDeliveryStatus Status { get; private set; }
+
+    public string ProviderMessageId { get; private set; }
+
+    public DateTimeOffset OccurredAtUtc { get; private set; }
+}
+
+public sealed class NotificationRetry : TenantEntity
+{
+    private NotificationRetry()
+    {
+        FailureReason = string.Empty;
+    }
+
+    public NotificationRetry(Guid tenantId, Guid messageId, int attempt, DateTimeOffset scheduledAtUtc, string failureReason)
+        : base(tenantId)
+    {
+        NotificationMessageId = Guard.AgainstEmpty(messageId, nameof(messageId));
+        Attempt = Guard.AgainstOutOfRange(attempt, nameof(attempt), 1, 20);
+        ScheduledAtUtc = scheduledAtUtc;
+        FailureReason = Guard.AgainstNullOrWhiteSpace(failureReason, nameof(failureReason), 1_000);
+    }
+
+    public Guid NotificationMessageId { get; private set; }
+
+    public int Attempt { get; private set; }
+
+    public DateTimeOffset ScheduledAtUtc { get; private set; }
+
+    public DateTimeOffset? ExecutedAtUtc { get; private set; }
+
+    public string FailureReason { get; private set; }
+
+    public void MarkExecuted(DateTimeOffset executedAtUtc)
+    {
+        ExecutedAtUtc = executedAtUtc;
+    }
+}
+
+public sealed class NotificationSubscription : TenantEntity
+{
+    private NotificationSubscription()
+    {
+        Topic = string.Empty;
+        Recipient = string.Empty;
+    }
+
+    public NotificationSubscription(Guid tenantId, string topic, NotificationChannel channel, string recipient)
+        : base(tenantId)
+    {
+        Topic = Guard.AgainstNullOrWhiteSpace(topic, nameof(topic), 120);
+        Channel = channel;
+        Recipient = Guard.AgainstNullOrWhiteSpace(recipient, nameof(recipient), 320);
+        IsActive = true;
+    }
+
+    public string Topic { get; private set; }
+
+    public NotificationChannel Channel { get; private set; }
+
+    public string Recipient { get; private set; }
+
+    public bool IsActive { get; private set; }
+}
+
+public sealed class NotificationPreference : TenantEntity
+{
+    private NotificationPreference()
+    {
+    }
+
+    public NotificationPreference(Guid tenantId, Guid userId, NotificationChannel channel, bool enabled)
+        : base(tenantId)
+    {
+        UserId = Guard.AgainstEmpty(userId, nameof(userId));
+        Channel = channel;
+        Enabled = enabled;
+    }
+
+    public Guid UserId { get; private set; }
+
+    public NotificationChannel Channel { get; private set; }
+
+    public bool Enabled { get; private set; }
+}
+
+public sealed class NotificationHistory : TenantEntity
+{
+    private NotificationHistory()
+    {
+        EventName = string.Empty;
+    }
+
+    public NotificationHistory(Guid tenantId, Guid messageId, NotificationDeliveryStatus status, string eventName, DateTimeOffset occurredAtUtc)
+        : base(tenantId)
+    {
+        NotificationMessageId = Guard.AgainstEmpty(messageId, nameof(messageId));
+        Status = status;
+        EventName = Guard.AgainstNullOrWhiteSpace(eventName, nameof(eventName), 160);
+        OccurredAtUtc = occurredAtUtc;
+    }
+
+    public Guid NotificationMessageId { get; private set; }
+
+    public NotificationDeliveryStatus Status { get; private set; }
+
+    public string EventName { get; private set; }
+
+    public DateTimeOffset OccurredAtUtc { get; private set; }
+}
+
+public sealed class NotificationAttachment : TenantEntity
+{
+    private NotificationAttachment()
+    {
+        FileName = string.Empty;
+        ContentType = string.Empty;
+        StorageObjectKey = string.Empty;
+    }
+
+    public NotificationAttachment(Guid tenantId, Guid messageId, string fileName, string contentType, string storageObjectKey)
+        : base(tenantId)
+    {
+        NotificationMessageId = Guard.AgainstEmpty(messageId, nameof(messageId));
+        FileName = Guard.AgainstNullOrWhiteSpace(fileName, nameof(fileName), 220);
+        ContentType = Guard.AgainstNullOrWhiteSpace(contentType, nameof(contentType), 120);
+        StorageObjectKey = Guard.AgainstNullOrWhiteSpace(storageObjectKey, nameof(storageObjectKey), 500);
+    }
+
+    public Guid NotificationMessageId { get; private set; }
+
+    public string FileName { get; private set; }
+
+    public string ContentType { get; private set; }
+
+    public string StorageObjectKey { get; private set; }
+}
+
+public sealed class NotificationProviderConfiguration : TenantEntity
+{
+    private NotificationProviderConfiguration()
+    {
+        Name = string.Empty;
+    }
+
+    public NotificationProviderConfiguration(Guid tenantId, NotificationProvider provider, string name, int priority, bool isDefault, bool isEnabled)
+        : base(tenantId)
+    {
+        Provider = provider;
+        Name = Guard.AgainstNullOrWhiteSpace(name, nameof(name), 120);
+        Priority = Guard.AgainstOutOfRange(priority, nameof(priority), 1, 100);
+        IsDefault = isDefault;
+        IsEnabled = isEnabled;
+    }
+
+    public NotificationProvider Provider { get; private set; }
+
+    public string Name { get; private set; }
+
+    public int Priority { get; private set; }
+
+    public bool IsDefault { get; private set; }
+
+    public bool IsEnabled { get; private set; }
+}
+
+public sealed class NotificationDeadLetter : TenantEntity
+{
+    private NotificationDeadLetter()
+    {
+        Reason = string.Empty;
+        PayloadJson = string.Empty;
+    }
+
+    public NotificationDeadLetter(Guid tenantId, Guid messageId, string reason, string payloadJson, DateTimeOffset deadLetteredAtUtc)
+        : base(tenantId)
+    {
+        NotificationMessageId = Guard.AgainstEmpty(messageId, nameof(messageId));
+        Reason = Guard.AgainstNullOrWhiteSpace(reason, nameof(reason), 1_000);
+        PayloadJson = Guard.AgainstNullOrWhiteSpace(payloadJson, nameof(payloadJson), 8_000);
+        DeadLetteredAtUtc = deadLetteredAtUtc;
+    }
+
+    public Guid NotificationMessageId { get; private set; }
+
+    public string Reason { get; private set; }
+
+    public string PayloadJson { get; private set; }
+
+    public DateTimeOffset DeadLetteredAtUtc { get; private set; }
 }
