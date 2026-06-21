@@ -68,7 +68,10 @@ public enum AuditAction
     ReportUpdated = 61,
     ReportExecuted = 62,
     ReportExported = 63,
-    ReportScheduled = 64
+    ReportScheduled = 64,
+    MfaChallengeRequired = 65,
+    MfaChallengeSucceeded = 66,
+    MfaChallengeFailed = 67
 }
 
 public enum AuditCategory

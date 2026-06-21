@@ -69,6 +69,11 @@ public static class FoundationEndpoints
                 new LoginCommand(request.TenantId, request.Email, request.Password, ApiContext.IpAddress(httpContext), ApiContext.UserAgent(httpContext)),
                 cancellationToken)));
 
+        auth.MapPost("/mfa/complete", async (CompleteMfaChallengeRequest request, HttpContext httpContext, IIdentityService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CompleteMfaChallengeAsync(
+                new CompleteMfaChallengeCommand(request.ChallengeToken, request.Method, request.VerificationCode, ApiContext.IpAddress(httpContext), ApiContext.UserAgent(httpContext)),
+                cancellationToken)));
+
         auth.MapPost("/refresh", async (RefreshTokenRequest request, HttpContext httpContext, IIdentityService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.RefreshTokenAsync(
                 new RefreshTokenCommand(request.RefreshToken, ApiContext.IpAddress(httpContext), ApiContext.UserAgent(httpContext)),

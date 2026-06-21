@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using Compliance360.Application.Mfa;
 using Compliance360.Domain.Audit;
 using Compliance360.Domain.Common;
 using Compliance360.Domain.Identity;
@@ -16,6 +17,9 @@ public sealed class IdentityService : IIdentityService
     private readonly IPasswordPolicyValidator _passwordPolicyValidator;
     private readonly IJwtTokenService _jwtTokenService;
     private readonly IRefreshTokenGenerator _refreshTokenGenerator;
+    private readonly IMfaChallengeTokenService _mfaChallengeTokenService;
+    private readonly IMfaSecretProtector _mfaSecretProtector;
+    private readonly ITotpService _totpService;
     private readonly IClock _clock;
     private readonly LockoutOptions _lockoutOptions;
     private readonly PasswordPolicyOptions _passwordPolicyOptions;
@@ -27,6 +31,9 @@ public sealed class IdentityService : IIdentityService
         IPasswordPolicyValidator passwordPolicyValidator,
         IJwtTokenService jwtTokenService,
         IRefreshTokenGenerator refreshTokenGenerator,
+        IMfaChallengeTokenService mfaChallengeTokenService,
+        IMfaSecretProtector mfaSecretProtector,
+        ITotpService totpService,
         IClock clock,
         IOptions<LockoutOptions> lockoutOptions,
         IOptions<PasswordPolicyOptions> passwordPolicyOptions)
@@ -37,6 +44,9 @@ public sealed class IdentityService : IIdentityService
         _passwordPolicyValidator = passwordPolicyValidator;
         _jwtTokenService = jwtTokenService;
         _refreshTokenGenerator = refreshTokenGenerator;
+        _mfaChallengeTokenService = mfaChallengeTokenService;
+        _mfaSecretProtector = mfaSecretProtector;
+        _totpService = totpService;
         _clock = clock;
         _lockoutOptions = lockoutOptions.Value;
         _passwordPolicyOptions = passwordPolicyOptions.Value;
@@ -68,8 +78,62 @@ public sealed class IdentityService : IIdentityService
             return Result<AuthenticationResult>.Failure("Invalid credentials.");
         }
 
+        var tenantRequiresMfa = await _repository.IsTenantMfaRequiredAsync(user.TenantId, cancellationToken);
+        if (tenantRequiresMfa || user.MfaEnabled)
+        {
+            var mfaConfiguration = await _repository.GetEnabledMfaConfigurationAsync(user.TenantId, user.Id, MfaMethod.Totp, cancellationToken);
+            if (mfaConfiguration is null)
+            {
+                await AppendAuditAsync(user.TenantId, user.Id, nameof(MfaConfiguration), user.Id, AuditAction.MfaChallengeFailed, command.IpAddress, command.UserAgent, cancellationToken);
+                await _dbContext.SaveChangesAsync(cancellationToken);
+                return Result<AuthenticationResult>.Failure("MFA is required but no enabled TOTP method is configured.");
+            }
+
+            var challenge = _mfaChallengeTokenService.Create(new MfaChallengePrincipal(user.TenantId, user.Id, mfaConfiguration.Method, _clock.UtcNow.AddMinutes(5)));
+            await AppendAuditAsync(user.TenantId, user.Id, nameof(MfaConfiguration), user.Id, AuditAction.MfaChallengeRequired, command.IpAddress, command.UserAgent, cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return Result<AuthenticationResult>.Success(AuthenticationResult.MfaChallenge(user.Id, user.TenantId, user.Email, challenge, mfaConfiguration.Method));
+        }
+
         user.RegisterLogin(_clock.UtcNow);
         var result = await CreateAuthenticationResultAsync(user, command.IpAddress, command.UserAgent, cancellationToken);
+        await AppendAuditAsync(user.TenantId, user.Id, nameof(User), user.Id, AuditAction.LoginSucceeded, command.IpAddress, command.UserAgent, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return Result<AuthenticationResult>.Success(result);
+    }
+
+    public async Task<Result<AuthenticationResult>> CompleteMfaChallengeAsync(CompleteMfaChallengeCommand command, CancellationToken cancellationToken = default)
+    {
+        var challenge = _mfaChallengeTokenService.Validate(command.ChallengeToken);
+        if (challenge.IsFailure || challenge.Value is null || challenge.Value.Method != command.Method)
+        {
+            return Result<AuthenticationResult>.Failure("Invalid MFA challenge.");
+        }
+
+        var principal = challenge.Value;
+        var user = await _repository.GetUserByIdAsync(principal.TenantId, principal.UserId, cancellationToken);
+        var configuration = await _repository.GetEnabledMfaConfigurationAsync(principal.TenantId, principal.UserId, command.Method, cancellationToken);
+        if (user is null || configuration is null || user.IsLocked(_clock.UtcNow) || user.Status == UserStatus.Disabled)
+        {
+            await AppendAuditAsync(principal.TenantId, principal.UserId, nameof(MfaConfiguration), principal.UserId, AuditAction.MfaChallengeFailed, command.IpAddress, command.UserAgent, cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return Result<AuthenticationResult>.Failure("Invalid MFA challenge.");
+        }
+
+        var secret = _mfaSecretProtector.Unprotect(configuration.SecretEncrypted);
+        if (!_totpService.VerifyCode(secret, command.VerificationCode, _clock.UtcNow))
+        {
+            configuration.RegisterFailedVerification();
+            await AppendAuditAsync(principal.TenantId, principal.UserId, nameof(MfaConfiguration), principal.UserId, AuditAction.MfaChallengeFailed, command.IpAddress, command.UserAgent, cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return Result<AuthenticationResult>.Failure("Invalid MFA challenge.");
+        }
+
+        configuration.RegisterSuccessfulVerification(_clock.UtcNow);
+        user.RegisterLogin(_clock.UtcNow);
+        var result = await CreateAuthenticationResultAsync(user, command.IpAddress, command.UserAgent, cancellationToken);
+        await AppendAuditAsync(user.TenantId, user.Id, nameof(MfaConfiguration), user.Id, AuditAction.MfaChallengeSucceeded, command.IpAddress, command.UserAgent, cancellationToken);
         await AppendAuditAsync(user.TenantId, user.Id, nameof(User), user.Id, AuditAction.LoginSucceeded, command.IpAddress, command.UserAgent, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -232,7 +296,7 @@ public sealed class IdentityService : IIdentityService
             generatedRefreshToken.TokenHash,
             generatedRefreshToken.ExpiresAtUtc,
             session.Id,
-            user.MfaEnabled);
+            false);
     }
 
     private async Task AppendAuditAsync(

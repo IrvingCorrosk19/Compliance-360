@@ -46,6 +46,7 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+        services.Configure<MfaChallengeOptions>(configuration.GetSection(MfaChallengeOptions.SectionName));
         services.Configure<RefreshTokenOptions>(configuration.GetSection(RefreshTokenOptions.SectionName));
         services.Configure<StorageOptions>(configuration.GetSection(StorageOptions.SectionName));
         services.Configure<PasswordPolicyOptions>(configuration.GetSection(PasswordPolicyOptions.SectionName));
@@ -75,6 +76,7 @@ public static class DependencyInjection
         services.AddScoped<IPasswordHasher, Pbkdf2PasswordHasher>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IRefreshTokenGenerator, RefreshTokenGenerator>();
+        services.AddScoped<IMfaChallengeTokenService, MfaChallengeTokenService>();
         services.AddScoped<IFileStorageService, LocalFileStorageService>();
         services.AddScoped<IStorageFoundationService, StorageFoundationService>();
         services.AddScoped<INotificationDispatcher, NoOpNotificationDispatcher>();

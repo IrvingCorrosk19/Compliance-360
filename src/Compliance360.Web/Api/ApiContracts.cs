@@ -17,6 +17,8 @@ namespace Compliance360.Web.Api;
 
 public sealed record LoginRequest(Guid TenantId, string Email, string Password);
 
+public sealed record CompleteMfaChallengeRequest(string ChallengeToken, MfaMethod Method, string VerificationCode);
+
 public sealed record RefreshTokenRequest(string RefreshToken);
 
 public sealed record LogoutRequest(Guid TenantId, Guid UserId, string RefreshTokenHash);

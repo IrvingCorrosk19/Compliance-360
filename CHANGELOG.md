@@ -2,6 +2,48 @@
 
 All notable changes to Compliance 360 will be documented in this file.
 
+## v0.18.0-security-hardening-phase-1 - 2026-06-21
+
+### SECURITY HARDENING PHASE 1
+
+- Enforced MFA during login for users with MFA enabled and tenants with `RequireMfa`, returning a signed MFA challenge without issuing final JWT/refresh tokens.
+- Added MFA challenge completion endpoint with TOTP validation, final token issuance only after challenge success, and audit events for challenge required/success/failure.
+- Hardened CSP compatibility by removing inline `onclick` handlers and inline `style=` usage from the SPA.
+- Added stricter security headers, HSTS, no-store cache headers for sensitive API routes, explicit CORS configuration, and secure design-time DbContext connection string resolution.
+- Documented JWT Bearer CSRF strategy and local EF migration execution without exposing secrets in `SECURITY_HARDENING_PHASE_1_REPORT.md`.
+
+### Validation
+
+- Build completed successfully with zero warnings and zero errors.
+- Test suite completed successfully: 180 passed.
+- Affected coverage: `IdentityService` 100% line/branch, `MfaChallengeTokenService` 95.52% line and 100% branch, `SecurityHeadersMiddleware` 100% line/branch.
+- Security review checks confirmed no frontend inline handlers/styles, no `AllowAnyOrigin`, and no hardcoded design-time PostgreSQL password.
+
+### Security Completion Certificate
+
+- Scope: Security Hardening Blocker Fix
+- Status: SECURITY HARDENING PHASE 1 APPROVED
+
+## v1.1.0-enterprise-ux-navigation-polish - 2026-06-21
+
+### ENTERPRISE UX AND NAVIGATION COMPLETION
+
+- Improved the authenticated application shell with production status, module icons, contextual page title, quick module switcher, richer global search routing, tenant visibility, and ISO alignment footer.
+- Upgraded navigation feedback across all modules with clearer breadcrumbs, dashboard/report shortcuts, stronger action context, live-data badges, enhanced empty states, recoverable error states, and animated loading states.
+- Improved visual hierarchy for dashboard, report center, operational modules, enterprise workspaces, metric cards, tables, and responsive layouts while preserving the existing real API-backed workflows.
+
+### Validation
+
+- Frontend lints completed with no diagnostics for `app.js` and `styles.css`.
+- Build completed successfully with zero warnings and zero errors.
+- Test suite completed successfully: 171 passed.
+- Browser UX validation passed for login, sidebar, quick switcher, global search navigation, dashboard, Report Center, Risk Management, Regulatory Management, report execution, and Enterprise Workspace item creation.
+
+### UX Completion Certificate
+
+- Scope: Complete visual and navigation experience
+- Status: PRODUCTION UX READY 100%
+
 ## v1.0.0-production-ready-enterprise - 2026-06-20
 
 ### FINAL PRODUCT DELIVERY

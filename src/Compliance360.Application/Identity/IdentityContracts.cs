@@ -8,6 +8,8 @@ public interface IIdentityService
 {
     Task<Result<AuthenticationResult>> LoginAsync(LoginCommand command, CancellationToken cancellationToken = default);
 
+    Task<Result<AuthenticationResult>> CompleteMfaChallengeAsync(CompleteMfaChallengeCommand command, CancellationToken cancellationToken = default);
+
     Task<Result<AuthenticationResult>> RefreshTokenAsync(RefreshTokenCommand command, CancellationToken cancellationToken = default);
 
     Task<Result> LogoutAsync(LogoutCommand command, CancellationToken cancellationToken = default);
@@ -35,6 +37,10 @@ public interface IIdentityRepository
 
     Task<RefreshToken?> GetRefreshTokenByHashAsync(string tokenHash, CancellationToken cancellationToken = default);
 
+    Task<bool> IsTenantMfaRequiredAsync(Guid tenantId, CancellationToken cancellationToken = default);
+
+    Task<MfaConfiguration?> GetEnabledMfaConfigurationAsync(Guid tenantId, Guid userId, MfaMethod method, CancellationToken cancellationToken = default);
+
     Task AddRefreshTokenAsync(RefreshToken refreshToken, CancellationToken cancellationToken = default);
 
     Task AddSessionAsync(UserSession session, CancellationToken cancellationToken = default);
@@ -53,10 +59,24 @@ public interface IPasswordPolicyValidator
     Result Validate(string password);
 }
 
+public interface IMfaChallengeTokenService
+{
+    string Create(MfaChallengePrincipal principal);
+
+    Result<MfaChallengePrincipal> Validate(string challengeToken);
+}
+
 public sealed record LoginCommand(
     Guid TenantId,
     string Email,
     string Password,
+    string? IpAddress,
+    string? UserAgent);
+
+public sealed record CompleteMfaChallengeCommand(
+    string ChallengeToken,
+    MfaMethod Method,
+    string VerificationCode,
     string? IpAddress,
     string? UserAgent);
 
@@ -114,7 +134,40 @@ public sealed record AuthenticationResult(
     string RefreshTokenHash,
     DateTimeOffset RefreshTokenExpiresAtUtc,
     Guid SessionId,
-    bool MfaRequired);
+    bool MfaRequired,
+    string? MfaChallengeToken = null,
+    MfaMethod? MfaMethod = null)
+{
+    public static AuthenticationResult MfaChallenge(Guid userId, Guid tenantId, string email, string challengeToken, MfaMethod method)
+    {
+        return new AuthenticationResult(
+            userId,
+            tenantId,
+            email,
+            string.Empty,
+            DateTimeOffset.MinValue,
+            string.Empty,
+            string.Empty,
+            DateTimeOffset.MinValue,
+            Guid.Empty,
+            true,
+            challengeToken,
+            method);
+    }
+}
+
+public sealed record MfaChallengePrincipal(
+    Guid TenantId,
+    Guid UserId,
+    MfaMethod Method,
+    DateTimeOffset ExpiresAtUtc);
+
+public sealed class MfaChallengeOptions
+{
+    public const string SectionName = "MfaChallenge";
+
+    public int LifetimeMinutes { get; set; } = 5;
+}
 
 public sealed class PasswordPolicyOptions
 {

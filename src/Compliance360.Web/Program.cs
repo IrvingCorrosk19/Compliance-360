@@ -32,6 +32,20 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 builder.Services.AddHealthChecks();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("compliance360-cors", policy =>
+    {
+        var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+        if (allowedOrigins.Length > 0)
+        {
+            policy
+                .WithOrigins(allowedOrigins)
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        }
+    });
+});
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -78,6 +92,12 @@ app.UseStaticFiles();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();
+}
+
+app.UseCors("compliance360-cors");
 app.UseRateLimiter();
 app.UseMiddleware<AuditContextMiddleware>();
 app.UseAuthentication();

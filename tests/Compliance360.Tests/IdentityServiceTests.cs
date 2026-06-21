@@ -1,11 +1,13 @@
 using Compliance360.Application;
 using Compliance360.Application.Identity;
+using Compliance360.Application.Mfa;
 using Compliance360.Domain.Audit;
 using Compliance360.Domain.Common;
 using Compliance360.Domain.Identity;
 using Compliance360.Infrastructure.Identity;
 using Compliance360.Infrastructure.Persistence;
 using Compliance360.Infrastructure.Security;
+using Compliance360.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -27,6 +29,73 @@ public sealed class IdentityServiceTests
         Assert.False(result.Value.MfaRequired);
         Assert.Contains(fixture.Repository.AuditLogs, audit => audit.Action == AuditAction.LoginSucceeded);
         Assert.Contains(fixture.Repository.AuditLogs, audit => audit.Action == AuditAction.Created && audit.EntityName == nameof(UserSession));
+    }
+
+    [Fact]
+    public async Task LoginAsync_With_User_Mfa_Returns_Challenge_Without_Tokens()
+    {
+        var fixture = IdentityFixture.Create();
+        fixture.EnableTotpMfa();
+
+        var result = await fixture.Service.LoginAsync(new LoginCommand(fixture.TenantId, fixture.User.Email, "Password1!", "127.0.0.1", "test"));
+
+        Assert.True(result.IsSuccess);
+        Assert.True(result.Value!.MfaRequired);
+        Assert.NotNull(result.Value.MfaChallengeToken);
+        Assert.Equal(string.Empty, result.Value.AccessToken);
+        Assert.Equal(string.Empty, result.Value.RefreshToken);
+        Assert.Empty(fixture.Repository.RefreshTokens);
+        Assert.Empty(fixture.Repository.UserSessions);
+        Assert.Contains(fixture.Repository.AuditLogs, audit => audit.Action == AuditAction.MfaChallengeRequired);
+    }
+
+    [Fact]
+    public async Task LoginAsync_With_Tenant_RequireMfa_Returns_Challenge()
+    {
+        var fixture = IdentityFixture.Create();
+        fixture.Repository.TenantRequiresMfa = true;
+        fixture.EnableTotpMfa(enableUserFlag: false);
+
+        var result = await fixture.Service.LoginAsync(new LoginCommand(fixture.TenantId, fixture.User.Email, "Password1!", null, null));
+
+        Assert.True(result.IsSuccess);
+        Assert.True(result.Value!.MfaRequired);
+        Assert.NotNull(result.Value.MfaChallengeToken);
+        Assert.Equal(string.Empty, result.Value.AccessToken);
+    }
+
+    [Fact]
+    public async Task CompleteMfaChallengeAsync_With_Valid_Code_Issues_Final_Tokens()
+    {
+        var fixture = IdentityFixture.Create();
+        fixture.EnableTotpMfa();
+        var login = await fixture.Service.LoginAsync(new LoginCommand(fixture.TenantId, fixture.User.Email, "Password1!", null, null));
+
+        var completed = await fixture.Service.CompleteMfaChallengeAsync(new CompleteMfaChallengeCommand(login.Value!.MfaChallengeToken!, MfaMethod.Totp, TestTotpService.ValidCode, "127.0.0.1", "test"));
+
+        Assert.True(completed.IsSuccess);
+        Assert.False(completed.Value!.MfaRequired);
+        Assert.False(string.IsNullOrWhiteSpace(completed.Value.AccessToken));
+        Assert.False(string.IsNullOrWhiteSpace(completed.Value.RefreshToken));
+        Assert.Single(fixture.Repository.RefreshTokens);
+        Assert.Single(fixture.Repository.UserSessions);
+        Assert.Contains(fixture.Repository.AuditLogs, audit => audit.Action == AuditAction.MfaChallengeSucceeded);
+        Assert.Contains(fixture.Repository.AuditLogs, audit => audit.Action == AuditAction.LoginSucceeded);
+    }
+
+    [Fact]
+    public async Task CompleteMfaChallengeAsync_With_Invalid_Code_Does_Not_Issue_Tokens()
+    {
+        var fixture = IdentityFixture.Create();
+        fixture.EnableTotpMfa();
+        var login = await fixture.Service.LoginAsync(new LoginCommand(fixture.TenantId, fixture.User.Email, "Password1!", null, null));
+
+        var completed = await fixture.Service.CompleteMfaChallengeAsync(new CompleteMfaChallengeCommand(login.Value!.MfaChallengeToken!, MfaMethod.Totp, "000000", null, null));
+
+        Assert.True(completed.IsFailure);
+        Assert.Empty(fixture.Repository.RefreshTokens);
+        Assert.Empty(fixture.Repository.UserSessions);
+        Assert.Contains(fixture.Repository.AuditLogs, audit => audit.Action == AuditAction.MfaChallengeFailed);
     }
 
     [Fact]
@@ -228,6 +297,46 @@ public sealed class IdentityServiceTests
     }
 
     [Fact]
+    public void MfaChallengeTokenService_Validates_Signed_Expiry_And_Tamper_Paths()
+    {
+        var clock = new MutableClock(new DateTimeOffset(2026, 6, 20, 15, 0, 0, TimeSpan.Zero));
+        var service = new MfaChallengeTokenService(
+            Options.Create(new JwtOptions { SigningKey = "0123456789012345678901234567890123456789012345678901234567890123" }),
+            Options.Create(new MfaChallengeOptions { LifetimeMinutes = 5 }),
+            clock);
+        var principal = new MfaChallengePrincipal(Guid.NewGuid(), Guid.NewGuid(), MfaMethod.Totp, clock.UtcNow.AddMinutes(5));
+
+        var token = service.Create(principal);
+        var valid = service.Validate(token);
+        var tampered = service.Validate(token.Replace(token[0], token[0] == 'A' ? 'B' : 'A'));
+        clock.UtcNow = clock.UtcNow.AddMinutes(6);
+        var expired = service.Validate(token);
+        var malformed = service.Validate("not-a-token");
+        var empty = service.Validate("");
+        var renewedExpiredPrincipalToken = service.Create(principal with { ExpiresAtUtc = clock.UtcNow.AddMinutes(-1) });
+        var renewedExpiredPrincipal = service.Validate(renewedExpiredPrincipalToken);
+        var invalidShape = service.Validate(SignMfaChallengePayload("too|short"));
+        var invalidTenant = service.Validate(SignMfaChallengePayload($"bad|{principal.UserId}|0|{clock.UtcNow.AddMinutes(5).ToUnixTimeSeconds()}"));
+        var invalidUser = service.Validate(SignMfaChallengePayload($"{principal.TenantId}|bad|0|{clock.UtcNow.AddMinutes(5).ToUnixTimeSeconds()}"));
+        var invalidMethod = service.Validate(SignMfaChallengePayload($"{principal.TenantId}|{principal.UserId}|99|{clock.UtcNow.AddMinutes(5).ToUnixTimeSeconds()}"));
+        var invalidExpiry = service.Validate(SignMfaChallengePayload($"{principal.TenantId}|{principal.UserId}|0|bad"));
+
+        Assert.True(valid.IsSuccess);
+        Assert.Equal(principal.UserId, valid.Value!.UserId);
+        Assert.True(tampered.IsFailure);
+        Assert.True(expired.IsFailure);
+        Assert.True(malformed.IsFailure);
+        Assert.True(empty.IsFailure);
+        Assert.True(renewedExpiredPrincipal.IsSuccess);
+        Assert.True(renewedExpiredPrincipal.Value!.ExpiresAtUtc > clock.UtcNow);
+        Assert.True(invalidShape.IsFailure);
+        Assert.True(invalidTenant.IsFailure);
+        Assert.True(invalidUser.IsFailure);
+        Assert.True(invalidMethod.IsFailure);
+        Assert.True(invalidExpiry.IsFailure);
+    }
+
+    [Fact]
     public void RefreshTokenGenerator_Creates_Hashed_Token()
     {
         var generator = new RefreshTokenGenerator(new FixedClock(), Options.Create(new RefreshTokenOptions { LifetimeDays = 10 }));
@@ -390,6 +499,9 @@ public sealed class IdentityServiceTests
                 new PasswordPolicyValidator(Options.Create(new PasswordPolicyOptions { MinimumLength = 8 })),
                 new TestJwtTokenService(Clock),
                 new TestRefreshTokenGenerator(Clock),
+                new TestMfaChallengeTokenService(Clock),
+                new TestMfaSecretProtector(),
+                new TestTotpService(),
                 Clock,
                 Options.Create(new LockoutOptions { MaxFailedAttempts = maxFailedAttempts, LockoutMinutes = 15 }),
                 Options.Create(new PasswordPolicyOptions { MinimumLength = 8, PasswordHistoryLimit = 5 }));
@@ -417,6 +529,16 @@ public sealed class IdentityServiceTests
         {
             return new IdentityFixture(maxFailedAttempts);
         }
+
+        public void EnableTotpMfa(bool enableUserFlag = true)
+        {
+            var configuration = new MfaConfiguration(TenantId, User.Id, MfaMethod.Totp, "secret", Clock.UtcNow);
+            Repository.MfaConfigurations.Add(configuration);
+            if (enableUserFlag)
+            {
+                User.EnableMfa("secret");
+            }
+        }
     }
 
     private sealed class InMemoryIdentityRepository : IIdentityRepository
@@ -434,6 +556,8 @@ public sealed class IdentityServiceTests
         public List<MfaConfiguration> MfaConfigurations { get; } = [];
 
         public List<AuditLog> AuditLogs { get; } = [];
+
+        public bool TenantRequiresMfa { get; set; }
 
         public Task<User?> GetUserByEmailAsync(Guid tenantId, string normalizedEmail, CancellationToken cancellationToken = default)
         {
@@ -458,6 +582,20 @@ public sealed class IdentityServiceTests
         public Task<RefreshToken?> GetRefreshTokenByHashAsync(string tokenHash, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(RefreshTokens.SingleOrDefault(token => token.TokenHash == tokenHash));
+        }
+
+        public Task<bool> IsTenantMfaRequiredAsync(Guid tenantId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(TenantRequiresMfa);
+        }
+
+        public Task<MfaConfiguration?> GetEnabledMfaConfigurationAsync(Guid tenantId, Guid userId, MfaMethod method, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(MfaConfigurations.SingleOrDefault(configuration =>
+                configuration.TenantId == tenantId
+                && configuration.UserId == userId
+                && configuration.Method == method
+                && configuration.IsEnabled));
         }
 
         public Task AddRefreshTokenAsync(RefreshToken refreshToken, CancellationToken cancellationToken = default)
@@ -554,6 +692,72 @@ public sealed class IdentityServiceTests
         }
     }
 
+    private sealed class TestMfaChallengeTokenService : IMfaChallengeTokenService
+    {
+        private readonly IClock _clock;
+
+        public TestMfaChallengeTokenService(IClock clock)
+        {
+            _clock = clock;
+        }
+
+        public string Create(MfaChallengePrincipal principal)
+        {
+            return $"{principal.TenantId}|{principal.UserId}|{(int)principal.Method}|{principal.ExpiresAtUtc.ToUnixTimeSeconds()}";
+        }
+
+        public Result<MfaChallengePrincipal> Validate(string challengeToken)
+        {
+            var parts = challengeToken.Split('|');
+            if (parts.Length != 4
+                || !Guid.TryParse(parts[0], out var tenantId)
+                || !Guid.TryParse(parts[1], out var userId)
+                || !int.TryParse(parts[2], out var method)
+                || !long.TryParse(parts[3], out var expiresUnix))
+            {
+                return Result<MfaChallengePrincipal>.Failure("Invalid MFA challenge.");
+            }
+
+            var expiresAt = DateTimeOffset.FromUnixTimeSeconds(expiresUnix);
+            return expiresAt <= _clock.UtcNow
+                ? Result<MfaChallengePrincipal>.Failure("MFA challenge expired.")
+                : Result<MfaChallengePrincipal>.Success(new MfaChallengePrincipal(tenantId, userId, (MfaMethod)method, expiresAt));
+        }
+    }
+
+    private static string SignMfaChallengePayload(string payload)
+    {
+        const string signingKey = "0123456789012345678901234567890123456789012345678901234567890123";
+        var payloadSegment = Base64UrlEncode(System.Text.Encoding.UTF8.GetBytes(payload));
+        using var hmac = new System.Security.Cryptography.HMACSHA256(System.Text.Encoding.UTF8.GetBytes(signingKey));
+        var signatureSegment = Base64UrlEncode(hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(payloadSegment)));
+        return $"{payloadSegment}.{signatureSegment}";
+    }
+
+    private static string Base64UrlEncode(byte[] bytes)
+    {
+        return Convert.ToBase64String(bytes).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+    }
+
+    private sealed class TestMfaSecretProtector : IMfaSecretProtector
+    {
+        public string Protect(string secret) => secret;
+
+        public string Unprotect(string encryptedSecret) => encryptedSecret;
+    }
+
+    private sealed class TestTotpService : ITotpService
+    {
+        public const string ValidCode = "123456";
+
+        public string GenerateSecret() => "secret";
+
+        public string GenerateCode(string secret, DateTimeOffset timestampUtc) => ValidCode;
+
+        public bool VerifyCode(string secret, string code, DateTimeOffset timestampUtc, int allowedDriftSteps = 1) =>
+            code == ValidCode;
+    }
+
     private sealed class FakeApplicationDbContext : IApplicationDbContext
     {
         public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -565,5 +769,15 @@ public sealed class IdentityServiceTests
     private sealed class FixedClock : IClock
     {
         public DateTimeOffset UtcNow => new(2026, 6, 20, 15, 0, 0, TimeSpan.Zero);
+    }
+
+    private sealed class MutableClock : IClock
+    {
+        public MutableClock(DateTimeOffset utcNow)
+        {
+            UtcNow = utcNow;
+        }
+
+        public DateTimeOffset UtcNow { get; set; }
     }
 }

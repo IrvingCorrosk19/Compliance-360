@@ -9,6 +9,7 @@ const state = {
   userId: localStorage.getItem("c360.userId"),
   theme: localStorage.getItem("c360.theme") || "light",
   route: location.hash.replace("#/", "") || "dashboard",
+  mfaChallenge: null,
   cache: {}
 };
 
@@ -38,6 +39,10 @@ const navigation = [
     ["configuration", "Configuration"]
   ]}
 ];
+
+const routeMetadata = Object.fromEntries(navigation.flatMap(group =>
+  group.items.map(([key, label]) => [key, { label, group: group.group, initials: initials(label) }])
+));
 
 const modules = {
   documents: {
@@ -146,6 +151,12 @@ render();
 
 function render() {
   const app = document.querySelector("#app");
+  if (!state.token && state.mfaChallenge) {
+    app.innerHTML = mfaChallengeView();
+    bindMfaChallenge();
+    return;
+  }
+
   if (!state.token) {
     app.innerHTML = loginView();
     bindLogin();
@@ -155,6 +166,35 @@ function render() {
   app.innerHTML = shellView();
   bindShell();
   renderRoute();
+}
+
+function mfaChallengeView() {
+  return `
+    <main class="login-page">
+      <section class="login-panel" aria-labelledby="mfa-title">
+        <div class="brand-line">
+          <div class="brand-mark" aria-hidden="true">C360</div>
+          <span class="product-badge">MFA Required</span>
+        </div>
+        <h1 id="mfa-title">Verificacion de segundo factor</h1>
+        <p>El tenant o el usuario requiere MFA. Ingresa el codigo TOTP para emitir el token final de sesion.</p>
+        <form id="mfa-form" class="form-stack">
+          <div class="field">
+            <label for="verificationCode">Codigo de 6 digitos</label>
+            <input id="verificationCode" name="verificationCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required>
+          </div>
+          <button class="btn primary" type="submit">Completar login seguro</button>
+          <button id="cancel-mfa" class="btn subtle" type="button">Cancelar</button>
+        </form>
+      </section>
+      <section class="login-hero">
+        <div class="hero-card">
+          <span class="product-badge">Zero token before MFA</span>
+          <h2>JWT bloqueado hasta completar el challenge</h2>
+          <p>Compliance 360 protege el acceso productivo con challenge firmado y auditoria de MFA requerida, exitosa o fallida.</p>
+        </div>
+      </section>
+    </main>`;
 }
 
 function loginView() {
@@ -216,21 +256,44 @@ function shellView() {
             <div class="brand-subtitle">Enterprise Edition</div>
           </div>
         </div>
+        <section class="sidebar-status" aria-label="Estado de la plataforma">
+          <span class="status-pill ok">Live</span>
+          <strong>Production Core 100%</strong>
+          <small>Tenant activo, API segura y datos persistentes.</small>
+        </section>
         ${navigation.map(group => `
           <nav class="nav-group" aria-label="${group.group}">
             <div class="nav-label">${group.group}</div>
             ${group.items.map(([key, label]) => `
               <button class="nav-button ${state.route === key ? "active" : ""}" data-route="${key}">
-                <span>${label}</span><span aria-hidden="true">›</span>
+                <span class="nav-icon">${initials(label)}</span>
+                <span>${label}</span>
+                <span aria-hidden="true">›</span>
               </button>`).join("")}
           </nav>`).join("")}
+        <footer class="sidebar-footer">
+          <span>ISO aligned</span>
+          <strong>9001 / 37301 / 31000</strong>
+        </footer>
       </aside>
       <main class="main">
         <header class="topbar">
-          <label class="global-search">
-            <span class="sr-only">Busqueda global</span>
-            <input id="global-search" class="search-box" placeholder="Buscar documentos, proveedores, riesgos, reportes..." />
-          </label>
+          <div class="topbar-context">
+            <div class="breadcrumbs compact">Compliance 360 / ${escapeHtml(currentRouteGroup())}</div>
+            <strong>${escapeHtml(currentRouteLabel())}</strong>
+          </div>
+          <div class="topbar-command">
+            <label class="global-search">
+              <span class="sr-only">Busqueda global</span>
+              <input id="global-search" class="search-box" list="route-options" placeholder="Buscar o escribir Enter para documentos..." />
+            </label>
+            <select id="quick-switcher" class="quick-switcher" aria-label="Ir a modulo">
+              ${navigation.flatMap(group => group.items.map(([key, label]) => `<option value="${key}" ${state.route === key ? "selected" : ""}>${group.group} / ${label}</option>`)).join("")}
+            </select>
+            <datalist id="route-options">
+              ${navigation.flatMap(group => group.items.map(([, label]) => `<option value="${label}"></option>`)).join("")}
+            </datalist>
+          </div>
           <div class="top-actions">
             <span class="status-pill ok">Production core</span>
             <span class="tenant-chip" title="${state.tenantId}">Tenant: ${shortId(state.tenantId)}</span>
@@ -257,6 +320,18 @@ function bindLogin() {
         },
         anonymous: true
       });
+      if (result.mfaRequired) {
+        state.mfaChallenge = {
+          challengeToken: result.mfaChallengeToken,
+          method: result.mfaMethod ?? 0,
+          tenantId: result.tenantId,
+          email: result.email
+        };
+        toast("MFA requerido. Completa el segundo factor.", "info");
+        render();
+        return;
+      }
+
       state.token = result.accessToken;
       state.tenantId = result.tenantId;
       state.email = result.email;
@@ -270,6 +345,42 @@ function bindLogin() {
     } catch (error) {
       toast(error.message, "error");
     }
+  });
+}
+
+function bindMfaChallenge() {
+  document.querySelector("#mfa-form").addEventListener("submit", async event => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    try {
+      const result = await request("/auth/mfa/complete", {
+        method: "POST",
+        body: {
+          challengeToken: state.mfaChallenge.challengeToken,
+          method: state.mfaChallenge.method,
+          verificationCode: form.get("verificationCode")
+        },
+        anonymous: true
+      });
+      state.mfaChallenge = null;
+      state.token = result.accessToken;
+      state.tenantId = result.tenantId;
+      state.email = result.email;
+      state.userId = result.userId;
+      localStorage.setItem("c360.token", state.token);
+      localStorage.setItem("c360.tenantId", state.tenantId);
+      localStorage.setItem("c360.email", state.email);
+      localStorage.setItem("c360.userId", state.userId);
+      toast("MFA validado. Sesion segura iniciada.", "success");
+      render();
+    } catch (error) {
+      toast(error.message, "error");
+    }
+  });
+  document.querySelector("#cancel-mfa").addEventListener("click", () => {
+    state.mfaChallenge = null;
+    toast("Challenge MFA cancelado.", "info");
+    render();
   });
 }
 
@@ -293,15 +404,35 @@ function bindShell() {
   });
   document.querySelector("#global-search").addEventListener("keydown", event => {
     if (event.key === "Enter") {
-      state.cache.globalSearch = event.currentTarget.value.trim();
+      const value = event.currentTarget.value.trim();
+      const route = routeFromLabel(value);
+      if (route) {
+        location.hash = `#/${route}`;
+        return;
+      }
+      state.cache.globalSearch = value;
       location.hash = "#/documents";
+    }
+  });
+  document.querySelector("#quick-switcher").addEventListener("change", event => {
+    location.hash = `#/${event.currentTarget.value}`;
+  });
+  document.querySelector("#content").addEventListener("click", event => {
+    const target = event.target.closest("[data-route], [data-action]");
+    if (!target) return;
+    if (target.dataset.route) {
+      location.hash = `#/${target.dataset.route}`;
+      return;
+    }
+    if (target.dataset.action === "reload") {
+      location.reload();
     }
   });
 }
 
 async function renderRoute() {
   const content = document.querySelector("#content");
-  content.innerHTML = `<div class="loading">Cargando datos reales desde la API...</div>`;
+  content.innerHTML = loadingView();
   content.focus();
 
   try {
@@ -334,7 +465,8 @@ async function renderRoute() {
       toast("Sesion expirada. Inicia sesion nuevamente.", "error");
       return;
     }
-    content.innerHTML = `<div class="error-state">${escapeHtml(error.message)}</div>`;
+    content.innerHTML = errorView(error.message);
+    content.querySelector("#retry-route")?.addEventListener("click", renderRoute);
   }
 }
 
@@ -368,8 +500,8 @@ async function renderDashboard(content) {
       <div class="card">
         <h2 class="section-title">Compliance Performance</h2>
         <p class="metric-label">Indicadores de cumplimiento y desviaciones desde el modulo Quality Indicators.</p>
-        <div class="progress" aria-label="Compliance ${indicators.compliancePercent ?? 100}%"><span style="width:${clamp(indicators.compliancePercent ?? 100)}%"></span></div>
-        <div class="button-row" style="margin-top:14px">
+        <progress class="progress" value="${clamp(indicators.compliancePercent ?? 100)}" max="100" aria-label="Compliance ${indicators.compliancePercent ?? 100}%"></progress>
+        <div class="button-row section-actions">
           <span class="status-chip">Indicators: ${indicators.totalIndicators ?? 0}</span>
           <span class="status-chip">Alerts: ${indicators.alerts ?? 0}</span>
           <span class="status-chip">Negative trends: ${indicators.negativeTrends ?? 0}</span>
@@ -512,7 +644,7 @@ async function renderModule(content, key) {
       <div class="button-row">
         <input id="module-search" class="search-box" placeholder="Filtro avanzado por texto" value="${escapeHtml(state.cache.globalSearch || "")}" />
         <button id="module-refresh" class="btn">Buscar</button>
-        <button class="btn subtle" onclick="location.hash='#/reports'">Exportar via reportes</button>
+        <button class="btn subtle" type="button" data-route="reports">Exportar via reportes</button>
       </div>
     </section>
     ${tableCard(module.title, rows, module.columns)}`;
@@ -1026,27 +1158,54 @@ function pageHeader(title, description, breadcrumb) {
     <div class="breadcrumbs">Compliance 360 / ${breadcrumb}</div>
     <div class="page-header">
       <div class="page-title">
+        <span class="product-badge">${escapeHtml(currentRouteGroup())}</span>
         <h1>${title}</h1>
         <p>${description}</p>
       </div>
       <div class="button-row">
+        <button class="btn subtle" type="button" data-route="dashboard">Dashboard</button>
+        <button class="btn subtle" type="button" data-route="reports">Reportes</button>
         <a class="btn" href="/swagger" target="_blank" rel="noreferrer">Swagger</a>
-        <button class="btn subtle" onclick="location.reload()">Reload</button>
+        <button class="btn subtle" type="button" data-action="reload">Recargar</button>
       </div>
     </div>`;
 }
 
 function metric(label, value, help) {
-  return `<article class="card"><div class="metric-label">${label}</div><div class="metric-value">${escapeHtml(String(value))}</div><div class="metric-label">${help}</div></article>`;
+  return `
+    <article class="card metric-card">
+      <div class="metric-label">${label}</div>
+      <div class="metric-value">${escapeHtml(String(value))}</div>
+      <div class="metric-label">${help}</div>
+    </article>`;
 }
 
 function tableCard(title, rows, columns) {
   if (!rows.length) {
-    return `<section class="card"><h2 class="section-title">${title}</h2><div class="empty">No hay registros todavia en este modulo. Los datos se consultaron desde la API real del tenant.</div></section>`;
+    return `
+      <section class="card">
+        <div class="section-heading">
+          <div>
+            <h2 class="section-title">${title}</h2>
+            <p class="metric-label">Datos tenant-scoped consultados en tiempo real.</p>
+          </div>
+          <span class="status-pill warn">0 registros</span>
+        </div>
+        <div class="empty-state">
+          <strong>No hay registros todavia.</strong>
+          <p>Usa el Action Center superior para crear el primer item y validar el flujo end-to-end.</p>
+        </div>
+      </section>`;
   }
   return `
     <section class="card">
-      <h2 class="section-title">${title}</h2>
+      <div class="section-heading">
+        <div>
+          <h2 class="section-title">${title}</h2>
+          <p class="metric-label">${rows.length} registros visibles en esta vista.</p>
+        </div>
+        <span class="status-pill ok">Live data</span>
+      </div>
       <div class="table-wrap">
         <table>
           <thead><tr>${columns.map(column => `<th>${column}</th>`).join("")}</tr></thead>
@@ -1087,6 +1246,12 @@ function formatCell(value) {
   if (typeof value === "string" && value.includes("T") && value.endsWith("Z")) {
     return escapeHtml(new Date(value).toLocaleString());
   }
+  if (typeof value === "string" && ["Active", "Completed", "Approved", "Live", "Healthy"].includes(value)) {
+    return `<span class="status-pill ok">${escapeHtml(value)}</span>`;
+  }
+  if (typeof value === "number" && value >= 0 && value <= 10) {
+    return `<span class="tag">${value}</span>`;
+  }
   if (typeof value === "object") {
     return escapeHtml(JSON.stringify(value));
   }
@@ -1108,6 +1273,53 @@ function toast(message, type = "info") {
   node.textContent = message;
   region.appendChild(node);
   setTimeout(() => node.remove(), 4200);
+}
+
+function loadingView() {
+  return `
+    <section class="loading-panel">
+      <div class="loading-orb" aria-hidden="true"></div>
+      <div>
+        <strong>Cargando datos reales del tenant...</strong>
+        <p>Consultando API v1, permisos y persistencia PostgreSQL.</p>
+      </div>
+    </section>
+    <section class="grid cards">
+      ${Array.from({ length: 4 }, () => `<div class="skeleton-card"></div>`).join("")}
+    </section>`;
+}
+
+function errorView(message) {
+  return `
+    <section class="error-state rich">
+      <strong>No se pudo cargar esta vista.</strong>
+      <p>${escapeHtml(message)}</p>
+      <div class="button-row">
+        <button id="retry-route" class="btn primary" type="button">Reintentar</button>
+        <button class="btn" type="button" data-route="dashboard">Volver al Dashboard</button>
+      </div>
+    </section>`;
+}
+
+function currentRouteLabel() {
+  return routeMetadata[state.route]?.label || enterpriseWorkspaces[state.route]?.title || "Workspace";
+}
+
+function currentRouteGroup() {
+  return routeMetadata[state.route]?.group || (enterpriseWorkspaces[state.route] ? "Enterprise" : "Workspace");
+}
+
+function routeFromLabel(value) {
+  if (!value) return null;
+  const normalized = value.toLowerCase();
+  const match = Object.entries(routeMetadata).find(([, metadata]) => metadata.label.toLowerCase() === normalized);
+  if (match) return match[0];
+  const partial = Object.entries(routeMetadata).find(([, metadata]) => metadata.label.toLowerCase().includes(normalized));
+  return partial?.[0] || null;
+}
+
+function initials(label) {
+  return label.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join("").toUpperCase();
 }
 
 function escapeHtml(value) {

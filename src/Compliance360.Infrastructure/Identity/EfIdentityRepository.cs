@@ -44,6 +44,25 @@ public sealed class EfIdentityRepository : IIdentityRepository
         return _dbContext.RefreshTokens.FirstOrDefaultAsync(token => token.TokenHash == tokenHash, cancellationToken);
     }
 
+    public async Task<bool> IsTenantMfaRequiredAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.TenantSettings
+            .Where(settings => settings.TenantId == tenantId)
+            .Select(settings => settings.RequireMfa)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public Task<MfaConfiguration?> GetEnabledMfaConfigurationAsync(Guid tenantId, Guid userId, MfaMethod method, CancellationToken cancellationToken = default)
+    {
+        return _dbContext.MfaConfigurations.FirstOrDefaultAsync(
+            configuration =>
+                configuration.TenantId == tenantId
+                && configuration.UserId == userId
+                && configuration.Method == method
+                && configuration.IsEnabled,
+            cancellationToken);
+    }
+
     public async Task AddRefreshTokenAsync(RefreshToken refreshToken, CancellationToken cancellationToken = default)
     {
         await _dbContext.RefreshTokens.AddAsync(refreshToken, cancellationToken);
