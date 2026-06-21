@@ -71,7 +71,10 @@ public enum AuditAction
     ReportScheduled = 64,
     MfaChallengeRequired = 65,
     MfaChallengeSucceeded = 66,
-    MfaChallengeFailed = 67
+    MfaChallengeFailed = 67,
+    TelemetryConfigurationChanged = 68,
+    MonitoringConfigurationChanged = 69,
+    AlertConfigurationChanged = 70
 }
 
 public enum AuditCategory
@@ -94,7 +97,8 @@ public enum AuditCategory
     CapaManagement = 15,
     RiskManagement = 16,
     QualityIndicators = 17,
-    ReportingEngine = 18
+    ReportingEngine = 18,
+    Observability = 19
 }
 
 public sealed record AuditContext(

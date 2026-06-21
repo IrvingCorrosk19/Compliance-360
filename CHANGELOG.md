@@ -2,6 +2,28 @@
 
 All notable changes to Compliance 360 will be documented in this file.
 
+## v0.19.0-observability-enterprise - 2026-06-21
+
+### OBSERVABILITY ENTERPRISE
+
+- Integrated Serilog structured JSON logging with OpenTelemetry logs, tracing, metrics, resource metadata, correlation context, and telemetry enrichment.
+- Added distributed tracing and metrics coverage for HTTP, EF Core/database, API requests/failures, business events/failures, module operations, and tenant-aware observability snapshots.
+- Added health endpoints `/health`, `/health/live`, `/health/ready`, Prometheus `/metrics`, secured `/telemetry`, and Observability API v1 dashboards/alerts.
+- Added operational, system, performance, security, and tenant dashboards plus alert rules for application, database, storage, notification, latency, error rate, authentication, MFA, workflow, and reporting failures.
+- Added `Observability.Read`, `Observability.Manage`, and `Observability.Admin` policies with protected operational endpoints and audit coverage for telemetry/monitoring/alert configuration changes.
+
+### Validation
+
+- Build completed successfully with zero warnings and zero errors.
+- Test suite completed successfully: 205 passed with the observability coverage run.
+- Affected coverage: Observability 100% line coverage and 92.59% branch coverage.
+- Lint diagnostics completed with no errors for changed Web, Domain, and Test files.
+
+### Observability Completion Certificate
+
+- Scope: Phase 2 Observability Enterprise
+- Status: OBSERVABILITY ENTERPRISE APPROVED
+
 ## v0.18.0-security-hardening-phase-1 - 2026-06-21
 
 ### SECURITY HARDENING PHASE 1

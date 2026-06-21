@@ -32,6 +32,9 @@ public static class PermissionPolicies
     public const string WorkflowManage = "Workflow.Manage";
     public const string TechnicalSheetManage = "TechnicalSheet.Manage";
     public const string SupplierManage = "Supplier.Manage";
+    public const string ObservabilityRead = "Observability.Read";
+    public const string ObservabilityManage = "Observability.Manage";
+    public const string ObservabilityAdmin = "Observability.Admin";
 
     public static void AddCompliancePolicies(this AuthorizationOptions options)
     {
@@ -63,6 +66,9 @@ public static class PermissionPolicies
         options.AddPolicy(WorkflowManage, policy => policy.RequireAssertion(context => HasPermission(context, "WORKFLOW.MANAGE")));
         options.AddPolicy(TechnicalSheetManage, policy => policy.RequireAssertion(context => HasPermission(context, "TECHNICALSHEET.MANAGE")));
         options.AddPolicy(SupplierManage, policy => policy.RequireAssertion(context => HasPermission(context, "SUPPLIER.MANAGE")));
+        options.AddPolicy(ObservabilityRead, policy => policy.RequireAssertion(context => HasPermission(context, "OBSERVABILITY.READ") || HasPermission(context, "OBSERVABILITY.MANAGE") || HasPermission(context, "OBSERVABILITY.ADMIN")));
+        options.AddPolicy(ObservabilityManage, policy => policy.RequireAssertion(context => HasPermission(context, "OBSERVABILITY.MANAGE") || HasPermission(context, "OBSERVABILITY.ADMIN")));
+        options.AddPolicy(ObservabilityAdmin, policy => policy.RequireAssertion(context => HasPermission(context, "OBSERVABILITY.ADMIN")));
     }
 
     private static bool HasPermission(AuthorizationHandlerContext context, string permission)
