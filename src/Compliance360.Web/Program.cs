@@ -7,6 +7,7 @@ using Compliance360.Web.Audit;
 using Compliance360.Web.Errors;
 using Compliance360.Web.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.OpenApi;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,7 +19,18 @@ if (string.IsNullOrWhiteSpace(builder.Configuration.GetConnectionString("Complia
 
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter a valid JWT access token."
+    });
+});
 builder.Services.AddHealthChecks();
 builder.Services.AddRateLimiter(options =>
 {
@@ -61,6 +73,8 @@ var app = builder.Build();
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseMiddleware<SecurityHeadersMiddleware>();
+app.UseDefaultFiles();
+app.UseStaticFiles();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseHttpsRedirection();
@@ -78,6 +92,7 @@ app.MapGet("/health", () => Results.Ok(new
 }));
 
 app.MapFoundationApi();
+app.MapFallbackToFile("index.html");
 
 app.Run();
 

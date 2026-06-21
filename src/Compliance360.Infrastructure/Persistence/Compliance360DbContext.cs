@@ -1590,6 +1590,8 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
 
     private void ApplyFoundationRules()
     {
+        NormalizeQualityIndicatorAppendOnlyChildren();
+
         foreach (var entry in ChangeTracker.Entries<AuditLog>())
         {
             if (entry.State is EntityState.Modified or EntityState.Deleted)
@@ -1603,6 +1605,31 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             if (entry.State == EntityState.Modified)
             {
                 entry.Entity.MarkUpdated(_clock.UtcNow);
+            }
+        }
+    }
+
+    private void NormalizeQualityIndicatorAppendOnlyChildren()
+    {
+        foreach (var entry in ChangeTracker.Entries())
+        {
+            if (entry.State != EntityState.Modified)
+            {
+                continue;
+            }
+
+            if (entry.Entity is IndicatorFormula
+                || entry.Entity is IndicatorTarget
+                || entry.Entity is IndicatorThreshold
+                || entry.Entity is IndicatorMeasurement
+                || entry.Entity is IndicatorResult
+                || entry.Entity is IndicatorPeriod
+                || entry.Entity is IndicatorProcess
+                || entry.Entity is IndicatorTrend
+                || entry.Entity is IndicatorAttachment
+                || entry.Entity is IndicatorHistory)
+            {
+                entry.State = EntityState.Added;
             }
         }
     }

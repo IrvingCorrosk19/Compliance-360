@@ -2,6 +2,29 @@
 
 All notable changes to Compliance 360 will be documented in this file.
 
+## v0.17.0-enterprise-application-core - 2026-06-20
+
+### ENTERPRISE APPLICATION CORE DELIVERY
+
+- Implemented a navigable Compliance 360 SPA served by `Compliance360.Web` with login, application shell, dashboards, module navigation, light/dark mode, toast feedback, and tenant-aware API consumption.
+- Added real Action Center flows for Document Management, Technical Sheets, Supplier Management, Audit Management, CAPA, Risk Management, and Quality Indicators.
+- Added Report Center execution console with standard report seeding, configured report catalog, execution, export, and monthly scheduling actions.
+- Added Swagger/OpenAPI Bearer security definition so Swagger exposes the Authorize button for JWT flows.
+- Fixed Reporting Engine standard report seeding to reuse in-memory categories and avoid duplicate category inserts in a single seed batch.
+- Fixed EF/PostgreSQL persistence for append-only Quality Indicator child records so targets, thresholds, measurements, results, trends, attachments, and history are inserted correctly when added through aggregate methods.
+
+### Validation
+
+- Build completed successfully with zero warnings and zero errors.
+- Test suite completed successfully: 169 passed.
+- Browser validation passed for login, Swagger Authorize, Document Management, Technical Sheets, Supplier Management, Audit Management, CAPA, Risk Management, Quality Indicators, and Report Center.
+- E2E evidence includes tenant-scoped record creation per core module, 24 configured standard reports, report execution, report export, and report scheduling.
+
+### Application Completion Certificate
+
+- Scope: Enterprise Application Core
+- Status: RELEASE CANDIDATE APPROVED
+
 ## v0.16.0-reporting-engine-enterprise - 2026-06-20
 
 ### REPORTING ENGINE COMPLETION REPORT

@@ -199,15 +199,21 @@ public sealed class ReportingEngineService : IReportingEngineService
     {
         var createdCategories = 0;
         var createdDefinitions = 0;
+        var categoriesByCode = new Dictionary<string, ReportCategory>(StringComparer.OrdinalIgnoreCase);
         foreach (var descriptor in ReportDefinition.StandardReports())
         {
             var categoryCode = $"STD-{descriptor.Module}";
-            var category = await _repository.GetCategoryByCodeAsync(command.TenantId, categoryCode.ToUpperInvariant(), cancellationToken);
-            if (category is null)
+            if (!categoriesByCode.TryGetValue(categoryCode, out var category))
             {
-                category = new ReportCategory(command.TenantId, $"{descriptor.Module} Reports", categoryCode, descriptor.Module, command.RequestedByUserId);
-                await _repository.AddCategoryAsync(category, cancellationToken);
-                createdCategories++;
+                category = await _repository.GetCategoryByCodeAsync(command.TenantId, categoryCode.ToUpperInvariant(), cancellationToken);
+                if (category is null)
+                {
+                    category = new ReportCategory(command.TenantId, $"{descriptor.Module} Reports", categoryCode, descriptor.Module, command.RequestedByUserId);
+                    await _repository.AddCategoryAsync(category, cancellationToken);
+                    createdCategories++;
+                }
+
+                categoriesByCode[categoryCode] = category;
             }
 
             if (await _repository.DefinitionCodeExistsAsync(command.TenantId, descriptor.Code, cancellationToken))
