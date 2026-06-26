@@ -20,6 +20,12 @@ public static class PermissionPolicies
     public const string TenantAudit = "Tenant.Audit";
     public const string TenantDelete = "Tenant.Delete";
     public const string TenantRestore = "Tenant.Restore";
+    public const string TenantDomains = "Tenant.Domains";
+    public const string TenantSso = "Tenant.Sso";
+    public const string TenantWebhooks = "Tenant.Webhooks";
+    public const string TenantApiKeys = "Tenant.ApiKeys";
+    public const string TenantHealth = "Tenant.Health";
+    public const string TenantBackup = "Tenant.Backup";
     public const string IdentityManage = "Identity.Manage";
     public const string RbacManage = "Rbac.Manage";
     public const string AuditRead = "Audit.Read";
@@ -57,8 +63,8 @@ public static class PermissionPolicies
 
     public static void AddCompliancePolicies(this AuthorizationOptions options)
     {
-        options.AddPolicy(TenantManage, policy => policy.RequireAssertion(context => HasAnyPermission(context, "TENANT.READ", "TENANT.CREATE", "TENANT.UPDATE", "TENANT.STATUS", "TENANT.BRANDING", "TENANT.SECURITY", "TENANT.STORAGE", "TENANT.NOTIFICATIONS", "TENANT.INTEGRATIONS", "TENANT.BILLING", "TENANT.USERS", "TENANT.ROLES", "TENANT.AUDIT", "TENANT.DELETE", "TENANT.RESTORE")));
-        options.AddPolicy(TenantRead, policy => policy.RequireAssertion(context => HasAnyPermission(context, "TENANT.READ", "TENANT.CREATE", "TENANT.UPDATE", "TENANT.STATUS", "TENANT.BRANDING", "TENANT.SECURITY", "TENANT.STORAGE", "TENANT.NOTIFICATIONS", "TENANT.INTEGRATIONS", "TENANT.BILLING", "TENANT.USERS", "TENANT.ROLES", "TENANT.AUDIT", "TENANT.DELETE", "TENANT.RESTORE")));
+        options.AddPolicy(TenantManage, policy => policy.RequireAssertion(context => HasAnyPermission(context, "TENANT.READ", "TENANT.CREATE", "TENANT.UPDATE", "TENANT.STATUS", "TENANT.BRANDING", "TENANT.SECURITY", "TENANT.STORAGE", "TENANT.NOTIFICATIONS", "TENANT.INTEGRATIONS", "TENANT.BILLING", "TENANT.USERS", "TENANT.ROLES", "TENANT.AUDIT", "TENANT.DELETE", "TENANT.RESTORE", "TENANT.DOMAINS", "TENANT.SSO", "TENANT.WEBHOOKS", "TENANT.API_KEYS", "TENANT.HEALTH", "TENANT.BACKUP")));
+        options.AddPolicy(TenantRead, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.READ")));
         options.AddPolicy(TenantCreate, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.CREATE")));
         options.AddPolicy(TenantUpdate, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.UPDATE")));
         options.AddPolicy(TenantStatus, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.STATUS")));
@@ -73,6 +79,12 @@ public static class PermissionPolicies
         options.AddPolicy(TenantAudit, policy => policy.RequireAssertion(context => HasAnyPermission(context, "TENANT.AUDIT", "AUDIT.READ", "AUDIT.MANAGE")));
         options.AddPolicy(TenantDelete, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.DELETE")));
         options.AddPolicy(TenantRestore, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.RESTORE")));
+        options.AddPolicy(TenantDomains, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.DOMAINS")));
+        options.AddPolicy(TenantSso, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.SSO")));
+        options.AddPolicy(TenantWebhooks, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.WEBHOOKS")));
+        options.AddPolicy(TenantApiKeys, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.API_KEYS")));
+        options.AddPolicy(TenantHealth, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.HEALTH")));
+        options.AddPolicy(TenantBackup, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.BACKUP")));
         options.AddPolicy(IdentityManage, policy => policy.RequireAssertion(context => HasPermission(context, "IDENTITY.MANAGE")));
         options.AddPolicy(RbacManage, policy => policy.RequireAssertion(context => HasPermission(context, "RBAC.MANAGE")));
         options.AddPolicy(AuditRead, policy => policy.RequireAssertion(context => HasPermission(context, "AUDIT.READ") || HasPermission(context, "AUDIT.MANAGE")));

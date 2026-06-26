@@ -89,6 +89,54 @@ public sealed record ChangeSubscriptionRequest(
     DateOnly? ExpiresOn,
     string? ChangeReason);
 
+public sealed record UpsertTenantDomainRequest(string HostName, TenantDomainKind Kind, bool IsDefault, string? RedirectToHostName, string? ChangeReason);
+
+public sealed record UpsertTenantSsoRequest(
+    TenantSsoProviderType Provider,
+    string Name,
+    string Authority,
+    string? MetadataUrl,
+    string ClientId,
+    string? SecretReference,
+    string ClaimsMappingJson,
+    string RoleMappingJson,
+    bool JitProvisioningEnabled,
+    bool ScimEnabled,
+    string? CertificateThumbprint,
+    bool Enabled,
+    string? ChangeReason);
+
+public sealed record CreateTenantApiCredentialRequest(string Name, string PlainTextSecret, string Scopes, DateTimeOffset? ExpiresAtUtc, string? ChangeReason);
+
+public sealed record RotateTenantApiCredentialRequest(string PlainTextSecret, DateTimeOffset? ExpiresAtUtc, string? ChangeReason);
+
+public sealed record UpsertTenantWebhookRequest(string Name, string Url, string Events, string PlainTextSecret, int MaxRetries, bool Enabled, string? ChangeReason);
+
+public sealed record UpsertTenantLicenseRequest(
+    string LicenseNumber,
+    TenantLicenseStatus Status,
+    string FeaturesJson,
+    string ModulesJson,
+    string EntitlementsJson,
+    DateOnly PeriodStart,
+    DateOnly PeriodEnd,
+    DateOnly RenewalDate,
+    int SeatsPurchased,
+    int SeatsUsed,
+    int StorageGbPurchased,
+    long StorageBytesUsed,
+    string? ChangeReason);
+
+public sealed record RecordTenantBackupRequest(string BackupKind, string Result, DateTimeOffset StartedAtUtc, DateTimeOffset CompletedAtUtc, long SizeBytes, string Message, int RpoMinutes, int RtoMinutes);
+
+public sealed record CreateTenantUserRequest(string Email, string FullName, string InitialPassword, bool ForcePasswordChange, Guid? RoleId, string? ChangeReason);
+
+public sealed record ChangeTenantUserStatusRequest(UserStatus Status, string? ChangeReason);
+
+public sealed record AssignTenantUserRoleRequest(Guid RoleId, string? ChangeReason);
+
+public sealed record TenantActionRequest(string? ChangeReason);
+
 public sealed record CreateRoleRequest(string Name, bool IsSystemRole);
 
 public sealed record CreatePermissionRequest(string Module, PermissionAction Action, string Description);

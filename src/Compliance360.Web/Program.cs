@@ -165,8 +165,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseCors("compliance360-cors");
 app.UseRateLimiter();
-app.UseMiddleware<AuditContextMiddleware>();
 app.UseAuthentication();
+app.UseMiddleware<AuditContextMiddleware>();
 app.UseMiddleware<ObservabilityMiddleware>();
 app.UseAuthorization();
 

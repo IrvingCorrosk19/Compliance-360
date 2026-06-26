@@ -77,6 +77,8 @@ public sealed class User : TenantEntity
 
     public DateTimeOffset? PasswordChangedAtUtc { get; private set; }
 
+    public bool ForcePasswordChangeRequired { get; private set; }
+
     public IReadOnlyCollection<UserRole> Roles => _roles.AsReadOnly();
 
     public IReadOnlyCollection<RefreshToken> RefreshTokens => _refreshTokens.AsReadOnly();
@@ -100,6 +102,7 @@ public sealed class User : TenantEntity
         PasswordHash = Guard.AgainstNullOrWhiteSpace(passwordHash, nameof(passwordHash), 1_000);
         PasswordChangedAtUtc = DateTimeOffset.UtcNow;
         Status = UserStatus.Active;
+        ForcePasswordChangeRequired = false;
     }
 
     public PasswordHistory ChangePassword(string newPasswordHash, DateTimeOffset changedAtUtc)
@@ -168,6 +171,12 @@ public sealed class User : TenantEntity
         Status = UserStatus.Disabled;
     }
 
+    public void RequirePasswordChange()
+    {
+        ForcePasswordChangeRequired = true;
+        MarkUpdated(DateTimeOffset.UtcNow);
+    }
+
     public void AssignRole(Guid roleId)
     {
         Guard.AgainstEmpty(roleId, nameof(roleId));
@@ -178,6 +187,16 @@ public sealed class User : TenantEntity
         }
 
         _roles.Add(new UserRole(TenantId, Id, roleId));
+    }
+
+    public void RevokeRole(Guid roleId)
+    {
+        Guard.AgainstEmpty(roleId, nameof(roleId));
+        var role = _roles.FirstOrDefault(assignedRole => assignedRole.RoleId == roleId);
+        if (role is not null)
+        {
+            _roles.Remove(role);
+        }
     }
 
     public void AddRefreshToken(RefreshToken refreshToken)

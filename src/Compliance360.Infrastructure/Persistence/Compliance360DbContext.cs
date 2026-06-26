@@ -39,6 +39,22 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
 
     public DbSet<TenantBranding> TenantBranding => Set<TenantBranding>();
 
+    public DbSet<TenantDomain> TenantDomains => Set<TenantDomain>();
+
+    public DbSet<TenantSsoConfiguration> TenantSsoConfigurations => Set<TenantSsoConfiguration>();
+
+    public DbSet<TenantApiCredential> TenantApiCredentials => Set<TenantApiCredential>();
+
+    public DbSet<TenantWebhookEndpoint> TenantWebhookEndpoints => Set<TenantWebhookEndpoint>();
+
+    public DbSet<TenantWebhookDeliveryLog> TenantWebhookDeliveryLogs => Set<TenantWebhookDeliveryLog>();
+
+    public DbSet<TenantLicense> TenantLicenses => Set<TenantLicense>();
+
+    public DbSet<TenantHealthSignal> TenantHealthSignals => Set<TenantHealthSignal>();
+
+    public DbSet<TenantBackupRecord> TenantBackupRecords => Set<TenantBackupRecord>();
+
     public DbSet<User> Users => Set<User>();
 
     public DbSet<Role> Roles => Set<Role>();
@@ -331,6 +347,8 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.Property(tenant => tenant.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
             entity.HasIndex(tenant => tenant.Slug).IsUnique();
             entity.HasIndex(tenant => tenant.TaxIdentifier).IsUnique();
+            entity.HasIndex(tenant => tenant.CreatedByUserId);
+            entity.HasOne<User>().WithMany().HasForeignKey(tenant => tenant.CreatedByUserId).OnDelete(DeleteBehavior.SetNull);
             entity.HasMany(tenant => tenant.Companies).WithOne().HasForeignKey(company => company.TenantId);
             entity.Navigation(tenant => tenant.Companies).UsePropertyAccessMode(PropertyAccessMode.Field);
             entity.HasOne(tenant => tenant.Settings).WithOne().HasForeignKey<TenantSettings>(settings => settings.TenantId);
@@ -383,6 +401,133 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.Property(branding => branding.FooterText).HasMaxLength(500).IsRequired();
             entity.HasIndex(branding => branding.TenantId).IsUnique();
         });
+
+        modelBuilder.Entity<TenantDomain>(entity =>
+        {
+            entity.ToTable("tenant_domains");
+            entity.HasKey(domain => domain.Id);
+            entity.Property(domain => domain.HostName).HasMaxLength(253).IsRequired();
+            entity.Property(domain => domain.Kind).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(domain => domain.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(domain => domain.VerificationToken).HasMaxLength(120).IsRequired();
+            entity.Property(domain => domain.DnsStatus).HasMaxLength(500).IsRequired();
+            entity.Property(domain => domain.CertificateStatus).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(domain => domain.RedirectToHostName).HasMaxLength(253);
+            entity.HasIndex(domain => domain.HostName).IsUnique();
+            entity.HasIndex(domain => new { domain.TenantId, domain.Kind, domain.IsDefault });
+            entity.HasIndex(domain => new { domain.TenantId, domain.IsDefault }).IsUnique().HasFilter("\"IsDefault\" = TRUE");
+            entity.HasOne<Tenant>().WithMany().HasForeignKey(domain => domain.TenantId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<TenantSsoConfiguration>(entity =>
+        {
+            entity.ToTable("tenant_sso_configurations");
+            entity.HasKey(sso => sso.Id);
+            entity.Property(sso => sso.Provider).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(sso => sso.Name).HasMaxLength(120).IsRequired();
+            entity.Property(sso => sso.Authority).HasMaxLength(500).IsRequired();
+            entity.Property(sso => sso.MetadataUrl).HasMaxLength(500).IsRequired();
+            entity.Property(sso => sso.ClientId).HasMaxLength(250).IsRequired();
+            entity.Property(sso => sso.SecretReference).HasMaxLength(500);
+            entity.Property(sso => sso.CertificateThumbprint).HasMaxLength(250);
+            entity.Property(sso => sso.ClaimsMappingJson).HasColumnType("jsonb").IsRequired();
+            entity.Property(sso => sso.RoleMappingJson).HasColumnType("jsonb").IsRequired();
+            entity.Property(sso => sso.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(sso => sso.HealthStatus).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(sso => sso.HealthMessage).HasMaxLength(1_000).IsRequired();
+            entity.HasIndex(sso => new { sso.TenantId, sso.Provider, sso.Name }).IsUnique();
+            entity.HasOne<Tenant>().WithMany().HasForeignKey(sso => sso.TenantId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<TenantApiCredential>(entity =>
+        {
+            entity.ToTable("tenant_api_credentials");
+            entity.HasKey(apiKey => apiKey.Id);
+            entity.Property(apiKey => apiKey.Name).HasMaxLength(160).IsRequired();
+            entity.Property(apiKey => apiKey.KeyPrefix).HasMaxLength(32).IsRequired();
+            entity.Property(apiKey => apiKey.KeyHash).HasMaxLength(512).IsRequired();
+            entity.Property(apiKey => apiKey.Scopes).HasMaxLength(2_000).IsRequired();
+            entity.Property(apiKey => apiKey.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.HasIndex(apiKey => new { apiKey.TenantId, apiKey.Name }).IsUnique();
+            entity.HasIndex(apiKey => apiKey.KeyHash).IsUnique();
+            entity.HasOne<Tenant>().WithMany().HasForeignKey(apiKey => apiKey.TenantId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<TenantWebhookEndpoint>(entity =>
+        {
+            entity.ToTable("tenant_webhook_endpoints");
+            entity.HasKey(webhook => webhook.Id);
+            entity.Property(webhook => webhook.Name).HasMaxLength(160).IsRequired();
+            entity.Property(webhook => webhook.Url).HasMaxLength(500).IsRequired();
+            entity.Property(webhook => webhook.Events).HasMaxLength(2_000).IsRequired();
+            entity.Property(webhook => webhook.SecretHash).HasMaxLength(512).IsRequired();
+            entity.Property(webhook => webhook.SigningAlgorithm).HasMaxLength(40).IsRequired();
+            entity.Property(webhook => webhook.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(webhook => webhook.LastDeliveryStatus).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(webhook => webhook.LastDeliveryMessage).HasMaxLength(1_000);
+            entity.HasIndex(webhook => new { webhook.TenantId, webhook.Name }).IsUnique();
+            entity.HasOne<Tenant>().WithMany().HasForeignKey(webhook => webhook.TenantId).OnDelete(DeleteBehavior.Cascade);
+            entity.ToTable(table => table.HasCheckConstraint("CK_tenant_webhook_endpoints_MaxRetries", "\"MaxRetries\" >= 0 AND \"MaxRetries\" <= 25"));
+        });
+
+        modelBuilder.Entity<TenantWebhookDeliveryLog>(entity =>
+        {
+            entity.ToTable("tenant_webhook_delivery_logs");
+            entity.HasKey(log => log.Id);
+            entity.Property(log => log.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(log => log.Message).HasMaxLength(1_000).IsRequired();
+            entity.HasIndex(log => new { log.TenantId, log.WebhookId, log.OccurredAtUtc });
+            entity.HasOne<TenantWebhookEndpoint>().WithMany().HasForeignKey(log => log.WebhookId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<Tenant>().WithMany().HasForeignKey(log => log.TenantId).OnDelete(DeleteBehavior.Cascade);
+            entity.ToTable(table => table.HasCheckConstraint("CK_tenant_webhook_delivery_logs_Attempt", "\"Attempt\" > 0"));
+        });
+
+        modelBuilder.Entity<TenantLicense>(entity =>
+        {
+            entity.ToTable("tenant_licenses");
+            entity.HasKey(license => license.Id);
+            entity.Property(license => license.LicenseNumber).HasMaxLength(120).IsRequired();
+            entity.Property(license => license.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(license => license.FeaturesJson).HasColumnType("jsonb").IsRequired();
+            entity.Property(license => license.ModulesJson).HasColumnType("jsonb").IsRequired();
+            entity.Property(license => license.EntitlementsJson).HasColumnType("jsonb").IsRequired();
+            entity.HasIndex(license => license.LicenseNumber).IsUnique();
+            entity.HasIndex(license => license.TenantId).IsUnique();
+            entity.HasOne<Tenant>().WithMany().HasForeignKey(license => license.TenantId).OnDelete(DeleteBehavior.Cascade);
+            entity.ToTable(table =>
+            {
+                table.HasCheckConstraint("CK_tenant_licenses_Seats", "\"SeatsPurchased\" >= 0 AND \"SeatsUsed\" >= 0");
+                table.HasCheckConstraint("CK_tenant_licenses_Storage", "\"StorageGbPurchased\" >= 0 AND \"StorageBytesUsed\" >= 0");
+                table.HasCheckConstraint("CK_tenant_licenses_Period", "\"PeriodEnd\" >= \"PeriodStart\"");
+            });
+        });
+
+        modelBuilder.Entity<TenantHealthSignal>(entity =>
+        {
+            entity.ToTable("tenant_health_signals");
+            entity.HasKey(signal => signal.Id);
+            entity.Property(signal => signal.Component).HasMaxLength(120).IsRequired();
+            entity.Property(signal => signal.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(signal => signal.Message).HasMaxLength(1_000).IsRequired();
+            entity.HasIndex(signal => new { signal.TenantId, signal.Component }).IsUnique();
+            entity.HasOne<Tenant>().WithMany().HasForeignKey(signal => signal.TenantId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<TenantBackupRecord>(entity =>
+        {
+            entity.ToTable("tenant_backup_records");
+            entity.HasKey(backup => backup.Id);
+            entity.Property(backup => backup.BackupKind).HasMaxLength(80).IsRequired();
+            entity.Property(backup => backup.Result).HasMaxLength(80).IsRequired();
+            entity.Property(backup => backup.Message).HasMaxLength(1_000).IsRequired();
+            entity.HasIndex(backup => new { backup.TenantId, backup.CompletedAtUtc });
+            entity.HasOne<Tenant>().WithMany().HasForeignKey(backup => backup.TenantId).OnDelete(DeleteBehavior.Cascade);
+            entity.ToTable(table =>
+            {
+                table.HasCheckConstraint("CK_tenant_backup_records_SizeBytes", "\"SizeBytes\" >= 0");
+                table.HasCheckConstraint("CK_tenant_backup_records_Window", "\"CompletedAtUtc\" >= \"StartedAtUtc\"");
+            });
+        });
     }
 
     private static void ConfigureIdentity(ModelBuilder modelBuilder)
@@ -397,6 +542,7 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.Property(user => user.PasswordHash).HasMaxLength(1_000).IsRequired();
             entity.Property(user => user.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
             entity.Property(user => user.MfaSecretEncrypted).HasMaxLength(2_000);
+            entity.Property(user => user.ForcePasswordChangeRequired).IsRequired();
             entity.HasIndex(user => new { user.TenantId, user.NormalizedEmail }).IsUnique();
             entity.HasMany(user => user.Roles).WithOne().HasForeignKey(userRole => userRole.UserId);
             entity.HasMany(user => user.RefreshTokens).WithOne().HasForeignKey(refreshToken => refreshToken.UserId);

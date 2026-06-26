@@ -1,5 +1,6 @@
 using Compliance360.Domain.Audit;
 using Compliance360.Domain.Common;
+using Compliance360.Domain.Identity;
 using Compliance360.Domain.TenantManagement;
 using Compliance360.Shared;
 
@@ -10,15 +11,18 @@ public sealed class TenantManagementService : ITenantManagementService
     private readonly ITenantManagementRepository _repository;
     private readonly IApplicationDbContext _dbContext;
     private readonly IClock _clock;
+    private readonly IPasswordHasher _passwordHasher;
 
     public TenantManagementService(
         ITenantManagementRepository repository,
         IApplicationDbContext dbContext,
-        IClock clock)
+        IClock clock,
+        IPasswordHasher? passwordHasher = null)
     {
         _repository = repository;
         _dbContext = dbContext;
         _clock = clock;
+        _passwordHasher = passwordHasher ?? new Sha256PasswordHasher();
     }
 
     public async Task<Result<TenantSummary>> CreateTenantAsync(CreateTenantCommand command, CancellationToken cancellationToken = default)
@@ -306,6 +310,440 @@ public sealed class TenantManagementService : ITenantManagementService
         return Result<IReadOnlyCollection<TenantAuditTimelineItem>>.Success(timeline);
     }
 
+    public async Task<Result<TenantAdministrationCenterState>> GetAdministrationCenterStateAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        var tenant = await GetTenantOrNullAsync(tenantId, cancellationToken);
+        if (tenant is null)
+        {
+            return Result<TenantAdministrationCenterState>.Failure("Tenant not found.");
+        }
+
+        var metrics = await _repository.GetAdministrationMetricsAsync(tenantId, cancellationToken);
+        var domains = await _repository.ListDomainsAsync(tenantId, cancellationToken);
+        var sso = await _repository.ListSsoConfigurationsAsync(tenantId, cancellationToken);
+        var apiKeys = await _repository.ListApiCredentialsAsync(tenantId, cancellationToken);
+        var webhooks = await _repository.ListWebhooksAsync(tenantId, cancellationToken);
+        var license = await _repository.GetLicenseAsync(tenantId, cancellationToken);
+        var health = await BuildHealthCenterAsync(tenantId, cancellationToken);
+        var users = await BuildUserAdministrationAsync(tenantId, cancellationToken);
+        var timeline = await _repository.GetAuditTimelineAsync(tenantId, 1, 20, cancellationToken);
+
+        return Result<TenantAdministrationCenterState>.Success(new TenantAdministrationCenterState(
+            ToDetail(tenant),
+            metrics,
+            domains.Select(ToSummary).ToArray(),
+            sso.Select(ToSummary).ToArray(),
+            apiKeys.Select(ToSummary).ToArray(),
+            webhooks.Select(ToSummary).ToArray(),
+            license is null ? null : ToSummary(license),
+            health,
+            users,
+            timeline));
+    }
+
+    public async Task<Result<TenantDomainSummary>> UpsertDomainAsync(UpsertTenantDomainCommand command, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            if (await GetTenantOrNullAsync(command.TenantId, cancellationToken) is null)
+            {
+                return Result<TenantDomainSummary>.Failure("Tenant not found.");
+            }
+
+            if (await _repository.DomainExistsAsync(command.TenantId, command.HostName, command.DomainId, cancellationToken))
+            {
+                return Result<TenantDomainSummary>.Failure("Domain already belongs to another tenant or domain record.");
+            }
+
+            TenantDomain domain;
+            if (command.DomainId.HasValue)
+            {
+                domain = await _repository.GetDomainAsync(command.TenantId, command.DomainId.Value, cancellationToken)
+                    ?? throw new DomainException("Domain not found.");
+                domain.Configure(command.HostName, command.Kind, command.IsDefault, command.RedirectToHostName);
+            }
+            else
+            {
+                domain = new TenantDomain(command.TenantId, command.HostName, command.Kind, command.IsDefault, command.RequestedByUserId);
+                domain.Configure(command.HostName, command.Kind, command.IsDefault, command.RedirectToHostName);
+                await _repository.AddDomainAsync(domain, cancellationToken);
+            }
+
+            await AppendAuditAsync(command.TenantId, command.RequestedByUserId, nameof(TenantDomain), domain.Id, AuditAction.TenantChanged, $"Domain upserted: {command.ChangeReason ?? "No reason supplied"}", cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return Result<TenantDomainSummary>.Success(ToSummary(domain));
+        }
+        catch (DomainException exception)
+        {
+            return Result<TenantDomainSummary>.Failure(exception.Message);
+        }
+    }
+
+    public async Task<Result> DisableDomainAsync(TenantEntityActionCommand command, CancellationToken cancellationToken = default)
+    {
+        var domain = await _repository.GetDomainAsync(command.TenantId, command.EntityId, cancellationToken);
+        if (domain is null)
+        {
+            return Result.Failure("Domain not found.");
+        }
+
+        domain.Disable();
+        await AppendAuditAsync(command.TenantId, command.RequestedByUserId, nameof(TenantDomain), domain.Id, AuditAction.TenantChanged, $"Domain disabled: {command.ChangeReason ?? "No reason supplied"}", cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return Result.Success();
+    }
+
+    public async Task<Result<TenantSsoConfigurationSummary>> UpsertSsoAsync(UpsertTenantSsoCommand command, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            if (await GetTenantOrNullAsync(command.TenantId, cancellationToken) is null)
+            {
+                return Result<TenantSsoConfigurationSummary>.Failure("Tenant not found.");
+            }
+
+            TenantSsoConfiguration sso;
+            if (command.ConfigurationId.HasValue)
+            {
+                sso = await _repository.GetSsoConfigurationAsync(command.TenantId, command.ConfigurationId.Value, cancellationToken)
+                    ?? throw new DomainException("SSO configuration not found.");
+            }
+            else
+            {
+                sso = new TenantSsoConfiguration(command.TenantId, command.Provider, command.Name, command.Authority, command.MetadataUrl, command.ClientId, command.SecretReference, command.RequestedByUserId);
+                await _repository.AddSsoConfigurationAsync(sso, cancellationToken);
+            }
+
+            sso.ConfigureMappings(command.ClaimsMappingJson, command.RoleMappingJson, command.JitProvisioningEnabled, command.ScimEnabled);
+            if (!string.IsNullOrWhiteSpace(command.CertificateThumbprint))
+            {
+                sso.RotateCertificate(command.CertificateThumbprint);
+            }
+
+            sso.SetEnabled(command.Enabled);
+            await AppendAuditAsync(command.TenantId, command.RequestedByUserId, nameof(TenantSsoConfiguration), sso.Id, AuditAction.TenantChanged, $"SSO configuration changed: {command.ChangeReason ?? "No reason supplied"}", cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return Result<TenantSsoConfigurationSummary>.Success(ToSummary(sso));
+        }
+        catch (DomainException exception)
+        {
+            return Result<TenantSsoConfigurationSummary>.Failure(exception.Message);
+        }
+    }
+
+    public async Task<Result> TestSsoAsync(TenantEntityActionCommand command, CancellationToken cancellationToken = default)
+    {
+        var sso = await _repository.GetSsoConfigurationAsync(command.TenantId, command.EntityId, cancellationToken);
+        if (sso is null)
+        {
+            return Result.Failure("SSO configuration not found.");
+        }
+
+        var status = !string.IsNullOrWhiteSpace(sso.Authority) && !string.IsNullOrWhiteSpace(sso.ClientId)
+            ? TenantHealthStatus.Healthy
+            : TenantHealthStatus.Unhealthy;
+        sso.RecordHealth(status, status == TenantHealthStatus.Healthy ? "Configuration metadata is syntactically complete." : "Missing authority or client id.", _clock.UtcNow);
+        await UpsertHealthSignalAsync(command.TenantId, $"SSO:{sso.Provider}", status, sso.HealthMessage, TimeSpan.FromMilliseconds(1), cancellationToken);
+        await AppendAuditAsync(command.TenantId, command.RequestedByUserId, nameof(TenantSsoConfiguration), sso.Id, AuditAction.TenantChanged, $"SSO connection tested: {command.ChangeReason ?? "No reason supplied"}", cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return Result.Success();
+    }
+
+    public async Task<Result<TenantApiCredentialSummary>> CreateApiCredentialAsync(CreateTenantApiCredentialCommand command, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            if (await GetTenantOrNullAsync(command.TenantId, cancellationToken) is null)
+            {
+                return Result<TenantApiCredentialSummary>.Failure("Tenant not found.");
+            }
+
+            var secret = TenantApiCredential.HashSecret(command.PlainTextSecret);
+            var prefix = command.PlainTextSecret.Length >= 8 ? command.PlainTextSecret[..8] : command.PlainTextSecret;
+            var credential = new TenantApiCredential(command.TenantId, command.Name, prefix, secret, command.Scopes, command.ExpiresAtUtc, command.RequestedByUserId);
+            await _repository.AddApiCredentialAsync(credential, cancellationToken);
+            await AppendAuditAsync(command.TenantId, command.RequestedByUserId, nameof(TenantApiCredential), credential.Id, AuditAction.TenantChanged, $"API credential created: {command.ChangeReason ?? "No reason supplied"}", cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return Result<TenantApiCredentialSummary>.Success(ToSummary(credential));
+        }
+        catch (DomainException exception)
+        {
+            return Result<TenantApiCredentialSummary>.Failure(exception.Message);
+        }
+    }
+
+    public async Task<Result<TenantApiCredentialSummary>> RotateApiCredentialAsync(RotateTenantApiCredentialCommand command, CancellationToken cancellationToken = default)
+    {
+        var credential = await _repository.GetApiCredentialAsync(command.TenantId, command.ApiCredentialId, cancellationToken);
+        if (credential is null)
+        {
+            return Result<TenantApiCredentialSummary>.Failure("API credential not found.");
+        }
+
+        var prefix = command.PlainTextSecret.Length >= 8 ? command.PlainTextSecret[..8] : command.PlainTextSecret;
+        credential.Rotate(prefix, TenantApiCredential.HashSecret(command.PlainTextSecret), command.ExpiresAtUtc);
+        await AppendAuditAsync(command.TenantId, command.RequestedByUserId, nameof(TenantApiCredential), credential.Id, AuditAction.TenantChanged, $"API credential rotated: {command.ChangeReason ?? "No reason supplied"}", cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return Result<TenantApiCredentialSummary>.Success(ToSummary(credential));
+    }
+
+    public async Task<Result> RevokeApiCredentialAsync(TenantEntityActionCommand command, CancellationToken cancellationToken = default)
+    {
+        var credential = await _repository.GetApiCredentialAsync(command.TenantId, command.EntityId, cancellationToken);
+        if (credential is null)
+        {
+            return Result.Failure("API credential not found.");
+        }
+
+        credential.Revoke();
+        await AppendAuditAsync(command.TenantId, command.RequestedByUserId, nameof(TenantApiCredential), credential.Id, AuditAction.TenantChanged, $"API credential revoked: {command.ChangeReason ?? "No reason supplied"}", cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return Result.Success();
+    }
+
+    public async Task<Result<TenantWebhookSummary>> UpsertWebhookAsync(UpsertTenantWebhookCommand command, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            TenantWebhookEndpoint webhook;
+            var secretHash = TenantApiCredential.HashSecret(command.PlainTextSecret);
+            if (command.WebhookId.HasValue)
+            {
+                webhook = await _repository.GetWebhookAsync(command.TenantId, command.WebhookId.Value, cancellationToken)
+                    ?? throw new DomainException("Webhook not found.");
+                webhook.Configure(command.Name, command.Url, command.Events, command.MaxRetries);
+                webhook.RotateSecret(secretHash);
+            }
+            else
+            {
+                webhook = new TenantWebhookEndpoint(command.TenantId, command.Name, command.Url, command.Events, secretHash, command.RequestedByUserId);
+                webhook.Configure(command.Name, command.Url, command.Events, command.MaxRetries);
+                await _repository.AddWebhookAsync(webhook, cancellationToken);
+            }
+
+            webhook.SetEnabled(command.Enabled);
+            await AppendAuditAsync(command.TenantId, command.RequestedByUserId, nameof(TenantWebhookEndpoint), webhook.Id, AuditAction.TenantChanged, $"Webhook changed: {command.ChangeReason ?? "No reason supplied"}", cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return Result<TenantWebhookSummary>.Success(ToSummary(webhook));
+        }
+        catch (DomainException exception)
+        {
+            return Result<TenantWebhookSummary>.Failure(exception.Message);
+        }
+    }
+
+    public async Task<Result<TenantWebhookDeliverySummary>> TestWebhookAsync(TenantEntityActionCommand command, CancellationToken cancellationToken = default)
+    {
+        var webhook = await _repository.GetWebhookAsync(command.TenantId, command.EntityId, cancellationToken);
+        if (webhook is null)
+        {
+            return Result<TenantWebhookDeliverySummary>.Failure("Webhook not found.");
+        }
+
+        var status = webhook.Status == TenantIntegrationStatus.Enabled ? TenantWebhookDeliveryStatus.Succeeded : TenantWebhookDeliveryStatus.Failed;
+        var log = webhook.RecordDelivery(status, status == TenantWebhookDeliveryStatus.Succeeded ? "Synthetic test delivery recorded." : "Webhook is disabled.", _clock.UtcNow, 1);
+        await _repository.AddWebhookDeliveryLogAsync(log, cancellationToken);
+        await AppendAuditAsync(command.TenantId, command.RequestedByUserId, nameof(TenantWebhookEndpoint), webhook.Id, AuditAction.TenantChanged, $"Webhook tested: {command.ChangeReason ?? "No reason supplied"}", cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return Result<TenantWebhookDeliverySummary>.Success(ToSummary(log));
+    }
+
+    public async Task<Result> DisableWebhookAsync(TenantEntityActionCommand command, CancellationToken cancellationToken = default)
+    {
+        var webhook = await _repository.GetWebhookAsync(command.TenantId, command.EntityId, cancellationToken);
+        if (webhook is null)
+        {
+            return Result.Failure("Webhook not found.");
+        }
+
+        webhook.SetEnabled(false);
+        await AppendAuditAsync(command.TenantId, command.RequestedByUserId, nameof(TenantWebhookEndpoint), webhook.Id, AuditAction.TenantChanged, $"Webhook disabled: {command.ChangeReason ?? "No reason supplied"}", cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return Result.Success();
+    }
+
+    public async Task<Result<TenantLicenseSummary>> UpsertLicenseAsync(UpsertTenantLicenseCommand command, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var license = await _repository.GetLicenseAsync(command.TenantId, cancellationToken);
+            if (license is null)
+            {
+                license = new TenantLicense(command.TenantId, command.LicenseNumber, command.FeaturesJson, command.ModulesJson, command.PeriodStart, command.PeriodEnd, command.RenewalDate, command.RequestedByUserId);
+                await _repository.AddLicenseAsync(license, cancellationToken);
+            }
+
+            license.Configure(command.FeaturesJson, command.ModulesJson, command.EntitlementsJson, command.Status, command.PeriodStart, command.PeriodEnd, command.RenewalDate);
+            license.UpdateConsumption(command.SeatsPurchased, command.SeatsUsed, command.StorageGbPurchased, command.StorageBytesUsed);
+            await AppendAuditAsync(command.TenantId, command.RequestedByUserId, nameof(TenantLicense), license.Id, AuditAction.TenantChanged, $"License changed: {command.ChangeReason ?? "No reason supplied"}", cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return Result<TenantLicenseSummary>.Success(ToSummary(license));
+        }
+        catch (DomainException exception)
+        {
+            return Result<TenantLicenseSummary>.Failure(exception.Message);
+        }
+    }
+
+    public async Task<Result<TenantHealthCenterSummary>> GetHealthCenterAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        if (await GetTenantOrNullAsync(tenantId, cancellationToken) is null)
+        {
+            return Result<TenantHealthCenterSummary>.Failure("Tenant not found.");
+        }
+
+        return Result<TenantHealthCenterSummary>.Success(await BuildHealthCenterAsync(tenantId, cancellationToken));
+    }
+
+    public async Task<Result<TenantBackupSummary>> RecordBackupAsync(RecordTenantBackupCommand command, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var backup = new TenantBackupRecord(command.TenantId, command.BackupKind, command.Result, command.StartedAtUtc, command.CompletedAtUtc, command.SizeBytes, command.Message, TimeSpan.FromMinutes(command.RpoMinutes), TimeSpan.FromMinutes(command.RtoMinutes));
+            await _repository.AddBackupRecordAsync(backup, cancellationToken);
+            await UpsertHealthSignalAsync(command.TenantId, "Backups", string.Equals(command.Result, "Succeeded", StringComparison.OrdinalIgnoreCase) ? TenantHealthStatus.Healthy : TenantHealthStatus.Unhealthy, command.Message, backup.Duration, cancellationToken);
+            await AppendAuditAsync(command.TenantId, command.RequestedByUserId, nameof(TenantBackupRecord), backup.Id, AuditAction.TenantChanged, "Backup status recorded.", cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return Result<TenantBackupSummary>.Success(ToSummary(backup));
+        }
+        catch (DomainException exception)
+        {
+            return Result<TenantBackupSummary>.Failure(exception.Message);
+        }
+    }
+
+    public async Task<Result<TenantUserAdministrationSummary>> GetUsersAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        if (await GetTenantOrNullAsync(tenantId, cancellationToken) is null)
+        {
+            return Result<TenantUserAdministrationSummary>.Failure("Tenant not found.");
+        }
+
+        return Result<TenantUserAdministrationSummary>.Success(await BuildUserAdministrationAsync(tenantId, cancellationToken));
+    }
+
+    public async Task<Result<TenantUserSummary>> CreateUserAsync(CreateTenantUserCommand command, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var user = new User(command.TenantId, command.Email, command.FullName);
+            user.SetPasswordHash(_passwordHasher.HashPassword(command.InitialPassword));
+            if (command.ForcePasswordChange)
+            {
+                user.RequirePasswordChange();
+            }
+
+            if (command.RoleId.HasValue)
+            {
+                if (await _repository.GetRoleAsync(command.TenantId, command.RoleId.Value, cancellationToken) is null)
+                {
+                    return Result<TenantUserSummary>.Failure("Role not found.");
+                }
+
+                user.AssignRole(command.RoleId.Value);
+            }
+
+            await _repository.AddUserAsync(user, cancellationToken);
+            await AppendAuditAsync(command.TenantId, command.RequestedByUserId, nameof(User), user.Id, AuditAction.TenantChanged, $"Tenant user created: {command.ChangeReason ?? "No reason supplied"}", cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return Result<TenantUserSummary>.Success(ToSummary(user));
+        }
+        catch (DomainException exception)
+        {
+            return Result<TenantUserSummary>.Failure(exception.Message);
+        }
+    }
+
+    public async Task<Result> ChangeUserStatusAsync(ChangeTenantUserStatusCommand command, CancellationToken cancellationToken = default)
+    {
+        var user = await _repository.GetUserAsync(command.TenantId, command.UserId, cancellationToken);
+        if (user is null)
+        {
+            return Result.Failure("User not found.");
+        }
+
+        switch (command.Status)
+        {
+            case UserStatus.Active:
+                user.Unlock();
+                break;
+            case UserStatus.Disabled:
+                user.Disable();
+                break;
+            case UserStatus.Locked:
+                user.RegisterFailedLogin(1, _clock.UtcNow.AddYears(10));
+                break;
+            case UserStatus.Invited:
+                break;
+            default:
+                return Result.Failure("Unsupported user status.");
+        }
+
+        await AppendAuditAsync(command.TenantId, command.RequestedByUserId, nameof(User), user.Id, AuditAction.TenantChanged, $"Tenant user status changed to {command.Status}: {command.ChangeReason ?? "No reason supplied"}", cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return Result.Success();
+    }
+
+    public async Task<Result> ResetUserMfaAsync(TenantUserActionCommand command, CancellationToken cancellationToken = default)
+    {
+        var user = await _repository.GetUserAsync(command.TenantId, command.UserId, cancellationToken);
+        if (user is null)
+        {
+            return Result.Failure("User not found.");
+        }
+
+        user.DisableMfa();
+        await AppendAuditAsync(command.TenantId, command.RequestedByUserId, nameof(User), user.Id, AuditAction.TenantChanged, $"Tenant user MFA reset: {command.ChangeReason ?? "No reason supplied"}", cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return Result.Success();
+    }
+
+    public async Task<Result> AssignUserRoleAsync(AssignTenantUserRoleCommand command, CancellationToken cancellationToken = default)
+    {
+        var user = await _repository.GetUserAsync(command.TenantId, command.UserId, cancellationToken);
+        if (user is null || await _repository.GetRoleAsync(command.TenantId, command.RoleId, cancellationToken) is null)
+        {
+            return Result.Failure("User or role not found.");
+        }
+
+        user.AssignRole(command.RoleId);
+        await AppendAuditAsync(command.TenantId, command.RequestedByUserId, nameof(User), user.Id, AuditAction.TenantChanged, $"Role assigned: {command.ChangeReason ?? "No reason supplied"}", cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return Result.Success();
+    }
+
+    public async Task<Result> RevokeUserRoleAsync(AssignTenantUserRoleCommand command, CancellationToken cancellationToken = default)
+    {
+        var user = await _repository.GetUserAsync(command.TenantId, command.UserId, cancellationToken);
+        if (user is null)
+        {
+            return Result.Failure("User not found.");
+        }
+
+        user.RevokeRole(command.RoleId);
+        await AppendAuditAsync(command.TenantId, command.RequestedByUserId, nameof(User), user.Id, AuditAction.TenantChanged, $"Role revoked: {command.ChangeReason ?? "No reason supplied"}", cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return Result.Success();
+    }
+
+    public async Task<Result> CloseUserSessionsAsync(TenantUserActionCommand command, CancellationToken cancellationToken = default)
+    {
+        var user = await _repository.GetUserAsync(command.TenantId, command.UserId, cancellationToken);
+        if (user is null)
+        {
+            return Result.Failure("User not found.");
+        }
+
+        foreach (var session in user.Sessions.Where(session => session.IsActive(_clock.UtcNow)))
+        {
+            session.Revoke(_clock.UtcNow);
+        }
+
+        await AppendAuditAsync(command.TenantId, command.RequestedByUserId, nameof(User), user.Id, AuditAction.TenantChanged, $"User sessions closed: {command.ChangeReason ?? "No reason supplied"}", cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return Result.Success();
+    }
+
     private async Task<Result> ChangeTenantStateAsync(
         Guid tenantId,
         Guid? requestedByUserId,
@@ -448,6 +886,112 @@ public sealed class TenantManagementService : ITenantManagementService
             company.IsActive);
     }
 
+    private async Task<TenantHealthCenterSummary> BuildHealthCenterAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
+        var signals = await _repository.ListHealthSignalsAsync(tenantId, cancellationToken);
+        var backups = await _repository.ListBackupRecordsAsync(tenantId, 1, 25, cancellationToken);
+        var signalSummaries = signals.Select(ToSummary).ToArray();
+        var backupSummaries = backups.Select(ToSummary).ToArray();
+        var requiredComponents = new[] { "Database", "SMTP", "Storage", "Providers", "Jobs", "Background Services", "Queues", "Integrations", "License", "Space", "Backups", "OpenTelemetry" };
+        var missingComponents = requiredComponents.Where(component => signals.All(signal => !string.Equals(signal.Component, component, StringComparison.OrdinalIgnoreCase))).ToArray();
+
+        var overall = missingComponents.Length > 0
+            ? TenantHealthStatus.Degraded
+            : signals.Any(signal => signal.Status == TenantHealthStatus.Unhealthy)
+                ? TenantHealthStatus.Unhealthy
+                : signals.Any(signal => signal.Status == TenantHealthStatus.Degraded)
+                    ? TenantHealthStatus.Degraded
+                    : TenantHealthStatus.Healthy;
+
+        var syntheticMissingSignals = missingComponents
+            .Select(component => new TenantHealthSignalSummary(Guid.Empty, tenantId, component, TenantHealthStatus.Degraded, "No health signal has been reported for this component.", _clock.UtcNow, null));
+
+        return new TenantHealthCenterSummary(overall, signalSummaries.Concat(syntheticMissingSignals).ToArray(), backupSummaries);
+    }
+
+    private async Task<TenantUserAdministrationSummary> BuildUserAdministrationAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
+        var users = await _repository.ListUsersAsync(tenantId, cancellationToken);
+        var roles = await _repository.ListRolesAsync(tenantId, cancellationToken);
+        return new TenantUserAdministrationSummary(users.Select(ToSummary).ToArray(), roles.Select(ToSummary).ToArray());
+    }
+
+    private async Task UpsertHealthSignalAsync(Guid tenantId, string component, TenantHealthStatus status, string message, TimeSpan? duration, CancellationToken cancellationToken)
+    {
+        var signal = await _repository.GetHealthSignalAsync(tenantId, component, cancellationToken);
+        if (signal is null)
+        {
+            signal = new TenantHealthSignal(tenantId, component, status, message, _clock.UtcNow);
+            await _repository.AddHealthSignalAsync(signal, cancellationToken);
+        }
+        else
+        {
+            signal.Update(status, message, _clock.UtcNow, duration);
+        }
+    }
+
+    private static TenantDomainSummary ToSummary(TenantDomain domain)
+    {
+        return new TenantDomainSummary(domain.Id, domain.TenantId, domain.HostName, domain.Kind, domain.Status, domain.IsDefault, domain.VerificationToken, domain.DnsStatus, domain.CertificateStatus, domain.HttpsEnabled, domain.RedirectToHostName, domain.VerifiedAtUtc, domain.LastCheckedAtUtc);
+    }
+
+    private static TenantSsoConfigurationSummary ToSummary(TenantSsoConfiguration sso)
+    {
+        return new TenantSsoConfigurationSummary(sso.Id, sso.TenantId, sso.Provider, sso.Name, sso.Authority, sso.MetadataUrl, sso.ClientId, sso.ClaimsMappingJson, sso.RoleMappingJson, sso.JitProvisioningEnabled, sso.ScimEnabled, sso.Status, sso.HealthStatus, sso.HealthMessage, sso.LastTestedAtUtc);
+    }
+
+    private static TenantApiCredentialSummary ToSummary(TenantApiCredential credential)
+    {
+        return new TenantApiCredentialSummary(credential.Id, credential.TenantId, credential.Name, credential.KeyPrefix, credential.Scopes, credential.ExpiresAtUtc, credential.LastUsedAtUtc, credential.Status);
+    }
+
+    private static TenantWebhookSummary ToSummary(TenantWebhookEndpoint webhook)
+    {
+        return new TenantWebhookSummary(webhook.Id, webhook.TenantId, webhook.Name, webhook.Url, webhook.Events, webhook.SigningAlgorithm, webhook.Status, webhook.MaxRetries, webhook.LastDeliveryAtUtc, webhook.LastDeliveryStatus, webhook.LastDeliveryMessage);
+    }
+
+    private static TenantWebhookDeliverySummary ToSummary(TenantWebhookDeliveryLog log)
+    {
+        return new TenantWebhookDeliverySummary(log.Id, log.TenantId, log.WebhookId, log.Status, log.Message, log.OccurredAtUtc, log.Attempt);
+    }
+
+    private static TenantLicenseSummary ToSummary(TenantLicense license)
+    {
+        return new TenantLicenseSummary(license.Id, license.TenantId, license.LicenseNumber, license.Status, license.FeaturesJson, license.ModulesJson, license.EntitlementsJson, license.PeriodStart, license.PeriodEnd, license.RenewalDate, license.SeatsPurchased, license.SeatsUsed, license.StorageGbPurchased, license.StorageBytesUsed);
+    }
+
+    private static TenantHealthSignalSummary ToSummary(TenantHealthSignal signal)
+    {
+        return new TenantHealthSignalSummary(signal.Id, signal.TenantId, signal.Component, signal.Status, signal.Message, signal.CheckedAtUtc, signal.Duration);
+    }
+
+    private static TenantBackupSummary ToSummary(TenantBackupRecord backup)
+    {
+        return new TenantBackupSummary(backup.Id, backup.TenantId, backup.BackupKind, backup.Result, backup.StartedAtUtc, backup.CompletedAtUtc, backup.Duration, backup.SizeBytes, backup.Message, backup.Rpo, backup.Rto);
+    }
+
+    private static TenantUserSummary ToSummary(User user)
+    {
+        var now = DateTimeOffset.UtcNow;
+        return new TenantUserSummary(
+            user.Id,
+            user.TenantId,
+            user.Email,
+            user.FullName,
+            user.Status,
+            user.MfaEnabled,
+            user.LastLoginAtUtc,
+            user.AccessFailedCount,
+            user.LockoutEndAtUtc,
+            user.Roles.Select(role => role.RoleId).ToArray(),
+            user.Sessions.Select(session => new UserSessionSummary(session.Id, session.TenantId, session.UserId, session.CreatedAt, session.ExpiresAtUtc, session.RevokedAtUtc, session.IsActive(now))).ToArray());
+    }
+
+    private static RoleSummary ToSummary(Role role)
+    {
+        return new RoleSummary(role.Id, role.TenantId, role.Name, role.IsSystemRole);
+    }
+
     private static string NormalizeSlug(string slug)
     {
         return Guard.AgainstNullOrWhiteSpace(slug, nameof(slug), 80).ToLowerInvariant();
@@ -477,5 +1021,20 @@ public sealed class TenantManagementService : ITenantManagementService
         }
 
         return alerts;
+    }
+
+    private sealed class Sha256PasswordHasher : IPasswordHasher
+    {
+        public string HashPassword(string password)
+        {
+            return TenantApiCredential.HashSecret(password);
+        }
+
+        public PasswordVerificationResult Verify(string password, string passwordHash)
+        {
+            return string.Equals(HashPassword(password), passwordHash, StringComparison.OrdinalIgnoreCase)
+                ? PasswordVerificationResult.Success
+                : PasswordVerificationResult.Failed;
+        }
     }
 }

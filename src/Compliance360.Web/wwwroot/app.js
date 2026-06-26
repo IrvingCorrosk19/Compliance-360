@@ -856,11 +856,16 @@ async function renderModule(content, key) {
 }
 
 async function renderTenantAdministrationCenter(content) {
-  const dashboard = await request(`/tenants/${state.tenantId}/administration-dashboard`, { loadingContext: "tenant-administration" });
-  const tenant = dashboard.tenant;
-  const metrics = dashboard.metrics || {};
-  const alerts = dashboard.alerts || [];
-  const timeline = dashboard.timeline || [];
+  const center = await request(`/tenants/${state.tenantId}/administration-center`, { loadingContext: "tenant-administration" });
+  const tenant = center.tenant;
+  const metrics = center.metrics || {};
+  const timeline = center.timeline || [];
+  const health = center.health || { overallStatus: "Unknown", signals: [], backups: [] };
+  const alerts = [
+    ...(health.overallStatus && health.overallStatus !== "Healthy" && health.overallStatus !== 0 ? [{ severity: "warning", title: "Health center requires attention", message: "Review degraded or missing operational signals." }] : []),
+    ...((center.domains || []).length ? [] : [{ severity: "warning", title: "No domains configured", message: "Add a default or custom domain before enterprise onboarding." }]),
+    ...((center.ssoConfigurations || []).length ? [] : [{ severity: "info", title: "No SSO configured", message: "Enterprise tenants usually require OIDC, SAML, LDAP or Active Directory." }])
+  ];
   const storageGb = ((metrics.storageBytes || 0) / 1024 / 1024 / 1024).toFixed(2);
   const usedUsers = `${metrics.users || 0}/${tenant.subscription.maxUsers}`;
   const storageUse = `${storageGb}/${tenant.subscription.maxStorageGb} GB`;
@@ -909,17 +914,21 @@ async function renderTenantAdministrationCenter(content) {
         ${tenantGeneralPanel(tenant)}
         ${tenantBrandingPanel(tenant)}
         ${tenantSecurityPanel(tenant)}
-        ${tenantUsersPanel(tenant, metrics)}
-        ${tenantLicensingPanel(tenant, metrics)}
+        ${tenantUsersPanel(center.users || { users: [], roles: [] }, tenant, metrics)}
+        ${tenantLicensingPanel(tenant, metrics, center.license)}
+        ${tenantDomainsPanel(center.domains || [])}
+        ${tenantSsoPanel(center.ssoConfigurations || [])}
+        ${tenantApiKeysPanel(center.apiCredentials || [])}
+        ${tenantWebhooksPanel(center.webhooks || [])}
         ${tenantStoragePanel(metrics)}
         ${tenantNotificationsPanel(metrics)}
-        ${tenantIntegrationsPanel()}
+        ${tenantHealthPanel(health)}
         ${tenantAuditPanel(timeline)}
         ${tenantStatePanel(tenant)}
       </div>
     </section>`;
 
-  bindTenantAdministrationCenter(tenant);
+  bindTenantAdministrationCenter(tenant, center);
 }
 
 function tenantAdminTabs() {
@@ -929,9 +938,13 @@ function tenantAdminTabs() {
     { key: "security", label: "Seguridad" },
     { key: "users", label: "Usuarios" },
     { key: "licensing", label: "Licenciamiento" },
+    { key: "domains", label: "Dominios" },
+    { key: "sso", label: "SSO" },
+    { key: "apikeys", label: "API Keys" },
+    { key: "webhooks", label: "Webhooks" },
     { key: "storage", label: "Storage" },
     { key: "notifications", label: "Notificaciones" },
-    { key: "integrations", label: "Integraciones" },
+    { key: "health", label: "Health & Backups" },
     { key: "audit", label: "Auditoria" },
     { key: "state", label: "Estado" }
   ];
@@ -1012,15 +1025,33 @@ function tenantSecurityPanel(tenant) {
     </section>`;
 }
 
-function tenantUsersPanel(tenant, metrics) {
-  const rows = [
-    { item: "Usuarios", value: metrics.users || 0, status: "Live" },
-    { item: "Roles", value: metrics.roles || 0, status: "Live" },
-    { item: "Permisos", value: "TENANT.* granular", status: "Active" },
-    { item: "Invitaciones", value: "Roadmap", status: "Planned" },
-    { item: "MFA", value: tenant.settings.requireMfa ? "Required" : "Optional", status: tenant.settings.requireMfa ? "Active" : "Review" }
-  ];
-  return `<section class="tenant-panel" data-panel="users">${tableCard("Usuarios, roles y permisos", rows, ["item", "value", "status"])}</section>`;
+function tenantUsersPanel(userState, tenant, metrics) {
+  const users = userState.users || [];
+  const roles = userState.roles || [];
+  return `
+    <section class="tenant-panel" data-panel="users">
+      <div class="section-heading"><div><h2 class="section-title">User Administration</h2><p class="metric-label">Crear, bloquear, desbloquear, reset MFA, roles y sesiones por tenant.</p></div><span class="status-pill ok">${users.length}/${metrics.users || 0}</span></div>
+      <form id="tenant-user-form" class="form-stack">
+        <div class="grid two">
+          ${inputField("email", "Email", "", "email", false, true)}
+          ${inputField("fullName", "Nombre completo", "", "text", false, true)}
+          ${inputField("initialPassword", "Password inicial", "", "password", false, true)}
+          <div class="field"><label for="roleId">Rol inicial</label><select id="roleId" name="roleId"><option value="">Sin rol</option>${roles.map(role => `<option value="${role.id}">${safe(role.name)}</option>`).join("")}</select></div>
+          <label class="toggle-row"><input type="checkbox" name="forcePasswordChange" checked> Forzar cambio de password</label>
+          ${inputField("changeReason", "Motivo", "Alta operativa TAC")}
+        </div>
+        <button class="btn primary" type="submit">Crear / Invitar usuario</button>
+      </form>
+      ${tableCard("Usuarios del tenant", users.map(user => ({
+        email: user.email,
+        name: user.fullName,
+        status: enumName(["Invited", "Active", "Disabled", "Locked"], user.status),
+        mfa: user.mfaEnabled ? "Enabled" : "Disabled",
+        lastLogin: formatDate(user.lastLoginAtUtc),
+        sessions: (user.sessions || []).filter(session => session.isActive).length,
+        actions: `__html:<button class="btn small" data-user-action="Active" data-user-id="${user.id}">Unlock</button> <button class="btn small" data-user-action="Disabled" data-user-id="${user.id}">Disable</button> <button class="btn small" data-user-mfa="${user.id}">Reset MFA</button> <button class="btn small" data-user-sessions="${user.id}">Close Sessions</button>`
+      })), ["email", "name", "status", "mfa", "lastLogin", "sessions", "actions"])}
+    </section>`;
 }
 
 function tenantLicensingPanel(tenant, metrics) {
@@ -1054,9 +1085,157 @@ function tenantNotificationsPanel(metrics) {
   return `<section class="tenant-panel" data-panel="notifications">${tableCard("Notification providers", rows, ["provider", "status", "configured"])}<div class="button-row"><button class="btn" data-route="configuration">Configurar SMTP / Failover</button></div></section>`;
 }
 
-function tenantIntegrationsPanel() {
-  const rows = ["API Keys", "OAuth", "Webhooks", "ERP", "CRM", "SSO", "LDAP", "Active Directory"].map(item => ({ integration: item, status: item === "OAuth" ? "Planned" : "Roadmap", permission: "TENANT.INTEGRATIONS" }));
-  return `<section class="tenant-panel" data-panel="integrations">${tableCard("Integraciones enterprise", rows, ["integration", "status", "permission"])}</section>`;
+function tenantDomainsPanel(domains) {
+  return `
+    <section class="tenant-panel" data-panel="domains">
+      <div class="section-heading"><div><h2 class="section-title">Dominios</h2><p class="metric-label">Principal, secundarios, subdominios, aliases, DNS, certificados, HTTPS y redirecciones.</p></div><span class="status-pill ok">TENANT.DOMAINS</span></div>
+      <form id="tenant-domain-form" class="form-stack">
+        <div class="grid two">
+          ${inputField("hostName", "Dominio", "", "text", false, true)}
+          <div class="field"><label for="domainKind">Tipo</label><select id="domainKind" name="kind">${enumOptions(["Default", "PrimaryCustom", "SecondaryCustom", "Subdomain", "Alias"], 1)}</select></div>
+          <label class="toggle-row"><input type="checkbox" name="isDefault"> Dominio por defecto</label>
+          ${inputField("redirectToHostName", "Redirecciona a", "")}
+          ${inputField("changeReason", "Motivo", "Alta de dominio enterprise")}
+        </div>
+        <button class="btn primary" type="submit">Guardar dominio</button>
+      </form>
+      ${tableCard("Dominios configurados", domains.map(domain => ({
+        host: domain.hostName,
+        kind: enumName(["Default", "PrimaryCustom", "SecondaryCustom", "Subdomain", "Alias"], domain.kind),
+        status: enumName(["PendingVerification", "Verified", "DnsFailed", "CertificateFailed", "Disabled"], domain.status),
+        dns: domain.dnsStatus,
+        cert: enumName(["NotRequested", "Pending", "Issued", "Expired", "Failed"], domain.certificateStatus),
+        https: domain.httpsEnabled ? "Enabled" : "Disabled",
+        token: domain.verificationToken,
+        actions: `__html:<button class="btn small danger" data-domain-disable="${domain.id}">Disable</button>`
+      })), ["host", "kind", "status", "dns", "cert", "https", "token", "actions"])}
+    </section>`;
+}
+
+function tenantSsoPanel(configurations) {
+  return `
+    <section class="tenant-panel" data-panel="sso">
+      <div class="section-heading"><div><h2 class="section-title">SSO Enterprise</h2><p class="metric-label">OIDC, OAuth2, SAML, LDAP, Active Directory, mappings, JIT y SCIM readiness.</p></div><span class="status-pill ok">TENANT.SSO</span></div>
+      <form id="tenant-sso-form" class="form-stack">
+        <div class="grid two">
+          <div class="field"><label for="ssoProvider">Provider</label><select id="ssoProvider" name="provider">${enumOptions(["Oidc", "OAuth2", "Saml", "Ldap", "ActiveDirectory"], 0)}</select></div>
+          ${inputField("name", "Nombre", "Corporate SSO", "text", false, true)}
+          ${inputField("authority", "Authority / Issuer", "", "text", false, true)}
+          ${inputField("metadataUrl", "Metadata URL", "", "url")}
+          ${inputField("clientId", "Client ID", "", "text", false, true)}
+          ${inputField("secretReference", "Secret reference", "")}
+          ${inputField("certificateThumbprint", "Certificate thumbprint", "")}
+          <label class="toggle-row"><input type="checkbox" name="jitProvisioningEnabled" checked> JIT provisioning</label>
+          <label class="toggle-row"><input type="checkbox" name="scimEnabled"> SCIM habilitado</label>
+          <label class="toggle-row"><input type="checkbox" name="enabled" checked> Enabled</label>
+        </div>
+        <div class="field"><label>Claims Mapping JSON</label><textarea name="claimsMappingJson" rows="3">{"email":"email","name":"name"}</textarea></div>
+        <div class="field"><label>Role Mapping JSON</label><textarea name="roleMappingJson" rows="3">{"ComplianceAdmin":"Administrator"}</textarea></div>
+        ${inputField("changeReason", "Motivo", "Configuracion SSO enterprise")}
+        <button class="btn primary" type="submit">Guardar SSO</button>
+      </form>
+      ${tableCard("SSO configurado", configurations.map(sso => ({
+        provider: enumName(["Oidc", "OAuth2", "Saml", "Ldap", "ActiveDirectory"], sso.provider),
+        name: sso.name,
+        status: enumName(["Draft", "Enabled", "Disabled", "Failed", "Revoked"], sso.status),
+        health: enumName(["Healthy", "Degraded", "Unhealthy", "Unknown"], sso.healthStatus),
+        jit: sso.jitProvisioningEnabled ? "Yes" : "No",
+        scim: sso.scimEnabled ? "Yes" : "No",
+        actions: `__html:<button class="btn small" data-sso-test="${sso.id}">Test</button>`
+      })), ["provider", "name", "status", "health", "jit", "scim", "actions"])}
+    </section>`;
+}
+
+function tenantApiKeysPanel(apiKeys) {
+  return `
+    <section class="tenant-panel" data-panel="apikeys">
+      <div class="section-heading"><div><h2 class="section-title">API Keys & Service Accounts</h2><p class="metric-label">Scopes, expiracion, rotacion, revocacion y secretos hasheados.</p></div><span class="status-pill ok">TENANT.API_KEYS</span></div>
+      <form id="tenant-api-key-form" class="form-stack">
+        <div class="grid two">
+          ${inputField("name", "Service account", "", "text", false, true)}
+          ${inputField("plainTextSecret", "Secret inicial", "", "password", false, true)}
+          ${inputField("scopes", "Scopes", "tenant.read tenant.audit")}
+          ${inputField("expiresAtUtc", "Expira", "", "datetime-local")}
+          ${inputField("changeReason", "Motivo", "Alta API key")}
+        </div>
+        <button class="btn primary" type="submit">Crear API Key</button>
+      </form>
+      ${tableCard("Credenciales", apiKeys.map(key => ({
+        name: key.name,
+        prefix: key.keyPrefix,
+        scopes: key.scopes,
+        expires: formatDate(key.expiresAtUtc),
+        status: enumName(["Active", "Expired", "Revoked", "Rotated"], key.status),
+        lastUsed: formatDate(key.lastUsedAtUtc),
+        actions: `__html:<button class="btn small" data-api-rotate="${key.id}">Rotate</button> <button class="btn small danger" data-api-revoke="${key.id}">Revoke</button>`
+      })), ["name", "prefix", "scopes", "expires", "status", "lastUsed", "actions"])}
+    </section>`;
+}
+
+function tenantWebhooksPanel(webhooks) {
+  return `
+    <section class="tenant-panel" data-panel="webhooks">
+      <div class="section-heading"><div><h2 class="section-title">Webhooks</h2><p class="metric-label">Eventos, firmas, retry, dead letter, estado e historial de pruebas.</p></div><span class="status-pill ok">TENANT.WEBHOOKS</span></div>
+      <form id="tenant-webhook-form" class="form-stack">
+        <div class="grid two">
+          ${inputField("name", "Nombre", "", "text", false, true)}
+          ${inputField("url", "Endpoint HTTPS", "", "url", false, true)}
+          ${inputField("events", "Eventos", "tenant.updated,audit.created")}
+          ${inputField("plainTextSecret", "Signing secret", "", "password", false, true)}
+          ${inputField("maxRetries", "Retries", 5, "number")}
+          <label class="toggle-row"><input type="checkbox" name="enabled" checked> Enabled</label>
+          ${inputField("changeReason", "Motivo", "Alta webhook")}
+        </div>
+        <button class="btn primary" type="submit">Guardar webhook</button>
+      </form>
+      ${tableCard("Endpoints", webhooks.map(hook => ({
+        name: hook.name,
+        url: hook.url,
+        events: hook.events,
+        status: enumName(["Draft", "Enabled", "Disabled", "Failed", "Revoked"], hook.status),
+        last: enumName(["Pending", "Succeeded", "Failed", "Retrying", "DeadLetter"], hook.lastDeliveryStatus),
+        retries: hook.maxRetries,
+        actions: `__html:<button class="btn small" data-webhook-test="${hook.id}">Test</button> <button class="btn small danger" data-webhook-disable="${hook.id}">Disable</button>`
+      })), ["name", "url", "events", "status", "last", "retries", "actions"])}
+    </section>`;
+}
+
+function tenantHealthPanel(health) {
+  const signals = health.signals || [];
+  const backups = health.backups || [];
+  return `
+    <section class="tenant-panel" data-panel="health">
+      <div class="section-heading"><div><h2 class="section-title">Health Center & Backups</h2><p class="metric-label">DB, SMTP, Storage, Providers, Jobs, Queues, Integraciones, licencia, espacio, backups y OpenTelemetry.</p></div><span class="status-pill ${enumName(["Healthy", "Degraded", "Unhealthy", "Unknown"], health.overallStatus) === "Healthy" ? "ok" : "warn"}">${safe(enumName(["Healthy", "Degraded", "Unhealthy", "Unknown"], health.overallStatus))}</span></div>
+      ${tableCard("Health checks", signals.map(signal => ({
+        component: signal.component,
+        status: enumName(["Healthy", "Degraded", "Unhealthy", "Unknown"], signal.status),
+        message: signal.message,
+        checked: formatDate(signal.checkedAtUtc),
+        duration: signal.duration || "n/a"
+      })), ["component", "status", "message", "checked", "duration"])}
+      <form id="tenant-backup-form" class="form-stack">
+        <div class="grid two">
+          ${inputField("backupKind", "Tipo", "Database")}
+          ${inputField("result", "Resultado", "Succeeded")}
+          ${inputField("startedAtUtc", "Inicio UTC", new Date(Date.now() - 60000).toISOString(), "datetime-local")}
+          ${inputField("completedAtUtc", "Fin UTC", new Date().toISOString(), "datetime-local")}
+          ${inputField("sizeBytes", "Tamaño bytes", 0, "number")}
+          ${inputField("rpoMinutes", "RPO minutos", 60, "number")}
+          ${inputField("rtoMinutes", "RTO minutos", 240, "number")}
+          ${inputField("message", "Mensaje", "Backup verification recorded")}
+        </div>
+        <button class="btn primary" type="submit">Registrar backup</button>
+      </form>
+      ${tableCard("Backups", backups.map(backup => ({
+        kind: backup.backupKind,
+        result: backup.result,
+        completed: formatDate(backup.completedAtUtc),
+        size: backup.sizeBytes,
+        rpo: backup.rpo,
+        rto: backup.rto,
+        message: backup.message
+      })), ["kind", "result", "completed", "size", "rpo", "rto", "message"])}
+    </section>`;
 }
 
 function tenantAuditPanel(timeline) {
@@ -1090,7 +1269,7 @@ function tenantStatePanel(tenant) {
     </section>`;
 }
 
-function bindTenantAdministrationCenter(tenant) {
+function bindTenantAdministrationCenter(tenant, center) {
   document.querySelectorAll(".tenant-tab").forEach(tab => {
     tab.addEventListener("click", () => {
       document.querySelectorAll(".tenant-tab").forEach(item => item.classList.toggle("active", item === tab));
@@ -1124,6 +1303,49 @@ function bindTenantAdministrationCenter(tenant) {
     });
   });
 
+  bindTenantForm("#tenant-domain-form", event => {
+    const form = new FormData(event.currentTarget);
+    const body = formObject(form);
+    body.kind = Number(body.kind);
+    body.isDefault = form.has("isDefault");
+    return request(`/tenants/${state.tenantId}/domains`, { method: "PUT", loadingContext: "save", body });
+  });
+
+  bindTenantForm("#tenant-sso-form", event => {
+    const form = new FormData(event.currentTarget);
+    const body = formObject(form);
+    body.provider = Number(body.provider);
+    body.jitProvisioningEnabled = form.has("jitProvisioningEnabled");
+    body.scimEnabled = form.has("scimEnabled");
+    body.enabled = form.has("enabled");
+    return request(`/tenants/${state.tenantId}/sso`, { method: "PUT", loadingContext: "save", body });
+  });
+
+  bindTenantForm("#tenant-api-key-form", event => request(`/tenants/${state.tenantId}/api-keys`, { method: "POST", loadingContext: "save", body: formObject(new FormData(event.currentTarget)) }));
+
+  bindTenantForm("#tenant-webhook-form", event => {
+    const form = new FormData(event.currentTarget);
+    const body = formObject(form);
+    body.maxRetries = Number(body.maxRetries);
+    body.enabled = form.has("enabled");
+    return request(`/tenants/${state.tenantId}/webhooks`, { method: "PUT", loadingContext: "save", body });
+  });
+
+  bindTenantForm("#tenant-backup-form", event => {
+    const body = formObject(new FormData(event.currentTarget));
+    body.sizeBytes = Number(body.sizeBytes);
+    body.rpoMinutes = Number(body.rpoMinutes);
+    body.rtoMinutes = Number(body.rtoMinutes);
+    return request(`/tenants/${state.tenantId}/backups`, { method: "POST", loadingContext: "save", body });
+  });
+
+  bindTenantForm("#tenant-user-form", event => {
+    const form = new FormData(event.currentTarget);
+    const body = formObject(form);
+    body.forcePasswordChange = form.has("forcePasswordChange");
+    return request(`/tenants/${state.tenantId}/users`, { method: "POST", loadingContext: "save", body });
+  });
+
   document.querySelectorAll("[data-tenant-state]").forEach(button => {
     button.addEventListener("click", async event => {
       try {
@@ -1138,8 +1360,33 @@ function bindTenantAdministrationCenter(tenant) {
   });
 
   document.querySelector("#export-tenant-audit")?.addEventListener("click", () => {
-    navigator.clipboard?.writeText(JSON.stringify(tenant, null, 2));
-    toast("Snapshot del tenant copiado para auditoria.", "success");
+    window.open(`${API}/tenants/${state.tenantId}/audit-timeline/export?page=1&pageSize=200`, "_blank", "noopener");
+    toast("Export CSV solicitado desde backend.", "success");
+  });
+
+  bindTenantAction("[data-domain-disable]", button => request(`/tenants/${state.tenantId}/domains/${button.dataset.domainDisable}?changeReason=Disabled%20from%20TAC%20UI`, { method: "DELETE", loadingContext: "save" }));
+  bindTenantAction("[data-sso-test]", button => request(`/tenants/${state.tenantId}/sso/${button.dataset.ssoTest}/test`, { method: "POST", body: { changeReason: "Connection test from TAC UI" }, loadingContext: "save" }));
+  bindTenantAction("[data-api-revoke]", button => request(`/tenants/${state.tenantId}/api-keys/${button.dataset.apiRevoke}?changeReason=Revoked%20from%20TAC%20UI`, { method: "DELETE", loadingContext: "save" }));
+  bindTenantAction("[data-api-rotate]", button => request(`/tenants/${state.tenantId}/api-keys/${button.dataset.apiRotate}/rotate`, { method: "POST", body: { plainTextSecret: crypto.randomUUID(), expiresAtUtc: null, changeReason: "Rotated from TAC UI" }, loadingContext: "save" }));
+  bindTenantAction("[data-webhook-test]", button => request(`/tenants/${state.tenantId}/webhooks/${button.dataset.webhookTest}/test`, { method: "POST", body: { changeReason: "Webhook test from TAC UI" }, loadingContext: "save" }));
+  bindTenantAction("[data-webhook-disable]", button => request(`/tenants/${state.tenantId}/webhooks/${button.dataset.webhookDisable}?changeReason=Disabled%20from%20TAC%20UI`, { method: "DELETE", loadingContext: "save" }));
+  bindTenantAction("[data-user-mfa]", button => request(`/tenants/${state.tenantId}/users/${button.dataset.userMfa}/reset-mfa`, { method: "POST", body: { changeReason: "Reset MFA from TAC UI" }, loadingContext: "save" }));
+  bindTenantAction("[data-user-sessions]", button => request(`/tenants/${state.tenantId}/users/${button.dataset.userSessions}/sessions/close`, { method: "POST", body: { changeReason: "Closed sessions from TAC UI" }, loadingContext: "save" }));
+  bindTenantAction("[data-user-action]", button => request(`/tenants/${state.tenantId}/users/${button.dataset.userId}/status`, { method: "PATCH", body: { status: button.dataset.userAction === "Active" ? 1 : 2, changeReason: "Status update from TAC UI" }, loadingContext: "save" }));
+}
+
+function bindTenantAction(selector, action) {
+  document.querySelectorAll(selector).forEach(button => {
+    button.addEventListener("click", async event => {
+      try {
+        setLoadingButton(event.currentTarget, true, "Procesando...");
+        await action(event.currentTarget);
+        toast("Accion ejecutada y auditada.", "success");
+        await renderRoute();
+      } finally {
+        setLoadingButton(event.currentTarget, false);
+      }
+    });
   });
 }
 
@@ -1158,8 +1405,10 @@ function bindTenantForm(selector, submit) {
   });
 }
 
-function inputField(name, label, value, type = "text", disabled = false) {
-  return `<div class="field"><label for="${name}">${safe(label)}</label><input id="${name}" name="${name}" type="${type}" value="${safe(value ?? "")}" ${disabled ? "disabled" : ""}></div>`;
+function inputField(name, label, value, type = "text", disabled = false, required = false) {
+  const min = type === "number" ? " min=\"0\"" : "";
+  const pattern = name.toLowerCase().includes("color") ? " pattern=\"^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$\"" : "";
+  return `<div class="field"><label for="${name}">${safe(label)}</label><input id="${name}" name="${name}" type="${type}" value="${safe(value ?? "")}" ${disabled ? "disabled" : ""} ${required ? "required" : ""}${min}${pattern}></div>`;
 }
 
 function enumOptions(labels, selected) {
@@ -2053,6 +2302,9 @@ function formatCell(value) {
   }
   if (typeof value === "string" && value.includes("T") && value.endsWith("Z")) {
     return escapeHtml(new Date(value).toLocaleString());
+  }
+  if (typeof value === "string" && value.startsWith("__html:")) {
+    return value.slice(7);
   }
   if (typeof value === "string" && ["Active", "Completed", "Approved", "Live", "Healthy"].includes(value)) {
     return `<span class="status-pill ok">${escapeHtml(value)}</span>`;

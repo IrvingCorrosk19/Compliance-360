@@ -2,6 +2,7 @@ using Compliance360.Application;
 using Compliance360.Application.TenantManagement;
 using Compliance360.Domain.Audit;
 using Compliance360.Domain.Common;
+using Compliance360.Domain.Identity;
 using Compliance360.Domain.TenantManagement;
 using Compliance360.Infrastructure.Persistence;
 using Compliance360.Infrastructure.TenantManagement;
@@ -292,6 +293,47 @@ public sealed class TenantManagementServiceTests
     }
 
     [Fact]
+    public async Task Omega_Capabilities_Are_TenantScoped_Audited_And_Functional()
+    {
+        var repository = new InMemoryTenantManagementRepository();
+        var service = new TenantManagementService(repository, new FakeApplicationDbContext(), new FixedClock());
+        var actorId = Guid.NewGuid();
+        var created = await service.CreateTenantAsync(new CreateTenantCommand("Acme Quality", "acme", actorId));
+        var tenantId = created.Value!.Id;
+        var role = new Role(tenantId, "Tenant Admin");
+        repository.Roles.Add(role);
+
+        var domain = await service.UpsertDomainAsync(new UpsertTenantDomainCommand(tenantId, null, "admin.acme.test", TenantDomainKind.PrimaryCustom, true, null, "Enterprise domain onboarding", actorId));
+        var sso = await service.UpsertSsoAsync(new UpsertTenantSsoCommand(tenantId, null, TenantSsoProviderType.Oidc, "Corporate OIDC", "https://login.acme.test", "https://login.acme.test/.well-known/openid-configuration", "client-id", "vault://tenant/acme/sso", """{"email":"email"}""", """{"Admin":"Tenant Admin"}""", true, true, "ABC123", true, "SSO onboarding", actorId));
+        var ssoTest = await service.TestSsoAsync(new TenantEntityActionCommand(tenantId, sso.Value!.Id, "Connection validation", actorId));
+        var apiKey = await service.CreateApiCredentialAsync(new CreateTenantApiCredentialCommand(tenantId, "erp-sync", "plain-secret-value", "tenant.read tenant.audit", null, "ERP integration", actorId));
+        var webhook = await service.UpsertWebhookAsync(new UpsertTenantWebhookCommand(tenantId, null, "Audit outbound", "https://hooks.acme.test/compliance", "audit.created,tenant.updated", "webhook-secret", 3, true, "Audit integration", actorId));
+        var webhookTest = await service.TestWebhookAsync(new TenantEntityActionCommand(tenantId, webhook.Value!.Id, "Synthetic delivery", actorId));
+        var license = await service.UpsertLicenseAsync(new UpsertTenantLicenseCommand(tenantId, "LIC-ACME-001", TenantLicenseStatus.Active, """{"advancedAudit":true}""", """{"documents":true,"risk":true}""", """{"maxApiKeys":10}""", new DateOnly(2026, 1, 1), new DateOnly(2026, 12, 31), new DateOnly(2026, 11, 30), 100, 1, 500, 1024, "Annual contract", actorId));
+        var backup = await service.RecordBackupAsync(new RecordTenantBackupCommand(tenantId, "Database", "Succeeded", new FixedClock().UtcNow.AddMinutes(-5), new FixedClock().UtcNow, 2048, "Backup completed", 60, 240, actorId));
+        var user = await service.CreateUserAsync(new CreateTenantUserCommand(tenantId, "admin@acme.test", "Acme Admin", "Temporary123!", true, role.Id, "Admin invite", actorId));
+        var center = await service.GetAdministrationCenterStateAsync(tenantId);
+
+        Assert.True(domain.IsSuccess);
+        Assert.True(ssoTest.IsSuccess);
+        Assert.True(apiKey.IsSuccess);
+        Assert.NotEqual("plain-secret-value", repository.ApiCredentials.Single().KeyHash);
+        Assert.True(webhookTest.IsSuccess);
+        Assert.True(license.IsSuccess);
+        Assert.True(backup.IsSuccess);
+        Assert.True(user.IsSuccess);
+        Assert.True(center.IsSuccess);
+        Assert.Single(center.Value!.Domains);
+        Assert.Single(center.Value.SsoConfigurations);
+        Assert.Single(center.Value.ApiCredentials);
+        Assert.Single(center.Value.Webhooks);
+        Assert.NotNull(center.Value.License);
+        Assert.Contains(center.Value.Health.Signals, signal => signal.Component == "Backups");
+        Assert.Contains(center.Value.Users.Users, item => item.Email == "admin@acme.test");
+        Assert.True(repository.AuditLogs.Count >= 8);
+    }
+
+    [Fact]
     public async Task Service_Returns_Failure_When_Tenant_Does_Not_Exist()
     {
         var service = new TenantManagementService(
@@ -404,6 +446,26 @@ public sealed class TenantManagementServiceTests
 
         public List<AuditLog> AuditLogs { get; } = [];
 
+        public List<TenantDomain> Domains { get; } = [];
+
+        public List<TenantSsoConfiguration> SsoConfigurations { get; } = [];
+
+        public List<TenantApiCredential> ApiCredentials { get; } = [];
+
+        public List<TenantWebhookEndpoint> Webhooks { get; } = [];
+
+        public List<TenantWebhookDeliveryLog> WebhookLogs { get; } = [];
+
+        public List<TenantLicense> Licenses { get; } = [];
+
+        public List<TenantHealthSignal> HealthSignals { get; } = [];
+
+        public List<TenantBackupRecord> Backups { get; } = [];
+
+        public List<User> Users { get; } = [];
+
+        public List<Role> Roles { get; } = [];
+
         public Task<bool> SlugExistsAsync(string slug, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(Tenants.Any(tenant => tenant.Slug == slug.Trim().ToLowerInvariant()));
@@ -482,6 +544,151 @@ public sealed class TenantManagementServiceTests
         public Task AddCompanyAsync(Company company, CancellationToken cancellationToken = default)
         {
             return Task.CompletedTask;
+        }
+
+        public Task<IReadOnlyCollection<TenantDomain>> ListDomainsAsync(Guid tenantId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<IReadOnlyCollection<TenantDomain>>(Domains.Where(domain => domain.TenantId == tenantId).ToArray());
+        }
+
+        public Task<TenantDomain?> GetDomainAsync(Guid tenantId, Guid domainId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(Domains.SingleOrDefault(domain => domain.TenantId == tenantId && domain.Id == domainId));
+        }
+
+        public Task<bool> DomainExistsAsync(Guid tenantId, string hostName, Guid? excludeDomainId, CancellationToken cancellationToken = default)
+        {
+            var normalized = TenantValueObjects.Domain(hostName);
+            return Task.FromResult(Domains.Any(domain => domain.HostName == normalized && domain.Id != excludeDomainId));
+        }
+
+        public Task AddDomainAsync(TenantDomain domain, CancellationToken cancellationToken = default)
+        {
+            Domains.Add(domain);
+            return Task.CompletedTask;
+        }
+
+        public Task<IReadOnlyCollection<TenantSsoConfiguration>> ListSsoConfigurationsAsync(Guid tenantId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<IReadOnlyCollection<TenantSsoConfiguration>>(SsoConfigurations.Where(sso => sso.TenantId == tenantId).ToArray());
+        }
+
+        public Task<TenantSsoConfiguration?> GetSsoConfigurationAsync(Guid tenantId, Guid ssoId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(SsoConfigurations.SingleOrDefault(sso => sso.TenantId == tenantId && sso.Id == ssoId));
+        }
+
+        public Task AddSsoConfigurationAsync(TenantSsoConfiguration configuration, CancellationToken cancellationToken = default)
+        {
+            SsoConfigurations.Add(configuration);
+            return Task.CompletedTask;
+        }
+
+        public Task<IReadOnlyCollection<TenantApiCredential>> ListApiCredentialsAsync(Guid tenantId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<IReadOnlyCollection<TenantApiCredential>>(ApiCredentials.Where(apiKey => apiKey.TenantId == tenantId).ToArray());
+        }
+
+        public Task<TenantApiCredential?> GetApiCredentialAsync(Guid tenantId, Guid apiCredentialId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(ApiCredentials.SingleOrDefault(apiKey => apiKey.TenantId == tenantId && apiKey.Id == apiCredentialId));
+        }
+
+        public Task AddApiCredentialAsync(TenantApiCredential credential, CancellationToken cancellationToken = default)
+        {
+            ApiCredentials.Add(credential);
+            return Task.CompletedTask;
+        }
+
+        public Task<IReadOnlyCollection<TenantWebhookEndpoint>> ListWebhooksAsync(Guid tenantId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<IReadOnlyCollection<TenantWebhookEndpoint>>(Webhooks.Where(webhook => webhook.TenantId == tenantId).ToArray());
+        }
+
+        public Task<TenantWebhookEndpoint?> GetWebhookAsync(Guid tenantId, Guid webhookId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(Webhooks.SingleOrDefault(webhook => webhook.TenantId == tenantId && webhook.Id == webhookId));
+        }
+
+        public Task AddWebhookAsync(TenantWebhookEndpoint webhook, CancellationToken cancellationToken = default)
+        {
+            Webhooks.Add(webhook);
+            return Task.CompletedTask;
+        }
+
+        public Task AddWebhookDeliveryLogAsync(TenantWebhookDeliveryLog deliveryLog, CancellationToken cancellationToken = default)
+        {
+            WebhookLogs.Add(deliveryLog);
+            return Task.CompletedTask;
+        }
+
+        public Task<TenantLicense?> GetLicenseAsync(Guid tenantId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(Licenses.SingleOrDefault(license => license.TenantId == tenantId));
+        }
+
+        public Task AddLicenseAsync(TenantLicense license, CancellationToken cancellationToken = default)
+        {
+            Licenses.Add(license);
+            return Task.CompletedTask;
+        }
+
+        public Task<IReadOnlyCollection<TenantHealthSignal>> ListHealthSignalsAsync(Guid tenantId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<IReadOnlyCollection<TenantHealthSignal>>(HealthSignals.Where(signal => signal.TenantId == tenantId).ToArray());
+        }
+
+        public Task<TenantHealthSignal?> GetHealthSignalAsync(Guid tenantId, string component, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(HealthSignals.SingleOrDefault(signal => signal.TenantId == tenantId && signal.Component == component));
+        }
+
+        public Task AddHealthSignalAsync(TenantHealthSignal signal, CancellationToken cancellationToken = default)
+        {
+            HealthSignals.Add(signal);
+            return Task.CompletedTask;
+        }
+
+        public Task<IReadOnlyCollection<TenantBackupRecord>> ListBackupRecordsAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<IReadOnlyCollection<TenantBackupRecord>>(Backups.Where(backup => backup.TenantId == tenantId).Skip((page - 1) * pageSize).Take(pageSize).ToArray());
+        }
+
+        public Task AddBackupRecordAsync(TenantBackupRecord backup, CancellationToken cancellationToken = default)
+        {
+            Backups.Add(backup);
+            return Task.CompletedTask;
+        }
+
+        public Task<IReadOnlyCollection<User>> ListUsersAsync(Guid tenantId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<IReadOnlyCollection<User>>(Users.Where(user => user.TenantId == tenantId).ToArray());
+        }
+
+        public Task<User?> GetUserAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(Users.SingleOrDefault(user => user.TenantId == tenantId && user.Id == userId));
+        }
+
+        public Task<Role?> GetRoleAsync(Guid tenantId, Guid roleId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(Roles.SingleOrDefault(role => role.TenantId == tenantId && role.Id == roleId));
+        }
+
+        public Task<IReadOnlyCollection<Role>> ListRolesAsync(Guid tenantId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<IReadOnlyCollection<Role>>(Roles.Where(role => role.TenantId == tenantId).ToArray());
+        }
+
+        public Task AddUserAsync(User user, CancellationToken cancellationToken = default)
+        {
+            Users.Add(user);
+            return Task.CompletedTask;
+        }
+
+        public Task<IReadOnlyCollection<UserSessionSummary>> ListUserSessionsAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<IReadOnlyCollection<UserSessionSummary>>([]);
         }
 
         public Task AddAuditLogAsync(AuditLog auditLog, CancellationToken cancellationToken = default)
