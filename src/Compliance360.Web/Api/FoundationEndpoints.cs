@@ -12,6 +12,7 @@ using Compliance360.Application.Rbac;
 using Compliance360.Application.Reporting;
 using Compliance360.Application.RiskManagement;
 using Compliance360.Application.Storage;
+using Compliance360.Application.SuperAdmin;
 using Compliance360.Application.Suppliers;
 using Compliance360.Application.TechnicalSheets;
 using Compliance360.Application.TenantManagement;
@@ -57,8 +58,41 @@ public static class FoundationEndpoints
         MapQualityIndicators(api);
         MapReportingEngine(api);
         MapEnterpriseWorkspaces(api);
+        MapSuperAdminPlatform(api);
 
         return api;
+    }
+
+    private static void MapSuperAdminPlatform(RouteGroupBuilder api)
+    {
+        var superAdmin = api.MapGroup("/superadmin/platform-center")
+            .WithTags("SuperAdmin Platform Center");
+
+        superAdmin.MapGet("/", async (ISuperAdminPlatformService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GetCenterAsync(cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.SuperAdminDashboard);
+
+        superAdmin.MapGet("/tenants", async (string? searchText, string? status, int page, int pageSize, ISuperAdminPlatformService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.SearchTenantsAsync(new SuperAdminTenantSearchQuery(searchText, status, page, pageSize), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.SuperAdminTenantsRead);
+
+        superAdmin.MapGet("/audit-timeline", async (int page, int pageSize, ISuperAdminPlatformService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GetGlobalAuditTimelineAsync(page, pageSize, cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.SuperAdminAudit);
+
+        superAdmin.MapGet("/audit-timeline/export", async (int page, int pageSize, ISuperAdminPlatformService service, CancellationToken cancellationToken) =>
+        {
+            var result = await service.GetGlobalAuditTimelineAsync(page, pageSize, cancellationToken);
+            if (!result.IsSuccess || result.Value is null)
+            {
+                return Results.Problem(result.Error, statusCode: StatusCodes.Status400BadRequest);
+            }
+
+            var lines = new[] { "Id,TenantId,TenantName,OccurredAtUtc,Action,Category,EntityName,EntityId,UserId,IpAddress,CorrelationId,Success" }
+                .Concat(result.Value.Select(item => $"{item.Id},{item.TenantId},{EscapeCsv(item.TenantName)},{item.OccurredAtUtc:O},{item.Action},{item.Category},{item.EntityName},{item.EntityId},{item.UserId},{item.IpAddress},{item.CorrelationId},{item.Success}"));
+            return Results.Text(string.Join(Environment.NewLine, lines), "text/csv");
+        })
+            .RequireAuthorization(PermissionPolicies.SuperAdminAudit);
     }
 
     private static void MapIdentity(RouteGroupBuilder api)
@@ -1393,5 +1427,18 @@ public static class FoundationEndpoints
             .Where(claim => string.Equals(claim.Type, "permission", StringComparison.OrdinalIgnoreCase))
             .Select(claim => claim.Value)
             .ToArray();
+    }
+
+    private static string EscapeCsv(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return string.Empty;
+        }
+
+        var escaped = value.Replace("\"", "\"\"", StringComparison.Ordinal);
+        return escaped.Contains(',') || escaped.Contains('"') || escaped.Contains('\n')
+            ? $"\"{escaped}\""
+            : escaped;
     }
 }

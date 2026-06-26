@@ -254,6 +254,7 @@ public sealed class ReportingEngineTests
         public Task<ReportDefinition?> GetDefinitionAsync(Guid tenantId, Guid definitionId, CancellationToken cancellationToken = default) => Task.FromResult(Definitions.SingleOrDefault(definition => definition.TenantId == tenantId && definition.Id == definitionId));
         public Task<bool> DefinitionCodeExistsAsync(Guid tenantId, string code, CancellationToken cancellationToken = default) => Task.FromResult(Definitions.Any(definition => definition.TenantId == tenantId && definition.Code == code.ToUpperInvariant()));
         public Task AddAuditLogAsync(AuditLog auditLog, CancellationToken cancellationToken = default) { AuditLogs.Add(auditLog); return Task.CompletedTask; }
+        public Task NormalizeNewReportChildStatesAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
         public Task<ReportSearchResult> SearchAsync(ReportSearchCriteria criteria, CancellationToken cancellationToken = default)
         {

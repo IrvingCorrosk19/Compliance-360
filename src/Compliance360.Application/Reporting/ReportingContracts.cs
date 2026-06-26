@@ -36,6 +36,7 @@ public interface IReportingEngineRepository
     Task<ReportSearchResult> SearchAsync(ReportSearchCriteria criteria, CancellationToken cancellationToken = default);
     Task<ReportingDashboardDatasetCatalog> GetDashboardDatasetsAsync(Guid tenantId, CancellationToken cancellationToken = default);
     Task AddAuditLogAsync(AuditLog auditLog, CancellationToken cancellationToken = default);
+    Task NormalizeNewReportChildStatesAsync(CancellationToken cancellationToken = default);
 }
 
 public sealed record CreateReportCategoryCommand(Guid TenantId, string Name, string Code, ReportModule Module, Guid RequestedByUserId);

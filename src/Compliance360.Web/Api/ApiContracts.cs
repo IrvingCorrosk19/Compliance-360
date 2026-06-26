@@ -137,6 +137,8 @@ public sealed record AssignTenantUserRoleRequest(Guid RoleId, string? ChangeReas
 
 public sealed record TenantActionRequest(string? ChangeReason);
 
+public sealed record SuperAdminTenantSearchRequest(string? SearchText, string? Status, int Page, int PageSize);
+
 public sealed record CreateRoleRequest(string Name, bool IsSystemRole);
 
 public sealed record CreatePermissionRequest(string Module, PermissionAction Action, string Description);

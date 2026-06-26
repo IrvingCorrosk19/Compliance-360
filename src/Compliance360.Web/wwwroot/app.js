@@ -39,6 +39,7 @@ const loadingMessages = {
   indicators: ["Calculando indicadores...", "Consultando tendencias...", "Preparando metricas..."],
   reports: ["Preparando datos...", "Consultando base de datos...", "Generando documento...", "Aplicando formato...", "Finalizando..."],
   "tenant-administration": ["Cargando Tenant Administration Center...", "Calculando salud del tenant...", "Preparando consola Enterprise..."],
+  "superadmin-platform": ["Cargando SuperAdmin Platform Center...", "Calculando salud global...", "Preparando consola de plataforma..."],
   configuration: ["Aplicando configuracion...", "Consultando proveedores...", "Verificando integraciones..."],
   upload: ["Subiendo archivos...", "Calculando tiempo restante...", "Validando evidencia..."],
   export: ["Generando PDF...", "Exportando Excel...", "Preparando descarga..."],
@@ -62,6 +63,7 @@ const navigation = [
     ["indicators", "Quality Indicators"]
   ]},
   { group: "Enterprise", items: [
+    ["superadmin-platform", "SuperAdmin Platform"],
     ["tenant-administration", "Tenant Administration"],
     ["template-builder", "Template Builder"],
     ["regulatory", "Regulatory Management"],
@@ -504,6 +506,10 @@ async function renderRoute() {
       await renderTenantAdministrationCenter(content);
       return;
     }
+    if (state.route === "superadmin-platform") {
+      await renderSuperAdminPlatformCenter(content);
+      return;
+    }
     if (modules[state.route]) {
       await renderModule(content, state.route);
       return;
@@ -549,7 +555,7 @@ async function renderDashboard(content) {
   content.innerHTML = `
     ${productionHero(audit, capa, risk, indicators, reportCatalog)}
     <section class="grid cards">
-      ${metric("API Health", valueOf(health, {}).status || "Healthy", "Estado de servicio")}
+      ${metric("API Health", statusLabel(valueOf(health, {}).status || "Healthy"), "Estado de servicio")}
       ${metric("Audit Open", audit.openAudits ?? audit.totalOpen ?? 0, "Auditorias abiertas")}
       ${metric("CAPA Open", capa.openCapas ?? capa.totalOpen ?? 0, "Acciones abiertas")}
       ${metric("Risk Critical", risk.criticalRisks ?? 0, "Riesgos criticos")}
@@ -625,7 +631,7 @@ async function renderIntegrationsAdministration(content) {
         <article class="panel">
           <h2>Email Providers</h2>
           <p>SMTP, Gmail SMTP, Microsoft 365, Exchange Online, SendGrid, Mailgun, Resend y Amazon SES configurables por tenant.</p>
-          <div class="table-wrap">${tableFromRows(Object.entries(notification.providerHealth ?? {}).map(([provider, ok]) => ({ provider, status: ok ? "Healthy" : "Needs config" })), ["provider", "status"])}</div>
+          <div class="table-wrap">${tableFromRows(Object.entries(notification.providerHealth ?? {}).map(([provider, ok]) => ({ provider, status: ok ? "Saludable" : "Requiere configuracion" })), ["provider", "status"])}</div>
         </article>
         <article class="panel">
           <h2>Storage Providers</h2>
@@ -855,6 +861,242 @@ async function renderModule(content, key) {
   }
 }
 
+async function renderSuperAdminPlatformCenter(content) {
+  const center = await request("/superadmin/platform-center", { loadingContext: "superadmin-platform" });
+  const metrics = center.metrics || {};
+  const alerts = center.alerts || [];
+  const tenants = center.tenants || [];
+  const providers = center.providers || [];
+  const licenses = center.licenses || [];
+  const modules = center.modules || [];
+  const health = center.health || [];
+  const backups = center.backups || [];
+  const database = center.database || [];
+  const timeline = center.auditTimeline || [];
+  const quickActions = center.quickActions || [];
+  const globalHealth = metrics.globalHealth || "Unknown";
+
+  content.innerHTML = `
+    ${pageHeader("SuperAdmin Platform Center", "Consola global para administrar y observar toda la plataforma Compliance 360.", "Platform / Global Administration")}
+    <section class="tenant-hero platform-hero">
+      <div>
+        <span class="product-badge">Global SuperAdmin</span>
+        <h2>Centro de Gobierno Global Compliance 360</h2>
+        <p>Tenants, licencias, proveedores, seguridad, observabilidad, base de datos, backups, DevOps, auditoria e IA con datos del backend.</p>
+      </div>
+      <div class="tenant-health">
+        <span class="status-pill ${globalHealth === "Healthy" ? "ok" : globalHealth === "Unhealthy" ? "danger" : "warn"}">${safe(statusLabel(globalHealth))}</span>
+        <strong>${metrics.tenants || 0} tenants</strong>
+        <small>Generado ${formatDate(metrics.generatedAtUtc)}</small>
+      </div>
+    </section>
+    <section class="platform-command">
+      <input id="platform-search" placeholder="Buscar globalmente: tenant, proveedor, licencia, auditoria, modulo..." aria-label="Busqueda global de plataforma">
+      <button id="export-platform-audit" class="btn" type="button">Exportar auditoria global CSV</button>
+    </section>
+    <section class="grid cards tenant-dashboard-grid">
+      ${metric("Tenants", metrics.tenants || 0, `Activos ${metrics.activeTenants || 0}`)}
+      ${metric("Trial", metrics.trialTenants || 0, "Onboarding")}
+      ${metric("Suspendidos", metrics.suspendedTenants || 0, "Governance")}
+      ${metric("Archivados", metrics.archivedTenants || 0, "Retention")}
+      ${metric("Usuarios", metrics.totalUsers || 0, `Activos ${metrics.activeUsers || 0}`)}
+      ${metric("Documentos", metrics.documents || 0, "Global")}
+      ${metric("Auditorias", metrics.audits || 0, "Managed audits")}
+      ${metric("CAPA", metrics.capas || 0, "Corrective actions")}
+      ${metric("Riesgos", metrics.risks || 0, "Risk register")}
+      ${metric("Indicadores", metrics.indicators || 0, "KPIs")}
+      ${metric("Storage Used", formatBytes(metrics.storageUsedBytes || 0), `Cap ${formatBytes(metrics.storageBytes || 0)}`)}
+      ${metric("SMTP Providers", metrics.smtpProviders || 0, "Notifications")}
+      ${metric("Storage Providers", metrics.storageProviders || 0, "Object storage")}
+      ${metric("API Requests", metrics.apiRequests || 0, "Audit-observed")}
+      ${metric("Errores", metrics.errors || 0, "Audit/notifications")}
+      ${metric("Background Jobs", metrics.backgroundJobs || 0, "Retry backlog")}
+      ${metric("Licencias", metrics.licenses || 0, "Tenant licenses")}
+      ${metric("Alertas", metrics.alerts || alerts.length, "Global")}
+    </section>
+    ${superAdminAlerts(alerts)}
+    <section class="tenant-admin-shell platform-shell">
+      <aside class="tenant-tabs" aria-label="SuperAdmin Platform tabs">
+        ${superAdminTabs().map((tab, index) => `<button class="tenant-tab ${index === 0 ? "active" : ""}" type="button" data-tab="${tab.key}"><span>${index + 1}</span>${tab.label}</button>`).join("")}
+      </aside>
+      <div class="tenant-tab-panels">
+        ${superAdminPanel("executive", "Executive Dashboard", quickActionsPanel(quickActions) + platformConsumptionPanel(metrics), true)}
+        ${superAdminPanel("tenants", "Tenants", tableCard("Tenant fleet", tenants.map(tenant => ({
+          name: tenant.name,
+          slug: tenant.slug,
+          status: tenant.status,
+          plan: tenant.plan,
+          users: tenant.users,
+          storage: formatBytes(tenant.storageBytes),
+          created: formatDate(tenant.createdAtUtc),
+          actions: `__html:<button class="btn small" data-platform-tenant="${tenant.id}">Abrir TAC</button>`
+        })), ["name", "slug", "status", "plan", "users", "storage", "created", "actions"]))}
+        ${superAdminPanel("licenses", "Licencias", tableCard("Licencias y consumo", licenses.map(license => ({
+          tenant: license.tenantName,
+          plan: license.plan,
+          status: license.status,
+          users: `${license.usersUsed}/${license.maxUsers}`,
+          storage: `${formatBytes(license.storageUsedBytes)} / ${license.maxStorageGb} GB`,
+          expires: license.expiresOn || "n/a",
+          renewal: license.renewalDate || "n/a"
+        })), ["tenant", "plan", "status", "users", "storage", "expires", "renewal"]))}
+        ${superAdminPanel("modules", "Modulos", tableCard("Matriz de modulos por tenant", modules.slice(0, 100).map(item => ({ tenant: item.tenantName, module: item.module, enabled: item.enabled ? "Activo" : "Inactivo", source: item.source, health: statusLabel(item.health) })), ["tenant", "module", "enabled", "source", "health"]))}
+        ${superAdminPanel("providers", "Providers", tableCard("Providers globales tenant-scoped", providers.map(provider => ({
+          tenant: provider.tenantName,
+          type: provider.type,
+          provider: provider.provider,
+          name: provider.name,
+          enabled: provider.isEnabled ? "Activo" : "Inactivo",
+          health: statusLabel(provider.health),
+          last: formatDate(provider.lastHealthCheckAtUtc)
+        })), ["tenant", "type", "provider", "name", "enabled", "health", "last"]))}
+        ${superAdminPanel("security", "Seguridad Global", platformSecurityPanel())}
+        ${superAdminPanel("observability", "Observability", tableCard("Health, trazas y servicios de fondo", health.map(signal => ({ component: signal.component, status: statusLabel(signal.status), message: signal.message, tenant: shortId(signal.tenantId), checked: formatDate(signal.checkedAtUtc) })), ["component", "status", "message", "tenant", "checked"]))}
+        ${superAdminPanel("audit", "Auditoria Global", superAdminTimeline(timeline))}
+        ${superAdminPanel("database", "Base de Datos", tableCard("Monitoreo PostgreSQL", database.map(item => ({ metric: item.name, value: item.value, status: statusLabel(item.status), description: item.description })), ["metric", "value", "status", "description"]))}
+        ${superAdminPanel("ai", "IA", platformAiPanel(globalHealth))}
+        ${superAdminPanel("configuration", "Configuracion Global", platformGlobalConfigurationPanel())}
+        ${superAdminPanel("backups", "Backups", tableCard("Backups registrados", backups.map(backup => ({ tenant: backup.tenantName, kind: backup.backupKind, result: backup.result, completed: formatDate(backup.completedAtUtc), duration: backup.duration, size: formatBytes(backup.sizeBytes), rpo: backup.rpo, rto: backup.rto })), ["tenant", "kind", "result", "completed", "duration", "size", "rpo", "rto"]))}
+        ${superAdminPanel("devops", "DevOps", platformDevOpsPanel(database))}
+      </div>
+    </section>`;
+
+  bindSuperAdminPlatformCenter();
+}
+
+function superAdminTabs() {
+  return [
+    { key: "executive", label: "Executive" },
+    { key: "tenants", label: "Tenants" },
+    { key: "licenses", label: "Licencias" },
+    { key: "modules", label: "Modulos" },
+    { key: "providers", label: "Providers" },
+    { key: "security", label: "Seguridad" },
+    { key: "observability", label: "Observability" },
+    { key: "audit", label: "Auditoria" },
+    { key: "database", label: "Database" },
+    { key: "ai", label: "IA" },
+    { key: "configuration", label: "Configuracion" },
+    { key: "backups", label: "Backups" },
+    { key: "devops", label: "DevOps" }
+  ];
+}
+
+function superAdminPanel(key, title, body, active = false) {
+  return `<section class="tenant-panel ${active ? "active" : ""}" data-panel="${key}"><div class="section-heading"><div><h2 class="section-title">${safe(title)}</h2><p class="metric-label">Administracion global de plataforma.</p></div><span class="status-pill ok">Backend activo</span></div>${body}</section>`;
+}
+
+function quickActionsPanel(actions) {
+  return `<div class="grid cards">${actions.map(action => `<article class="card"><span class="product-badge">${safe(action.permission)}</span><h3>${safe(action.label)}</h3><p>${safe(action.description)}</p><button class="btn small" data-quick-action="${safe(action.key)}" data-route-target="${safe(action.route)}">Ejecutar</button></article>`).join("")}</div>`;
+}
+
+function platformConsumptionPanel(metrics) {
+  const storagePercent = metrics.storageBytes ? Math.min(100, Math.round((metrics.storageUsedBytes || 0) * 100 / metrics.storageBytes)) : 0;
+  const activeTenantPercent = metrics.tenants ? Math.round((metrics.activeTenants || 0) * 100 / metrics.tenants) : 0;
+  return `<div class="grid two"><section class="card"><h3>Tenant Health Mix</h3><div class="progress-track"><span class="progress-bar dynamic" data-width="${activeTenantPercent}"></span></div><p>${activeTenantPercent}% tenants activos</p></section><section class="card"><h3>Storage Consumption</h3><div class="progress-track"><span class="progress-bar dynamic" data-width="${storagePercent}"></span></div><p>${storagePercent}% storage utilizado</p></section></div>`;
+}
+
+function platformSecurityPanel() {
+  const rows = [
+    { area: "Politicas de password", status: "Configurado", source: "Opciones de infraestructura" },
+    { area: "MFA", status: "Aplicado por tenant/usuario", source: "Servicios Identity + MFA" },
+    { area: "JWT", status: "Configurado", source: "JwtOptions" },
+    { area: "Refresh Tokens", status: "Trazado", source: "Tabla RefreshTokens" },
+    { area: "Rate Limiting", status: "Activo", source: "Politica API" },
+    { area: "CORS", status: "Configurado", source: "AllowedOrigins" },
+    { area: "Headers", status: "Activo", source: "SecurityHeadersMiddleware" },
+    { area: "Secrets/Vault", status: "Externalizado", source: "Solo referencias a secretos" }
+  ];
+  return tableCard("Global Security Policies", rows, ["area", "status", "source"]);
+}
+
+function platformAiPanel(globalHealth) {
+  const rows = [
+    { capability: "Proveedores IA", status: "Sin registros", evidence: "No existen registros de proveedores IA" },
+    { capability: "Prompts", status: "Sin registros", evidence: "No existe registro de prompts" },
+    { capability: "Tokens/Costos", status: "Sin registros", evidence: "No existen registros de consumo IA" },
+    { capability: "Fallback", status: "Sin registros", evidence: "No existen reglas de fallback IA" },
+    { capability: "Health", status: statusLabel(globalHealth), evidence: "Resumen de salud de plataforma" }
+  ];
+  return tableCard("AI Administration Read Model", rows, ["capability", "status", "evidence"]);
+}
+
+function platformGlobalConfigurationPanel() {
+  const rows = [
+    { item: "Empresa propietaria", value: "Compliance 360", status: "Configurado en identidad de producto" },
+    { item: "Branding global", value: "C360 Enterprise", status: "Shell frontend" },
+    { item: "SMTP global", value: "Modelo de proveedor por tenant", status: "Gestionado por tenant" },
+    { item: "Storage global", value: "Modelo de proveedor por tenant", status: "Gestionado por tenant" },
+    { item: "Politicas globales", value: "Middleware de seguridad + opciones", status: "Aplicado por backend" }
+  ];
+  return tableCard("Configuracion global", rows, ["item", "value", "status"]);
+}
+
+function platformDevOpsPanel(database) {
+  const provider = database.find(item => item.name === "Provider")?.value || "EF Core";
+  const rows = [
+    { item: "Build", value: "Validado por dotnet build", status: "Disponible" },
+    { item: "Version", value: "Compliance360 Web", status: "Runtime" },
+    { item: "Deploys", value: "CI/CD externo", status: "Solo lectura" },
+    { item: "Migraciones", value: provider, status: "Trazado" },
+    { item: "Rollback", value: "Controlado fuera de la UI", status: "Gobernado" }
+  ];
+  return tableCard("DevOps read model", rows, ["item", "value", "status"]);
+}
+
+function superAdminTimeline(timeline) {
+  const rows = timeline.length ? timeline : [];
+  return `<div class="tenant-timeline">${rows.map(item => `<article class="timeline-item"><span></span><div><strong>${safe(item.action)} · ${safe(item.entityName)} · ${safe(item.tenantName || "Plataforma")}</strong><p>${formatDate(item.occurredAtUtc)} · Usuario ${shortId(item.userId)} · IP ${safe(item.ipAddress || "n/a")} · Corr ${safe(item.correlationId || "n/a")}</p><small>${safe(item.metadataJson || "Evento de auditoria global")}</small></div></article>`).join("") || `<div class="empty-state"><strong>No hay eventos de auditoria.</strong><p>El timeline global esta vacio.</p></div>`}</div>`;
+}
+
+function superAdminAlerts(alerts) {
+  const items = alerts.length ? alerts : [{ severity: "ok", title: "Sin alertas criticas globales", message: "El read model de plataforma no detecto problemas criticos.", area: "Plataforma" }];
+  return `<section class="tenant-alerts">${items.map(alert => `<article class="tenant-alert ${safe(alert.severity)}"><strong>${safe(alert.title)}</strong><p>${safe(alert.message)}</p><small>${safe(alert.area || "Plataforma")}</small></article>`).join("")}</section>`;
+}
+
+function bindSuperAdminPlatformCenter() {
+  document.querySelectorAll(".tenant-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".tenant-tab").forEach(item => item.classList.toggle("active", item === tab));
+      document.querySelectorAll(".tenant-panel").forEach(panel => panel.classList.toggle("active", panel.dataset.panel === tab.dataset.tab));
+    });
+  });
+
+  document.querySelectorAll(".progress-bar.dynamic").forEach(bar => {
+    bar.style.width = `${Math.max(0, Math.min(100, Number(bar.dataset.width || 0)))}%`;
+  });
+
+  document.querySelector("#platform-search")?.addEventListener("input", event => {
+    const text = event.currentTarget.value.toLowerCase();
+    document.querySelectorAll(".tenant-tab-panels table tbody tr").forEach(row => {
+      row.classList.toggle("hidden", text.length > 1 && !row.textContent.toLowerCase().includes(text));
+    });
+  });
+
+  document.querySelectorAll("[data-platform-tenant]").forEach(button => {
+    button.addEventListener("click", event => {
+      state.tenantId = event.currentTarget.dataset.platformTenant;
+      localStorage.setItem("c360.tenantId", state.tenantId);
+      location.hash = "#/tenant-administration";
+    });
+  });
+
+  document.querySelectorAll("[data-quick-action]").forEach(button => {
+    button.addEventListener("click", event => {
+      const target = event.currentTarget.dataset.routeTarget || "";
+      if (target.startsWith("#/")) {
+        location.hash = target;
+      } else if (target.startsWith("#")) {
+        document.querySelector(`[data-panel="${target.slice(1)}"]`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+  });
+
+  document.querySelector("#export-platform-audit")?.addEventListener("click", async () => {
+    await downloadProtectedText("/superadmin/platform-center/audit-timeline/export?page=1&pageSize=250", "superadmin-global-audit.csv");
+  });
+}
+
 async function renderTenantAdministrationCenter(content) {
   const center = await request(`/tenants/${state.tenantId}/administration-center`, { loadingContext: "tenant-administration" });
   const tenant = center.tenant;
@@ -862,9 +1104,9 @@ async function renderTenantAdministrationCenter(content) {
   const timeline = center.timeline || [];
   const health = center.health || { overallStatus: "Unknown", signals: [], backups: [] };
   const alerts = [
-    ...(health.overallStatus && health.overallStatus !== "Healthy" && health.overallStatus !== 0 ? [{ severity: "warning", title: "Health center requires attention", message: "Review degraded or missing operational signals." }] : []),
-    ...((center.domains || []).length ? [] : [{ severity: "warning", title: "No domains configured", message: "Add a default or custom domain before enterprise onboarding." }]),
-    ...((center.ssoConfigurations || []).length ? [] : [{ severity: "info", title: "No SSO configured", message: "Enterprise tenants usually require OIDC, SAML, LDAP or Active Directory." }])
+    ...(health.overallStatus && health.overallStatus !== "Healthy" && health.overallStatus !== 0 ? [{ severity: "warning", title: "Health Center requiere atencion", message: "Revisar senales operativas degradadas o faltantes." }] : []),
+    ...((center.domains || []).length ? [] : [{ severity: "warning", title: "Sin dominios configurados", message: "Agregar un dominio default o custom antes de onboarding enterprise." }]),
+    ...((center.ssoConfigurations || []).length ? [] : [{ severity: "info", title: "Sin SSO configurado", message: "Los tenants enterprise normalmente requieren OIDC, SAML, LDAP o Active Directory." }])
   ];
   const storageGb = ((metrics.storageBytes || 0) / 1024 / 1024 / 1024).toFixed(2);
   const usedUsers = `${metrics.users || 0}/${tenant.subscription.maxUsers}`;
@@ -882,8 +1124,8 @@ async function renderTenantAdministrationCenter(content) {
         <p>${safe(tenant.legalName)} · ${safe(tenant.taxIdentifier)} · ${safe(tenant.countryCode)} · ${safe(tenant.currency)}</p>
       </div>
       <div class="tenant-health">
-        <span class="status-pill ${statusName === "Active" ? "ok" : statusName === "Archived" ? "danger" : "warn"}">${safe(statusName)}</span>
-        <strong>${metrics.health ? "Healthy" : "Needs attention"}</strong>
+        <span class="status-pill ${statusName === "Activo" ? "ok" : statusName === "Archivado" ? "danger" : "warn"}">${safe(statusName)}</span>
+        <strong>${metrics.health ? "Saludable" : "Requiere atencion"}</strong>
         <small>Security score ${tenant.settings.securityScore}/100</small>
       </div>
     </section>
@@ -1205,7 +1447,7 @@ function tenantHealthPanel(health) {
   const backups = health.backups || [];
   return `
     <section class="tenant-panel" data-panel="health">
-      <div class="section-heading"><div><h2 class="section-title">Health Center & Backups</h2><p class="metric-label">DB, SMTP, Storage, Providers, Jobs, Queues, Integraciones, licencia, espacio, backups y OpenTelemetry.</p></div><span class="status-pill ${enumName(["Healthy", "Degraded", "Unhealthy", "Unknown"], health.overallStatus) === "Healthy" ? "ok" : "warn"}">${safe(enumName(["Healthy", "Degraded", "Unhealthy", "Unknown"], health.overallStatus))}</span></div>
+      <div class="section-heading"><div><h2 class="section-title">Health Center & Backups</h2><p class="metric-label">DB, SMTP, Storage, Providers, Jobs, Queues, Integraciones, licencia, espacio, backups y OpenTelemetry.</p></div><span class="status-pill ${health.overallStatus === "Healthy" || health.overallStatus === 0 ? "ok" : "warn"}">${safe(enumName(["Healthy", "Degraded", "Unhealthy", "Unknown"], health.overallStatus))}</span></div>
       ${tableCard("Health checks", signals.map(signal => ({
         component: signal.component,
         status: enumName(["Healthy", "Degraded", "Unhealthy", "Unknown"], signal.status),
@@ -1359,9 +1601,8 @@ function bindTenantAdministrationCenter(tenant, center) {
     });
   });
 
-  document.querySelector("#export-tenant-audit")?.addEventListener("click", () => {
-    window.open(`${API}/tenants/${state.tenantId}/audit-timeline/export?page=1&pageSize=200`, "_blank", "noopener");
-    toast("Export CSV solicitado desde backend.", "success");
+  document.querySelector("#export-tenant-audit")?.addEventListener("click", async () => {
+    await downloadProtectedText(`/tenants/${state.tenantId}/audit-timeline/export?page=1&pageSize=200`, "tenant-audit-timeline.csv");
   });
 
   bindTenantAction("[data-domain-disable]", button => request(`/tenants/${state.tenantId}/domains/${button.dataset.domainDisable}?changeReason=Disabled%20from%20TAC%20UI`, { method: "DELETE", loadingContext: "save" }));
@@ -1431,6 +1672,37 @@ function formatDate(value) {
   return value ? new Date(value).toLocaleString() : "n/a";
 }
 
+function formatBytes(value) {
+  const bytes = Number(value || 0);
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+
+  const units = ["KB", "MB", "GB", "TB"];
+  let size = bytes / 1024;
+  let index = 0;
+  while (size >= 1024 && index < units.length - 1) {
+    size /= 1024;
+    index++;
+  }
+
+  return `${size.toFixed(2)} ${units[index]}`;
+}
+
+function statusLabel(value) {
+  const labels = {
+    Healthy: "Saludable",
+    Unhealthy: "No saludable",
+    Degraded: "Degradado",
+    Unknown: "Desconocido",
+    Disabled: "Inactivo",
+    Available: "Disponible",
+    Warning: "Advertencia",
+    Critical: "Critico"
+  };
+  return labels[value] || value || "n/a";
+}
+
 function tenantStatusName(value) {
   return enumName(["Draft", "Trial", "Active", "Suspended", "Archived"], value);
 }
@@ -1445,10 +1717,52 @@ function subscriptionStateName(value) {
 
 function enumName(labels, value) {
   if (typeof value === "number") {
-    return labels[value] || String(value);
+    return displayLabel(labels[value] || String(value));
   }
 
-  return String(value ?? "n/a");
+  return displayLabel(String(value ?? "n/a"));
+}
+
+function displayLabel(value) {
+  const labels = {
+    Active: "Activo",
+    Completed: "Completado",
+    Approved: "Aprobado",
+    Live: "Activo",
+    Healthy: "Saludable",
+    Degraded: "Degradado",
+    Unhealthy: "No saludable",
+    Unknown: "Desconocido",
+    Disabled: "Inactivo",
+    Locked: "Bloqueado",
+    Invited: "Invitado",
+    Enabled: "Habilitado",
+    Draft: "Borrador",
+    Failed: "Fallido",
+    Revoked: "Revocado",
+    Pending: "Pendiente",
+    Succeeded: "Exitoso",
+    Retrying: "Reintentando",
+    DeadLetter: "Buzon muerto",
+    PendingVerification: "Verificacion pendiente",
+    Verified: "Verificado",
+    DnsFailed: "DNS fallido",
+    CertificateFailed: "Certificado fallido",
+    NotRequested: "No solicitado",
+    Issued: "Emitido",
+    Expired: "Expirado",
+    Default: "Principal",
+    PrimaryCustom: "Personalizado principal",
+    SecondaryCustom: "Personalizado secundario",
+    Subdomain: "Subdominio",
+    Alias: "Alias",
+    Trial: "Prueba",
+    Archived: "Archivado",
+    PastDue: "Vencido",
+    Suspended: "Suspendido",
+    Cancelled: "Cancelado"
+  };
+  return labels[value] || value;
 }
 
 function safe(value) {
@@ -1985,6 +2299,24 @@ async function request(path, options = {}) {
   }
 }
 
+async function downloadProtectedText(path, fileName) {
+  const response = await fetch(`${API}${path}`, {
+    headers: { Authorization: `Bearer ${state.token}` }
+  });
+  if (!response.ok) {
+    throw new Error(`${response.status} ${response.statusText}: ${await response.text()}`);
+  }
+
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  link.click();
+  URL.revokeObjectURL(url);
+  toast("Archivo exportado correctamente.", "success");
+}
+
 function ensureLoadingHost() {
   if (document.querySelector("#global-loading-host")) return;
   const host = document.createElement("div");
@@ -2307,7 +2639,7 @@ function formatCell(value) {
     return value.slice(7);
   }
   if (typeof value === "string" && ["Active", "Completed", "Approved", "Live", "Healthy"].includes(value)) {
-    return `<span class="status-pill ok">${escapeHtml(value)}</span>`;
+    return `<span class="status-pill ok">${escapeHtml(displayLabel(value))}</span>`;
   }
   if (typeof value === "number" && value >= 0 && value <= 10) {
     return `<span class="tag">${value}</span>`;
@@ -2315,7 +2647,7 @@ function formatCell(value) {
   if (typeof value === "object") {
     return escapeHtml(JSON.stringify(value));
   }
-  return escapeHtml(String(value));
+  return escapeHtml(displayLabel(String(value)));
 }
 
 function shortId(id) {

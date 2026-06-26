@@ -65,4 +65,30 @@ public sealed class EfReportingEngineRepository : IReportingEngineRepository
     }
 
     public async Task AddAuditLogAsync(AuditLog auditLog, CancellationToken cancellationToken = default) => await _dbContext.AuditLogs.AddAsync(auditLog, cancellationToken);
+
+    public async Task NormalizeNewReportChildStatesAsync(CancellationToken cancellationToken = default)
+    {
+        foreach (var entry in _dbContext.ChangeTracker.Entries().Where(entry => entry.State == EntityState.Modified).ToArray())
+        {
+            var exists = entry.Entity switch
+            {
+                ReportTemplate template => await _dbContext.ReportTemplates.AsNoTracking().AnyAsync(item => item.Id == template.Id, cancellationToken),
+                ReportParameter parameter => await _dbContext.ReportParameters.AsNoTracking().AnyAsync(item => item.Id == parameter.Id, cancellationToken),
+                ReportExecution execution => await _dbContext.ReportExecutions.AsNoTracking().AnyAsync(item => item.Id == execution.Id, cancellationToken),
+                ReportOutput output => await _dbContext.ReportOutputs.AsNoTracking().AnyAsync(item => item.Id == output.Id, cancellationToken),
+                ReportExport export => await _dbContext.ReportExports.AsNoTracking().AnyAsync(item => item.Id == export.Id, cancellationToken),
+                ReportSchedule schedule => await _dbContext.ReportSchedules.AsNoTracking().AnyAsync(item => item.Id == schedule.Id, cancellationToken),
+                ReportSubscription subscription => await _dbContext.ReportSubscriptions.AsNoTracking().AnyAsync(item => item.Id == subscription.Id, cancellationToken),
+                ReportPermission permission => await _dbContext.ReportPermissions.AsNoTracking().AnyAsync(item => item.Id == permission.Id, cancellationToken),
+                ReportDashboardBinding binding => await _dbContext.ReportDashboardBindings.AsNoTracking().AnyAsync(item => item.Id == binding.Id, cancellationToken),
+                ReportHistory history => await _dbContext.ReportHistory.AsNoTracking().AnyAsync(item => item.Id == history.Id, cancellationToken),
+                _ => true
+            };
+
+            if (!exists)
+            {
+                entry.State = EntityState.Added;
+            }
+        }
+    }
 }

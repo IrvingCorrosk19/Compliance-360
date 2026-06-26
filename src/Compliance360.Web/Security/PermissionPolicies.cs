@@ -60,6 +60,24 @@ public static class PermissionPolicies
     public const string ObservabilityRead = "Observability.Read";
     public const string ObservabilityManage = "Observability.Manage";
     public const string ObservabilityAdmin = "Observability.Admin";
+    public const string SuperAdminDashboard = "SuperAdmin.Dashboard";
+    public const string SuperAdminTenantsRead = "SuperAdmin.Tenants.Read";
+    public const string SuperAdminTenantsCreate = "SuperAdmin.Tenants.Create";
+    public const string SuperAdminTenantsUpdate = "SuperAdmin.Tenants.Update";
+    public const string SuperAdminTenantsStatus = "SuperAdmin.Tenants.Status";
+    public const string SuperAdminTenantsDelete = "SuperAdmin.Tenants.Delete";
+    public const string SuperAdminLicenses = "SuperAdmin.Licenses";
+    public const string SuperAdminModules = "SuperAdmin.Modules";
+    public const string SuperAdminProviders = "SuperAdmin.Providers";
+    public const string SuperAdminSecurity = "SuperAdmin.Security";
+    public const string SuperAdminObservability = "SuperAdmin.Observability";
+    public const string SuperAdminAudit = "SuperAdmin.Audit";
+    public const string SuperAdminDatabase = "SuperAdmin.Database";
+    public const string SuperAdminAi = "SuperAdmin.Ai";
+    public const string SuperAdminConfiguration = "SuperAdmin.Configuration";
+    public const string SuperAdminBackups = "SuperAdmin.Backups";
+    public const string SuperAdminDevOps = "SuperAdmin.DevOps";
+    public const string SuperAdminSearch = "SuperAdmin.Search";
 
     public static void AddCompliancePolicies(this AuthorizationOptions options)
     {
@@ -119,6 +137,24 @@ public static class PermissionPolicies
         options.AddPolicy(ObservabilityRead, policy => policy.RequireAssertion(context => HasPermission(context, "OBSERVABILITY.READ") || HasPermission(context, "OBSERVABILITY.MANAGE") || HasPermission(context, "OBSERVABILITY.ADMIN")));
         options.AddPolicy(ObservabilityManage, policy => policy.RequireAssertion(context => HasPermission(context, "OBSERVABILITY.MANAGE") || HasPermission(context, "OBSERVABILITY.ADMIN")));
         options.AddPolicy(ObservabilityAdmin, policy => policy.RequireAssertion(context => HasPermission(context, "OBSERVABILITY.ADMIN")));
+        options.AddPolicy(SuperAdminDashboard, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.DASHBOARD.READ")));
+        options.AddPolicy(SuperAdminTenantsRead, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.TENANTS.READ")));
+        options.AddPolicy(SuperAdminTenantsCreate, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.TENANTS.CREATE")));
+        options.AddPolicy(SuperAdminTenantsUpdate, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.TENANTS.UPDATE")));
+        options.AddPolicy(SuperAdminTenantsStatus, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.TENANTS.STATUS")));
+        options.AddPolicy(SuperAdminTenantsDelete, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.TENANTS.DELETE")));
+        options.AddPolicy(SuperAdminLicenses, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.LICENSES.MANAGE")));
+        options.AddPolicy(SuperAdminModules, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.MODULES.MANAGE")));
+        options.AddPolicy(SuperAdminProviders, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.PROVIDERS.MANAGE")));
+        options.AddPolicy(SuperAdminSecurity, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.SECURITY.MANAGE")));
+        options.AddPolicy(SuperAdminObservability, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.OBSERVABILITY.READ")));
+        options.AddPolicy(SuperAdminAudit, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.AUDIT.READ") || HasPermission(context, "SUPERADMIN.AUDIT.EXPORT")));
+        options.AddPolicy(SuperAdminDatabase, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.DATABASE.READ")));
+        options.AddPolicy(SuperAdminAi, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.AI.MANAGE")));
+        options.AddPolicy(SuperAdminConfiguration, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.CONFIGURATION.MANAGE")));
+        options.AddPolicy(SuperAdminBackups, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.BACKUPS.READ")));
+        options.AddPolicy(SuperAdminDevOps, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.DEVOPS.READ")));
+        options.AddPolicy(SuperAdminSearch, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.SEARCH")));
     }
 
     private static bool HasPermission(AuthorizationHandlerContext context, string permission)

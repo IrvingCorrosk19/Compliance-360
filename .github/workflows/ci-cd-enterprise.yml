@@ -24,8 +24,8 @@ env:
   INFRASTRUCTURE_PROJECT: src/Compliance360.Infrastructure/Compliance360.Infrastructure.csproj
   STARTUP_PROJECT: src/Compliance360.Web/Compliance360.Web.csproj
   COVERAGE_THRESHOLD: "90"
-  ConnectionStrings__Compliance360: Host=localhost;Database=compliance360_ci;Username=postgres;Password=postgres
-  Jwt__SigningKey: ci-signing-key-with-at-least-32-characters
+  ConnectionStrings__Compliance360: Host=localhost;Database=compliance360_ci;Username=postgres;Password=${{ secrets.CI_POSTGRES_PASSWORD }}
+  Jwt__SigningKey: ${{ secrets.CI_JWT_SIGNING_KEY }}
 
 jobs:
   build-test-security:
@@ -38,7 +38,7 @@ jobs:
         env:
           POSTGRES_DB: compliance360_ci
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_PASSWORD: ${{ secrets.CI_POSTGRES_PASSWORD }}
         ports:
           - 5432:5432
         options: >-

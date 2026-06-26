@@ -91,6 +91,7 @@ public sealed class EnterpriseApiTests
         var json = await response.Content.ReadAsStringAsync();
         Assert.Contains("/api/v1/auth/login", json);
         Assert.Contains("/api/v1/tenants", json);
+        Assert.Contains("/api/v1/superadmin/platform-center", json);
         Assert.Contains("/api/v1/observability/telemetry", json);
     }
 
@@ -112,6 +113,17 @@ public sealed class EnterpriseApiTests
         using var client = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
 
         var response = await client.GetAsync("/api/v1/observability/telemetry");
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task SuperAdmin_Platform_Center_Requires_Authentication()
+    {
+        await using var factory = CreateFactory();
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+
+        var response = await client.GetAsync("/api/v1/superadmin/platform-center");
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }

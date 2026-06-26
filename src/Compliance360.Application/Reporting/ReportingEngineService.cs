@@ -85,6 +85,7 @@ public sealed class ReportingEngineService : IReportingEngineService
         try
         {
             definition.Activate(command.RequestedByUserId, _clock.UtcNow);
+            await _repository.NormalizeNewReportChildStatesAsync(cancellationToken);
             await AuditAsync(command.TenantId, definition.Id, AuditAction.ReportUpdated, command.RequestedByUserId, "Report definition activated.", cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
             return Result.Success();
@@ -111,6 +112,7 @@ public sealed class ReportingEngineService : IReportingEngineService
         try
         {
             var execution = definition.StartExecution(command.ParametersJson, command.RequestedByUserId, _clock.UtcNow);
+            await _repository.NormalizeNewReportChildStatesAsync(cancellationToken);
             await AuditAsync(command.TenantId, definition.Id, AuditAction.ReportExecuted, command.RequestedByUserId, "Report execution started.", cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
             return Result<ReportExecutionSummary>.Success(ToSummary(execution));
@@ -140,6 +142,7 @@ public sealed class ReportingEngineService : IReportingEngineService
         try
         {
             var export = definition.Export(command.ExecutionId, command.Format, command.RequestedByUserId, _clock.UtcNow);
+            await _repository.NormalizeNewReportChildStatesAsync(cancellationToken);
             await AuditAsync(command.TenantId, definition.Id, AuditAction.ReportExported, command.RequestedByUserId, "Report export generated.", cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
             return Result<ReportExportSummary>.Success(ToSummary(export));
@@ -166,6 +169,7 @@ public sealed class ReportingEngineService : IReportingEngineService
         try
         {
             var schedule = definition.Schedule(command.Frequency, command.NextRunUtc, command.RequestedByUserId, _clock.UtcNow);
+            await _repository.NormalizeNewReportChildStatesAsync(cancellationToken);
             await AuditAsync(command.TenantId, definition.Id, AuditAction.ReportScheduled, command.RequestedByUserId, "Report schedule created.", cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
             return Result<ReportScheduleSummary>.Success(ToSummary(schedule));
@@ -245,6 +249,7 @@ public sealed class ReportingEngineService : IReportingEngineService
         try
         {
             var value = change(definition);
+            await _repository.NormalizeNewReportChildStatesAsync(cancellationToken);
             await AuditAsync(tenantId, definition.Id, action, userId, message, cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
             return Result<T>.Success(value);
