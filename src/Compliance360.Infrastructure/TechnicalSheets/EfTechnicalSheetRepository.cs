@@ -43,6 +43,7 @@ public sealed class EfTechnicalSheetRepository : ITechnicalSheetRepository
             .Include(sheet => sheet.Certifications)
             .Include(sheet => sheet.Versions)
             .Include(sheet => sheet.Approvals)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(sheet => sheet.TenantId == tenantId && sheet.Id == sheetId, cancellationToken);
     }
 

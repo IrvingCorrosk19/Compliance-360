@@ -10,6 +10,7 @@ public sealed class StorageFoundationService : IStorageFoundationService
     private readonly IStorageRepository _repository;
     private readonly IApplicationDbContext _dbContext;
     private readonly IFileStorageService _fileStorageService;
+    private readonly IStorageProviderFactory? _storageProviderFactory;
     private readonly IClock _clock;
 
     public StorageFoundationService(
@@ -24,6 +25,17 @@ public sealed class StorageFoundationService : IStorageFoundationService
         _clock = clock;
     }
 
+    public StorageFoundationService(
+        IStorageRepository repository,
+        IApplicationDbContext dbContext,
+        IFileStorageService fileStorageService,
+        IStorageProviderFactory storageProviderFactory,
+        IClock clock)
+        : this(repository, dbContext, fileStorageService, clock)
+    {
+        _storageProviderFactory = storageProviderFactory;
+    }
+
     public async Task<Result<StoredFileSummary>> UploadAsync(UploadFileCommand command, CancellationToken cancellationToken = default)
     {
         try
@@ -35,9 +47,10 @@ public sealed class StorageFoundationService : IStorageFoundationService
             Guard.AgainstNullOrWhiteSpace(command.FileName, nameof(command.FileName), 260);
             Guard.AgainstNullOrWhiteSpace(command.ContentType, nameof(command.ContentType), 120);
 
-            var descriptor = await _fileStorageService.SaveAsync(
-                new FileStorageRequest(command.TenantId, command.FileName, command.ContentType, command.Content, command.OwnerEntityName, command.OwnerEntityId),
-                cancellationToken);
+            var storageRequest = new FileStorageRequest(command.TenantId, command.FileName, command.ContentType, command.Content, command.OwnerEntityName, command.OwnerEntityId);
+            var descriptor = _storageProviderFactory is null
+                ? await _fileStorageService.SaveAsync(storageRequest, cancellationToken)
+                : await SaveWithConfiguredProviderAsync(storageRequest, command.RequestedByUserId, cancellationToken);
 
             var storedFile = new StoredFile(
                 command.TenantId,
@@ -113,6 +126,84 @@ public sealed class StorageFoundationService : IStorageFoundationService
         return await ChangeStatusAsync(command, file => file.Delete(), AuditAction.Deleted, cancellationToken);
     }
 
+    public async Task<Result<StorageProviderConfigurationSummary>> CreateProviderAsync(CreateStorageProviderConfigurationCommand command, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var configuration = new StorageProviderConfiguration(command.TenantId, command.Provider, command.Name, command.ContainerName, command.Priority, command.IsDefault, command.IsEnabled, command.SettingsJson);
+            await _repository.AddProviderConfigurationAsync(configuration, cancellationToken);
+            await AppendAuditAsync(command.TenantId, command.RequestedByUserId, configuration.Id, AuditAction.StorageProviderChanged, true, null, cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return Result<StorageProviderConfigurationSummary>.Success(ToProviderSummary(configuration));
+        }
+        catch (DomainException exception)
+        {
+            return Result<StorageProviderConfigurationSummary>.Failure(exception.Message);
+        }
+    }
+
+    public async Task<Result<StorageProviderConfigurationSummary>> UpdateProviderAsync(UpdateStorageProviderConfigurationCommand command, CancellationToken cancellationToken = default)
+    {
+        var configuration = await _repository.GetProviderConfigurationAsync(command.TenantId, command.ProviderConfigurationId, cancellationToken);
+        if (configuration is null)
+        {
+            return Result<StorageProviderConfigurationSummary>.Failure("Storage provider configuration not found.");
+        }
+
+        configuration.Update(command.Name, command.ContainerName, command.Priority, command.IsDefault, command.IsEnabled, command.SettingsJson);
+        await AppendAuditAsync(command.TenantId, command.RequestedByUserId, configuration.Id, AuditAction.StorageProviderChanged, true, null, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return Result<StorageProviderConfigurationSummary>.Success(ToProviderSummary(configuration));
+    }
+
+    public async Task<Result> DisableProviderAsync(ChangeStorageProviderCommand command, CancellationToken cancellationToken = default)
+    {
+        var configuration = await _repository.GetProviderConfigurationAsync(command.TenantId, command.ProviderConfigurationId, cancellationToken);
+        if (configuration is null)
+        {
+            return Result.Failure("Storage provider configuration not found.");
+        }
+
+        configuration.Disable();
+        await AppendAuditAsync(command.TenantId, command.RequestedByUserId, configuration.Id, AuditAction.StorageProviderChanged, true, null, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return Result.Success();
+    }
+
+    public async Task<Result<StorageProviderConfigurationSummary>> SetActiveProviderAsync(ChangeStorageProviderCommand command, CancellationToken cancellationToken = default)
+    {
+        var configuration = await _repository.GetProviderConfigurationAsync(command.TenantId, command.ProviderConfigurationId, cancellationToken);
+        if (configuration is null)
+        {
+            return Result<StorageProviderConfigurationSummary>.Failure("Storage provider configuration not found.");
+        }
+
+        configuration.MarkDefault();
+        await AppendAuditAsync(command.TenantId, command.RequestedByUserId, configuration.Id, AuditAction.StorageProviderChanged, true, null, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return Result<StorageProviderConfigurationSummary>.Success(ToProviderSummary(configuration));
+    }
+
+    public async Task<Result<StorageProviderHealthSummary>> TestProviderAsync(ChangeStorageProviderCommand command, CancellationToken cancellationToken = default)
+    {
+        var configuration = await _repository.GetProviderConfigurationAsync(command.TenantId, command.ProviderConfigurationId, cancellationToken);
+        if (configuration is null || _storageProviderFactory is null)
+        {
+            return Result<StorageProviderHealthSummary>.Failure("Storage provider configuration not found.");
+        }
+
+        var result = await _storageProviderFactory.GetProvider(configuration.Provider).CheckHealthAsync(configuration, cancellationToken);
+        configuration.RecordHealth(result.Healthy, result.Message, _clock.UtcNow);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return Result<StorageProviderHealthSummary>.Success(result);
+    }
+
+    public async Task<Result<IReadOnlyCollection<StorageProviderConfigurationSummary>>> ListProvidersAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        var providers = await _repository.ListProviderConfigurationsAsync(tenantId, cancellationToken);
+        return Result<IReadOnlyCollection<StorageProviderConfigurationSummary>>.Success(providers.Select(ToProviderSummary).ToArray());
+    }
+
     private async Task<Result> ChangeStatusAsync(
         ChangeStoredFileStatusCommand command,
         Action<StoredFile> changeStatus,
@@ -156,6 +247,28 @@ public sealed class StorageFoundationService : IStorageFoundationService
         await _repository.AddAuditLogAsync(auditLog, cancellationToken);
     }
 
+    private async Task<StoredFileDescriptor> SaveWithConfiguredProviderAsync(FileStorageRequest request, Guid userId, CancellationToken cancellationToken)
+    {
+        var configurations = (await _repository.ListProviderConfigurationsAsync(request.TenantId, cancellationToken))
+            .Where(configuration => configuration.IsEnabled)
+            .OrderByDescending(configuration => configuration.IsDefault)
+            .ThenBy(configuration => configuration.Priority)
+            .ToArray();
+        foreach (var configuration in configurations)
+        {
+            try
+            {
+                return await _storageProviderFactory!.GetProvider(configuration.Provider).SaveAsync(request, configuration, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                await AppendAuditAsync(request.TenantId, userId, configuration.Id, AuditAction.StorageProviderFailover, false, exception.Message, cancellationToken);
+            }
+        }
+
+        return await _fileStorageService.SaveAsync(request, cancellationToken);
+    }
+
     private static StoredFileSummary ToSummary(StoredFile storedFile)
     {
         return new StoredFileSummary(
@@ -172,5 +285,10 @@ public sealed class StorageFoundationService : IStorageFoundationService
             storedFile.OwnerEntityId,
             storedFile.VersionEntityId,
             storedFile.Status);
+    }
+
+    private static StorageProviderConfigurationSummary ToProviderSummary(StorageProviderConfiguration configuration)
+    {
+        return new StorageProviderConfigurationSummary(configuration.Id, configuration.TenantId, configuration.Provider, configuration.Name, configuration.ContainerName, configuration.Priority, configuration.IsDefault, configuration.IsEnabled, configuration.LastHealthStatus, configuration.LastHealthMessage);
     }
 }

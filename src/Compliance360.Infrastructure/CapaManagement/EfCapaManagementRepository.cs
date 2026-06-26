@@ -34,6 +34,7 @@ public sealed class EfCapaManagementRepository : ICapaManagementRepository
             .Include(capa => capa.Evidence)
             .Include(capa => capa.Attachments)
             .Include(capa => capa.History)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(capa => capa.TenantId == tenantId && capa.Id == capaId, cancellationToken);
     }
 
@@ -105,9 +106,10 @@ public sealed class EfCapaManagementRepository : ICapaManagementRepository
             .Select(capa => new { capa.CreatedAtUtc, ClosedAtUtc = capa.ClosedAtUtc!.Value })
             .ToListAsync(cancellationToken);
         var averageClosureDays = closed.Count == 0 ? 0 : Math.Round((decimal)closed.Average(capa => Math.Max(0, (capa.ClosedAtUtc - capa.CreatedAtUtc).TotalDays)), 2);
-        var effectivenessChecks = await _dbContext.CapaEffectivenessChecks.Where(check => check.TenantId == tenantId).ToListAsync(cancellationToken);
-        var effective = effectivenessChecks.Count == 0 ? 100 : (int)Math.Round(effectivenessChecks.Count(check => check.IsEffective) * 100m / effectivenessChecks.Count);
-        var recurrence = effectivenessChecks.Count(check => !check.IsEffective);
+        var effectivenessCheckCount = await _dbContext.CapaEffectivenessChecks.CountAsync(check => check.TenantId == tenantId, cancellationToken);
+        var effectiveCount = await _dbContext.CapaEffectivenessChecks.CountAsync(check => check.TenantId == tenantId && check.IsEffective, cancellationToken);
+        var effective = effectivenessCheckCount == 0 ? 100 : (int)Math.Round(effectiveCount * 100m / effectivenessCheckCount);
+        var recurrence = effectivenessCheckCount - effectiveCount;
 
         return new CapaDashboardDto(open, overdue, critical, owners, suppliers, audits, averageClosureDays, effective, recurrence);
     }

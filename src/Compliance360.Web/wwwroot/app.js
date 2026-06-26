@@ -1,6 +1,7 @@
 const API = "/api/v1";
 const DEFAULT_TENANT = "dc7c46ee-cb25-4ed5-b0b4-800788f7f626";
 const DEFAULT_EMAIL = "admin@compliance360.local";
+const DEFAULT_PASSWORD = "Admin2026Aa";
 
 const state = {
   token: localStorage.getItem("c360.token"),
@@ -10,7 +11,38 @@ const state = {
   theme: localStorage.getItem("c360.theme") || "light",
   route: location.hash.replace("#/", "") || "dashboard",
   mfaChallenge: null,
-  cache: {}
+  cache: {},
+  loading: {
+    active: 0,
+    messageTimer: null,
+    overlayTimer: null,
+    messageIndex: 0
+  },
+  loadingConfig: {
+    animations: localStorage.getItem("c360.loading.animations") !== "false",
+    skeleton: localStorage.getItem("c360.loading.skeleton") !== "false",
+    messages: localStorage.getItem("c360.loading.messages") !== "false",
+    reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  }
+};
+
+const loadingMessages = {
+  default: ["Cargando informacion...", "Sincronizando informacion...", "Procesando solicitud..."],
+  login: ["Validando credenciales...", "Cargando perfil...", "Preparando entorno..."],
+  dashboard: ["Preparando dashboard...", "Calculando indicadores...", "Analizando datos..."],
+  documents: ["Consultando documentos...", "Preparando listado documental...", "Sincronizando informacion..."],
+  "technical-sheets": ["Preparando ficha tecnica...", "Consultando productos...", "Cargando informacion tecnica..."],
+  suppliers: ["Cargando proveedores...", "Consultando evaluaciones...", "Sincronizando informacion..."],
+  audits: ["Cargando auditorias...", "Consultando hallazgos...", "Preparando evidencias..."],
+  capa: ["Cargando CAPA...", "Analizando acciones abiertas...", "Actualizando informacion..."],
+  risks: ["Analizando datos...", "Calculando matriz de riesgos...", "Preparando controles..."],
+  indicators: ["Calculando indicadores...", "Consultando tendencias...", "Preparando metricas..."],
+  reports: ["Preparando datos...", "Consultando base de datos...", "Generando documento...", "Aplicando formato...", "Finalizando..."],
+  "tenant-administration": ["Cargando Tenant Administration Center...", "Calculando salud del tenant...", "Preparando consola Enterprise..."],
+  configuration: ["Aplicando configuracion...", "Consultando proveedores...", "Verificando integraciones..."],
+  upload: ["Subiendo archivos...", "Calculando tiempo restante...", "Validando evidencia..."],
+  export: ["Generando PDF...", "Exportando Excel...", "Preparando descarga..."],
+  save: ["Guardando cambios...", "Actualizando informacion...", "Procesando solicitud..."]
 };
 
 const navigation = [
@@ -30,6 +62,7 @@ const navigation = [
     ["indicators", "Quality Indicators"]
   ]},
   { group: "Enterprise", items: [
+    ["tenant-administration", "Tenant Administration"],
     ["template-builder", "Template Builder"],
     ["regulatory", "Regulatory Management"],
     ["training", "Training Management"],
@@ -150,6 +183,7 @@ window.addEventListener("hashchange", () => {
 render();
 
 function render() {
+  ensureLoadingHost();
   const app = document.querySelector("#app");
   if (!state.token && state.mfaChallenge) {
     app.innerHTML = mfaChallengeView();
@@ -210,18 +244,18 @@ function loginView() {
         <form id="login-form" class="form-stack">
           <div class="field">
             <label for="tenantId">Tenant ID</label>
-            <input id="tenantId" name="tenantId" value="${escapeHtml(state.tenantId)}" required>
+            <input id="tenantId" name="tenantId" value="${escapeHtml(DEFAULT_TENANT)}" required>
           </div>
           <div class="field">
             <label for="email">Email</label>
-            <input id="email" name="email" type="email" value="${escapeHtml(state.email)}" required>
+            <input id="email" name="email" type="email" value="${escapeHtml(DEFAULT_EMAIL)}" required>
           </div>
           <div class="field">
             <label for="password">Password</label>
-            <input id="password" name="password" type="password" autocomplete="current-password" required>
+            <input id="password" name="password" type="password" autocomplete="current-password" value="${escapeHtml(DEFAULT_PASSWORD)}" required>
           </div>
           <button class="btn primary" type="submit">Iniciar sesion</button>
-          <p class="metric-label">Usuario bootstrap local: ${DEFAULT_EMAIL}</p>
+          <p class="metric-label">Usuario bootstrap local: ${DEFAULT_EMAIL} / tenant local prellenado.</p>
         </form>
       </section>
       <section class="login-hero">
@@ -309,8 +343,10 @@ function shellView() {
 function bindLogin() {
   document.querySelector("#login-form").addEventListener("submit", async event => {
     event.preventDefault();
+    const button = event.currentTarget.querySelector("button[type='submit']");
     const form = new FormData(event.currentTarget);
     try {
+      setLoadingButton(button, true, "Validando...");
       const result = await request("/auth/login", {
         method: "POST",
         body: {
@@ -318,7 +354,9 @@ function bindLogin() {
           email: form.get("email"),
           password: form.get("password")
         },
-        anonymous: true
+        anonymous: true,
+        loadingContext: "login",
+        overlay: true
       });
       if (result.mfaRequired) {
         state.mfaChallenge = {
@@ -344,6 +382,8 @@ function bindLogin() {
       render();
     } catch (error) {
       toast(error.message, "error");
+    } finally {
+      setLoadingButton(button, false);
     }
   });
 }
@@ -351,8 +391,10 @@ function bindLogin() {
 function bindMfaChallenge() {
   document.querySelector("#mfa-form").addEventListener("submit", async event => {
     event.preventDefault();
+    const button = event.currentTarget.querySelector("button[type='submit']");
     const form = new FormData(event.currentTarget);
     try {
+      setLoadingButton(button, true, "Verificando...");
       const result = await request("/auth/mfa/complete", {
         method: "POST",
         body: {
@@ -360,7 +402,9 @@ function bindMfaChallenge() {
           method: state.mfaChallenge.method,
           verificationCode: form.get("verificationCode")
         },
-        anonymous: true
+        anonymous: true,
+        loadingContext: "login",
+        overlay: true
       });
       state.mfaChallenge = null;
       state.token = result.accessToken;
@@ -375,6 +419,8 @@ function bindMfaChallenge() {
       render();
     } catch (error) {
       toast(error.message, "error");
+    } finally {
+      setLoadingButton(button, false);
     }
   });
   document.querySelector("#cancel-mfa").addEventListener("click", () => {
@@ -421,6 +467,7 @@ function bindShell() {
     const target = event.target.closest("[data-route], [data-action]");
     if (!target) return;
     if (target.dataset.route) {
+      showPageTransition(target.dataset.route);
       location.hash = `#/${target.dataset.route}`;
       return;
     }
@@ -432,8 +479,9 @@ function bindShell() {
 
 async function renderRoute() {
   const content = document.querySelector("#content");
-  content.innerHTML = loadingView();
+  content.innerHTML = loadingView(state.route);
   content.focus();
+  const stopLoading = startGlobalLoading(state.route, { overlay: false });
 
   try {
     if (state.route === "dashboard" || state.route === "compliance") {
@@ -446,6 +494,14 @@ async function renderRoute() {
     }
     if (state.route === "audit-trail") {
       await renderAuditTrail(content);
+      return;
+    }
+    if (state.route === "configuration") {
+      await renderIntegrationsAdministration(content);
+      return;
+    }
+    if (state.route === "tenant-administration") {
+      await renderTenantAdministrationCenter(content);
       return;
     }
     if (modules[state.route]) {
@@ -467,6 +523,8 @@ async function renderRoute() {
     }
     content.innerHTML = errorView(error.message);
     content.querySelector("#retry-route")?.addEventListener("click", renderRoute);
+  } finally {
+    stopLoading();
   }
 }
 
@@ -535,6 +593,113 @@ async function renderDashboard(content) {
   content.querySelectorAll("[data-route]").forEach(button => button.addEventListener("click", () => location.hash = `#/${button.dataset.route}`));
 }
 
+async function renderIntegrationsAdministration(content) {
+  const [health, notificationDashboard, storageProviders] = await Promise.allSettled([
+    request("/health/ready"),
+    request(`/tenants/${state.tenantId}/notifications/dashboard`),
+    request(`/tenants/${state.tenantId}/storage/providers`)
+  ]);
+  const healthText = health.status === "fulfilled" ? "Ready endpoint disponible" : "Ready endpoint degradado";
+  const notification = notificationDashboard.status === "fulfilled" ? notificationDashboard.value : {};
+  const storage = storageProviders.status === "fulfilled" ? storageProviders.value : [];
+  content.innerHTML = `
+    <section class="module-page">
+      <div class="module-hero">
+        <div>
+          <p class="eyebrow">Configuracion / Integraciones</p>
+          <h1>Provider Administration</h1>
+          <p>Email Providers, Storage Providers, Health Status, Connection Test, Usage Statistics, Failover Configuration y Provider Priority por tenant.</p>
+        </div>
+        <div class="hero-actions">
+          <button class="btn primary" id="create-storage-provider" type="button">Crear Storage Local</button>
+          <button class="btn" id="create-email-provider" type="button">Crear Email SMTP</button>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <article class="metric-card"><span>Health Status</span><strong>${healthText}</strong></article>
+        <article class="metric-card"><span>Notifications Sent</span><strong>${notification.sent ?? 0}</strong></article>
+        <article class="metric-card"><span>Delivery Rate</span><strong>${notification.deliveryRatePercent ?? 0}%</strong></article>
+        <article class="metric-card"><span>Dead Letters</span><strong>${notification.deadLetters ?? 0}</strong></article>
+      </div>
+      <div class="grid two">
+        <article class="panel">
+          <h2>Email Providers</h2>
+          <p>SMTP, Gmail SMTP, Microsoft 365, Exchange Online, SendGrid, Mailgun, Resend y Amazon SES configurables por tenant.</p>
+          <div class="table-wrap">${tableFromRows(Object.entries(notification.providerHealth ?? {}).map(([provider, ok]) => ({ provider, status: ok ? "Healthy" : "Needs config" })), ["provider", "status"])}</div>
+        </article>
+        <article class="panel">
+          <h2>Storage Providers</h2>
+          <p>Local, Azure Blob, AWS S3, MinIO, Google Cloud Storage y SFTP con prioridad/failover por tenant.</p>
+          <div class="table-wrap">${tableFromRows(storage, ["provider", "name", "containerName", "priority", "isDefault", "isEnabled", "lastHealthStatus"])}</div>
+        </article>
+      </div>
+      <article class="panel">
+        <h2>Connection Test & Failover</h2>
+        <p>Usa prioridad ascendente: proveedor principal, secundario y terciario. Si el principal falla, el backend prueba el siguiente y registra AuditLog/Observability.</p>
+        <button class="btn" id="test-first-storage-provider" type="button" ${storage.length ? "" : "disabled"}>Probar primer Storage Provider</button>
+      </article>
+    </section>
+  `;
+  content.querySelector("#create-storage-provider")?.addEventListener("click", event => createDefaultStorageProvider(event.currentTarget));
+  content.querySelector("#create-email-provider")?.addEventListener("click", event => createDefaultEmailProvider(event.currentTarget));
+  content.querySelector("#test-first-storage-provider")?.addEventListener("click", async () => {
+    if (!storage.length) return;
+    const button = content.querySelector("#test-first-storage-provider");
+    try {
+      setLoadingButton(button, true, "Probando...");
+      await request(`/tenants/${state.tenantId}/storage/providers/${storage[0].id}/test`, { method: "POST", body: {}, loadingContext: "configuration" });
+      toast("Storage provider test ejecutado", "success");
+      await renderRoute();
+    } finally {
+      setLoadingButton(button, false);
+    }
+  });
+}
+
+async function createDefaultStorageProvider(button) {
+  try {
+    setLoadingButton(button, true, "Guardando...");
+    await request(`/tenants/${state.tenantId}/storage/providers`, {
+      method: "POST",
+      loadingContext: "configuration",
+      body: {
+        provider: 0,
+        name: "Local Primary",
+        containerName: "tenant-documents",
+        priority: 1,
+        isDefault: true,
+        isEnabled: true,
+        settingsJson: JSON.stringify({ rootPath: "storage" })
+      }
+    });
+    toast("Storage provider creado", "success");
+    await renderRoute();
+  } finally {
+    setLoadingButton(button, false);
+  }
+}
+
+async function createDefaultEmailProvider(button) {
+  try {
+    setLoadingButton(button, true, "Guardando...");
+    await request(`/tenants/${state.tenantId}/notifications/providers`, {
+      method: "POST",
+      loadingContext: "configuration",
+      body: {
+        provider: 0,
+        name: "SMTP Primary",
+        priority: 1,
+        isDefault: true,
+        isEnabled: false
+      }
+    });
+    toast("Email provider creado", "success");
+    await renderRoute();
+  } finally {
+    setLoadingButton(button, false);
+  }
+}
+
 async function renderReports(content) {
   const [standard, search, datasets] = await Promise.all([
     request("/tenants/" + state.tenantId + "/reports/standard"),
@@ -569,48 +734,69 @@ async function renderReports(content) {
     </section>
     ${tableCard("Reportes configurados", rows, ["name", "code", "module", "status", "datasetKey"])}
     ${tableCard("Catalogo enterprise obligatorio", standard, ["name", "code", "module", "datasetKey"])}`;
-  document.querySelector("#seed-reports").addEventListener("click", async () => {
-    await request(`/tenants/${state.tenantId}/reports/standard/seed`, { method: "POST", body: {} });
-    toast("Reportes estandar creados o verificados.", "success");
-    await renderRoute();
+  document.querySelector("#seed-reports").addEventListener("click", async event => {
+    try {
+      setLoadingButton(event.currentTarget, true, "Generando...");
+      await request(`/tenants/${state.tenantId}/reports/standard/seed`, { method: "POST", body: {}, loadingContext: "reports" });
+      toast("Reportes estandar creados o verificados.", "success");
+      await renderRoute();
+    } finally {
+      setLoadingButton(event.currentTarget, false);
+    }
   });
-  document.querySelector("#execute-report")?.addEventListener("click", executeSelectedReport);
-  document.querySelector("#schedule-report")?.addEventListener("click", scheduleSelectedReport);
+  document.querySelector("#execute-report")?.addEventListener("click", event => executeSelectedReport(event.currentTarget));
+  document.querySelector("#schedule-report")?.addEventListener("click", event => scheduleSelectedReport(event.currentTarget));
   document.querySelector("#refresh-reports").addEventListener("click", renderRoute);
 }
 
-async function executeSelectedReport() {
+async function executeSelectedReport(button) {
   const reportId = document.querySelector("#report-select")?.value;
   if (!reportId) return;
-  const execution = await request(`/tenants/${state.tenantId}/reports/${reportId}/execute`, {
-    method: "POST",
-    body: { parametersJson: "{}" }
-  });
-  await request(`/tenants/${state.tenantId}/reports/${reportId}/complete`, {
-    method: "POST",
-    body: {
-      executionId: execution.id,
-      rowCount: 0,
-      datasetDescriptorJson: JSON.stringify({ source: "Compliance360 UI", completedAtUtc: new Date().toISOString() })
-    }
-  });
-  await request(`/tenants/${state.tenantId}/reports/${reportId}/export`, {
-    method: "POST",
-    body: { executionId: execution.id, format: 0 }
-  });
-  toast("Reporte ejecutado, completado y exportado.", "success");
-  await renderRoute();
+  try {
+    setLoadingButton(button, true, "Generando...");
+    showProgressBanner("reports");
+    const execution = await request(`/tenants/${state.tenantId}/reports/${reportId}/execute`, {
+      method: "POST",
+      loadingContext: "reports",
+      body: { parametersJson: "{}" }
+    });
+    await request(`/tenants/${state.tenantId}/reports/${reportId}/complete`, {
+      method: "POST",
+      loadingContext: "reports",
+      body: {
+        executionId: execution.id,
+        rowCount: 0,
+        datasetDescriptorJson: JSON.stringify({ source: "Compliance360 UI", completedAtUtc: new Date().toISOString() })
+      }
+    });
+    await request(`/tenants/${state.tenantId}/reports/${reportId}/export`, {
+      method: "POST",
+      loadingContext: "export",
+      body: { executionId: execution.id, format: 0 }
+    });
+    toast("Reporte ejecutado, completado y exportado.", "success");
+    await renderRoute();
+  } finally {
+    hideProgressBanner();
+    setLoadingButton(button, false);
+  }
 }
 
-async function scheduleSelectedReport() {
+async function scheduleSelectedReport(button) {
   const reportId = document.querySelector("#report-select")?.value;
   if (!reportId) return;
-  const nextRun = new Date(Date.now() + 86400000).toISOString();
-  await request(`/tenants/${state.tenantId}/reports/${reportId}/schedules`, {
-    method: "POST",
-    body: { frequency: 2, nextRunUtc: nextRun }
-  });
-  toast("Reporte programado correctamente.", "success");
+  try {
+    setLoadingButton(button, true, "Programando...");
+    const nextRun = new Date(Date.now() + 86400000).toISOString();
+    await request(`/tenants/${state.tenantId}/reports/${reportId}/schedules`, {
+      method: "POST",
+      loadingContext: "reports",
+      body: { frequency: 2, nextRunUtc: nextRun }
+    });
+    toast("Reporte programado correctamente.", "success");
+  } finally {
+    setLoadingButton(button, false);
+  }
 }
 
 async function renderAuditTrail(content) {
@@ -658,9 +844,366 @@ async function renderModule(content, key) {
   if (actionForm) {
     actionForm.addEventListener("submit", async event => {
       event.preventDefault();
-      await runModuleAction(key, new FormData(actionForm));
+      const button = actionForm.querySelector("button[type='submit']");
+      try {
+        setLoadingButton(button, true, "Guardando...");
+        await runModuleAction(key, new FormData(actionForm));
+      } finally {
+        setLoadingButton(button, false);
+      }
     });
   }
+}
+
+async function renderTenantAdministrationCenter(content) {
+  const dashboard = await request(`/tenants/${state.tenantId}/administration-dashboard`, { loadingContext: "tenant-administration" });
+  const tenant = dashboard.tenant;
+  const metrics = dashboard.metrics || {};
+  const alerts = dashboard.alerts || [];
+  const timeline = dashboard.timeline || [];
+  const storageGb = ((metrics.storageBytes || 0) / 1024 / 1024 / 1024).toFixed(2);
+  const usedUsers = `${metrics.users || 0}/${tenant.subscription.maxUsers}`;
+  const storageUse = `${storageGb}/${tenant.subscription.maxStorageGb} GB`;
+  const statusName = tenantStatusName(tenant.status);
+  const planName = subscriptionPlanName(tenant.subscription.plan);
+  const subscriptionStatusName = subscriptionStateName(tenant.subscription.status);
+
+  content.innerHTML = `
+    ${pageHeader("Tenant Administration Center", "Centro enterprise para administrar identidad comercial, seguridad, licenciamiento, integraciones, auditoria y estado operativo del tenant.", "Enterprise / Administration")}
+    <section class="tenant-hero">
+      <div>
+        <span class="product-badge">Tenant Core</span>
+        <h2>${safe(tenant.commercialName || tenant.name)}</h2>
+        <p>${safe(tenant.legalName)} · ${safe(tenant.taxIdentifier)} · ${safe(tenant.countryCode)} · ${safe(tenant.currency)}</p>
+      </div>
+      <div class="tenant-health">
+        <span class="status-pill ${statusName === "Active" ? "ok" : statusName === "Archived" ? "danger" : "warn"}">${safe(statusName)}</span>
+        <strong>${metrics.health ? "Healthy" : "Needs attention"}</strong>
+        <small>Security score ${tenant.settings.securityScore}/100</small>
+      </div>
+    </section>
+    <section class="grid cards tenant-dashboard-grid">
+      ${metric("Tenant", shortId(tenant.id), "Identificador inmutable")}
+      ${metric("Estado", statusName, "Lifecycle SaaS")}
+      ${metric("Plan", planName, "Suscripcion")}
+      ${metric("Licencia", subscriptionStatusName, "Estado comercial")}
+      ${metric("Usuarios", usedUsers, "Activos: " + (metrics.activeUsers || 0))}
+      ${metric("Storage", storageUse, "Uso real del tenant")}
+      ${metric("Documentos", metrics.documents || 0, "Control documental")}
+      ${metric("Proveedores", metrics.suppliers || 0, "Supplier Management")}
+      ${metric("Auditorias", metrics.audits || 0, "Audit Management")}
+      ${metric("CAPA", metrics.capas || 0, "Acciones abiertas/cerradas")}
+      ${metric("Riesgos", metrics.risks || 0, "Risk Management")}
+      ${metric("Indicadores", metrics.indicators || 0, "Quality KPIs")}
+      ${metric("Notificaciones", metrics.notifications || 0, "Mensajes tenant")}
+      ${metric("Health", metrics.health ? "OK" : "Review", "Estado operativo")}
+      ${metric("Ultimo Backup", formatDate(metrics.lastBackupAtUtc), "Pendiente proveedor backup")}
+      ${metric("Ultimo Login", formatDate(metrics.lastLoginAtUtc), "Actividad reciente")}
+    </section>
+    ${tenantAlerts(alerts)}
+    <section class="tenant-admin-shell">
+      <aside class="tenant-tabs" aria-label="Tenant Administration tabs">
+        ${tenantAdminTabs().map((tab, index) => `<button class="tenant-tab ${index === 0 ? "active" : ""}" type="button" data-tab="${tab.key}"><span>${index + 1}</span>${tab.label}</button>`).join("")}
+      </aside>
+      <div class="tenant-tab-panels">
+        ${tenantGeneralPanel(tenant)}
+        ${tenantBrandingPanel(tenant)}
+        ${tenantSecurityPanel(tenant)}
+        ${tenantUsersPanel(tenant, metrics)}
+        ${tenantLicensingPanel(tenant, metrics)}
+        ${tenantStoragePanel(metrics)}
+        ${tenantNotificationsPanel(metrics)}
+        ${tenantIntegrationsPanel()}
+        ${tenantAuditPanel(timeline)}
+        ${tenantStatePanel(tenant)}
+      </div>
+    </section>`;
+
+  bindTenantAdministrationCenter(tenant);
+}
+
+function tenantAdminTabs() {
+  return [
+    { key: "general", label: "Informacion General" },
+    { key: "branding", label: "Branding" },
+    { key: "security", label: "Seguridad" },
+    { key: "users", label: "Usuarios" },
+    { key: "licensing", label: "Licenciamiento" },
+    { key: "storage", label: "Storage" },
+    { key: "notifications", label: "Notificaciones" },
+    { key: "integrations", label: "Integraciones" },
+    { key: "audit", label: "Auditoria" },
+    { key: "state", label: "Estado" }
+  ];
+}
+
+function tenantGeneralPanel(tenant) {
+  return `
+    <section class="tenant-panel active" data-panel="general">
+      <div class="section-heading"><div><h2 class="section-title">Informacion General</h2><p class="metric-label">Campos empresariales editables con TenantId y CreatedAt inmutables.</p></div><span class="status-pill ok">Auditable</span></div>
+      <form id="tenant-general-form" class="form-stack">
+        <div class="grid two">
+          ${inputField("name", "Tenant Name", tenant.name)}
+          ${inputField("legalName", "Razon Social", tenant.legalName)}
+          ${inputField("commercialName", "Nombre Comercial", tenant.commercialName)}
+          ${inputField("taxIdentifier", "RUC / Tax ID", tenant.taxIdentifier)}
+          ${inputField("industry", "Industria", tenant.industry || "Compliance")}
+          ${inputField("countryCode", "Pais", tenant.countryCode)}
+          ${inputField("currency", "Moneda", tenant.currency)}
+          ${inputField("phone", "Telefono", tenant.phone || "")}
+          ${inputField("email", "Correo", tenant.email || "", "email")}
+          ${inputField("website", "Sitio Web", tenant.website || "", "url")}
+          ${inputField("city", "Ciudad", tenant.city || "")}
+          ${inputField("province", "Provincia", tenant.province || "")}
+          ${inputField("postalCode", "Codigo Postal", tenant.postalCode || "")}
+          ${inputField("addressLine1", "Direccion", tenant.addressLine1 || "")}
+        </div>
+        <div class="field"><label for="description">Descripcion</label><textarea id="description" name="description" rows="3">${safe(tenant.description || "")}</textarea></div>
+        <div class="field"><label for="generalChangeReason">Motivo del cambio</label><input id="generalChangeReason" name="changeReason" placeholder="Opcional, queda en auditoria"></div>
+        <div class="button-row"><button class="btn primary" type="submit">Guardar informacion general</button><span class="tag">TenantId inmutable: ${shortId(tenant.id)}</span></div>
+      </form>
+    </section>`;
+}
+
+function tenantBrandingPanel(tenant) {
+  return `
+    <section class="tenant-panel" data-panel="branding">
+      <div class="section-heading"><div><h2 class="section-title">Branding</h2><p class="metric-label">Identidad visual del tenant, sin estilos inline y con soporte dark mode.</p></div><span class="status-pill ok">Premium UI</span></div>
+      <form id="tenant-branding-form" class="form-stack">
+        <div class="tenant-brand-preview">
+          <div class="brand-token">${safe((tenant.branding.displayName || tenant.name).slice(0, 2).toUpperCase())}</div>
+          <div><strong>${safe(tenant.branding.displayName)}</strong><p>${safe(tenant.branding.footerText || "Compliance 360")}</p></div>
+        </div>
+        <div class="grid two">
+          ${inputField("displayName", "Nombre mostrado", tenant.branding.displayName)}
+          ${inputField("logoUri", "Logo", tenant.branding.logoUri || "", "url")}
+          ${inputField("faviconUri", "Favicon", tenant.branding.faviconUri || "", "url")}
+          ${inputField("primaryColor", "Color primario", tenant.branding.primaryColor)}
+          ${inputField("secondaryColor", "Color secundario", tenant.branding.secondaryColor)}
+          ${inputField("theme", "Tema", tenant.branding.theme || "System")}
+          ${inputField("loginBackgroundUri", "Pantalla Login", tenant.branding.loginBackgroundUri || "", "url")}
+          ${inputField("corporateEmail", "Correo corporativo", tenant.branding.corporateEmail || "", "email")}
+          ${inputField("footerText", "Pie de pagina", tenant.branding.footerText || "Compliance 360")}
+        </div>
+        <div class="field"><label for="brandingChangeReason">Motivo del cambio</label><input id="brandingChangeReason" name="changeReason" placeholder="Opcional"></div>
+        <button class="btn primary" type="submit">Guardar branding</button>
+      </form>
+    </section>`;
+}
+
+function tenantSecurityPanel(tenant) {
+  return `
+    <section class="tenant-panel" data-panel="security">
+      <div class="section-heading"><div><h2 class="section-title">Seguridad</h2><p class="metric-label">MFA, password policy, sesiones, lockout, IP whitelist y trusted devices.</p></div><span class="status-pill ${tenant.settings.securityScore >= 80 ? "ok" : "warn"}">${tenant.settings.securityScore}/100</span></div>
+      <form id="tenant-security-form" class="form-stack">
+        <div class="grid two">
+          <label class="toggle-row"><input type="checkbox" name="requireMfa" ${tenant.settings.requireMfa ? "checked" : ""}> MFA obligatorio</label>
+          <label class="toggle-row"><input type="checkbox" name="trustedDevicesEnabled" ${tenant.settings.trustedDevicesEnabled ? "checked" : ""}> Trusted Devices</label>
+          ${inputField("sessionTimeoutMinutes", "Session Timeout (min)", tenant.settings.sessionTimeoutMinutes, "number")}
+          ${inputField("passwordExpirationDays", "Password Expiration (dias)", tenant.settings.passwordExpirationDays, "number")}
+          ${inputField("lockoutMaxFailedAttempts", "Lockout intentos", tenant.settings.lockoutMaxFailedAttempts, "number")}
+          ${inputField("lockoutMinutes", "Lockout minutos", tenant.settings.lockoutMinutes, "number")}
+          ${inputField("securityScore", "Security Score", tenant.settings.securityScore, "number")}
+        </div>
+        <div class="field"><label for="ipWhitelist">IP Whitelist</label><textarea id="ipWhitelist" name="ipWhitelist" rows="3">${safe(tenant.settings.ipWhitelist || "")}</textarea></div>
+        <div class="field"><label for="securityChangeReason">Motivo del cambio</label><input id="securityChangeReason" name="changeReason" placeholder="Opcional"></div>
+        <button class="btn primary" type="submit">Guardar seguridad</button>
+      </form>
+    </section>`;
+}
+
+function tenantUsersPanel(tenant, metrics) {
+  const rows = [
+    { item: "Usuarios", value: metrics.users || 0, status: "Live" },
+    { item: "Roles", value: metrics.roles || 0, status: "Live" },
+    { item: "Permisos", value: "TENANT.* granular", status: "Active" },
+    { item: "Invitaciones", value: "Roadmap", status: "Planned" },
+    { item: "MFA", value: tenant.settings.requireMfa ? "Required" : "Optional", status: tenant.settings.requireMfa ? "Active" : "Review" }
+  ];
+  return `<section class="tenant-panel" data-panel="users">${tableCard("Usuarios, roles y permisos", rows, ["item", "value", "status"])}</section>`;
+}
+
+function tenantLicensingPanel(tenant, metrics) {
+  const subscriptionStatusName = subscriptionStateName(tenant.subscription.status);
+  return `
+    <section class="tenant-panel" data-panel="licensing">
+      <div class="section-heading"><div><h2 class="section-title">Licenciamiento</h2><p class="metric-label">Campos sensibles protegidos por TENANT.BILLING.</p></div><span class="status-pill ok">${safe(subscriptionStatusName)}</span></div>
+      <form id="tenant-licensing-form" class="form-stack">
+        <div class="grid two">
+          <div class="field"><label for="plan">Plan</label><select id="plan" name="plan">${enumOptions(["Starter", "Professional", "Enterprise", "Dedicated"], tenant.subscription.plan)}</select></div>
+          <div class="field"><label for="subscriptionStatus">Estado licencia</label><select id="subscriptionStatus" name="status">${enumOptions(["Trial", "Active", "PastDue", "Suspended", "Cancelled"], tenant.subscription.status)}</select></div>
+          ${inputField("maxUsers", "Usuarios contratados", tenant.subscription.maxUsers, "number")}
+          ${inputField("usersUsed", "Usuarios usados", metrics.users || 0, "number", true)}
+          ${inputField("maxStorageGb", "Storage contratado (GB)", tenant.subscription.maxStorageGb, "number")}
+          ${inputField("storageUsed", "Storage usado (bytes)", metrics.storageBytes || 0, "number", true)}
+          ${inputField("expiresOn", "Fecha expiracion", tenant.subscription.expiresOn || "", "date")}
+        </div>
+        <div class="field"><label for="billingChangeReason">Motivo del cambio</label><input id="billingChangeReason" name="changeReason" placeholder="Opcional"></div>
+        <button class="btn primary" type="submit">Guardar licenciamiento</button>
+      </form>
+    </section>`;
+}
+
+function tenantStoragePanel(metrics) {
+  const rows = ["Azure Blob", "AWS S3", "MinIO", "Local"].map(provider => ({ provider, status: "Supported", configured: metrics.storageProviders || 0 }));
+  return `<section class="tenant-panel" data-panel="storage">${tableCard("Storage providers", rows, ["provider", "status", "configured"])}<div class="button-row"><button class="btn" data-route="configuration">Abrir Provider Administration</button></div></section>`;
+}
+
+function tenantNotificationsPanel(metrics) {
+  const rows = ["Gmail", "Microsoft 365", "SendGrid", "Mailgun", "Resend"].map(provider => ({ provider, status: "Supported", configured: metrics.notificationProviders || 0 }));
+  return `<section class="tenant-panel" data-panel="notifications">${tableCard("Notification providers", rows, ["provider", "status", "configured"])}<div class="button-row"><button class="btn" data-route="configuration">Configurar SMTP / Failover</button></div></section>`;
+}
+
+function tenantIntegrationsPanel() {
+  const rows = ["API Keys", "OAuth", "Webhooks", "ERP", "CRM", "SSO", "LDAP", "Active Directory"].map(item => ({ integration: item, status: item === "OAuth" ? "Planned" : "Roadmap", permission: "TENANT.INTEGRATIONS" }));
+  return `<section class="tenant-panel" data-panel="integrations">${tableCard("Integraciones enterprise", rows, ["integration", "status", "permission"])}</section>`;
+}
+
+function tenantAuditPanel(timeline) {
+  return `
+    <section class="tenant-panel" data-panel="audit">
+      <div class="section-heading"><div><h2 class="section-title">Auditoria</h2><p class="metric-label">Timeline con usuario, accion, IP, CorrelationId y snapshots cuando el interceptor EF los captura.</p></div><button id="export-tenant-audit" class="btn" type="button">Exportar</button></div>
+      <div class="tenant-timeline">
+        ${(timeline.length ? timeline : [{ action: "TenantChanged", occurredAtUtc: new Date().toISOString(), entityName: "Tenant", correlationId: "n/a", metadataJson: "No timeline data yet" }]).map(item => `
+          <article class="timeline-item">
+            <span></span>
+            <div><strong>${safe(item.action)} · ${safe(item.entityName)}</strong><p>${formatDate(item.occurredAtUtc)} · User ${shortId(item.userId)} · IP ${safe(item.ipAddress || "n/a")} · Corr ${safe(item.correlationId || "n/a")}</p><small>${safe(item.metadataJson || item.afterValuesJson || "Cambio auditado")}</small></div>
+          </article>`).join("")}
+      </div>
+    </section>`;
+}
+
+function tenantStatePanel(tenant) {
+  const statusName = tenantStatusName(tenant.status);
+  return `
+    <section class="tenant-panel" data-panel="state">
+      <div class="section-heading"><div><h2 class="section-title">Estado</h2><p class="metric-label">Lifecycle Draft, Trial, Active, Suspended, Archived y Restore con permisos especiales.</p></div><span class="status-pill warn">TENANT.STATUS</span></div>
+      <div class="tenant-state-flow"><span>Draft</span><span>Trial</span><span>Active</span><span>Suspended</span><span>Archived</span><span>Restore</span></div>
+      <div class="button-row">
+        <button class="btn" type="button" data-tenant-state="trial">Mover a Trial</button>
+        <button class="btn primary" type="button" data-tenant-state="activate">Activar</button>
+        <button class="btn" type="button" data-tenant-state="suspend">Suspender</button>
+        <button class="btn danger" type="button" data-tenant-state="archive">Archivar</button>
+        <button class="btn" type="button" data-tenant-state="restore">Restaurar</button>
+      </div>
+      <div class="empty-state"><strong>Campos inmutables protegidos</strong><p>TenantId, CreatedAt, CreatedBy, Audit Trail e historial no se exponen como editables. Estado actual: ${safe(statusName)}.</p></div>
+    </section>`;
+}
+
+function bindTenantAdministrationCenter(tenant) {
+  document.querySelectorAll(".tenant-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".tenant-tab").forEach(item => item.classList.toggle("active", item === tab));
+      document.querySelectorAll(".tenant-panel").forEach(panel => panel.classList.toggle("active", panel.dataset.panel === tab.dataset.tab));
+    });
+  });
+
+  bindTenantForm("#tenant-general-form", event => request(`/tenants/${state.tenantId}/general-information`, { method: "PUT", loadingContext: "save", body: formObject(new FormData(event.currentTarget)) }));
+  bindTenantForm("#tenant-branding-form", event => request(`/tenants/${state.tenantId}/branding`, { method: "PUT", loadingContext: "save", body: formObject(new FormData(event.currentTarget)) }));
+  bindTenantForm("#tenant-security-form", event => {
+    const form = new FormData(event.currentTarget);
+    const body = formObject(form);
+    body.requireMfa = form.has("requireMfa");
+    body.trustedDevicesEnabled = form.has("trustedDevicesEnabled");
+    ["sessionTimeoutMinutes", "passwordExpirationDays", "lockoutMaxFailedAttempts", "lockoutMinutes", "securityScore"].forEach(key => body[key] = Number(body[key]));
+    return request(`/tenants/${state.tenantId}/security`, { method: "PUT", loadingContext: "save", body });
+  });
+  bindTenantForm("#tenant-licensing-form", event => {
+    const form = new FormData(event.currentTarget);
+    return request(`/tenants/${state.tenantId}/subscription`, {
+      method: "PUT",
+      loadingContext: "save",
+      body: {
+        plan: Number(form.get("plan")),
+        maxUsers: Number(form.get("maxUsers")),
+        maxStorageGb: Number(form.get("maxStorageGb")),
+        status: Number(form.get("status")),
+        expiresOn: form.get("expiresOn") || null,
+        changeReason: form.get("changeReason") || null
+      }
+    });
+  });
+
+  document.querySelectorAll("[data-tenant-state]").forEach(button => {
+    button.addEventListener("click", async event => {
+      try {
+        setLoadingButton(event.currentTarget, true, "Actualizando...");
+        await request(`/tenants/${state.tenantId}/${event.currentTarget.dataset.tenantState}`, { method: "POST", body: {}, loadingContext: "save" });
+        toast("Estado del tenant actualizado.", "success");
+        await renderRoute();
+      } finally {
+        setLoadingButton(event.currentTarget, false);
+      }
+    });
+  });
+
+  document.querySelector("#export-tenant-audit")?.addEventListener("click", () => {
+    navigator.clipboard?.writeText(JSON.stringify(tenant, null, 2));
+    toast("Snapshot del tenant copiado para auditoria.", "success");
+  });
+}
+
+function bindTenantForm(selector, submit) {
+  document.querySelector(selector)?.addEventListener("submit", async event => {
+    event.preventDefault();
+    const button = event.currentTarget.querySelector("button[type='submit']");
+    try {
+      setLoadingButton(button, true, "Guardando...");
+      await submit(event);
+      toast("Cambios guardados y auditados.", "success");
+      await renderRoute();
+    } finally {
+      setLoadingButton(button, false);
+    }
+  });
+}
+
+function inputField(name, label, value, type = "text", disabled = false) {
+  return `<div class="field"><label for="${name}">${safe(label)}</label><input id="${name}" name="${name}" type="${type}" value="${safe(value ?? "")}" ${disabled ? "disabled" : ""}></div>`;
+}
+
+function enumOptions(labels, selected) {
+  return labels.map((label, index) => `<option value="${index}" ${String(selected) === label || Number(selected) === index ? "selected" : ""}>${safe(label)}</option>`).join("");
+}
+
+function formObject(form) {
+  return Object.fromEntries([...form.entries()].map(([key, value]) => [key, value === "" ? null : value]));
+}
+
+function tenantAlerts(alerts) {
+  if (!alerts.length) {
+    return `<section class="tenant-alerts"><article class="tenant-alert ok"><strong>Sin alertas criticas</strong><p>El Tenant Administration Center no detecta bloqueos inmediatos.</p></article></section>`;
+  }
+
+  return `<section class="tenant-alerts">${alerts.map(alert => `<article class="tenant-alert ${safe(alert.severity)}"><strong>${safe(alert.title)}</strong><p>${safe(alert.message)}</p></article>`).join("")}</section>`;
+}
+
+function formatDate(value) {
+  return value ? new Date(value).toLocaleString() : "n/a";
+}
+
+function tenantStatusName(value) {
+  return enumName(["Draft", "Trial", "Active", "Suspended", "Archived"], value);
+}
+
+function subscriptionPlanName(value) {
+  return enumName(["Starter", "Professional", "Enterprise", "Dedicated"], value);
+}
+
+function subscriptionStateName(value) {
+  return enumName(["Trial", "Active", "PastDue", "Suspended", "Cancelled"], value);
+}
+
+function enumName(labels, value) {
+  if (typeof value === "number") {
+    return labels[value] || String(value);
+  }
+
+  return String(value ?? "n/a");
+}
+
+function safe(value) {
+  return escapeHtml(String(value ?? ""));
 }
 
 async function renderEnterpriseWorkspace(content, key) {
@@ -709,13 +1252,24 @@ async function renderEnterpriseWorkspace(content, key) {
   document.querySelector("#enterprise-action-form").addEventListener("submit", async event => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    await createEnterpriseWorkspaceItem(key, form);
+    const button = event.currentTarget.querySelector("button[type='submit']");
+    try {
+      setLoadingButton(button, true, "Guardando...");
+      await createEnterpriseWorkspaceItem(key, form);
+    } finally {
+      setLoadingButton(button, false);
+    }
   });
-  document.querySelector("#complete-first-item").addEventListener("click", async () => {
+  document.querySelector("#complete-first-item").addEventListener("click", async event => {
     if (!rows.length) return;
-    await request(`/tenants/${state.tenantId}/enterprise-workspaces/${rows[0].id}/complete`, { method: "POST", body: {} });
-    toast(`${workspace.title}: item completado.`, "success");
-    await renderRoute();
+    try {
+      setLoadingButton(event.currentTarget, true, "Completando...");
+      await request(`/tenants/${state.tenantId}/enterprise-workspaces/${rows[0].id}/complete`, { method: "POST", body: {}, loadingContext: "save" });
+      toast(`${workspace.title}: item completado.`, "success");
+      await renderRoute();
+    } finally {
+      setLoadingButton(event.currentTarget, false);
+    }
   });
 }
 
@@ -724,6 +1278,7 @@ async function createEnterpriseWorkspaceItem(key, form) {
   const dueValue = String(form.get("dueAtUtc") || "");
   await request(`/tenants/${state.tenantId}/enterprise-workspaces`, {
     method: "POST",
+    loadingContext: "save",
     body: {
       type: workspace.type,
       title: String(form.get("title") || ""),
@@ -830,12 +1385,14 @@ const moduleActions = {
   async createSupplier({ name, code, form }) {
     return request(`/tenants/${state.tenantId}/suppliers`, {
       method: "POST",
+      loadingContext: "suppliers",
       body: { legalName: name, taxIdentifier: code, countryCode: String(form.get("country") || "PA").toUpperCase() }
     });
   },
   async createCapa({ name, code, description }) {
     return request(`/tenants/${state.tenantId}/capas`, {
       method: "POST",
+      loadingContext: "capa",
       body: {
         title: name,
         code,
@@ -853,14 +1410,17 @@ const moduleActions = {
   async createRiskFoundation({ name, code, description, form }) {
     const category = await request(`/tenants/${state.tenantId}/risks/categories`, {
       method: "POST",
+      loadingContext: "risks",
       body: { name: `${name} Category`, code: `${code}-CAT` }
     });
     await request(`/tenants/${state.tenantId}/risks/matrices`, {
       method: "POST",
+      loadingContext: "risks",
       body: { name: `${name} Matrix`, toleranceScore: 10 }
     });
     return request(`/tenants/${state.tenantId}/risks`, {
       method: "POST",
+      loadingContext: "risks",
       body: {
         categoryId: category.id,
         title: name,
@@ -879,10 +1439,12 @@ const moduleActions = {
   async createIndicatorFoundation({ name, code, description, form }) {
     const category = await request(`/tenants/${state.tenantId}/indicators/categories`, {
       method: "POST",
+      loadingContext: "indicators",
       body: { name: `${name} Category`, code: `${code}-CAT` }
     });
     const indicator = await request(`/tenants/${state.tenantId}/indicators`, {
       method: "POST",
+      loadingContext: "indicators",
       body: {
         categoryId: category.id,
         name,
@@ -901,10 +1463,12 @@ const moduleActions = {
     });
     await request(`/tenants/${state.tenantId}/indicators/${indicator.id}/target`, {
       method: "POST",
+      loadingContext: "indicators",
       body: { targetValue: 95, effectiveFromUtc: new Date().toISOString() }
     });
     await request(`/tenants/${state.tenantId}/indicators/${indicator.id}/threshold`, {
       method: "POST",
+      loadingContext: "indicators",
       body: { warningMinimum: 90, criticalMinimum: 80, excellentMinimum: 98 }
     });
     return indicator;
@@ -912,24 +1476,29 @@ const moduleActions = {
   async createDocumentFoundation({ name, code, description }) {
     const type = await request(`/tenants/${state.tenantId}/documents/types`, {
       method: "POST",
+      loadingContext: "documents",
       body: { name: `${name} Type`, code: `${code}-TYPE`, retentionDays: 2555 }
     });
     const category = await request(`/tenants/${state.tenantId}/documents/categories`, {
       method: "POST",
+      loadingContext: "documents",
       body: { name: `${name} Category`, code: `${code}-CAT` }
     });
     return request(`/tenants/${state.tenantId}/documents`, {
       method: "POST",
+      loadingContext: "documents",
       body: { documentTypeId: type.id, categoryId: category.id, title: name, code }
     });
   },
   async createTechnicalSheetFoundation({ name, code, description }) {
     const product = await request(`/tenants/${state.tenantId}/technical-sheets/products`, {
       method: "POST",
+      loadingContext: "technical-sheets",
       body: { name, sku: code, description }
     });
     return request(`/tenants/${state.tenantId}/technical-sheets`, {
       method: "POST",
+      loadingContext: "technical-sheets",
       body: { productId: product.id, title: `${name} Technical Sheet` }
     });
   },
@@ -939,10 +1508,12 @@ const moduleActions = {
     const end = new Date(now.getTime() + 172800000);
     const program = await request(`/tenants/${state.tenantId}/audit-management/programs`, {
       method: "POST",
+      loadingContext: "audits",
       body: { name: `${name} Program`, code: `${code}-PROG`, year: now.getUTCFullYear() }
     });
     const plan = await request(`/tenants/${state.tenantId}/audit-management/plans`, {
       method: "POST",
+      loadingContext: "audits",
       body: {
         auditProgramId: program.id,
         scope: String(form.get("scope") || "Sistema de gestion"),
@@ -953,6 +1524,7 @@ const moduleActions = {
     });
     return request(`/tenants/${state.tenantId}/audit-management`, {
       method: "POST",
+      loadingContext: "audits",
       body: { auditProgramId: program.id, auditPlanId: plan.id, title: name, code, type: 0 }
     });
   }
@@ -1135,22 +1707,258 @@ function moduleEndpoint(key, tenant, search = "") {
 }
 
 async function request(path, options = {}) {
-  const response = await fetch(`${API}${path}`, {
-    method: options.method || "GET",
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.anonymous ? {} : { Authorization: `Bearer ${state.token}` })
-    },
-    body: options.body ? JSON.stringify(options.body) : undefined
-  });
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`${response.status} ${response.statusText}: ${text || "Request failed"}`);
+  const method = options.method || "GET";
+  const stopLoading = options.silent
+    ? () => {}
+    : startGlobalLoading(options.loadingContext || loadingContextFromPath(path, method), {
+      overlay: options.overlay ?? method !== "GET"
+    });
+
+  try {
+    const response = await fetch(`${API}${path}`, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.anonymous ? {} : { Authorization: `Bearer ${state.token}` })
+      },
+      body: options.body ? JSON.stringify(options.body) : undefined
+    });
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`${response.status} ${response.statusText}: ${text || "Request failed"}`);
+    }
+    if (response.status === 204) {
+      return {};
+    }
+    return response.json();
+  } finally {
+    stopLoading();
   }
-  if (response.status === 204) {
-    return {};
+}
+
+function ensureLoadingHost() {
+  if (document.querySelector("#global-loading-host")) return;
+  const host = document.createElement("div");
+  host.id = "global-loading-host";
+  host.innerHTML = `
+    <div id="top-progress" class="top-progress" aria-hidden="true"><span></span></div>
+    <div id="progress-banner" class="progress-banner" role="status" aria-live="polite" hidden></div>
+    <div id="global-loading-overlay" class="global-loading-overlay" role="status" aria-live="polite" aria-atomic="true" aria-hidden="true">
+      <div class="global-loading-card">
+        <div class="loading-logo" aria-hidden="true">
+          <span>C360</span>
+          <i></i>
+        </div>
+        <div class="loading-copy">
+          <strong id="global-loading-message">Procesando solicitud...</strong>
+          <p>Compliance 360 esta trabajando de forma segura.</p>
+          <div class="indeterminate-bar" aria-hidden="true"><span></span></div>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(host);
+}
+
+function startGlobalLoading(context = "default", options = {}) {
+  ensureLoadingHost();
+  state.loading.active += 1;
+  const topProgress = document.querySelector("#top-progress");
+  const overlay = document.querySelector("#global-loading-overlay");
+  const message = document.querySelector("#global-loading-message");
+  const messages = resolveLoadingMessages(context);
+  const shouldAnimate = state.loadingConfig.animations && !state.loadingConfig.reducedMotion;
+
+  document.body.setAttribute("aria-busy", "true");
+  topProgress?.classList.add("active");
+  if (!shouldAnimate) {
+    document.documentElement.dataset.reducedLoading = "true";
   }
-  return response.json();
+  updateLoadingMessage(message, messages);
+
+  clearInterval(state.loading.messageTimer);
+  if (state.loadingConfig.messages && messages.length > 1) {
+    state.loading.messageTimer = setInterval(() => updateLoadingMessage(message, messages), 1200);
+  }
+
+  clearTimeout(state.loading.overlayTimer);
+  if (options.overlay) {
+    state.loading.overlayTimer = setTimeout(() => {
+      if (state.loading.active > 0) {
+        overlay?.classList.add("active");
+        overlay?.setAttribute("aria-hidden", "false");
+      }
+    }, 140);
+  }
+
+  return () => {
+    state.loading.active = Math.max(0, state.loading.active - 1);
+    if (state.loading.active > 0) return;
+    clearTimeout(state.loading.overlayTimer);
+    clearInterval(state.loading.messageTimer);
+    topProgress?.classList.remove("active");
+    overlay?.classList.remove("active");
+    overlay?.setAttribute("aria-hidden", "true");
+    document.body.removeAttribute("aria-busy");
+  };
+}
+
+function updateLoadingMessage(node, messages) {
+  if (!node) return;
+  const nextMessage = messages[state.loading.messageIndex % messages.length];
+  state.loading.messageIndex += 1;
+  node.textContent = nextMessage;
+}
+
+function resolveLoadingMessages(context) {
+  if (!state.loadingConfig.messages) return ["Procesando solicitud..."];
+  return loadingMessages[context] || loadingMessages.default;
+}
+
+function loadingContextFromPath(path, method) {
+  if (path.includes("/auth/")) return "login";
+  if (path.includes("/reports")) return method === "GET" ? "reports" : "reports";
+  if (path.includes("/documents")) return "documents";
+  if (path.includes("/technical-sheets")) return "technical-sheets";
+  if (path.includes("/suppliers")) return "suppliers";
+  if (path.includes("/audit-management") || path.includes("/audit/")) return "audits";
+  if (path.includes("/capas")) return "capa";
+  if (path.includes("/risks")) return "risks";
+  if (path.includes("/indicators")) return "indicators";
+  if (path.includes("/storage") || path.includes("/notifications")) return "configuration";
+  return method === "GET" ? state.route : "save";
+}
+
+function showPageTransition(route) {
+  const content = document.querySelector("#content");
+  if (!content) return;
+  content.classList.add("page-transition-out");
+}
+
+function showProgressBanner(context) {
+  ensureLoadingHost();
+  const banner = document.querySelector("#progress-banner");
+  if (!banner) return;
+  const steps = resolveLoadingMessages(context);
+  banner.hidden = false;
+  banner.innerHTML = `
+    <div>
+      <strong>${escapeHtml(steps[0])}</strong>
+      <span>${steps.map(step => `<i>${escapeHtml(step)}</i>`).join("")}</span>
+    </div>
+    <div class="indeterminate-bar"><span></span></div>`;
+}
+
+function hideProgressBanner() {
+  const banner = document.querySelector("#progress-banner");
+  if (banner) banner.hidden = true;
+}
+
+function setLoadingButton(button, isLoading, text) {
+  if (!button) return;
+  if (isLoading) {
+    button.dataset.originalText = button.dataset.originalText || button.textContent.trim();
+    button.disabled = true;
+    button.classList.add("btn-loading");
+    button.innerHTML = `<span class="btn-progress" aria-hidden="true"></span><span>${escapeHtml(text || "Procesando...")}</span>`;
+    return;
+  }
+  button.disabled = false;
+  button.classList.remove("btn-loading");
+  if (button.dataset.originalText) {
+    button.textContent = button.dataset.originalText;
+    delete button.dataset.originalText;
+  }
+}
+
+function loadingView(route = "default") {
+  return `
+    <section class="loading-panel modern" aria-live="polite" aria-label="Cargando ${escapeHtml(currentRouteLabel())}">
+      <div class="loading-logo compact" aria-hidden="true"><span>C360</span><i></i></div>
+      <div>
+        <strong>${escapeHtml(resolveLoadingMessages(route)[0])}</strong>
+        <p>Consultando API v1, permisos y persistencia PostgreSQL.</p>
+        <div class="indeterminate-bar" aria-hidden="true"><span></span></div>
+      </div>
+    </section>
+    ${loadingPage(route)}`;
+}
+
+function loadingPage(route) {
+  if (!state.loadingConfig.skeleton) return "";
+  if (route === "dashboard" || route === "compliance") return loadingDashboard();
+  if (route === "reports") return loadingReport();
+  if (route === "configuration") return `${loadingCards(4)}${loadingTable(["provider", "name", "status", "priority"])}`;
+  if (modules[route] || enterpriseWorkspaces[route] || route === "audit-trail") return `${loadingCards(4)}${loadingTable(modules[route]?.columns || enterpriseWorkspaces[route]?.columns || ["fecha", "accion", "modulo", "estado"])}`;
+  return loadingCards(6);
+}
+
+function loadingDashboard() {
+  return `
+    <section class="grid cards">${Array.from({ length: 4 }, (_, index) => skeletonCard(`Dashboard card ${index + 1}`)).join("")}</section>
+    <section class="grid two">
+      ${skeletonChart("Compliance performance")}
+      ${skeletonChart("Risk heat map")}
+    </section>`;
+}
+
+function loadingReport() {
+  return `
+    ${loadingCards(4)}
+    <section class="card loading-report">
+      <h2 class="section-title">Generacion de reportes</h2>
+      ${resolveLoadingMessages("reports").map(step => `<div class="report-step"><span></span>${escapeHtml(step)}</div>`).join("")}
+    </section>
+    ${loadingTable(["name", "code", "module", "status", "dataset"])}`;
+}
+
+function loadingCards(count) {
+  return `<section class="grid cards">${Array.from({ length: count }, (_, index) => skeletonCard(`Cargando tarjeta ${index + 1}`)).join("")}</section>`;
+}
+
+function skeletonCard(label = "Cargando tarjeta") {
+  return `
+    <article class="skeleton-card" aria-label="${escapeHtml(label)}">
+      <span></span><strong></strong><em></em>
+    </article>`;
+}
+
+function skeletonChart(label) {
+  return `
+    <article class="card skeleton-chart" aria-label="${escapeHtml(label)}">
+      <span></span>
+      <div>${Array.from({ length: 12 }, () => "<i></i>").join("")}</div>
+    </article>`;
+}
+
+function loadingTable(columns) {
+  return `
+    <section class="card">
+      <div class="section-heading">
+        <div>
+          <h2 class="section-title">Cargando registros</h2>
+          <p class="metric-label">Preparando filas tenant-scoped.</p>
+        </div>
+        <span class="status-pill warn">Loading</span>
+      </div>
+      <div class="table-wrap">
+        <table class="skeleton-table" aria-label="Tabla cargando">
+          <thead><tr>${columns.map(column => `<th>${escapeHtml(column)}</th>`).join("")}</tr></thead>
+          <tbody>
+            ${Array.from({ length: 6 }, () => `<tr>${columns.map(() => "<td><span></span></td>").join("")}</tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+    </section>`;
+}
+
+function loadingUpload(fileName = "Documento_Procedimiento.pdf", percent = 65) {
+  const progress = Math.round(clamp(percent) / 5) * 5;
+  return `
+    <div class="loading-upload" role="status" aria-label="Subiendo ${escapeHtml(fileName)}">
+      <strong>${escapeHtml(fileName)}</strong>
+      <div class="upload-track upload-progress-${progress}"><span></span></div>
+      <div><span>${progress}%</span><span>3 segundos restantes</span></div>
+    </div>`;
 }
 
 function pageHeader(title, description, breadcrumb) {
@@ -1273,20 +2081,6 @@ function toast(message, type = "info") {
   node.textContent = message;
   region.appendChild(node);
   setTimeout(() => node.remove(), 4200);
-}
-
-function loadingView() {
-  return `
-    <section class="loading-panel">
-      <div class="loading-orb" aria-hidden="true"></div>
-      <div>
-        <strong>Cargando datos reales del tenant...</strong>
-        <p>Consultando API v1, permisos y persistencia PostgreSQL.</p>
-      </div>
-    </section>
-    <section class="grid cards">
-      ${Array.from({ length: 4 }, () => `<div class="skeleton-card"></div>`).join("")}
-    </section>`;
 }
 
 function errorView(message) {

@@ -26,6 +26,7 @@ public sealed class EfSupplierRepository : ISupplierRepository
             .Include(supplier => supplier.Documents)
             .Include(supplier => supplier.Evaluations)
             .Include(supplier => supplier.Alerts)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(supplier => supplier.TenantId == tenantId && supplier.Id == supplierId, cancellationToken);
     }
 

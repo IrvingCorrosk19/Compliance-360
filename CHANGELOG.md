@@ -2,6 +2,23 @@
 
 All notable changes to Compliance 360 will be documented in this file.
 
+## provider-abstraction-administration - 2026-06-21
+
+### PROVIDER ABSTRACTION ADMINISTRATION
+
+- Added configurable Storage Provider Strategy + Factory for Local, Azure Blob, AWS S3, MinIO, Google Cloud Storage, and SFTP.
+- Extended Notification providers to include Gmail SMTP, Microsoft 365, Exchange Online, and Amazon SES alongside SMTP, SendGrid, Mailgun, and Resend.
+- Added tenant-scoped Storage Provider Administration with create, edit, deactivate, activate/default, test connection, status, priority, and failover-ready ordering.
+- Added Configuration -> Integraciones UI with Email Providers, Storage Providers, Health Status, Connection Test, Usage Statistics, Failover Configuration, and Provider Priority.
+- Added audit actions for storage/notification provider changes and failover events.
+
+### Validation
+
+- Build completed successfully with zero warnings and zero errors.
+- Test suite completed successfully: 218 passed.
+- EF migration `AddProviderAdministration` and idempotent migration script generated successfully.
+- Lint diagnostics completed with no errors.
+
 ## v0.20.0-notification-provider-real - 2026-06-21
 
 ### NOTIFICATION PROVIDER REAL ENTERPRISE

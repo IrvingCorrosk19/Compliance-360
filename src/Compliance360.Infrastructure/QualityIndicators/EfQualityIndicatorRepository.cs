@@ -33,6 +33,7 @@ public sealed class EfQualityIndicatorRepository : IQualityIndicatorRepository
             .Include(indicator => indicator.Trends)
             .Include(indicator => indicator.History)
             .Include(indicator => indicator.Attachments)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(indicator => indicator.TenantId == tenantId && indicator.Id == indicatorId, cancellationToken);
     }
 
@@ -60,8 +61,11 @@ public sealed class EfQualityIndicatorRepository : IQualityIndicatorRepository
         var approved = await _dbContext.QualityIndicators.CountAsync(indicator => indicator.TenantId == tenantId && indicator.Status == IndicatorStatus.Approved, cancellationToken);
         var critical = await _dbContext.IndicatorResults.CountAsync(result => result.TenantId == tenantId && result.Status == IndicatorResultStatus.CriticalDeviation, cancellationToken);
         var alerts = await _dbContext.IndicatorAlerts.CountAsync(alert => alert.TenantId == tenantId && !alert.IsAcknowledged, cancellationToken);
-        var results = await _dbContext.IndicatorResults.Where(result => result.TenantId == tenantId).ToListAsync(cancellationToken);
-        var compliance = results.Count == 0 ? 100 : (int)Math.Round(results.Count(result => result.Status is IndicatorResultStatus.OnTarget or IndicatorResultStatus.AboveTarget) * 100m / results.Count);
+        var resultCount = await _dbContext.IndicatorResults.CountAsync(result => result.TenantId == tenantId, cancellationToken);
+        var compliantResults = await _dbContext.IndicatorResults.CountAsync(
+            result => result.TenantId == tenantId && (result.Status == IndicatorResultStatus.OnTarget || result.Status == IndicatorResultStatus.AboveTarget),
+            cancellationToken);
+        var compliance = resultCount == 0 ? 100 : (int)Math.Round(compliantResults * 100m / resultCount);
         var negative = await _dbContext.IndicatorTrends.CountAsync(trend => trend.TenantId == tenantId && trend.Direction == IndicatorTrendDirection.Negative, cancellationToken);
         var criticalProcesses = await _dbContext.IndicatorProcesses.CountAsync(process => process.TenantId == tenantId, cancellationToken);
         return new IndicatorDashboardDto(total, approved, critical, alerts, compliance, negative, criticalProcesses);

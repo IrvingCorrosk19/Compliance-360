@@ -31,6 +31,7 @@ public sealed class EfIdentityRepository : IIdentityRepository
     {
         return _dbContext.Roles
             .Include(role => role.Permissions)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(role => role.TenantId == tenantId && role.Id == roleId, cancellationToken);
     }
 
@@ -110,6 +111,7 @@ public sealed class EfIdentityRepository : IIdentityRepository
             .Include(user => user.Roles)
             .Include(user => user.RefreshTokens)
             .Include(user => user.PasswordHistory)
-            .Include(user => user.Sessions);
+            .Include(user => user.Sessions)
+            .AsSplitQuery();
     }
 }

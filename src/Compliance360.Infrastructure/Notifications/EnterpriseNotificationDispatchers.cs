@@ -143,6 +143,41 @@ public sealed class SmtpNotificationProvider : INotificationProvider
     }
 }
 
+public sealed class GmailSmtpNotificationProvider : SmtpCompatibleNotificationProvider
+{
+    public override NotificationProvider Provider => NotificationProvider.GmailSmtp;
+}
+
+public sealed class Microsoft365NotificationProvider : SmtpCompatibleNotificationProvider
+{
+    public override NotificationProvider Provider => NotificationProvider.Microsoft365;
+}
+
+public sealed class ExchangeOnlineNotificationProvider : SmtpCompatibleNotificationProvider
+{
+    public override NotificationProvider Provider => NotificationProvider.ExchangeOnline;
+}
+
+public abstract class SmtpCompatibleNotificationProvider : INotificationProvider
+{
+    public abstract NotificationProvider Provider { get; }
+
+    public async Task<NotificationDispatchResult> SendAsync(NotificationDispatchRequest request, NotificationProviderEndpoint endpoint, CancellationToken cancellationToken = default)
+    {
+        var smtp = new SmtpNotificationProvider();
+        var result = await smtp.SendAsync(request, endpoint, cancellationToken);
+        return result.Success
+            ? NotificationDispatchResult.Sent(Provider, result.ProviderMessageId)
+            : NotificationDispatchResult.Failed(result.FailureReason ?? $"{Provider} failed.", Provider);
+    }
+
+    public Task<NotificationProviderHealth> CheckHealthAsync(NotificationProviderEndpoint endpoint, CancellationToken cancellationToken = default)
+    {
+        var healthy = !string.IsNullOrWhiteSpace(endpoint.Host) && endpoint.Port.HasValue && !string.IsNullOrWhiteSpace(endpoint.FromAddress);
+        return Task.FromResult(new NotificationProviderHealth(Provider, healthy, healthy ? $"{Provider} SMTP configuration is valid." : $"{Provider} SMTP configuration is incomplete."));
+    }
+}
+
 public sealed class SendGridNotificationProvider : HttpNotificationProvider
 {
     public SendGridNotificationProvider(IHttpClientFactory httpClientFactory)
@@ -213,6 +248,30 @@ public sealed class ResendNotificationProvider : HttpNotificationProvider
             subject = request.Subject,
             html = request.Body,
             text = request.TextBody
+        });
+        return httpRequest;
+    }
+}
+
+public sealed class AmazonSesNotificationProvider : HttpNotificationProvider
+{
+    public AmazonSesNotificationProvider(IHttpClientFactory httpClientFactory)
+        : base(httpClientFactory)
+    {
+    }
+
+    public override NotificationProvider Provider => NotificationProvider.AmazonSes;
+
+    protected override HttpRequestMessage CreateRequest(NotificationDispatchRequest request, NotificationProviderEndpoint endpoint)
+    {
+        var httpRequest = new HttpRequestMessage(HttpMethod.Post, endpoint.BaseUrl?.TrimEnd('/') ?? "https://email.us-east-1.amazonaws.com");
+        httpRequest.Headers.Add("X-Amz-Target", "SimpleEmailService.SendEmail");
+        httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", endpoint.Secret);
+        httpRequest.Content = Json(new
+        {
+            Source = endpoint.FromAddress,
+            Destination = new { ToAddresses = new[] { request.Recipient } },
+            Message = new { Subject = new { Data = request.Subject }, Body = new { Html = new { Data = request.Body }, Text = new { Data = request.TextBody ?? request.Body } } }
         });
         return httpRequest;
     }

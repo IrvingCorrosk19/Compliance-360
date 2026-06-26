@@ -1,0 +1,147 @@
+name: Compliance 360 Enterprise CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - release/**
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+env:
+  DOTNET_VERSION: 9.0.x
+  SOLUTION_FILE: Compliance360.sln
+  WEB_PROJECT: src/Compliance360.Web/Compliance360.Web.csproj
+  INFRASTRUCTURE_PROJECT: src/Compliance360.Infrastructure/Compliance360.Infrastructure.csproj
+  STARTUP_PROJECT: src/Compliance360.Web/Compliance360.Web.csproj
+  COVERAGE_THRESHOLD: "90"
+  ConnectionStrings__Compliance360: Host=localhost;Database=compliance360_ci;Username=postgres;Password=postgres
+  Jwt__SigningKey: ci-signing-key-with-at-least-32-characters
+
+jobs:
+  build-test-security:
+    name: Build, Test, Coverage, Security
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: compliance360_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d compliance360_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore "${{ env.SOLUTION_FILE }}" --locked-mode
+
+      - name: Build gate
+        run: dotnet build "${{ env.SOLUTION_FILE }}" --configuration Release --no-restore -warnaserror
+
+      - name: Test and coverage gate
+        shell: pwsh
+        run: |
+          dotnet test "${{ env.SOLUTION_FILE }}" --configuration Release --no-build --settings "tests/Compliance360.Tests/observability.coverage.runsettings" --collect:"XPlat Code Coverage" --results-directory "artifacts/TestResults"
+          ./build/ci/Verify-Coverage.ps1 -CoverageRoot "artifacts/TestResults" -MinimumLineCoveragePercent $env:COVERAGE_THRESHOLD -MinimumBranchCoveragePercent 90
+
+      - name: Security vulnerability gate
+        shell: pwsh
+        run: ./build/ci/Verify-Vulnerabilities.ps1 -SolutionPath "${{ env.SOLUTION_FILE }}"
+
+      - name: Migration validation gate
+        shell: pwsh
+        run: ./build/ci/Verify-Migrations.ps1 -InfrastructureProject "${{ env.INFRASTRUCTURE_PROJECT }}" -StartupProject "${{ env.STARTUP_PROJECT }}" -OutputDirectory "artifacts/migrations"
+
+      - name: Publish release artifact
+        run: dotnet publish "${{ env.WEB_PROJECT }}" --configuration Release --no-build --output artifacts/publish/compliance360-web
+
+      - name: Release artifact validation gate
+        shell: pwsh
+        run: ./build/ci/Verify-ReleaseArtifact.ps1 -PublishDirectory "artifacts/publish/compliance360-web"
+
+      - name: Rollback validation gate
+        shell: pwsh
+        run: ./build/ci/Verify-Rollback.ps1 -MigrationDirectory "artifacts/migrations"
+
+      - name: Upload test and coverage evidence
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: compliance360-test-coverage-evidence
+          path: artifacts/TestResults
+
+      - name: Upload migration evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: compliance360-migration-scripts
+          path: artifacts/migrations
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: compliance360-web-release
+          path: artifacts/publish/compliance360-web
+
+  docker-validation:
+    name: Docker Validation
+    runs-on: ubuntu-latest
+    needs: build-test-security
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build --pull --file Dockerfile --tag compliance360/web:${{ github.sha }} .
+
+      - name: Inspect Docker image
+        run: docker image inspect compliance360/web:${{ github.sha }}
+
+  release-validation:
+    name: Release Validation
+    runs-on: ubuntu-latest
+    needs:
+      - build-test-security
+      - docker-validation
+
+    steps:
+      - name: Download release artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: compliance360-web-release
+          path: release/compliance360-web
+
+      - name: Validate release artifact
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "release/compliance360-web/Compliance360.Web.dll")) {
+            throw "Release validation failed: Compliance360.Web.dll was not published."
+          }
+          if (-not (Test-Path "release/compliance360-web/wwwroot/index.html")) {
+            throw "Release validation failed: SPA static assets were not published."
+          }
+          Write-Host "Release validation passed."

@@ -27,6 +27,7 @@ public sealed class EfDocumentRepository : IDocumentRepository
             .Include(document => document.Approvals)
             .Include(document => document.History)
             .Include(document => document.Permissions)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(document => document.TenantId == tenantId && document.Id == documentId, cancellationToken);
     }
 

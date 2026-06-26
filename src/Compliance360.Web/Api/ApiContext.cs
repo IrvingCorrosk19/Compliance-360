@@ -26,7 +26,7 @@ public static class ApiContext
         }
 
         var claimTenantId = ReadGuidClaim(httpContext.User, "tenant_id");
-        if (claimTenantId.HasValue && claimTenantId.Value != tenantId)
+        if (claimTenantId.HasValue && claimTenantId.Value != tenantId && !HasSuperAdminRole(httpContext.User))
         {
             throw new UnauthorizedAccessException("Tenant context does not match authenticated user.");
         }
@@ -48,6 +48,13 @@ public static class ApiContext
     {
         var value = principal.FindFirstValue(claimType);
         return Guid.TryParse(value, out var parsed) ? parsed : null;
+    }
+
+    private static bool HasSuperAdminRole(ClaimsPrincipal principal)
+    {
+        return principal.Claims.Any(claim =>
+            claim.Type == ClaimTypes.Role &&
+            string.Equals(claim.Value, "SuperAdmin", StringComparison.OrdinalIgnoreCase));
     }
 
     private static Guid? ReadGuidHeader(HttpContext httpContext, string headerName)

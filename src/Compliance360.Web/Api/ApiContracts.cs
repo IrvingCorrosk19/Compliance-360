@@ -9,6 +9,7 @@ using Compliance360.Domain.Notifications;
 using Compliance360.Domain.QualityIndicators;
 using Compliance360.Domain.Reporting;
 using Compliance360.Domain.RiskManagement;
+using Compliance360.Domain.Storage;
 using Compliance360.Domain.Suppliers;
 using Compliance360.Domain.TenantManagement;
 using Compliance360.Domain.TechnicalSheets;
@@ -26,15 +27,67 @@ public sealed record LogoutRequest(Guid TenantId, Guid UserId, string RefreshTok
 
 public sealed record ChangePasswordRequest(Guid TenantId, string CurrentPassword, string NewPassword);
 
-public sealed record CreateTenantRequest(string Name, string Slug);
+public sealed record CreateTenantRequest(
+    string Name,
+    string Slug,
+    string? LegalName,
+    string? CommercialName,
+    string? TaxIdentifier,
+    string? CountryCode,
+    string? Currency);
+
+public sealed record UpdateTenantGeneralInformationRequest(
+    string Name,
+    string LegalName,
+    string CommercialName,
+    string TaxIdentifier,
+    string Industry,
+    string? Description,
+    string? AddressLine1,
+    string? City,
+    string? Province,
+    string CountryCode,
+    string? PostalCode,
+    string? Phone,
+    string? Email,
+    string? Website,
+    string Currency,
+    string? ChangeReason);
 
 public sealed record AddCompanyRequest(string LegalName, string TaxIdentifier, string CountryCode);
 
 public sealed record ConfigureTenantSettingsRequest(string Culture, string TimeZone, bool RequireMfa, int DocumentRetentionDays);
 
-public sealed record ConfigureTenantBrandingRequest(string DisplayName, string? LogoUri, string PrimaryColor, string SecondaryColor);
+public sealed record ConfigureTenantSecurityRequest(
+    bool RequireMfa,
+    int SessionTimeoutMinutes,
+    int PasswordExpirationDays,
+    int LockoutMaxFailedAttempts,
+    int LockoutMinutes,
+    string? IpWhitelist,
+    bool TrustedDevicesEnabled,
+    int SecurityScore,
+    string? ChangeReason);
 
-public sealed record ChangeSubscriptionRequest(SubscriptionPlan Plan, int MaxUsers, int MaxStorageGb);
+public sealed record ConfigureTenantBrandingRequest(
+    string DisplayName,
+    string? LogoUri,
+    string? FaviconUri,
+    string PrimaryColor,
+    string SecondaryColor,
+    string Theme,
+    string? LoginBackgroundUri,
+    string? CorporateEmail,
+    string? FooterText,
+    string? ChangeReason);
+
+public sealed record ChangeSubscriptionRequest(
+    SubscriptionPlan Plan,
+    int MaxUsers,
+    int MaxStorageGb,
+    SubscriptionStatus Status,
+    DateOnly? ExpiresOn,
+    string? ChangeReason);
 
 public sealed record CreateRoleRequest(string Name, bool IsSystemRole);
 
@@ -87,6 +140,8 @@ public sealed record QueueNotificationRequest(
     Guid? TargetUserId);
 
 public sealed record ConfigureNotificationProviderRequest(NotificationProvider Provider, string Name, int Priority, bool IsDefault, bool IsEnabled);
+
+public sealed record ConfigureStorageProviderRequest(StorageProviderKind Provider, string Name, string ContainerName, int Priority, bool IsDefault, bool IsEnabled, string SettingsJson);
 
 public sealed record CreateDocumentTypeRequest(string Name, string Code, int RetentionDays);
 

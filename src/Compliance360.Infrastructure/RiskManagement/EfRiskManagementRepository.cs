@@ -35,6 +35,7 @@ public sealed class EfRiskManagementRepository : IRiskManagementRepository
             .Include(risk => risk.Indicators)
             .Include(risk => risk.Attachments)
             .Include(risk => risk.History)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(risk => risk.TenantId == tenantId && risk.Id == riskId, cancellationToken);
     }
 
@@ -63,13 +64,18 @@ public sealed class EfRiskManagementRepository : IRiskManagementRepository
 
     public async Task<RiskDashboardDto> GetDashboardAsync(Guid tenantId, DateTimeOffset now, CancellationToken cancellationToken = default)
     {
-        var risks = await _dbContext.Risks.AsNoTracking().Where(risk => risk.TenantId == tenantId).ToListAsync(cancellationToken);
-        var critical = risks.Count(risk => risk.ResidualLevel == RiskLevel.Critical || risk.InherentLevel == RiskLevel.Critical);
-        var high = risks.Count(risk => risk.ResidualLevel == RiskLevel.High || risk.InherentLevel == RiskLevel.High);
-        var medium = risks.Count(risk => risk.ResidualLevel == RiskLevel.Medium || risk.InherentLevel == RiskLevel.Medium);
-        var low = risks.Count(risk => risk.ResidualLevel == RiskLevel.Low && risk.InherentLevel == RiskLevel.Low);
-        var overdue = risks.Count(risk => risk.Status != RiskStatus.Closed && risk.ReviewDueAtUtc.HasValue && risk.ReviewDueAtUtc.Value < now);
-        return new RiskDashboardDto(critical, high, medium, low, overdue, risks.Select(risk => risk.Area).Distinct().Count(), risks.Count(risk => risk.SupplierId.HasValue), risks.Select(risk => risk.Process).Distinct().Count(), risks.Count, risks.Count(risk => risk.ResidualScore > 0));
+        var query = _dbContext.Risks.AsNoTracking().Where(risk => risk.TenantId == tenantId);
+        var critical = await query.CountAsync(risk => risk.ResidualLevel == RiskLevel.Critical || risk.InherentLevel == RiskLevel.Critical, cancellationToken);
+        var high = await query.CountAsync(risk => risk.ResidualLevel == RiskLevel.High || risk.InherentLevel == RiskLevel.High, cancellationToken);
+        var medium = await query.CountAsync(risk => risk.ResidualLevel == RiskLevel.Medium || risk.InherentLevel == RiskLevel.Medium, cancellationToken);
+        var low = await query.CountAsync(risk => risk.ResidualLevel == RiskLevel.Low && risk.InherentLevel == RiskLevel.Low, cancellationToken);
+        var overdue = await query.CountAsync(risk => risk.Status != RiskStatus.Closed && risk.ReviewDueAtUtc.HasValue && risk.ReviewDueAtUtc.Value < now, cancellationToken);
+        var areaCount = await query.Select(risk => risk.Area).Distinct().CountAsync(cancellationToken);
+        var supplierCount = await query.CountAsync(risk => risk.SupplierId.HasValue, cancellationToken);
+        var processCount = await query.Select(risk => risk.Process).Distinct().CountAsync(cancellationToken);
+        var total = await query.CountAsync(cancellationToken);
+        var scored = await query.CountAsync(risk => risk.ResidualScore > 0, cancellationToken);
+        return new RiskDashboardDto(critical, high, medium, low, overdue, areaCount, supplierCount, processCount, total, scored);
     }
 
     public async Task<IReadOnlyCollection<RiskHeatMapPoint>> GetHeatMapAsync(Guid tenantId, CancellationToken cancellationToken = default)

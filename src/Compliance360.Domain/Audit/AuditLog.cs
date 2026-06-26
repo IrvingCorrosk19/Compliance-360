@@ -81,7 +81,10 @@ public enum AuditAction
     NotificationCancelled = 74,
     NotificationTemplateCreated = 75,
     NotificationTemplateUpdated = 76,
-    NotificationProviderChanged = 77
+    NotificationProviderChanged = 77,
+    NotificationProviderFailover = 78,
+    StorageProviderChanged = 79,
+    StorageProviderFailover = 80
 }
 
 public enum AuditCategory
@@ -306,7 +309,8 @@ public sealed class AuditLog : Entity
             AuditAction.NotificationQueued or AuditAction.NotificationSent or AuditAction.NotificationFailed
                 or AuditAction.NotificationDelivered or AuditAction.NotificationRetried or AuditAction.NotificationDeadLettered
                 or AuditAction.NotificationCancelled or AuditAction.NotificationTemplateCreated or AuditAction.NotificationTemplateUpdated
-                or AuditAction.NotificationProviderChanged => AuditCategory.System,
+                or AuditAction.NotificationProviderChanged or AuditAction.NotificationProviderFailover => AuditCategory.System,
+            AuditAction.StorageProviderChanged or AuditAction.StorageProviderFailover => AuditCategory.FileStorage,
             AuditAction.AuditCreated or AuditAction.AuditUpdated or AuditAction.AuditClosed or AuditAction.AuditReopened => AuditCategory.AuditManagement,
             AuditAction.CapaCreated or AuditAction.CapaUpdated or AuditAction.CapaApproved or AuditAction.CapaClosed or AuditAction.CapaReopened => AuditCategory.CapaManagement,
             AuditAction.RiskCreated or AuditAction.RiskUpdated or AuditAction.RiskApproved or AuditAction.RiskClosed or AuditAction.RiskReopened => AuditCategory.RiskManagement,

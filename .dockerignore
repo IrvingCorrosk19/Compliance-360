@@ -1,0 +1,13 @@
+**/.git
+**/.github
+**/.vs
+**/.vscode
+**/bin
+**/obj
+**/TestResults
+**/*.user
+**/*.suo
+artifacts
+storage
+*.md
+!README.md

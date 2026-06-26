@@ -1,0 +1,117 @@
+trigger:
+  branches:
+    include:
+      - main
+      - master
+      - release/*
+
+pr:
+  branches:
+    include:
+      - main
+      - master
+
+variables:
+  DOTNET_VERSION: '9.0.x'
+  SOLUTION_FILE: 'Compliance360.sln'
+  WEB_PROJECT: 'src/Compliance360.Web/Compliance360.Web.csproj'
+  INFRASTRUCTURE_PROJECT: 'src/Compliance360.Infrastructure/Compliance360.Infrastructure.csproj'
+  STARTUP_PROJECT: 'src/Compliance360.Web/Compliance360.Web.csproj'
+  COVERAGE_THRESHOLD: '90'
+  ConnectionStrings__Compliance360: 'Host=localhost;Database=compliance360_ci;Username=postgres;Password=postgres'
+  Jwt__SigningKey: 'ci-signing-key-with-at-least-32-characters'
+
+stages:
+  - stage: BuildTestSecurity
+    displayName: Build, Test, Coverage, Security
+    jobs:
+      - job: Validate
+        displayName: Enterprise Gates
+        pool:
+          vmImage: ubuntu-latest
+        services:
+          postgres:
+            image: postgres:18
+            env:
+              POSTGRES_DB: compliance360_ci
+              POSTGRES_USER: postgres
+              POSTGRES_PASSWORD: postgres
+            ports:
+              - 5432:5432
+            options: >-
+              --health-cmd "pg_isready -U postgres -d compliance360_ci"
+              --health-interval 10s
+              --health-timeout 5s
+              --health-retries 5
+        steps:
+          - task: UseDotNet@2
+            displayName: Setup .NET
+            inputs:
+              packageType: sdk
+              version: $(DOTNET_VERSION)
+
+          - script: dotnet restore "$(SOLUTION_FILE)" --locked-mode
+            displayName: Restore
+
+          - script: dotnet build "$(SOLUTION_FILE)" --configuration Release --no-restore -warnaserror
+            displayName: Build gate
+
+          - pwsh: |
+              dotnet test "$(SOLUTION_FILE)" --configuration Release --no-build --settings "tests/Compliance360.Tests/observability.coverage.runsettings" --collect:"XPlat Code Coverage" --results-directory "$(Build.ArtifactStagingDirectory)/TestResults"
+              ./build/ci/Verify-Coverage.ps1 -CoverageRoot "$(Build.ArtifactStagingDirectory)/TestResults" -MinimumLineCoveragePercent $(COVERAGE_THRESHOLD) -MinimumBranchCoveragePercent 90
+            displayName: Test and coverage gate
+
+          - pwsh: ./build/ci/Verify-Vulnerabilities.ps1 -SolutionPath "$(SOLUTION_FILE)"
+            displayName: Security vulnerability gate
+
+          - pwsh: ./build/ci/Verify-Migrations.ps1 -InfrastructureProject "$(INFRASTRUCTURE_PROJECT)" -StartupProject "$(STARTUP_PROJECT)" -OutputDirectory "$(Build.ArtifactStagingDirectory)/migrations"
+            displayName: Migration validation gate
+
+          - script: dotnet publish "$(WEB_PROJECT)" --configuration Release --no-build --output "$(Build.ArtifactStagingDirectory)/publish/compliance360-web"
+            displayName: Publish release artifact
+
+          - pwsh: ./build/ci/Verify-ReleaseArtifact.ps1 -PublishDirectory "$(Build.ArtifactStagingDirectory)/publish/compliance360-web"
+            displayName: Release artifact validation gate
+
+          - pwsh: ./build/ci/Verify-Rollback.ps1 -MigrationDirectory "$(Build.ArtifactStagingDirectory)/migrations"
+            displayName: Rollback validation gate
+
+          - publish: $(Build.ArtifactStagingDirectory)
+            artifact: compliance360-ci-evidence
+            displayName: Publish CI evidence
+
+  - stage: DockerValidation
+    displayName: Docker Validation
+    dependsOn: BuildTestSecurity
+    jobs:
+      - job: Docker
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - script: docker build --pull --file Dockerfile --tag compliance360/web:$(Build.SourceVersion) .
+            displayName: Build Docker image
+          - script: docker image inspect compliance360/web:$(Build.SourceVersion)
+            displayName: Inspect Docker image
+
+  - stage: ReleaseValidation
+    displayName: Release Validation
+    dependsOn:
+      - BuildTestSecurity
+      - DockerValidation
+    jobs:
+      - job: Release
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - download: current
+            artifact: compliance360-ci-evidence
+          - pwsh: |
+              $release = "$(Pipeline.Workspace)/compliance360-ci-evidence/publish/compliance360-web"
+              if (-not (Test-Path "$release/Compliance360.Web.dll")) {
+                throw "Release validation failed: Compliance360.Web.dll was not published."
+              }
+              if (-not (Test-Path "$release/wwwroot/index.html")) {
+                throw "Release validation failed: SPA static assets were not published."
+              }
+              Write-Host "Release validation passed."
+            displayName: Validate release artifact

@@ -149,6 +149,22 @@ public sealed class StorageFoundationTests
         Assert.Throws<DomainException>(() => new StoredFile(Guid.NewGuid(), "Local", "docs", "key", "file.pdf", "application/pdf", 0, "hash", "Document", Guid.NewGuid()));
     }
 
+    [Fact]
+    public async Task Storage_Provider_Administration_Is_Tenant_Scoped_And_Testable()
+    {
+        var fixture = StorageFixture.Create();
+        var created = await fixture.Service.CreateProviderAsync(new CreateStorageProviderConfigurationCommand(fixture.TenantId, fixture.UserId, StorageProviderKind.Local, "Local primary", "docs", 1, true, true, "{\"rootPath\":\"storage-test\"}"));
+
+        var listed = await fixture.Service.ListProvidersAsync(fixture.TenantId);
+        var tested = await fixture.Service.TestProviderAsync(new ChangeStorageProviderCommand(fixture.TenantId, fixture.UserId, created.Value!.Id));
+        var wrongTenant = await fixture.Service.ListProvidersAsync(Guid.NewGuid());
+
+        Assert.True(created.IsSuccess);
+        Assert.Single(listed.Value!);
+        Assert.True(tested.Value!.Healthy);
+        Assert.Empty(wrongTenant.Value!);
+    }
+
     private static UploadFileCommand CreateUpload(Guid tenantId, Guid userId, Guid ownerId, string content)
     {
         return new UploadFileCommand(
@@ -183,7 +199,8 @@ public sealed class StorageFoundationTests
             TenantId = Guid.NewGuid();
             UserId = Guid.NewGuid();
             Repository = new InMemoryStorageRepository();
-            Service = new StorageFoundationService(Repository, new FakeApplicationDbContext(), new FakeFileStorageService(), new FixedClock());
+            var providerFactory = new StorageProviderFactory([new LocalStorageProvider()]);
+            Service = new StorageFoundationService(Repository, new FakeApplicationDbContext(), new FakeFileStorageService(), providerFactory, new FixedClock());
         }
 
         public Guid TenantId { get; }
@@ -200,6 +217,7 @@ public sealed class StorageFoundationTests
     private sealed class InMemoryStorageRepository : IStorageRepository
     {
         public List<StoredFile> StoredFiles { get; } = [];
+        public List<StorageProviderConfiguration> ProviderConfigurations { get; } = [];
         public List<AuditLog> AuditLogs { get; } = [];
 
         public Task AddAsync(StoredFile storedFile, CancellationToken cancellationToken = default)
@@ -211,6 +229,22 @@ public sealed class StorageFoundationTests
         public Task<StoredFile?> GetByIdAsync(Guid tenantId, Guid storedFileId, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(StoredFiles.SingleOrDefault(file => file.TenantId == tenantId && file.Id == storedFileId));
+        }
+
+        public Task AddProviderConfigurationAsync(StorageProviderConfiguration configuration, CancellationToken cancellationToken = default)
+        {
+            ProviderConfigurations.Add(configuration);
+            return Task.CompletedTask;
+        }
+
+        public Task<StorageProviderConfiguration?> GetProviderConfigurationAsync(Guid tenantId, Guid providerConfigurationId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(ProviderConfigurations.SingleOrDefault(configuration => configuration.TenantId == tenantId && configuration.Id == providerConfigurationId));
+        }
+
+        public Task<IReadOnlyCollection<StorageProviderConfiguration>> ListProviderConfigurationsAsync(Guid tenantId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<IReadOnlyCollection<StorageProviderConfiguration>>(ProviderConfigurations.Where(configuration => configuration.TenantId == tenantId).ToArray());
         }
 
         public Task AddAuditLogAsync(AuditLog auditLog, CancellationToken cancellationToken = default)

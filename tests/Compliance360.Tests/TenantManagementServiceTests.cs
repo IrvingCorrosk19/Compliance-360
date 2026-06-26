@@ -134,6 +134,9 @@ public sealed class TenantManagementServiceTests
             SubscriptionPlan.Enterprise,
             MaxUsers: 500,
             MaxStorageGb: 2_000,
+            Status: SubscriptionStatus.Active,
+            ExpiresOn: null,
+            ChangeReason: "Enterprise test subscription update.",
             RequestedByUserId: null));
 
         var tenant = repository.Tenants.Single();
@@ -141,6 +144,119 @@ public sealed class TenantManagementServiceTests
         Assert.Equal(SubscriptionPlan.Enterprise, tenant.Subscription.Plan);
         Assert.Equal(500, tenant.Subscription.MaxUsers);
         Assert.Equal(2_000, tenant.Subscription.MaxStorageGb);
+    }
+
+    [Fact]
+    public async Task UpdateGeneralInformationAsync_Updates_Enterprise_Profile_And_Audits()
+    {
+        var repository = new InMemoryTenantManagementRepository();
+        var service = new TenantManagementService(repository, new FakeApplicationDbContext(), new FixedClock());
+        var created = await service.CreateTenantAsync(new CreateTenantCommand("Acme Quality", "acme", null));
+
+        var result = await service.UpdateGeneralInformationAsync(new UpdateTenantGeneralInformationCommand(
+            created.Value!.Id,
+            "Acme Group",
+            "Acme Panama S.A.",
+            "Acme Compliance",
+            "RUC-ACME-001",
+            "Food Safety",
+            "Tenant enterprise profile",
+            "Calle 50",
+            "Panama",
+            "Panama",
+            "PA",
+            "0801",
+            "+507 0000-0000",
+            "admin@acme.test",
+            "https://acme.test",
+            "USD",
+            "Correccion legal para onboarding.",
+            Guid.NewGuid()));
+
+        var tenant = repository.Tenants.Single();
+        Assert.True(result.IsSuccess);
+        Assert.Equal("Acme Panama S.A.", tenant.LegalName);
+        Assert.Equal("RUC-ACME-001", tenant.TaxIdentifier);
+        Assert.Equal("Food Safety", tenant.Industry);
+        Assert.Equal("admin@acme.test", tenant.Email);
+        Assert.Equal(AuditAction.TenantChanged, repository.AuditLogs.Last().Action);
+    }
+
+    [Fact]
+    public async Task UpdateGeneralInformationAsync_Rejects_Duplicate_TaxIdentifier()
+    {
+        var repository = new InMemoryTenantManagementRepository();
+        var service = new TenantManagementService(repository, new FakeApplicationDbContext(), new FixedClock());
+        await service.CreateTenantAsync(new CreateTenantCommand("Tenant One", "one", "Tenant One", "Tenant One", "RUC-001", "PA", "USD", null));
+        var second = await service.CreateTenantAsync(new CreateTenantCommand("Tenant Two", "two", "Tenant Two", "Tenant Two", "RUC-002", "PA", "USD", null));
+
+        var result = await service.UpdateGeneralInformationAsync(new UpdateTenantGeneralInformationCommand(
+            second.Value!.Id,
+            "Tenant Two",
+            "Tenant Two",
+            "Tenant Two",
+            "RUC-001",
+            "Compliance",
+            null,
+            null,
+            null,
+            null,
+            "PA",
+            null,
+            null,
+            null,
+            null,
+            "USD",
+            null,
+            null));
+
+        Assert.True(result.IsFailure);
+        Assert.Equal("Tenant tax identifier already exists.", result.Error);
+    }
+
+    [Fact]
+    public async Task ConfigureSecurityAsync_Updates_Sensitive_Security_Settings()
+    {
+        var repository = new InMemoryTenantManagementRepository();
+        var service = new TenantManagementService(repository, new FakeApplicationDbContext(), new FixedClock());
+        var created = await service.CreateTenantAsync(new CreateTenantCommand("Acme Quality", "acme", null));
+
+        var result = await service.ConfigureSecurityAsync(new ConfigureTenantSecurityCommand(
+            created.Value!.Id,
+            RequireMfa: true,
+            SessionTimeoutMinutes: 45,
+            PasswordExpirationDays: 120,
+            LockoutMaxFailedAttempts: 4,
+            LockoutMinutes: 30,
+            IpWhitelist: "10.0.0.0/24",
+            TrustedDevicesEnabled: true,
+            SecurityScore: 92,
+            ChangeReason: "Security hardening",
+            RequestedByUserId: null));
+
+        var settings = repository.Tenants.Single().Settings;
+        Assert.True(result.IsSuccess);
+        Assert.True(settings.TrustedDevicesEnabled);
+        Assert.Equal(45, settings.SessionTimeoutMinutes);
+        Assert.Equal("10.0.0.0/24", settings.IpWhitelist);
+        Assert.Equal(92, settings.SecurityScore);
+    }
+
+    [Fact]
+    public async Task Dashboard_And_AuditTimeline_Return_Tenant_Context()
+    {
+        var repository = new InMemoryTenantManagementRepository();
+        var service = new TenantManagementService(repository, new FakeApplicationDbContext(), new FixedClock());
+        var created = await service.CreateTenantAsync(new CreateTenantCommand("Acme Quality", "acme", null));
+
+        var dashboard = await service.GetAdministrationDashboardAsync(created.Value!.Id);
+        var timeline = await service.GetAuditTimelineAsync(created.Value.Id, page: 1, pageSize: 10);
+
+        Assert.True(dashboard.IsSuccess);
+        Assert.Equal(created.Value.Id, dashboard.Value!.Tenant.Id);
+        Assert.True(dashboard.Value.Alerts.Count >= 1);
+        Assert.True(timeline.IsSuccess);
+        Assert.NotEmpty(timeline.Value!);
     }
 
     [Fact]
@@ -155,6 +271,23 @@ public sealed class TenantManagementServiceTests
 
         Assert.True(activated.IsSuccess);
         Assert.True(suspended.IsSuccess);
+        Assert.Equal(TenantStatus.Suspended, repository.Tenants.Single().Status);
+    }
+
+    [Fact]
+    public async Task ArchiveTenantAsync_And_RestoreTenantAsync_Complete_Lifecycle()
+    {
+        var repository = new InMemoryTenantManagementRepository();
+        var service = new TenantManagementService(repository, new FakeApplicationDbContext(), new FixedClock());
+        var created = await service.CreateTenantAsync(new CreateTenantCommand("Acme Quality", "acme", null));
+
+        var trial = await service.StartTrialAsync(created.Value!.Id, null);
+        var archived = await service.ArchiveTenantAsync(created.Value.Id, null);
+        var restored = await service.RestoreTenantAsync(created.Value.Id, null);
+
+        Assert.True(trial.IsSuccess);
+        Assert.True(archived.IsSuccess);
+        Assert.True(restored.IsSuccess);
         Assert.Equal(TenantStatus.Suspended, repository.Tenants.Single().Status);
     }
 
@@ -276,6 +409,16 @@ public sealed class TenantManagementServiceTests
             return Task.FromResult(Tenants.Any(tenant => tenant.Slug == slug.Trim().ToLowerInvariant()));
         }
 
+        public Task<bool> SlugExistsAsync(Guid excludeTenantId, string slug, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(Tenants.Any(tenant => tenant.Id != excludeTenantId && tenant.Slug == slug.Trim().ToLowerInvariant()));
+        }
+
+        public Task<bool> TaxIdentifierExistsAsync(Guid excludeTenantId, string taxIdentifier, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(Tenants.Any(tenant => tenant.Id != excludeTenantId && tenant.TaxIdentifier == taxIdentifier.Trim().ToUpperInvariant()));
+        }
+
         public Task<Tenant?> GetByIdAsync(Guid tenantId, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(Tenants.SingleOrDefault(tenant => tenant.Id == tenantId));
@@ -284,6 +427,60 @@ public sealed class TenantManagementServiceTests
         public Task AddAsync(Tenant tenant, CancellationToken cancellationToken = default)
         {
             Tenants.Add(tenant);
+            return Task.CompletedTask;
+        }
+
+        public Task<IReadOnlyCollection<Tenant>> SearchAsync(string? searchText, TenantStatus? status, int page, int pageSize, CancellationToken cancellationToken = default)
+        {
+            IEnumerable<Tenant> query = Tenants;
+            if (!string.IsNullOrWhiteSpace(searchText))
+            {
+                query = query.Where(tenant => tenant.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase) || tenant.Slug.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (status.HasValue)
+            {
+                query = query.Where(tenant => tenant.Status == status.Value);
+            }
+
+            return Task.FromResult<IReadOnlyCollection<Tenant>>(query.Skip((page - 1) * pageSize).Take(pageSize).ToArray());
+        }
+
+        public Task<int> CountAsync(string? searchText, TenantStatus? status, CancellationToken cancellationToken = default)
+        {
+            IEnumerable<Tenant> query = Tenants;
+            if (!string.IsNullOrWhiteSpace(searchText))
+            {
+                query = query.Where(tenant => tenant.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase) || tenant.Slug.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (status.HasValue)
+            {
+                query = query.Where(tenant => tenant.Status == status.Value);
+            }
+
+            return Task.FromResult(query.Count());
+        }
+
+        public Task<TenantAdministrationMetrics> GetAdministrationMetricsAsync(Guid tenantId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(new TenantAdministrationMetrics(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, null, null, Health: true));
+        }
+
+        public Task<IReadOnlyCollection<TenantAuditTimelineItem>> GetAuditTimelineAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken = default)
+        {
+            var timeline = AuditLogs
+                .Where(audit => audit.TenantId == tenantId)
+                .OrderByDescending(audit => audit.OccurredAtUtc)
+                .Select(audit => new TenantAuditTimelineItem(audit.Id, audit.OccurredAtUtc, audit.Action.ToString(), audit.EntityName, audit.EntityId, audit.UserId, audit.UserName, audit.IpAddress, audit.CorrelationId, audit.BeforeValuesJson, audit.AfterValuesJson, audit.MetadataJson))
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToArray();
+            return Task.FromResult<IReadOnlyCollection<TenantAuditTimelineItem>>(timeline);
+        }
+
+        public Task AddCompanyAsync(Company company, CancellationToken cancellationToken = default)
+        {
             return Task.CompletedTask;
         }
 

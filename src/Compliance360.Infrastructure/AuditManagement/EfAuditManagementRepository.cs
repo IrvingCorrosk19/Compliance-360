@@ -76,6 +76,7 @@ public sealed class EfAuditManagementRepository : IAuditManagementRepository
             .Include(audit => audit.CorrectiveActionLinks)
             .Include(audit => audit.Attachments)
             .Include(audit => audit.History)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(audit => audit.TenantId == tenantId && audit.Id == auditId, cancellationToken);
     }
 

@@ -25,6 +25,25 @@ public sealed class EfStorageRepository : IStorageRepository
         return _dbContext.StoredFiles.FirstOrDefaultAsync(file => file.TenantId == tenantId && file.Id == storedFileId, cancellationToken);
     }
 
+    public async Task AddProviderConfigurationAsync(StorageProviderConfiguration configuration, CancellationToken cancellationToken = default)
+    {
+        await _dbContext.StorageProviderConfigurations.AddAsync(configuration, cancellationToken);
+    }
+
+    public Task<StorageProviderConfiguration?> GetProviderConfigurationAsync(Guid tenantId, Guid providerConfigurationId, CancellationToken cancellationToken = default)
+    {
+        return _dbContext.StorageProviderConfigurations.FirstOrDefaultAsync(configuration => configuration.TenantId == tenantId && configuration.Id == providerConfigurationId, cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<StorageProviderConfiguration>> ListProviderConfigurationsAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.StorageProviderConfigurations
+            .Where(configuration => configuration.TenantId == tenantId)
+            .OrderByDescending(configuration => configuration.IsDefault)
+            .ThenBy(configuration => configuration.Priority)
+            .ToArrayAsync(cancellationToken);
+    }
+
     public async Task AddAuditLogAsync(AuditLog auditLog, CancellationToken cancellationToken = default)
     {
         await _dbContext.AuditLogs.AddAsync(auditLog, cancellationToken);

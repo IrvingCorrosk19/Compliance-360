@@ -11,6 +11,16 @@ public enum StoredFileStatus
     Deleted = 4
 }
 
+public enum StorageProviderKind
+{
+    Local = 0,
+    AzureBlob = 1,
+    AwsS3 = 2,
+    MinIO = 3,
+    GoogleCloudStorage = 4,
+    Sftp = 5
+}
+
 public sealed class StoredFile : TenantEntity
 {
     private StoredFile()
@@ -94,5 +104,75 @@ public sealed class StoredFile : TenantEntity
     public void Delete()
     {
         Status = StoredFileStatus.Deleted;
+    }
+}
+
+public sealed class StorageProviderConfiguration : TenantEntity
+{
+    private StorageProviderConfiguration()
+    {
+        Name = string.Empty;
+        ContainerName = string.Empty;
+        SettingsJson = "{}";
+    }
+
+    public StorageProviderConfiguration(Guid tenantId, StorageProviderKind provider, string name, string containerName, int priority, bool isDefault, bool isEnabled, string settingsJson)
+        : base(tenantId)
+    {
+        Provider = provider;
+        Name = Guard.AgainstNullOrWhiteSpace(name, nameof(name), 120);
+        ContainerName = Guard.AgainstNullOrWhiteSpace(containerName, nameof(containerName), 180);
+        Priority = Guard.AgainstOutOfRange(priority, nameof(priority), 1, 100);
+        IsDefault = isDefault;
+        IsEnabled = isEnabled;
+        SettingsJson = string.IsNullOrWhiteSpace(settingsJson) ? "{}" : Guard.AgainstNullOrWhiteSpace(settingsJson, nameof(settingsJson), 8_000);
+    }
+
+    public StorageProviderKind Provider { get; private set; }
+
+    public string Name { get; private set; }
+
+    public string ContainerName { get; private set; }
+
+    public int Priority { get; private set; }
+
+    public bool IsDefault { get; private set; }
+
+    public bool IsEnabled { get; private set; }
+
+    public string SettingsJson { get; private set; }
+
+    public DateTimeOffset? LastHealthCheckAtUtc { get; private set; }
+
+    public bool LastHealthStatus { get; private set; }
+
+    public string? LastHealthMessage { get; private set; }
+
+    public void Update(string name, string containerName, int priority, bool isDefault, bool isEnabled, string settingsJson)
+    {
+        Name = Guard.AgainstNullOrWhiteSpace(name, nameof(name), 120);
+        ContainerName = Guard.AgainstNullOrWhiteSpace(containerName, nameof(containerName), 180);
+        Priority = Guard.AgainstOutOfRange(priority, nameof(priority), 1, 100);
+        IsDefault = isDefault;
+        IsEnabled = isEnabled;
+        SettingsJson = string.IsNullOrWhiteSpace(settingsJson) ? "{}" : Guard.AgainstNullOrWhiteSpace(settingsJson, nameof(settingsJson), 8_000);
+    }
+
+    public void Disable()
+    {
+        IsEnabled = false;
+    }
+
+    public void MarkDefault()
+    {
+        IsDefault = true;
+        IsEnabled = true;
+    }
+
+    public void RecordHealth(bool healthy, string message, DateTimeOffset checkedAtUtc)
+    {
+        LastHealthStatus = healthy;
+        LastHealthMessage = Guard.AgainstNullOrWhiteSpace(message, nameof(message), 1_000);
+        LastHealthCheckAtUtc = checkedAtUtc;
     }
 }

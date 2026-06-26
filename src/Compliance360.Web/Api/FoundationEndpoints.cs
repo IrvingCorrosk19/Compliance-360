@@ -26,6 +26,7 @@ using Compliance360.Domain.Reporting;
 using Compliance360.Domain.RiskManagement;
 using Compliance360.Domain.Suppliers;
 using Compliance360.Domain.TechnicalSheets;
+using Compliance360.Domain.TenantManagement;
 using Compliance360.Domain.Workflows;
 using Compliance360.Web.Security;
 
@@ -127,43 +128,140 @@ public static class FoundationEndpoints
 
     private static void MapTenants(RouteGroupBuilder api)
     {
-        var tenants = api.MapGroup("/tenants").WithTags("Tenant Management");
+        var tenants = api.MapGroup("/tenants").WithTags("Tenant Administration Center");
+
+        tenants.MapGet("/", async (string? searchText, TenantStatus? status, int page, int pageSize, ITenantManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.SearchTenantsAsync(new TenantSearchQuery(searchText, status, page, pageSize), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TenantRead);
 
         tenants.MapPost("/", async (CreateTenantRequest request, HttpContext httpContext, ITenantManagementService service, CancellationToken cancellationToken) =>
-            ApiResult.From(await service.CreateTenantAsync(new CreateTenantCommand(request.Name, request.Slug, ApiContext.UserId(httpContext)), cancellationToken)))
-            .RequireAuthorization(PermissionPolicies.TenantManage);
+            ApiResult.From(await service.CreateTenantAsync(new CreateTenantCommand(
+                request.Name,
+                request.Slug,
+                request.LegalName,
+                request.CommercialName,
+                request.TaxIdentifier,
+                request.CountryCode,
+                request.Currency,
+                ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TenantCreate);
+
+        tenants.MapGet("/{tenantId:guid}", async (Guid tenantId, HttpContext httpContext, ITenantManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GetTenantAsync(ApiContext.TenantId(httpContext, tenantId), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TenantRead);
+
+        tenants.MapGet("/{tenantId:guid}/administration-dashboard", async (Guid tenantId, HttpContext httpContext, ITenantManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GetAdministrationDashboardAsync(ApiContext.TenantId(httpContext, tenantId), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TenantRead);
+
+        tenants.MapPut("/{tenantId:guid}/general-information", async (Guid tenantId, UpdateTenantGeneralInformationRequest request, HttpContext httpContext, ITenantManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.UpdateGeneralInformationAsync(
+                new UpdateTenantGeneralInformationCommand(
+                    ApiContext.TenantId(httpContext, tenantId),
+                    request.Name,
+                    request.LegalName,
+                    request.CommercialName,
+                    request.TaxIdentifier,
+                    request.Industry,
+                    request.Description,
+                    request.AddressLine1,
+                    request.City,
+                    request.Province,
+                    request.CountryCode,
+                    request.PostalCode,
+                    request.Phone,
+                    request.Email,
+                    request.Website,
+                    request.Currency,
+                    request.ChangeReason,
+                    ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TenantUpdate);
 
         tenants.MapPost("/{tenantId:guid}/companies", async (Guid tenantId, AddCompanyRequest request, HttpContext httpContext, ITenantManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.AddCompanyAsync(
                 new AddCompanyCommand(ApiContext.TenantId(httpContext, tenantId), request.LegalName, request.TaxIdentifier, request.CountryCode, ApiContext.UserId(httpContext)),
                 cancellationToken)))
-            .RequireAuthorization(PermissionPolicies.TenantManage);
+            .RequireAuthorization(PermissionPolicies.TenantUpdate);
+
+        tenants.MapPost("/{tenantId:guid}/trial", async (Guid tenantId, HttpContext httpContext, ITenantManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.StartTrialAsync(ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TenantStatus);
 
         tenants.MapPost("/{tenantId:guid}/activate", async (Guid tenantId, HttpContext httpContext, ITenantManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.ActivateTenantAsync(ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), cancellationToken)))
-            .RequireAuthorization(PermissionPolicies.TenantManage);
+            .RequireAuthorization(PermissionPolicies.TenantStatus);
 
         tenants.MapPost("/{tenantId:guid}/suspend", async (Guid tenantId, HttpContext httpContext, ITenantManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.SuspendTenantAsync(ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), cancellationToken)))
-            .RequireAuthorization(PermissionPolicies.TenantManage);
+            .RequireAuthorization(PermissionPolicies.TenantStatus);
+
+        tenants.MapPost("/{tenantId:guid}/archive", async (Guid tenantId, HttpContext httpContext, ITenantManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ArchiveTenantAsync(ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TenantDelete);
+
+        tenants.MapPost("/{tenantId:guid}/restore", async (Guid tenantId, HttpContext httpContext, ITenantManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.RestoreTenantAsync(ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TenantRestore);
 
         tenants.MapPut("/{tenantId:guid}/settings", async (Guid tenantId, ConfigureTenantSettingsRequest request, HttpContext httpContext, ITenantManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.ConfigureSettingsAsync(
                 new ConfigureTenantSettingsCommand(ApiContext.TenantId(httpContext, tenantId), request.Culture, request.TimeZone, request.RequireMfa, request.DocumentRetentionDays, ApiContext.UserId(httpContext)),
                 cancellationToken)))
-            .RequireAuthorization(PermissionPolicies.TenantManage);
+            .RequireAuthorization(PermissionPolicies.TenantUpdate);
+
+        tenants.MapPut("/{tenantId:guid}/security", async (Guid tenantId, ConfigureTenantSecurityRequest request, HttpContext httpContext, ITenantManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ConfigureSecurityAsync(
+                new ConfigureTenantSecurityCommand(
+                    ApiContext.TenantId(httpContext, tenantId),
+                    request.RequireMfa,
+                    request.SessionTimeoutMinutes,
+                    request.PasswordExpirationDays,
+                    request.LockoutMaxFailedAttempts,
+                    request.LockoutMinutes,
+                    request.IpWhitelist,
+                    request.TrustedDevicesEnabled,
+                    request.SecurityScore,
+                    request.ChangeReason,
+                    ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TenantSecurity);
 
         tenants.MapPut("/{tenantId:guid}/branding", async (Guid tenantId, ConfigureTenantBrandingRequest request, HttpContext httpContext, ITenantManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.ConfigureBrandingAsync(
-                new ConfigureTenantBrandingCommand(ApiContext.TenantId(httpContext, tenantId), request.DisplayName, request.LogoUri, request.PrimaryColor, request.SecondaryColor, ApiContext.UserId(httpContext)),
+                new ConfigureTenantBrandingCommand(
+                    ApiContext.TenantId(httpContext, tenantId),
+                    request.DisplayName,
+                    request.LogoUri,
+                    request.FaviconUri,
+                    request.PrimaryColor,
+                    request.SecondaryColor,
+                    request.Theme,
+                    request.LoginBackgroundUri,
+                    request.CorporateEmail,
+                    request.FooterText,
+                    request.ChangeReason,
+                    ApiContext.UserId(httpContext)),
                 cancellationToken)))
-            .RequireAuthorization(PermissionPolicies.TenantManage);
+            .RequireAuthorization(PermissionPolicies.TenantBranding);
 
         tenants.MapPut("/{tenantId:guid}/subscription", async (Guid tenantId, ChangeSubscriptionRequest request, HttpContext httpContext, ITenantManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.ChangeSubscriptionAsync(
-                new ChangeSubscriptionCommand(ApiContext.TenantId(httpContext, tenantId), request.Plan, request.MaxUsers, request.MaxStorageGb, ApiContext.UserId(httpContext)),
+                new ChangeSubscriptionCommand(
+                    ApiContext.TenantId(httpContext, tenantId),
+                    request.Plan,
+                    request.MaxUsers,
+                    request.MaxStorageGb,
+                    request.Status,
+                    request.ExpiresOn,
+                    request.ChangeReason,
+                    ApiContext.UserId(httpContext)),
                 cancellationToken)))
-            .RequireAuthorization(PermissionPolicies.TenantManage);
+            .RequireAuthorization(PermissionPolicies.TenantBilling);
+
+        tenants.MapGet("/{tenantId:guid}/audit-timeline", async (Guid tenantId, int page, int pageSize, HttpContext httpContext, ITenantManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GetAuditTimelineAsync(ApiContext.TenantId(httpContext, tenantId), page, pageSize, cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TenantAudit);
     }
 
     private static void MapRbac(RouteGroupBuilder api)
@@ -291,6 +389,34 @@ public static class FoundationEndpoints
         storage.MapDelete("/files/{storedFileId:guid}", async (Guid tenantId, Guid storedFileId, HttpContext httpContext, IStorageFoundationService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.DeleteAsync(
                 new ChangeStoredFileStatusCommand(ApiContext.TenantId(httpContext, tenantId), storedFileId, ApiContext.UserId(httpContext)),
+                cancellationToken)));
+
+        storage.MapGet("/providers", async (Guid tenantId, HttpContext httpContext, IStorageFoundationService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ListProvidersAsync(ApiContext.TenantId(httpContext, tenantId), cancellationToken)));
+
+        storage.MapPost("/providers", async (Guid tenantId, ConfigureStorageProviderRequest request, HttpContext httpContext, IStorageFoundationService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CreateProviderAsync(
+                new CreateStorageProviderConfigurationCommand(ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), request.Provider, request.Name, request.ContainerName, request.Priority, request.IsDefault, request.IsEnabled, request.SettingsJson),
+                cancellationToken)));
+
+        storage.MapPut("/providers/{providerConfigurationId:guid}", async (Guid tenantId, Guid providerConfigurationId, ConfigureStorageProviderRequest request, HttpContext httpContext, IStorageFoundationService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.UpdateProviderAsync(
+                new UpdateStorageProviderConfigurationCommand(ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), providerConfigurationId, request.Name, request.ContainerName, request.Priority, request.IsDefault, request.IsEnabled, request.SettingsJson),
+                cancellationToken)));
+
+        storage.MapPost("/providers/{providerConfigurationId:guid}/disable", async (Guid tenantId, Guid providerConfigurationId, HttpContext httpContext, IStorageFoundationService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.DisableProviderAsync(
+                new ChangeStorageProviderCommand(ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), providerConfigurationId),
+                cancellationToken)));
+
+        storage.MapPost("/providers/{providerConfigurationId:guid}/activate", async (Guid tenantId, Guid providerConfigurationId, HttpContext httpContext, IStorageFoundationService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.SetActiveProviderAsync(
+                new ChangeStorageProviderCommand(ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), providerConfigurationId),
+                cancellationToken)));
+
+        storage.MapPost("/providers/{providerConfigurationId:guid}/test", async (Guid tenantId, Guid providerConfigurationId, HttpContext httpContext, IStorageFoundationService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.TestProviderAsync(
+                new ChangeStorageProviderCommand(ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), providerConfigurationId),
                 cancellationToken)));
     }
 

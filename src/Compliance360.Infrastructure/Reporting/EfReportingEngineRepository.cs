@@ -33,6 +33,7 @@ public sealed class EfReportingEngineRepository : IReportingEngineRepository
             .Include(definition => definition.History)
             .Include(definition => definition.Permissions)
             .Include(definition => definition.DashboardBindings)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(definition => definition.TenantId == tenantId && definition.Id == definitionId, cancellationToken);
     }
 

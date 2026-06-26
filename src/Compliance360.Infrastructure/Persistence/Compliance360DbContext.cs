@@ -61,6 +61,8 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
 
     public DbSet<StoredFile> StoredFiles => Set<StoredFile>();
 
+    public DbSet<StorageProviderConfiguration> StorageProviderConfigurations => Set<StorageProviderConfiguration>();
+
     public DbSet<NotificationTemplate> NotificationTemplates => Set<NotificationTemplate>();
 
     public DbSet<NotificationMessage> NotificationMessages => Set<NotificationMessage>();
@@ -312,8 +314,23 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.HasKey(tenant => tenant.Id);
             entity.Property(tenant => tenant.Name).HasMaxLength(180).IsRequired();
             entity.Property(tenant => tenant.Slug).HasMaxLength(80).IsRequired();
+            entity.Property(tenant => tenant.LegalName).HasMaxLength(220).IsRequired();
+            entity.Property(tenant => tenant.CommercialName).HasMaxLength(180).IsRequired();
+            entity.Property(tenant => tenant.TaxIdentifier).HasMaxLength(80).IsRequired();
+            entity.Property(tenant => tenant.Industry).HasMaxLength(120).IsRequired();
+            entity.Property(tenant => tenant.Description).HasMaxLength(1000);
+            entity.Property(tenant => tenant.AddressLine1).HasMaxLength(220);
+            entity.Property(tenant => tenant.City).HasMaxLength(120);
+            entity.Property(tenant => tenant.Province).HasMaxLength(120);
+            entity.Property(tenant => tenant.CountryCode).HasMaxLength(2).IsRequired();
+            entity.Property(tenant => tenant.PostalCode).HasMaxLength(20);
+            entity.Property(tenant => tenant.Phone).HasMaxLength(40);
+            entity.Property(tenant => tenant.Email).HasMaxLength(180);
+            entity.Property(tenant => tenant.Website).HasMaxLength(250);
+            entity.Property(tenant => tenant.Currency).HasMaxLength(3).IsRequired();
             entity.Property(tenant => tenant.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
             entity.HasIndex(tenant => tenant.Slug).IsUnique();
+            entity.HasIndex(tenant => tenant.TaxIdentifier).IsUnique();
             entity.HasMany(tenant => tenant.Companies).WithOne().HasForeignKey(company => company.TenantId);
             entity.Navigation(tenant => tenant.Companies).UsePropertyAccessMode(PropertyAccessMode.Field);
             entity.HasOne(tenant => tenant.Settings).WithOne().HasForeignKey<TenantSettings>(settings => settings.TenantId);
@@ -345,7 +362,9 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.ToTable("tenant_settings");
             entity.HasKey(settings => settings.Id);
             entity.Property(settings => settings.Culture).HasMaxLength(12).IsRequired();
+            entity.Property(settings => settings.Language).HasMaxLength(12).IsRequired();
             entity.Property(settings => settings.TimeZone).HasMaxLength(80).IsRequired();
+            entity.Property(settings => settings.IpWhitelist).HasMaxLength(2000).IsRequired();
             entity.HasIndex(settings => settings.TenantId).IsUnique();
         });
 
@@ -355,8 +374,13 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.HasKey(branding => branding.Id);
             entity.Property(branding => branding.DisplayName).HasMaxLength(180).IsRequired();
             entity.Property(branding => branding.LogoUri).HasMaxLength(500);
+            entity.Property(branding => branding.FaviconUri).HasMaxLength(500);
             entity.Property(branding => branding.PrimaryColor).HasMaxLength(20).IsRequired();
             entity.Property(branding => branding.SecondaryColor).HasMaxLength(20).IsRequired();
+            entity.Property(branding => branding.Theme).HasMaxLength(40).IsRequired();
+            entity.Property(branding => branding.LoginBackgroundUri).HasMaxLength(500);
+            entity.Property(branding => branding.CorporateEmail).HasMaxLength(180).IsRequired();
+            entity.Property(branding => branding.FooterText).HasMaxLength(500).IsRequired();
             entity.HasIndex(branding => branding.TenantId).IsUnique();
         });
     }
@@ -496,6 +520,19 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.Property(storedFile => storedFile.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
             entity.HasIndex(storedFile => new { storedFile.TenantId, storedFile.OwnerEntityName, storedFile.OwnerEntityId });
             entity.HasIndex(storedFile => new { storedFile.ContainerName, storedFile.ObjectKey }).IsUnique();
+        });
+
+        modelBuilder.Entity<StorageProviderConfiguration>(entity =>
+        {
+            entity.ToTable("storage_provider_configurations");
+            entity.HasKey(configuration => configuration.Id);
+            entity.Property(configuration => configuration.Provider).HasConversion<string>().HasMaxLength(60).IsRequired();
+            entity.Property(configuration => configuration.Name).HasMaxLength(120).IsRequired();
+            entity.Property(configuration => configuration.ContainerName).HasMaxLength(180).IsRequired();
+            entity.Property(configuration => configuration.SettingsJson).HasColumnType("jsonb").IsRequired();
+            entity.Property(configuration => configuration.LastHealthMessage).HasMaxLength(1_000);
+            entity.HasIndex(configuration => new { configuration.TenantId, configuration.Provider, configuration.Name }).IsUnique();
+            entity.HasIndex(configuration => new { configuration.TenantId, configuration.IsDefault, configuration.Priority });
         });
     }
 

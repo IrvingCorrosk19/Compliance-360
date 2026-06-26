@@ -35,7 +35,11 @@ public enum NotificationProvider
     Smtp = 0,
     SendGrid = 1,
     Mailgun = 2,
-    Resend = 3
+    Resend = 3,
+    GmailSmtp = 4,
+    Microsoft365 = 5,
+    ExchangeOnline = 6,
+    AmazonSes = 7
 }
 
 public enum NotificationDeliveryStatus

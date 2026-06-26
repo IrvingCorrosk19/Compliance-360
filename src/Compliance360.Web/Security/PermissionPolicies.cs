@@ -5,6 +5,21 @@ namespace Compliance360.Web.Security;
 public static class PermissionPolicies
 {
     public const string TenantManage = "Tenant.Manage";
+    public const string TenantRead = "Tenant.Read";
+    public const string TenantCreate = "Tenant.Create";
+    public const string TenantUpdate = "Tenant.Update";
+    public const string TenantStatus = "Tenant.Status";
+    public const string TenantBranding = "Tenant.Branding";
+    public const string TenantSecurity = "Tenant.Security";
+    public const string TenantStorage = "Tenant.Storage";
+    public const string TenantNotifications = "Tenant.Notifications";
+    public const string TenantIntegrations = "Tenant.Integrations";
+    public const string TenantBilling = "Tenant.Billing";
+    public const string TenantUsers = "Tenant.Users";
+    public const string TenantRoles = "Tenant.Roles";
+    public const string TenantAudit = "Tenant.Audit";
+    public const string TenantDelete = "Tenant.Delete";
+    public const string TenantRestore = "Tenant.Restore";
     public const string IdentityManage = "Identity.Manage";
     public const string RbacManage = "Rbac.Manage";
     public const string AuditRead = "Audit.Read";
@@ -42,7 +57,22 @@ public static class PermissionPolicies
 
     public static void AddCompliancePolicies(this AuthorizationOptions options)
     {
-        options.AddPolicy(TenantManage, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.MANAGE")));
+        options.AddPolicy(TenantManage, policy => policy.RequireAssertion(context => HasAnyPermission(context, "TENANT.READ", "TENANT.CREATE", "TENANT.UPDATE", "TENANT.STATUS", "TENANT.BRANDING", "TENANT.SECURITY", "TENANT.STORAGE", "TENANT.NOTIFICATIONS", "TENANT.INTEGRATIONS", "TENANT.BILLING", "TENANT.USERS", "TENANT.ROLES", "TENANT.AUDIT", "TENANT.DELETE", "TENANT.RESTORE")));
+        options.AddPolicy(TenantRead, policy => policy.RequireAssertion(context => HasAnyPermission(context, "TENANT.READ", "TENANT.CREATE", "TENANT.UPDATE", "TENANT.STATUS", "TENANT.BRANDING", "TENANT.SECURITY", "TENANT.STORAGE", "TENANT.NOTIFICATIONS", "TENANT.INTEGRATIONS", "TENANT.BILLING", "TENANT.USERS", "TENANT.ROLES", "TENANT.AUDIT", "TENANT.DELETE", "TENANT.RESTORE")));
+        options.AddPolicy(TenantCreate, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.CREATE")));
+        options.AddPolicy(TenantUpdate, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.UPDATE")));
+        options.AddPolicy(TenantStatus, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.STATUS")));
+        options.AddPolicy(TenantBranding, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.BRANDING")));
+        options.AddPolicy(TenantSecurity, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.SECURITY")));
+        options.AddPolicy(TenantStorage, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.STORAGE")));
+        options.AddPolicy(TenantNotifications, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.NOTIFICATIONS")));
+        options.AddPolicy(TenantIntegrations, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.INTEGRATIONS")));
+        options.AddPolicy(TenantBilling, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.BILLING")));
+        options.AddPolicy(TenantUsers, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.USERS")));
+        options.AddPolicy(TenantRoles, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.ROLES")));
+        options.AddPolicy(TenantAudit, policy => policy.RequireAssertion(context => HasAnyPermission(context, "TENANT.AUDIT", "AUDIT.READ", "AUDIT.MANAGE")));
+        options.AddPolicy(TenantDelete, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.DELETE")));
+        options.AddPolicy(TenantRestore, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.RESTORE")));
         options.AddPolicy(IdentityManage, policy => policy.RequireAssertion(context => HasPermission(context, "IDENTITY.MANAGE")));
         options.AddPolicy(RbacManage, policy => policy.RequireAssertion(context => HasPermission(context, "RBAC.MANAGE")));
         options.AddPolicy(AuditRead, policy => policy.RequireAssertion(context => HasPermission(context, "AUDIT.READ") || HasPermission(context, "AUDIT.MANAGE")));
@@ -81,8 +111,25 @@ public static class PermissionPolicies
 
     private static bool HasPermission(AuthorizationHandlerContext context, string permission)
     {
+        if (HasPlatformSuperAdmin(context))
+        {
+            return true;
+        }
+
         return context.User.Claims.Any(claim =>
             string.Equals(claim.Type, "permission", StringComparison.OrdinalIgnoreCase)
             && string.Equals(claim.Value, permission, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static bool HasAnyPermission(AuthorizationHandlerContext context, params string[] permissions)
+    {
+        return permissions.Any(permission => HasPermission(context, permission));
+    }
+
+    private static bool HasPlatformSuperAdmin(AuthorizationHandlerContext context)
+    {
+        return context.User.Claims.Any(claim =>
+            string.Equals(claim.Type, System.Security.Claims.ClaimTypes.Role, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(claim.Value, "SuperAdmin", StringComparison.OrdinalIgnoreCase));
     }
 }

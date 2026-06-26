@@ -4499,6 +4499,69 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
                     b.ToTable("risk_treatments", "compliance360");
                 });
 
+            modelBuilder.Entity("Compliance360.Domain.Storage.StorageProviderConfiguration", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ContainerName")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("LastHealthCheckAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastHealthMessage")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<bool>("LastHealthStatus")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<string>("SettingsJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "IsDefault", "Priority");
+
+                    b.HasIndex("TenantId", "Provider", "Name")
+                        .IsUnique();
+
+                    b.ToTable("storage_provider_configurations", "compliance360");
+                });
+
             modelBuilder.Entity("Compliance360.Domain.Storage.StoredFile", b =>
                 {
                     b.Property<Guid>("Id")
@@ -5156,13 +5219,69 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("AddressLine1")
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("CommercialName")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)");
+
+                    b.Property<string>("CountryCode")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)");
+
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)");
+
+                    b.Property<string>("Industry")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("LegalName")
+                        .IsRequired()
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(180)
                         .HasColumnType("character varying(180)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("PostalCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Province")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
 
                     b.Property<string>("Slug")
                         .IsRequired()
@@ -5174,12 +5293,24 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("character varying(40)");
 
+                    b.Property<string>("TaxIdentifier")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
                     b.Property<DateTimeOffset?>("UpdatedAtUtc")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.HasIndex("TaxIdentifier")
                         .IsUnique();
 
                     b.ToTable("tenants", "compliance360");
@@ -5191,6 +5322,11 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("CorporateEmail")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)");
+
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
@@ -5198,6 +5334,19 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(180)
                         .HasColumnType("character varying(180)");
+
+                    b.Property<string>("FaviconUri")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("FooterText")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("LoginBackgroundUri")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("LogoUri")
                         .HasMaxLength(500)
@@ -5215,6 +5364,11 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("Theme")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
 
                     b.Property<DateTimeOffset?>("UpdatedAtUtc")
                         .HasColumnType("timestamp with time zone");
@@ -5244,8 +5398,33 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
                     b.Property<int>("DocumentRetentionDays")
                         .HasColumnType("integer");
 
+                    b.Property<string>("IpWhitelist")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("character varying(12)");
+
+                    b.Property<int>("LockoutMaxFailedAttempts")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("LockoutMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PasswordExpirationDays")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("RequireMfa")
                         .HasColumnType("boolean");
+
+                    b.Property<int>("SecurityScore")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SessionTimeoutMinutes")
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -5254,6 +5433,9 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(80)
                         .HasColumnType("character varying(80)");
+
+                    b.Property<bool>("TrustedDevicesEnabled")
+                        .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset?>("UpdatedAtUtc")
                         .HasColumnType("timestamp with time zone");

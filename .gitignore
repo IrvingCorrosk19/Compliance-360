@@ -3,9 +3,12 @@ obj/
 .vs/
 .vscode/
 TestResults/
+artifacts/
 *.user
 *.suo
 *.rsuser
 *.nupkg
 /storage/
 appsettings.Local.json
+.venv/
+build/

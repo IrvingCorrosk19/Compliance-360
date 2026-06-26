@@ -26,6 +26,7 @@ public sealed class EfWorkflowRepository : IWorkflowRepository
             .Include(workflow => workflow.Steps)
             .Include(workflow => workflow.Transitions)
             .Include(workflow => workflow.Rules)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(workflow => workflow.TenantId == tenantId && workflow.Id == workflowId, cancellationToken);
     }
 
@@ -46,6 +47,7 @@ public sealed class EfWorkflowRepository : IWorkflowRepository
             .Include(instance => instance.History)
             .Include(instance => instance.Escalations)
             .Include(instance => instance.Notifications)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(instance => instance.TenantId == tenantId && instance.Id == workflowInstanceId, cancellationToken);
     }
 
