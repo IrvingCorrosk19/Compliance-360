@@ -99,6 +99,7 @@ public static class TenantValueObjects
     private static readonly Regex ColorRegex = new("^#(?:[0-9a-fA-F]{3}){1,2}$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
     private static readonly Regex CurrencyRegex = new("^[A-Z]{3}$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
     private static readonly Regex CountryRegex = new("^[A-Z]{2}$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+    private static readonly Regex TaxIdRegex = new("^[A-Z0-9][A-Z0-9\\-\\.]{2,78}[A-Z0-9]$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     public static string Email(string? value, string parameterName = "email")
     {
@@ -236,7 +237,13 @@ public static class TenantValueObjects
 
     public static string TaxId(string? value, string parameterName = "taxIdentifier")
     {
-        return Guard.AgainstNullOrWhiteSpace(value, parameterName, 80).ToUpperInvariant();
+        var normalized = Guard.AgainstNullOrWhiteSpace(value, parameterName, 80).ToUpperInvariant();
+        if (!TaxIdRegex.IsMatch(normalized))
+        {
+            throw new DomainException($"{parameterName} contains invalid characters.");
+        }
+
+        return normalized;
     }
 }
 

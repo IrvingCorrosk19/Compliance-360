@@ -1,10 +1,10 @@
 const API = "/api/v1";
 const DEFAULT_TENANT = "dc7c46ee-cb25-4ed5-b0b4-800788f7f626";
 const DEFAULT_EMAIL = "admin@compliance360.local";
-const DEFAULT_PASSWORD = "Admin2026Aa";
 
 const state = {
   token: localStorage.getItem("c360.token"),
+  permissions: permissionsFromToken(localStorage.getItem("c360.token")),
   tenantId: localStorage.getItem("c360.tenantId") || DEFAULT_TENANT,
   email: localStorage.getItem("c360.email") || DEFAULT_EMAIL,
   userId: localStorage.getItem("c360.userId"),
@@ -25,6 +25,67 @@ const state = {
     reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches
   }
 };
+
+function permissionsFromToken(token) {
+  if (!token) return [];
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+    const permissions = payload.permission || [];
+    return Array.isArray(permissions) ? permissions : [permissions];
+  } catch {
+    return [];
+  }
+}
+
+function hasPermission(code) {
+  return state.permissions.includes(code);
+}
+
+function hasAnyPermission(codes) {
+  return codes.some(code => hasPermission(code));
+}
+
+const routePermissions = {
+  dashboard: ["TENANT.READ"],
+  compliance: ["TENANT.READ"],
+  reports: ["REPORT.READ", "REPORT.EXECUTE"],
+  "audit-trail": ["AUDIT.READ"],
+  documents: ["DOCUMENT.READ", "DOCUMENT.MANAGE"],
+  "technical-sheets": ["TECHNICALSHEET.READ", "TECHNICALSHEET.MANAGE"],
+  suppliers: ["SUPPLIER.READ", "SUPPLIER.MANAGE"],
+  audits: ["AUDITMANAGEMENT.MANAGE"],
+  capa: ["CAPA.READ", "CAPA.MANAGE"],
+  risks: ["RISK.READ", "RISK.MANAGE"],
+  indicators: ["INDICATOR.READ", "INDICATOR.MANAGE"],
+  "superadmin-platform": ["SUPERADMIN.DASHBOARD"],
+  "tenant-administration": ["TENANT.USERS", "TENANT.ROLES", "TENANT.UPDATE"],
+  "template-builder": ["TENANT.UPDATE"],
+  regulatory: ["TENANT.READ"],
+  training: ["TENANT.READ"],
+  "supplier-portal": ["SUPPLIER.READ", "SUPPLIER.MANAGE"],
+  "customer-portal": ["TENANT.READ"],
+  security: ["TENANT.SECURITY"],
+  configuration: ["STORAGE.MANAGE", "NOTIFICATION.MANAGE", "NOTIFICATION.ADMIN"]
+};
+
+const routeManagePermissions = {
+  documents: "DOCUMENT.MANAGE",
+  "technical-sheets": "TECHNICALSHEET.MANAGE",
+  suppliers: "SUPPLIER.MANAGE",
+  audits: "AUDITMANAGEMENT.MANAGE",
+  capa: "CAPA.MANAGE",
+  risks: "RISK.MANAGE",
+  indicators: "INDICATOR.MANAGE",
+  configuration: "STORAGE.MANAGE"
+};
+
+function canNavigate(route) {
+  return !routePermissions[route] || hasAnyPermission(routePermissions[route]);
+}
+
+function canManageRoute(route) {
+  return Boolean(routeManagePermissions[route] && hasPermission(routeManagePermissions[route]));
+}
 
 const loadingMessages = {
   default: ["Cargando informacion...", "Sincronizando informacion...", "Procesando solicitud..."],
@@ -254,10 +315,10 @@ function loginView() {
           </div>
           <div class="field">
             <label for="password">Password</label>
-            <input id="password" name="password" type="password" autocomplete="current-password" value="${escapeHtml(DEFAULT_PASSWORD)}" required>
+            <input id="password" name="password" type="password" autocomplete="current-password" required>
           </div>
           <button class="btn primary" type="submit">Iniciar sesion</button>
-          <p class="metric-label">Usuario bootstrap local: ${DEFAULT_EMAIL} / tenant local prellenado.</p>
+          <p class="metric-label">Development: utilice las credenciales definidas en BootstrapSuperAdmin. La contrasena no se expone en JavaScript.</p>
         </form>
       </section>
       <section class="login-hero">
@@ -297,7 +358,7 @@ function shellView() {
           <strong>Production Core 100%</strong>
           <small>Tenant activo, API segura y datos persistentes.</small>
         </section>
-        ${navigation.map(group => `
+        ${navigation.map(group => ({ ...group, items: group.items.filter(([key]) => canNavigate(key)) })).filter(group => group.items.length).map(group => `
           <nav class="nav-group" aria-label="${group.group}">
             <div class="nav-label">${group.group}</div>
             ${group.items.map(([key, label]) => `
@@ -373,6 +434,7 @@ function bindLogin() {
       }
 
       state.token = result.accessToken;
+      state.permissions = permissionsFromToken(result.accessToken);
       state.tenantId = result.tenantId;
       state.email = result.email;
       state.userId = result.userId;
@@ -410,6 +472,7 @@ function bindMfaChallenge() {
       });
       state.mfaChallenge = null;
       state.token = result.accessToken;
+      state.permissions = permissionsFromToken(result.accessToken);
       state.tenantId = result.tenantId;
       state.email = result.email;
       state.userId = result.userId;
@@ -447,6 +510,7 @@ function bindShell() {
   document.querySelector("#logout").addEventListener("click", () => {
     localStorage.removeItem("c360.token");
     state.token = null;
+    state.permissions = [];
     toast("Sesion cerrada.", "success");
     render();
   });
@@ -523,6 +587,7 @@ async function renderRoute() {
     if (String(error.message).includes("401")) {
       localStorage.removeItem("c360.token");
       state.token = null;
+      state.permissions = [];
       render();
       toast("Sesion expirada. Inicia sesion nuevamente.", "error");
       return;
@@ -535,27 +600,30 @@ async function renderRoute() {
 }
 
 async function renderDashboard(content) {
-  const [health, auditDashboard, capaDashboard, riskDashboard, indicatorDashboard, reports, heatMap] = await Promise.allSettled([
-    fetch("/health").then(r => r.json()),
-    request(`/tenants/${state.tenantId}/audit-management/dashboard`),
-    request(`/tenants/${state.tenantId}/capas/dashboard`),
-    request(`/tenants/${state.tenantId}/risks/dashboard`),
-    request(`/tenants/${state.tenantId}/indicators/dashboard`),
-    request(`/tenants/${state.tenantId}/reports/dashboard-datasets`),
-    request(`/tenants/${state.tenantId}/risks/heat-map`)
-  ]);
+  const dashboardRequests = {
+    health: fetch("/health").then(r => r.json()),
+    auditDashboard: hasPermission("AUDITMANAGEMENT.MANAGE") ? request(`/tenants/${state.tenantId}/audit-management/dashboard`) : Promise.resolve({}),
+    capaDashboard: hasAnyPermission(["CAPA.READ", "CAPA.MANAGE"]) ? request(`/tenants/${state.tenantId}/capas/dashboard`) : Promise.resolve({}),
+    riskDashboard: hasAnyPermission(["RISK.READ", "RISK.MANAGE"]) ? request(`/tenants/${state.tenantId}/risks/dashboard`) : Promise.resolve({}),
+    indicatorDashboard: hasAnyPermission(["INDICATOR.READ", "INDICATOR.MANAGE"]) ? request(`/tenants/${state.tenantId}/indicators/dashboard`) : Promise.resolve({}),
+    reports: hasAnyPermission(["REPORT.READ", "REPORT.EXECUTE"]) ? request(`/tenants/${state.tenantId}/reports/dashboard-datasets`) : Promise.resolve({ datasets: [] }),
+    heatMap: hasAnyPermission(["RISK.READ", "RISK.MANAGE"]) ? request(`/tenants/${state.tenantId}/risks/heat-map`) : Promise.resolve([])
+  };
+  const dashboardResults = Object.fromEntries(await Promise.all(
+    Object.entries(dashboardRequests).map(async ([key, promise]) => [key, await promiseSettled(promise)])
+  ));
 
-  const audit = valueOf(auditDashboard, {});
-  const capa = valueOf(capaDashboard, {});
-  const risk = valueOf(riskDashboard, {});
-  const indicators = valueOf(indicatorDashboard, {});
-  const reportCatalog = valueOf(reports, { datasets: [] });
-  const heat = valueOf(heatMap, []);
+  const audit = valueOf(dashboardResults.auditDashboard, {});
+  const capa = valueOf(dashboardResults.capaDashboard, {});
+  const risk = valueOf(dashboardResults.riskDashboard, {});
+  const indicators = valueOf(dashboardResults.indicatorDashboard, {});
+  const reportCatalog = valueOf(dashboardResults.reports, { datasets: [] });
+  const heat = valueOf(dashboardResults.heatMap, []);
 
   content.innerHTML = `
     ${productionHero(audit, capa, risk, indicators, reportCatalog)}
     <section class="grid cards">
-      ${metric("API Health", statusLabel(valueOf(health, {}).status || "Healthy"), "Estado de servicio")}
+      ${metric("API Health", statusLabel(valueOf(dashboardResults.health, {}).status || "Healthy"), "Estado de servicio")}
       ${metric("Audit Open", audit.openAudits ?? audit.totalOpen ?? 0, "Auditorias abiertas")}
       ${metric("CAPA Open", capa.openCapas ?? capa.totalOpen ?? 0, "Acciones abiertas")}
       ${metric("Risk Critical", risk.criticalRisks ?? 0, "Riesgos criticos")}
@@ -585,12 +653,12 @@ async function renderDashboard(content) {
       <div class="card">
         <h2 class="section-title">Quick Actions</h2>
         <div class="button-row">
-          <button class="btn primary" data-route="reports">Ejecutar reporte</button>
-          <button class="btn" data-route="documents">Crear documento</button>
-          <button class="btn" data-route="capa">Abrir CAPA</button>
-          <button class="btn" data-route="risks">Ver riesgos</button>
-          <button class="btn" data-route="indicators">Ver KPIs</button>
-          <button class="btn" data-route="audit-trail">Auditoria</button>
+          ${quickRouteButton("reports", "Ejecutar reporte", "primary")}
+          ${quickRouteButton("documents", "Documentos")}
+          ${quickRouteButton("capa", "Abrir CAPA")}
+          ${quickRouteButton("risks", "Ver riesgos")}
+          ${quickRouteButton("indicators", "Ver KPIs")}
+          ${quickRouteButton("audit-trail", "Auditoria")}
         </div>
       </div>
     </section>
@@ -631,12 +699,12 @@ async function renderIntegrationsAdministration(content) {
         <article class="panel">
           <h2>Email Providers</h2>
           <p>SMTP, Gmail SMTP, Microsoft 365, Exchange Online, SendGrid, Mailgun, Resend y Amazon SES configurables por tenant.</p>
-          <div class="table-wrap">${tableFromRows(Object.entries(notification.providerHealth ?? {}).map(([provider, ok]) => ({ provider, status: ok ? "Saludable" : "Requiere configuracion" })), ["provider", "status"])}</div>
+          ${tableCard("Email provider health", Object.entries(notification.providerHealth ?? {}).map(([provider, ok]) => ({ provider, status: ok ? "Saludable" : "Requiere configuracion" })), ["provider", "status"])}
         </article>
         <article class="panel">
           <h2>Storage Providers</h2>
           <p>Local, Azure Blob, AWS S3, MinIO, Google Cloud Storage y SFTP con prioridad/failover por tenant.</p>
-          <div class="table-wrap">${tableFromRows(storage, ["provider", "name", "containerName", "priority", "isDefault", "isEnabled", "lastHealthStatus"])}</div>
+          ${tableCard("Storage provider configurations", storage, ["provider", "name", "containerName", "priority", "isDefault", "isEnabled", "lastHealthStatus"])}
         </article>
       </div>
       <article class="panel">
@@ -819,6 +887,7 @@ async function renderModule(content, key) {
   const module = modules[key];
   const data = await request(module.endpoint(state.tenantId));
   const rows = data.items || [];
+  const canManage = canManageRoute(key);
   content.innerHTML = `
     ${pageHeader(module.title, module.description, "Operations")}
     ${moduleExperiencePanel(key, data.totalCount ?? rows.length)}
@@ -830,7 +899,7 @@ async function renderModule(content, key) {
     </section>
     <section class="card">
       <h2 class="section-title">Action Center</h2>
-      ${moduleActionForm(key)}
+      ${canManage ? moduleActionForm(key) : readOnlyNotice(key)}
     </section>
     <section class="card">
       <div class="button-row">
@@ -875,6 +944,7 @@ async function renderSuperAdminPlatformCenter(content) {
   const timeline = center.auditTimeline || [];
   const quickActions = center.quickActions || [];
   const globalHealth = metrics.globalHealth || "Unknown";
+  const activePlatformTab = localStorage.getItem("c360.platformTab") || "executive";
 
   content.innerHTML = `
     ${pageHeader("SuperAdmin Platform Center", "Consola global para administrar y observar toda la plataforma Compliance 360.", "Platform / Global Administration")}
@@ -917,10 +987,10 @@ async function renderSuperAdminPlatformCenter(content) {
     ${superAdminAlerts(alerts)}
     <section class="tenant-admin-shell platform-shell">
       <aside class="tenant-tabs" aria-label="SuperAdmin Platform tabs">
-        ${superAdminTabs().map((tab, index) => `<button class="tenant-tab ${index === 0 ? "active" : ""}" type="button" data-tab="${tab.key}"><span>${index + 1}</span>${tab.label}</button>`).join("")}
+        ${superAdminTabs().map((tab, index) => `<button class="tenant-tab ${tab.key === activePlatformTab ? "active" : ""}" type="button" data-tab="${tab.key}"><span>${index + 1}</span>${tab.label}</button>`).join("")}
       </aside>
       <div class="tenant-tab-panels">
-        ${superAdminPanel("executive", "Executive Dashboard", quickActionsPanel(quickActions) + platformConsumptionPanel(metrics), true)}
+        ${superAdminPanel("executive", "Executive Dashboard", quickActionsPanel(quickActions) + createTenantPanel() + platformConsumptionPanel(metrics), activePlatformTab === "executive")}
         ${superAdminPanel("tenants", "Tenants", tableCard("Tenant fleet", tenants.map(tenant => ({
           name: tenant.name,
           slug: tenant.slug,
@@ -930,7 +1000,7 @@ async function renderSuperAdminPlatformCenter(content) {
           storage: formatBytes(tenant.storageBytes),
           created: formatDate(tenant.createdAtUtc),
           actions: `__html:<button class="btn small" data-platform-tenant="${tenant.id}">Abrir TAC</button>`
-        })), ["name", "slug", "status", "plan", "users", "storage", "created", "actions"]))}
+        })), ["name", "slug", "status", "plan", "users", "storage", "created", "actions"]), activePlatformTab === "tenants")}
         ${superAdminPanel("licenses", "Licencias", tableCard("Licencias y consumo", licenses.map(license => ({
           tenant: license.tenantName,
           plan: license.plan,
@@ -939,8 +1009,8 @@ async function renderSuperAdminPlatformCenter(content) {
           storage: `${formatBytes(license.storageUsedBytes)} / ${license.maxStorageGb} GB`,
           expires: license.expiresOn || "n/a",
           renewal: license.renewalDate || "n/a"
-        })), ["tenant", "plan", "status", "users", "storage", "expires", "renewal"]))}
-        ${superAdminPanel("modules", "Modulos", tableCard("Matriz de modulos por tenant", modules.slice(0, 100).map(item => ({ tenant: item.tenantName, module: item.module, enabled: item.enabled ? "Activo" : "Inactivo", source: item.source, health: statusLabel(item.health) })), ["tenant", "module", "enabled", "source", "health"]))}
+        })), ["tenant", "plan", "status", "users", "storage", "expires", "renewal"]), activePlatformTab === "licenses")}
+        ${superAdminPanel("modules", "Modulos", tableCard("Matriz de modulos por tenant", modules.slice(0, 100).map(item => ({ tenant: item.tenantName, module: item.module, enabled: item.enabled ? "Activo" : "Inactivo", source: item.source, health: statusLabel(item.health) })), ["tenant", "module", "enabled", "source", "health"]), activePlatformTab === "modules")}
         ${superAdminPanel("providers", "Providers", tableCard("Providers globales tenant-scoped", providers.map(provider => ({
           tenant: provider.tenantName,
           type: provider.type,
@@ -949,15 +1019,15 @@ async function renderSuperAdminPlatformCenter(content) {
           enabled: provider.isEnabled ? "Activo" : "Inactivo",
           health: statusLabel(provider.health),
           last: formatDate(provider.lastHealthCheckAtUtc)
-        })), ["tenant", "type", "provider", "name", "enabled", "health", "last"]))}
-        ${superAdminPanel("security", "Seguridad Global", platformSecurityPanel())}
-        ${superAdminPanel("observability", "Observability", tableCard("Health, trazas y servicios de fondo", health.map(signal => ({ component: signal.component, status: statusLabel(signal.status), message: signal.message, tenant: shortId(signal.tenantId), checked: formatDate(signal.checkedAtUtc) })), ["component", "status", "message", "tenant", "checked"]))}
-        ${superAdminPanel("audit", "Auditoria Global", superAdminTimeline(timeline))}
-        ${superAdminPanel("database", "Base de Datos", tableCard("Monitoreo PostgreSQL", database.map(item => ({ metric: item.name, value: item.value, status: statusLabel(item.status), description: item.description })), ["metric", "value", "status", "description"]))}
-        ${superAdminPanel("ai", "IA", platformAiPanel(globalHealth))}
-        ${superAdminPanel("configuration", "Configuracion Global", platformGlobalConfigurationPanel())}
-        ${superAdminPanel("backups", "Backups", tableCard("Backups registrados", backups.map(backup => ({ tenant: backup.tenantName, kind: backup.backupKind, result: backup.result, completed: formatDate(backup.completedAtUtc), duration: backup.duration, size: formatBytes(backup.sizeBytes), rpo: backup.rpo, rto: backup.rto })), ["tenant", "kind", "result", "completed", "duration", "size", "rpo", "rto"]))}
-        ${superAdminPanel("devops", "DevOps", platformDevOpsPanel(database))}
+        })), ["tenant", "type", "provider", "name", "enabled", "health", "last"]), activePlatformTab === "providers")}
+        ${superAdminPanel("security", "Seguridad Global", platformSecurityPanel(), activePlatformTab === "security")}
+        ${superAdminPanel("observability", "Observability", tableCard("Health, trazas y servicios de fondo", health.map(signal => ({ component: signal.component, status: statusLabel(signal.status), message: signal.message, tenant: shortId(signal.tenantId), checked: formatDate(signal.checkedAtUtc) })), ["component", "status", "message", "tenant", "checked"]), activePlatformTab === "observability")}
+        ${superAdminPanel("audit", "Auditoria Global", superAdminTimeline(timeline), activePlatformTab === "audit")}
+        ${superAdminPanel("database", "Base de Datos", tableCard("Monitoreo PostgreSQL", database.map(item => ({ metric: item.name, value: item.value, status: statusLabel(item.status), description: item.description })), ["metric", "value", "status", "description"]), activePlatformTab === "database")}
+        ${superAdminPanel("ai", "IA", platformAiPanel(globalHealth), activePlatformTab === "ai")}
+        ${superAdminPanel("configuration", "Configuracion Global", platformGlobalConfigurationPanel(), activePlatformTab === "configuration")}
+        ${superAdminPanel("backups", "Backups", tableCard("Backups registrados", backups.map(backup => ({ tenant: backup.tenantName, kind: backup.backupKind, result: backup.result, completed: formatDate(backup.completedAtUtc), duration: backup.duration, size: formatBytes(backup.sizeBytes), rpo: backup.rpo, rto: backup.rto })), ["tenant", "kind", "result", "completed", "duration", "size", "rpo", "rto"]), activePlatformTab === "backups")}
+        ${superAdminPanel("devops", "DevOps", platformDevOpsPanel(database), activePlatformTab === "devops")}
       </div>
     </section>`;
 
@@ -988,6 +1058,101 @@ function superAdminPanel(key, title, body, active = false) {
 
 function quickActionsPanel(actions) {
   return `<div class="grid cards">${actions.map(action => `<article class="card"><span class="product-badge">${safe(action.permission)}</span><h3>${safe(action.label)}</h3><p>${safe(action.description)}</p><button class="btn small" data-quick-action="${safe(action.key)}" data-route-target="${safe(action.route)}">Ejecutar</button></article>`).join("")}</div>`;
+}
+
+function createTenantPanel() {
+  return `
+    <section id="create-tenant-panel" class="card" hidden>
+      <div class="section-heading">
+        <div>
+          <h2 class="section-title">Crear Tenant</h2>
+          <p class="metric-label">Alta enterprise de tenant. Al guardar se abrira automaticamente el Tenant Administration Center del nuevo tenant.</p>
+        </div>
+        <span class="status-pill ok">SUPERADMIN.TENANTS.CREATE</span>
+      </div>
+      <form id="create-tenant-form" class="form-stack">
+        <div class="grid two">
+          ${inputField("newTenantName", "Tenant Name", "Cliente Demo Compliance", "text", false, true, { maxLength: 180, help: "Nombre interno del tenant." })}
+          ${inputField("newTenantSlug", "Slug", "cliente-demo-compliance", "text", false, true, { maxLength: 80, pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$", title: "Use minusculas, numeros y guiones.", help: "Identificador URL-friendly. Debe ser unico." })}
+          ${inputField("newTenantLegalName", "Razon Social", "Cliente Demo Compliance S.A.", "text", false, true, { maxLength: 220 })}
+          ${inputField("newTenantCommercialName", "Nombre Comercial", "Cliente Demo", "text", false, true, { maxLength: 180 })}
+          ${inputField("newTenantTaxIdentifier", "RUC / Tax ID", `DEMO-${Date.now().toString().slice(-6)}`, "text", false, true, { maxLength: 80, pattern: "^[A-Za-z0-9][A-Za-z0-9.\\-]{2,78}[A-Za-z0-9]$", title: "Use letras, numeros, guiones o puntos." })}
+          ${selectField("newTenantCountryCode", "Pais", "PA", countryOptions(), "Codigo ISO del pais.")}
+          ${selectField("newTenantCurrency", "Moneda", "USD", currencyOptions(), "Moneda ISO-4217.")}
+        </div>
+        <div class="grid two">
+          <button class="btn primary" type="submit">Crear tenant</button>
+          <button class="btn" type="button" id="cancel-create-tenant">Cancelar</button>
+        </div>
+      </form>
+    </section>`;
+}
+
+function bindCreateTenantForm() {
+  const form = document.querySelector("#create-tenant-form");
+  if (!form) {
+    return;
+  }
+
+  const name = form.querySelector("#newTenantName");
+  const slug = form.querySelector("#newTenantSlug");
+  name?.addEventListener("input", () => {
+    if (!slug.dataset.touched) {
+      slug.value = slugifyTenantName(name.value);
+    }
+  });
+  slug?.addEventListener("input", () => {
+    slug.dataset.touched = "true";
+  });
+
+  document.querySelector("#cancel-create-tenant")?.addEventListener("click", () => {
+    document.querySelector("#create-tenant-panel")?.setAttribute("hidden", "");
+  });
+
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+    if (!form.reportValidity()) {
+      return;
+    }
+
+    const button = form.querySelector("button[type='submit']");
+    const formData = new FormData(form);
+    try {
+      setLoadingButton(button, true, "Creando...");
+      const tenant = await request("/tenants", {
+        method: "POST",
+        loadingContext: "save",
+        overlay: true,
+        body: {
+          name: formData.get("newTenantName"),
+          slug: formData.get("newTenantSlug"),
+          legalName: formData.get("newTenantLegalName"),
+          commercialName: formData.get("newTenantCommercialName"),
+          taxIdentifier: formData.get("newTenantTaxIdentifier"),
+          countryCode: formData.get("newTenantCountryCode"),
+          currency: formData.get("newTenantCurrency")
+        }
+      });
+      state.tenantId = tenant.id;
+      localStorage.setItem("c360.tenantId", state.tenantId);
+      toast(`Tenant ${tenant.name} creado correctamente.`, "success");
+      location.hash = "#/tenant-administration";
+    } catch (error) {
+      toast(error.message, "error");
+    } finally {
+      setLoadingButton(button, false);
+    }
+  });
+}
+
+function slugifyTenantName(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
 }
 
 function platformConsumptionPanel(metrics) {
@@ -1057,6 +1222,7 @@ function superAdminAlerts(alerts) {
 function bindSuperAdminPlatformCenter() {
   document.querySelectorAll(".tenant-tab").forEach(tab => {
     tab.addEventListener("click", () => {
+      localStorage.setItem("c360.platformTab", tab.dataset.tab);
       document.querySelectorAll(".tenant-tab").forEach(item => item.classList.toggle("active", item === tab));
       document.querySelectorAll(".tenant-panel").forEach(panel => panel.classList.toggle("active", panel.dataset.panel === tab.dataset.tab));
     });
@@ -1077,12 +1243,22 @@ function bindSuperAdminPlatformCenter() {
     button.addEventListener("click", event => {
       state.tenantId = event.currentTarget.dataset.platformTenant;
       localStorage.setItem("c360.tenantId", state.tenantId);
+      localStorage.setItem("c360.platformTab", "tenants");
+      localStorage.setItem("c360.tenantReturn", "superadmin-platform");
       location.hash = "#/tenant-administration";
     });
   });
 
   document.querySelectorAll("[data-quick-action]").forEach(button => {
     button.addEventListener("click", event => {
+      if (event.currentTarget.dataset.quickAction === "tenant-create") {
+        const panel = document.querySelector("#create-tenant-panel");
+        panel?.removeAttribute("hidden");
+        panel?.scrollIntoView({ behavior: "smooth", block: "start" });
+        document.querySelector("#newTenantName")?.focus();
+        return;
+      }
+
       const target = event.currentTarget.dataset.routeTarget || "";
       if (target.startsWith("#/")) {
         location.hash = target;
@@ -1091,6 +1267,8 @@ function bindSuperAdminPlatformCenter() {
       }
     });
   });
+
+  bindCreateTenantForm();
 
   document.querySelector("#export-platform-audit")?.addEventListener("click", async () => {
     await downloadProtectedText("/superadmin/platform-center/audit-timeline/export?page=1&pageSize=250", "superadmin-global-audit.csv");
@@ -1114,9 +1292,11 @@ async function renderTenantAdministrationCenter(content) {
   const statusName = tenantStatusName(tenant.status);
   const planName = subscriptionPlanName(tenant.subscription.plan);
   const subscriptionStatusName = subscriptionStateName(tenant.subscription.status);
+  const activeTenantTab = localStorage.getItem("c360.tenantTab") || "general";
 
   content.innerHTML = `
     ${pageHeader("Tenant Administration Center", "Centro enterprise para administrar identidad comercial, seguridad, licenciamiento, integraciones, auditoria y estado operativo del tenant.", "Enterprise / Administration")}
+    ${tenantAdministrationNavigation(tenant)}
     <section class="tenant-hero">
       <div>
         <span class="product-badge">Tenant Core</span>
@@ -1157,6 +1337,7 @@ async function renderTenantAdministrationCenter(content) {
         ${tenantBrandingPanel(tenant)}
         ${tenantSecurityPanel(tenant)}
         ${tenantUsersPanel(center.users || { users: [], roles: [] }, tenant, metrics)}
+        ${tenantRbacPanel(center.users || { users: [], roles: [] })}
         ${tenantLicensingPanel(tenant, metrics, center.license)}
         ${tenantDomainsPanel(center.domains || [])}
         ${tenantSsoPanel(center.ssoConfigurations || [])}
@@ -1170,7 +1351,18 @@ async function renderTenantAdministrationCenter(content) {
       </div>
     </section>`;
 
+  applyTenantActiveTab(activeTenantTab);
   bindTenantAdministrationCenter(tenant, center);
+}
+
+function tenantAdministrationNavigation(tenant) {
+  const cameFromPlatform = localStorage.getItem("c360.tenantReturn") === "superadmin-platform";
+  return `
+    <section class="platform-command" aria-label="Navegacion de tenants">
+      <button class="btn" type="button" id="back-to-platform-tenants">${cameFromPlatform ? "Volver a Tenants" : "Ver todos los tenants"}</button>
+      <button class="btn" type="button" id="back-to-superadmin-platform">SuperAdmin Platform</button>
+      <span class="metric-label">Tenant actual: ${safe(tenant.commercialName || tenant.name)} · ${shortId(tenant.id)}</span>
+    </section>`;
 }
 
 function tenantAdminTabs() {
@@ -1179,6 +1371,7 @@ function tenantAdminTabs() {
     { key: "branding", label: "Branding" },
     { key: "security", label: "Seguridad" },
     { key: "users", label: "Usuarios" },
+    { key: "rbac", label: "Roles & Permisos" },
     { key: "licensing", label: "Licenciamiento" },
     { key: "domains", label: "Dominios" },
     { key: "sso", label: "SSO" },
@@ -1198,20 +1391,20 @@ function tenantGeneralPanel(tenant) {
       <div class="section-heading"><div><h2 class="section-title">Informacion General</h2><p class="metric-label">Campos empresariales editables con TenantId y CreatedAt inmutables.</p></div><span class="status-pill ok">Auditable</span></div>
       <form id="tenant-general-form" class="form-stack">
         <div class="grid two">
-          ${inputField("name", "Tenant Name", tenant.name)}
-          ${inputField("legalName", "Razon Social", tenant.legalName)}
-          ${inputField("commercialName", "Nombre Comercial", tenant.commercialName)}
-          ${inputField("taxIdentifier", "RUC / Tax ID", tenant.taxIdentifier)}
-          ${inputField("industry", "Industria", tenant.industry || "Compliance")}
-          ${inputField("countryCode", "Pais", tenant.countryCode)}
-          ${inputField("currency", "Moneda", tenant.currency)}
-          ${inputField("phone", "Telefono", tenant.phone || "")}
-          ${inputField("email", "Correo", tenant.email || "", "email")}
-          ${inputField("website", "Sitio Web", tenant.website || "", "url")}
-          ${inputField("city", "Ciudad", tenant.city || "")}
-          ${inputField("province", "Provincia", tenant.province || "")}
-          ${inputField("postalCode", "Codigo Postal", tenant.postalCode || "")}
-          ${inputField("addressLine1", "Direccion", tenant.addressLine1 || "")}
+          ${inputField("name", "Tenant Name", tenant.name, "text", false, true, { maxLength: 180, help: "Nombre interno del tenant. No puede estar vacío." })}
+          ${inputField("legalName", "Razon Social", tenant.legalName, "text", false, true, { maxLength: 220, help: "Nombre legal que aparece en contratos y facturación." })}
+          ${inputField("commercialName", "Nombre Comercial", tenant.commercialName, "text", false, true, { maxLength: 180, help: "Nombre visible para usuarios del cliente." })}
+          ${inputField("taxIdentifier", "RUC / Tax ID", tenant.taxIdentifier, "text", false, true, { maxLength: 80, pattern: "^[A-Za-z0-9][A-Za-z0-9.\\-]{2,78}[A-Za-z0-9]$", title: "Use letras, números, guiones o puntos. No use símbolos especiales.", help: "Identificación fiscal. Se normaliza a mayúsculas." })}
+          ${inputField("industry", "Industria", tenant.industry || "Compliance", "text", false, true, { maxLength: 120, help: "Sector principal del cliente." })}
+          ${selectField("countryCode", "Pais", tenant.countryCode, countryOptions(), "Código ISO del país. Panamá = PA.")}
+          ${selectField("currency", "Moneda", tenant.currency, currencyOptions(), "Moneda ISO-4217 usada para el tenant.")}
+          ${inputField("phone", "Telefono", tenant.phone || "", "tel", false, false, { placeholder: "+507 6000-0000", pattern: "^\\+?(?:\\d| |\\(|\\)|-){7,40}(?:\\s?(?:ext\\.?|x)\\s?\\d{1,8})?$", title: "Use un teléfono válido. Ejemplo: +507 6000-0000", help: "Puede incluir código de país y extensión." })}
+          ${inputField("email", "Correo", tenant.email || "", "email", false, false, { maxLength: 180, placeholder: "contacto@empresa.com", help: "Correo corporativo del tenant. Se normaliza a minúsculas." })}
+          ${inputField("website", "Sitio Web", tenant.website || "", "url", false, false, { maxLength: 250, placeholder: "https://empresa.com", help: "Debe iniciar con http:// o https://." })}
+          ${inputField("city", "Ciudad", tenant.city || "", "text", false, false, { maxLength: 120 })}
+          ${inputField("province", "Provincia", tenant.province || "", "text", false, false, { maxLength: 120 })}
+          ${inputField("postalCode", "Codigo Postal", tenant.postalCode || "", "text", false, false, { maxLength: 20, help: "Formato dependiente del país." })}
+          ${inputField("addressLine1", "Direccion", tenant.addressLine1 || "", "text", false, false, { maxLength: 220 })}
         </div>
         <div class="field"><label for="description">Descripcion</label><textarea id="description" name="description" rows="3">${safe(tenant.description || "")}</textarea></div>
         <div class="field"><label for="generalChangeReason">Motivo del cambio</label><input id="generalChangeReason" name="changeReason" placeholder="Opcional, queda en auditoria"></div>
@@ -1230,15 +1423,15 @@ function tenantBrandingPanel(tenant) {
           <div><strong>${safe(tenant.branding.displayName)}</strong><p>${safe(tenant.branding.footerText || "Compliance 360")}</p></div>
         </div>
         <div class="grid two">
-          ${inputField("displayName", "Nombre mostrado", tenant.branding.displayName)}
-          ${inputField("logoUri", "Logo", tenant.branding.logoUri || "", "url")}
-          ${inputField("faviconUri", "Favicon", tenant.branding.faviconUri || "", "url")}
-          ${inputField("primaryColor", "Color primario", tenant.branding.primaryColor)}
-          ${inputField("secondaryColor", "Color secundario", tenant.branding.secondaryColor)}
-          ${inputField("theme", "Tema", tenant.branding.theme || "System")}
-          ${inputField("loginBackgroundUri", "Pantalla Login", tenant.branding.loginBackgroundUri || "", "url")}
-          ${inputField("corporateEmail", "Correo corporativo", tenant.branding.corporateEmail || "", "email")}
-          ${inputField("footerText", "Pie de pagina", tenant.branding.footerText || "Compliance 360")}
+          ${inputField("displayName", "Nombre mostrado", tenant.branding.displayName, "text", false, true, { maxLength: 180 })}
+          ${inputField("logoUri", "Logo", tenant.branding.logoUri || "", "url", false, false, { placeholder: "https://empresa.com/logo.png", help: "URL absoluta del logo. Para archivos, valide peso, dimensiones y MIME antes de usarlo en producción." })}
+          ${inputField("faviconUri", "Favicon", tenant.branding.faviconUri || "", "url", false, false, { placeholder: "https://empresa.com/favicon.ico" })}
+          ${inputField("primaryColor", "Color primario", tenant.branding.primaryColor, "color", false, true, { help: "Seleccione un color. Se guarda como HEX." })}
+          ${inputField("secondaryColor", "Color secundario", tenant.branding.secondaryColor, "color", false, true, { help: "Seleccione un color secundario. Se guarda como HEX." })}
+          ${selectField("theme", "Tema", tenant.branding.theme || "System", [["System", "Sistema"], ["Light", "Claro"], ["Dark", "Oscuro"]], "Tema visual permitido.")}
+          ${inputField("loginBackgroundUri", "Pantalla Login", tenant.branding.loginBackgroundUri || "", "url", false, false, { placeholder: "https://empresa.com/login-background.jpg" })}
+          ${inputField("corporateEmail", "Correo corporativo", tenant.branding.corporateEmail || "", "email", false, false, { placeholder: "soporte@empresa.com" })}
+          ${inputField("footerText", "Pie de pagina", tenant.branding.footerText || "Compliance 360", "text", false, false, { maxLength: 160 })}
         </div>
         <div class="field"><label for="brandingChangeReason">Motivo del cambio</label><input id="brandingChangeReason" name="changeReason" placeholder="Opcional"></div>
         <button class="btn primary" type="submit">Guardar branding</button>
@@ -1254,13 +1447,13 @@ function tenantSecurityPanel(tenant) {
         <div class="grid two">
           <label class="toggle-row"><input type="checkbox" name="requireMfa" ${tenant.settings.requireMfa ? "checked" : ""}> MFA obligatorio</label>
           <label class="toggle-row"><input type="checkbox" name="trustedDevicesEnabled" ${tenant.settings.trustedDevicesEnabled ? "checked" : ""}> Trusted Devices</label>
-          ${inputField("sessionTimeoutMinutes", "Session Timeout (min)", tenant.settings.sessionTimeoutMinutes, "number")}
-          ${inputField("passwordExpirationDays", "Password Expiration (dias)", tenant.settings.passwordExpirationDays, "number")}
-          ${inputField("lockoutMaxFailedAttempts", "Lockout intentos", tenant.settings.lockoutMaxFailedAttempts, "number")}
-          ${inputField("lockoutMinutes", "Lockout minutos", tenant.settings.lockoutMinutes, "number")}
-          ${inputField("securityScore", "Security Score", tenant.settings.securityScore, "number")}
+          ${inputField("sessionTimeoutMinutes", "Session Timeout (min)", tenant.settings.sessionTimeoutMinutes, "number", false, true, { min: 5, max: 1440, help: "Rango permitido: 5 a 1440 minutos." })}
+          ${inputField("passwordExpirationDays", "Password Expiration (dias)", tenant.settings.passwordExpirationDays, "number", false, true, { min: 0, max: 730, help: "Use 0 para no expirar contraseñas." })}
+          ${inputField("lockoutMaxFailedAttempts", "Lockout intentos", tenant.settings.lockoutMaxFailedAttempts, "number", false, true, { min: 1, max: 25 })}
+          ${inputField("lockoutMinutes", "Lockout minutos", tenant.settings.lockoutMinutes, "number", false, true, { min: 1, max: 1440 })}
+          ${inputField("securityScore", "Security Score", tenant.settings.securityScore, "number", false, true, { min: 0, max: 100 })}
         </div>
-        <div class="field"><label for="ipWhitelist">IP Whitelist</label><textarea id="ipWhitelist" name="ipWhitelist" rows="3">${safe(tenant.settings.ipWhitelist || "")}</textarea></div>
+        <div class="field"><label for="ipWhitelist">IP Whitelist</label><textarea id="ipWhitelist" name="ipWhitelist" rows="3" placeholder="192.168.1.0/24, 10.0.0.1/32" aria-describedby="ipWhitelist-help">${safe(tenant.settings.ipWhitelist || "")}</textarea><small id="ipWhitelist-help">Lista CIDR separada por comas. Déjelo vacío para no restringir por IP.</small></div>
         <div class="field"><label for="securityChangeReason">Motivo del cambio</label><input id="securityChangeReason" name="changeReason" placeholder="Opcional"></div>
         <button class="btn primary" type="submit">Guardar seguridad</button>
       </form>
@@ -1277,7 +1470,7 @@ function tenantUsersPanel(userState, tenant, metrics) {
         <div class="grid two">
           ${inputField("email", "Email", "", "email", false, true)}
           ${inputField("fullName", "Nombre completo", "", "text", false, true)}
-          ${inputField("initialPassword", "Password inicial", "", "password", false, true)}
+          ${inputField("initialPassword", "Password inicial", "", "password", false, true, { minLength: 12, help: "Mínimo 12 caracteres con mayúscula, minúscula, número y símbolo." })}
           <div class="field"><label for="roleId">Rol inicial</label><select id="roleId" name="roleId"><option value="">Sin rol</option>${roles.map(role => `<option value="${role.id}">${safe(role.name)}</option>`).join("")}</select></div>
           <label class="toggle-row"><input type="checkbox" name="forcePasswordChange" checked> Forzar cambio de password</label>
           ${inputField("changeReason", "Motivo", "Alta operativa TAC")}
@@ -1293,6 +1486,50 @@ function tenantUsersPanel(userState, tenant, metrics) {
         sessions: (user.sessions || []).filter(session => session.isActive).length,
         actions: `__html:<button class="btn small" data-user-action="Active" data-user-id="${user.id}">Unlock</button> <button class="btn small" data-user-action="Disabled" data-user-id="${user.id}">Disable</button> <button class="btn small" data-user-mfa="${user.id}">Reset MFA</button> <button class="btn small" data-user-sessions="${user.id}">Close Sessions</button>`
       })), ["email", "name", "status", "mfa", "lastLogin", "sessions", "actions"])}
+    </section>`;
+}
+
+function tenantRbacPanel(userState) {
+  const users = userState.users || [];
+  const roles = userState.roles || [];
+  return `
+    <section class="tenant-panel" data-panel="rbac">
+      <div class="section-heading">
+        <div>
+          <h2 class="section-title">RBAC - Roles y Permisos</h2>
+          <p class="metric-label">Crear roles, crear permisos y otorgarlos sin salir del navegador.</p>
+        </div>
+        <span class="status-pill ok">RBAC.MANAGE</span>
+      </div>
+      <div class="grid two">
+        <form id="tenant-role-form" class="form-stack card">
+          <h3>Crear rol</h3>
+          ${inputField("name", "Nombre del rol", "Quality Manager", "text", false, true, { maxLength: 120 })}
+          <label class="toggle-row"><input type="checkbox" name="isSystemRole"> Rol de sistema</label>
+          <button class="btn primary" type="submit">Crear rol</button>
+        </form>
+        <form id="tenant-permission-grant-form" class="form-stack card">
+          <h3>Crear permiso y otorgarlo</h3>
+          <div class="field"><label for="permissionRoleId">Rol</label><select id="permissionRoleId" name="roleId" required><option value="">Seleccione rol</option>${roles.map(role => `<option value="${role.id}">${safe(role.name)}</option>`).join("")}</select></div>
+          ${inputField("module", "Modulo", "DOCUMENT", "text", false, true, { maxLength: 80, pattern: "^[A-Za-z][A-Za-z0-9_]{1,79}$", title: "Use letras, numeros o guion bajo. Ejemplo: DOCUMENT." })}
+          <div class="field"><label for="action">Accion</label><select id="action" name="action" required>${permissionActionOptions()}</select></div>
+          ${inputField("description", "Descripcion", "Permiso creado desde TAC RBAC", "text", false, true, { maxLength: 250 })}
+          <button class="btn primary" type="submit">Crear permiso y otorgar</button>
+        </form>
+      </div>
+      <form id="tenant-role-assign-form" class="form-stack card">
+        <h3>Asignar rol a usuario</h3>
+        <div class="grid two">
+          <div class="field"><label for="assignUserId">Usuario</label><select id="assignUserId" name="userId" required><option value="">Seleccione usuario</option>${users.map(user => `<option value="${user.id}">${safe(user.email)} - ${safe(user.fullName)}</option>`).join("")}</select></div>
+          <div class="field"><label for="assignRoleId">Rol</label><select id="assignRoleId" name="roleId" required><option value="">Seleccione rol</option>${roles.map(role => `<option value="${role.id}">${safe(role.name)}</option>`).join("")}</select></div>
+        </div>
+        <button class="btn primary" type="submit">Asignar rol</button>
+      </form>
+      ${tableCard("Roles del tenant", roles.map(role => ({
+        name: role.name,
+        system: role.isSystemRole ? "Si" : "No",
+        id: shortId(role.id)
+      })), ["name", "system", "id"])}
     </section>`;
 }
 
@@ -1459,8 +1696,8 @@ function tenantHealthPanel(health) {
         <div class="grid two">
           ${inputField("backupKind", "Tipo", "Database")}
           ${inputField("result", "Resultado", "Succeeded")}
-          ${inputField("startedAtUtc", "Inicio UTC", new Date(Date.now() - 60000).toISOString(), "datetime-local")}
-          ${inputField("completedAtUtc", "Fin UTC", new Date().toISOString(), "datetime-local")}
+          ${inputField("startedAtUtc", "Inicio UTC", dateTimeLocalValue(Date.now() - 60000), "datetime-local")}
+          ${inputField("completedAtUtc", "Fin UTC", dateTimeLocalValue(Date.now()), "datetime-local")}
           ${inputField("sizeBytes", "Tamaño bytes", 0, "number")}
           ${inputField("rpoMinutes", "RPO minutos", 60, "number")}
           ${inputField("rtoMinutes", "RTO minutos", 240, "number")}
@@ -1512,10 +1749,22 @@ function tenantStatePanel(tenant) {
 }
 
 function bindTenantAdministrationCenter(tenant, center) {
+  document.querySelector("#back-to-platform-tenants")?.addEventListener("click", () => {
+    localStorage.setItem("c360.platformTab", "tenants");
+    localStorage.removeItem("c360.tenantReturn");
+    location.hash = "#/superadmin-platform";
+  });
+
+  document.querySelector("#back-to-superadmin-platform")?.addEventListener("click", () => {
+    localStorage.setItem("c360.platformTab", "executive");
+    localStorage.removeItem("c360.tenantReturn");
+    location.hash = "#/superadmin-platform";
+  });
+
   document.querySelectorAll(".tenant-tab").forEach(tab => {
     tab.addEventListener("click", () => {
-      document.querySelectorAll(".tenant-tab").forEach(item => item.classList.toggle("active", item === tab));
-      document.querySelectorAll(".tenant-panel").forEach(panel => panel.classList.toggle("active", panel.dataset.panel === tab.dataset.tab));
+      localStorage.setItem("c360.tenantTab", tab.dataset.tab);
+      applyTenantActiveTab(tab.dataset.tab);
     });
   });
 
@@ -1588,6 +1837,51 @@ function bindTenantAdministrationCenter(tenant, center) {
     return request(`/tenants/${state.tenantId}/users`, { method: "POST", loadingContext: "save", body });
   });
 
+  bindTenantForm("#tenant-role-form", event => {
+    const form = new FormData(event.currentTarget);
+    return request(`/tenants/${state.tenantId}/rbac/roles`, {
+      method: "POST",
+      loadingContext: "save",
+      body: {
+        name: String(form.get("name") || "").trim(),
+        isSystemRole: form.has("isSystemRole")
+      }
+    });
+  });
+
+  bindTenantForm("#tenant-permission-grant-form", async event => {
+    const form = new FormData(event.currentTarget);
+    const permission = await request(`/tenants/${state.tenantId}/rbac/permissions`, {
+      method: "POST",
+      loadingContext: "save",
+      body: {
+        module: String(form.get("module") || "").trim().toUpperCase(),
+        action: Number(form.get("action")),
+        description: String(form.get("description") || "").trim()
+      }
+    });
+    return request(`/tenants/${state.tenantId}/rbac/permissions/grant`, {
+      method: "POST",
+      loadingContext: "save",
+      body: {
+        roleId: form.get("roleId"),
+        permissionId: permission.id
+      }
+    });
+  });
+
+  bindTenantForm("#tenant-role-assign-form", event => {
+    const form = new FormData(event.currentTarget);
+    return request(`/tenants/${state.tenantId}/rbac/roles/assign`, {
+      method: "POST",
+      loadingContext: "save",
+      body: {
+        userId: form.get("userId"),
+        roleId: form.get("roleId")
+      }
+    });
+  });
+
   document.querySelectorAll("[data-tenant-state]").forEach(button => {
     button.addEventListener("click", async event => {
       try {
@@ -1614,6 +1908,13 @@ function bindTenantAdministrationCenter(tenant, center) {
   bindTenantAction("[data-user-mfa]", button => request(`/tenants/${state.tenantId}/users/${button.dataset.userMfa}/reset-mfa`, { method: "POST", body: { changeReason: "Reset MFA from TAC UI" }, loadingContext: "save" }));
   bindTenantAction("[data-user-sessions]", button => request(`/tenants/${state.tenantId}/users/${button.dataset.userSessions}/sessions/close`, { method: "POST", body: { changeReason: "Closed sessions from TAC UI" }, loadingContext: "save" }));
   bindTenantAction("[data-user-action]", button => request(`/tenants/${state.tenantId}/users/${button.dataset.userId}/status`, { method: "PATCH", body: { status: button.dataset.userAction === "Active" ? 1 : 2, changeReason: "Status update from TAC UI" }, loadingContext: "save" }));
+  bindEnterpriseFieldValidation();
+}
+
+function applyTenantActiveTab(tabKey) {
+  const selected = tenantAdminTabs().some(tab => tab.key === tabKey) ? tabKey : "general";
+  document.querySelectorAll(".tenant-tab").forEach(tab => tab.classList.toggle("active", tab.dataset.tab === selected));
+  document.querySelectorAll(".tenant-panel").forEach(panel => panel.classList.toggle("active", panel.dataset.panel === selected));
 }
 
 function bindTenantAction(selector, action) {
@@ -1646,18 +1947,104 @@ function bindTenantForm(selector, submit) {
   });
 }
 
-function inputField(name, label, value, type = "text", disabled = false, required = false) {
-  const min = type === "number" ? " min=\"0\"" : "";
-  const pattern = name.toLowerCase().includes("color") ? " pattern=\"^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$\"" : "";
-  return `<div class="field"><label for="${name}">${safe(label)}</label><input id="${name}" name="${name}" type="${type}" value="${safe(value ?? "")}" ${disabled ? "disabled" : ""} ${required ? "required" : ""}${min}${pattern}></div>`;
+function inputField(name, label, value, type = "text", disabled = false, required = false, options = {}) {
+  const helpId = `${name}-help`;
+  const min = options.min !== undefined ? ` min="${safe(options.min)}"` : type === "number" ? " min=\"0\"" : "";
+  const max = options.max !== undefined ? ` max="${safe(options.max)}"` : "";
+  const maxLength = options.maxLength !== undefined ? ` maxlength="${safe(options.maxLength)}"` : "";
+  const minLength = options.minLength !== undefined ? ` minlength="${safe(options.minLength)}"` : "";
+  const pattern = options.pattern ? ` pattern="${safe(options.pattern)}"` : name.toLowerCase().includes("color") && type !== "color" ? " pattern=\"^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$\"" : "";
+  const title = options.title ? ` title="${safe(options.title)}"` : "";
+  const placeholder = options.placeholder ? ` placeholder="${safe(options.placeholder)}"` : "";
+  const describedBy = options.help ? ` aria-describedby="${helpId}"` : "";
+  const help = options.help ? `<small id="${helpId}">${safe(options.help)}</small>` : "";
+  return `<div class="field"><label for="${name}">${safe(label)}</label><input id="${name}" name="${name}" type="${type}" value="${safe(value ?? "")}" ${disabled ? "disabled" : ""} ${required ? "required" : ""}${min}${max}${maxLength}${minLength}${pattern}${title}${placeholder}${describedBy}>${help}</div>`;
+}
+
+function selectField(name, label, selected, options, help = "") {
+  const helpId = `${name}-help`;
+  const describedBy = help ? ` aria-describedby="${helpId}"` : "";
+  const helpMarkup = help ? `<small id="${helpId}">${safe(help)}</small>` : "";
+  return `<div class="field"><label for="${name}">${safe(label)}</label><select id="${name}" name="${name}"${describedBy}>${options.map(([value, text]) => `<option value="${safe(value)}" ${String(selected) === String(value) ? "selected" : ""}>${safe(text)}</option>`).join("")}</select>${helpMarkup}</div>`;
+}
+
+function countryOptions() {
+  return [
+    ["PA", "Panamá"],
+    ["US", "Estados Unidos"],
+    ["MX", "México"],
+    ["CO", "Colombia"],
+    ["CR", "Costa Rica"],
+    ["DO", "República Dominicana"],
+    ["GT", "Guatemala"],
+    ["ES", "España"]
+  ];
+}
+
+function currencyOptions() {
+  return [
+    ["USD", "USD - Dólar estadounidense"],
+    ["PAB", "PAB - Balboa panameño"],
+    ["MXN", "MXN - Peso mexicano"],
+    ["COP", "COP - Peso colombiano"],
+    ["CRC", "CRC - Colón costarricense"],
+    ["DOP", "DOP - Peso dominicano"],
+    ["EUR", "EUR - Euro"]
+  ];
 }
 
 function enumOptions(labels, selected) {
   return labels.map((label, index) => `<option value="${index}" ${String(selected) === label || Number(selected) === index ? "selected" : ""}>${safe(label)}</option>`).join("");
 }
 
+function permissionActionOptions(selected = 7) {
+  return enumOptions(["Read", "Create", "Update", "Approve", "Reject", "Delete", "Export", "Manage"], selected);
+}
+
 function formObject(form) {
-  return Object.fromEntries([...form.entries()].map(([key, value]) => [key, value === "" ? null : value]));
+  return Object.fromEntries([...form.entries()].map(([key, value]) => {
+    const normalized = typeof value === "string" ? value.trim() : value;
+    return [key, normalized === "" ? null : normalized];
+  }));
+}
+
+function bindEnterpriseFieldValidation() {
+  document.querySelectorAll(".tenant-panel input, .tenant-panel textarea, .tenant-panel select").forEach(field => {
+    const validate = () => validateEnterpriseField(field);
+    field.addEventListener("input", validate);
+    field.addEventListener("blur", validate);
+  });
+}
+
+function validateEnterpriseField(field) {
+  if (!field || typeof field.setCustomValidity !== "function") {
+    return;
+  }
+
+  const value = (field.value || "").trim();
+  let message = "";
+
+  if (field.required && !value) {
+    message = "No puede estar vacío.";
+  } else if (field.type === "email" && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.toLowerCase())) {
+    message = "No es un correo electrónico válido.";
+  } else if (field.type === "url" && value && !/^https?:\/\/[^\s]+\.[^\s]+$/i.test(value)) {
+    message = "Debe ser una URL válida que inicie con http:// o https://.";
+  } else if (field.name === "hostName" && value && !/^(?=.{1,253}$)([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i.test(value)) {
+    message = "Debe ser un dominio DNS válido, sin http:// ni rutas.";
+  } else if (field.name === "ipWhitelist" && value && !value.split(",").every(item => /^\s*(?:\d{1,3}\.){3}\d{1,3}\/(?:[0-9]|[1-2][0-9]|3[0-2])\s*$/.test(item))) {
+    message = "Use rangos CIDR válidos separados por comas. Ejemplo: 192.168.1.0/24.";
+  } else if ((field.name === "claimsMappingJson" || field.name === "roleMappingJson") && value) {
+    try {
+      JSON.parse(value);
+    } catch {
+      message = "Debe ser JSON válido.";
+    }
+  } else if (field.name === "initialPassword" && value && !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{12,}$/.test(value)) {
+    message = "Debe tener 12 caracteres, mayúscula, minúscula, número y símbolo.";
+  }
+
+  field.setCustomValidity(message);
 }
 
 function tenantAlerts(alerts) {
@@ -1927,6 +2314,15 @@ function moduleActionForm(key) {
     </form>`;
 }
 
+function readOnlyNotice(key) {
+  const label = routeMetadata[key]?.label || modules[key]?.title || key;
+  return `
+    <div class="empty-state">
+      <h3>Modo solo lectura</h3>
+      <p>Tu rol puede consultar ${safe(label)}, pero no crear, editar, aprobar ni eliminar registros en este modulo.</p>
+    </div>`;
+}
+
 async function runModuleAction(key, form) {
   const action = modules[key].action;
   const name = String(form.get("name") || "").trim();
@@ -2150,6 +2546,12 @@ function futureDateValue() {
   return date.toISOString().slice(0, 10);
 }
 
+function dateTimeLocalValue(value) {
+  const date = new Date(value);
+  const offsetMs = date.getTimezoneOffset() * 60000;
+  return new Date(date.getTime() - offsetMs).toISOString().slice(0, 16);
+}
+
 function productionHero(audit, capa, risk, indicators, reportCatalog) {
   return `
     <section class="hero-card dashboard-hero">
@@ -2158,9 +2560,9 @@ function productionHero(audit, capa, risk, indicators, reportCatalog) {
         <h1>Centro de comando para cumplimiento, calidad y riesgo</h1>
         <p>Aplicacion multitenant conectada a datos reales: documentos, proveedores, auditorias, CAPA, riesgos, KPIs, reportes y auditoria de seguridad en un mismo workspace.</p>
         <div class="hero-actions">
-          <button class="btn primary" data-route="reports">Abrir Report Center</button>
-          <button class="btn light" data-route="documents">Crear evidencia</button>
-          <button class="btn light" data-route="risks">Revisar matriz de riesgo</button>
+          ${quickRouteButton("reports", "Abrir Report Center", "primary")}
+          ${quickRouteButton("documents", "Crear evidencia", "light")}
+          ${quickRouteButton("risks", "Revisar matriz de riesgo", "light")}
         </div>
       </div>
       <div class="command-panel">
@@ -2189,6 +2591,7 @@ function moduleTiles() {
     ["supplier-portal", "Supplier Portal", "Colaboracion proveedor"],
     ["customer-portal", "Customer Portal", "Solicitudes y entregables"]
   ];
+  const visibleTiles = tiles.filter(([route]) => canNavigate(route));
   return `
     <section class="card">
       <div class="section-heading">
@@ -2198,7 +2601,7 @@ function moduleTiles() {
         </div>
       </div>
       <div class="workspace-grid">
-        ${tiles.map(([route, title, description]) => `
+        ${visibleTiles.map(([route, title, description]) => `
           <button class="workspace-tile" type="button" data-route="${route}">
             <span class="workspace-icon">${title.slice(0, 2).toUpperCase()}</span>
             <strong>${title}</strong>
@@ -2206,6 +2609,11 @@ function moduleTiles() {
           </button>`).join("")}
       </div>
     </section>`;
+}
+
+function quickRouteButton(route, label, tone = "") {
+  if (!canNavigate(route)) return "";
+  return `<button class="btn ${tone}" data-route="${route}">${safe(label)}</button>`;
 }
 
 function readinessRail() {
@@ -2626,6 +3034,14 @@ function heatMapView(points) {
 
 function valueOf(result, fallback) {
   return result.status === "fulfilled" ? result.value : fallback;
+}
+
+async function promiseSettled(promise) {
+  try {
+    return { status: "fulfilled", value: await promise };
+  } catch (reason) {
+    return { status: "rejected", reason };
+  }
 }
 
 function formatCell(value) {

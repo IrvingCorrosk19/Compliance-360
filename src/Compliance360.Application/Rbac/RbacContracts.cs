@@ -10,6 +10,8 @@ public interface IRbacService
 
     Task<Result<PermissionSummary>> CreatePermissionAsync(CreatePermissionCommand command, CancellationToken cancellationToken = default);
 
+    Task<Result<IReadOnlyCollection<PermissionSummary>>> ListPermissionsAsync(CancellationToken cancellationToken = default);
+
     Task<Result> AssignRoleAsync(RbacAssignRoleCommand command, CancellationToken cancellationToken = default);
 
     Task<Result> GrantPermissionAsync(RbacGrantPermissionCommand command, CancellationToken cancellationToken = default);
@@ -29,11 +31,21 @@ public interface IRbacRepository
 
     Task<Permission?> GetPermissionByCodeAsync(string code, CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyCollection<Permission>> ListPermissionsAsync(CancellationToken cancellationToken = default);
+
     Task<bool> RoleNameExistsAsync(Guid tenantId, string normalizedName, CancellationToken cancellationToken = default);
+
+    Task<bool> UserRoleExistsAsync(Guid tenantId, Guid userId, Guid roleId, CancellationToken cancellationToken = default);
+
+    Task<bool> RolePermissionExistsAsync(Guid tenantId, Guid roleId, Guid permissionId, CancellationToken cancellationToken = default);
 
     Task AddRoleAsync(Role role, CancellationToken cancellationToken = default);
 
     Task AddPermissionAsync(Permission permission, CancellationToken cancellationToken = default);
+
+    Task AddUserRoleAsync(UserRole userRole, CancellationToken cancellationToken = default);
+
+    Task AddRolePermissionAsync(RolePermission rolePermission, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyCollection<string>> GetRoleNamesAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default);
 

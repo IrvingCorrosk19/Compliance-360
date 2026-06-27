@@ -626,6 +626,12 @@ public sealed class TenantManagementService : ITenantManagementService
     {
         try
         {
+            var passwordValidation = ValidateInitialPassword(command.InitialPassword);
+            if (passwordValidation is not null)
+            {
+                return Result<TenantUserSummary>.Failure(passwordValidation);
+            }
+
             var user = new User(command.TenantId, command.Email, command.FullName);
             user.SetPasswordHash(_passwordHasher.HashPassword(command.InitialPassword));
             if (command.ForcePasswordChange)
@@ -652,6 +658,26 @@ public sealed class TenantManagementService : ITenantManagementService
         {
             return Result<TenantUserSummary>.Failure(exception.Message);
         }
+    }
+
+    private static string? ValidateInitialPassword(string password)
+    {
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            return "Initial password is required.";
+        }
+
+        if (password.Length < 12)
+        {
+            return "Initial password must be at least 12 characters.";
+        }
+
+        if (!password.Any(char.IsUpper) || !password.Any(char.IsLower) || !password.Any(char.IsDigit) || !password.Any(char.IsPunctuation))
+        {
+            return "Initial password must include uppercase, lowercase, number and symbol.";
+        }
+
+        return null;
     }
 
     public async Task<Result> ChangeUserStatusAsync(ChangeTenantUserStatusCommand command, CancellationToken cancellationToken = default)

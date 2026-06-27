@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Compliance360.Domain.Common;
 
 namespace Compliance360.Domain.Identity;
@@ -30,6 +31,8 @@ public enum MfaMethod
 
 public sealed class User : TenantEntity
 {
+    private static readonly Regex EmailRegex = new("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
     private readonly List<UserRole> _roles = [];
     private readonly List<RefreshToken> _refreshTokens = [];
     private readonly List<PasswordHistory> _passwordHistory = [];
@@ -46,7 +49,7 @@ public sealed class User : TenantEntity
     public User(Guid tenantId, string email, string fullName)
         : base(tenantId)
     {
-        Email = Guard.AgainstNullOrWhiteSpace(email, nameof(email), 320);
+        Email = NormalizeEmail(email);
         NormalizedEmail = Email.ToUpperInvariant();
         FullName = Guard.AgainstNullOrWhiteSpace(fullName, nameof(fullName), 180);
         Status = UserStatus.Invited;
@@ -217,6 +220,17 @@ public sealed class User : TenantEntity
         }
 
         _sessions.Add(session);
+    }
+
+    private static string NormalizeEmail(string? email)
+    {
+        var normalized = Guard.AgainstNullOrWhiteSpace(email, nameof(email), 320).ToLowerInvariant();
+        if (!EmailRegex.IsMatch(normalized))
+        {
+            throw new DomainException("email must be a valid email address.");
+        }
+
+        return normalized;
     }
 }
 

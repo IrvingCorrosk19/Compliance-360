@@ -5,6 +5,7 @@ using Compliance360.Application.Notifications;
 using Compliance360.Infrastructure;
 using Compliance360.Web.Api;
 using Compliance360.Web.Audit;
+using Compliance360.Web.Development;
 using Compliance360.Web.Errors;
 using Compliance360.Web.Observability;
 using Compliance360.Web.Security;
@@ -20,6 +21,16 @@ using Serilog;
 using Serilog.Formatting.Compact;
 
 var builder = WebApplication.CreateBuilder(args);
+
+if (builder.Environment.IsDevelopment() && !DevelopmentBootstrapRuntime.IsTestHost)
+{
+    DevelopmentBootstrapLogging.ConfigureBootstrapLogger(builder.Environment.EnvironmentName);
+    var precheck = DevelopmentBootstrapPrecheck.Run(builder.Configuration);
+    if (!precheck.CanContinue)
+    {
+        return;
+    }
+}
 
 builder.Host.UseSerilog((context, services, loggerConfiguration) =>
 {
@@ -47,10 +58,17 @@ builder.Logging.AddOpenTelemetry(options =>
 
 if (string.IsNullOrWhiteSpace(builder.Configuration.GetConnectionString("Compliance360")))
 {
+    if (builder.Environment.IsDevelopment())
+    {
+        DevelopmentBootstrapConsole.WriteFatal("ConnectionStrings:Compliance360 is not configured. Development bootstrap cannot continue.");
+        return;
+    }
+
     throw new InvalidOperationException("ConnectionStrings:Compliance360 must be configured before starting the API.");
 }
 
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddDevelopmentBootstrap();
 builder.Services.AddSingleton<IObservabilityTelemetry, ObservabilityTelemetry>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -129,6 +147,12 @@ builder.Services.AddAuthorization(options => options.AddCompliancePolicies());
 var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>();
 if (string.IsNullOrWhiteSpace(jwtOptions?.SigningKey))
 {
+    if (builder.Environment.IsDevelopment())
+    {
+        DevelopmentBootstrapConsole.WriteFatal("Jwt:SigningKey is not configured. Development bootstrap cannot continue.");
+        return;
+    }
+
     throw new InvalidOperationException("Jwt:SigningKey must be configured through secure configuration before starting the API.");
 }
 
@@ -149,6 +173,16 @@ builder.Services
     });
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment() && !DevelopmentBootstrapRuntime.IsTestHost)
+{
+    var bootstrap = app.Services.GetRequiredService<DevelopmentBootstrapRunner>();
+    var bootstrapResult = await bootstrap.RunAsync(app.Lifetime.ApplicationStopping);
+    if (!bootstrapResult.CanStart)
+    {
+        return;
+    }
+}
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseMiddleware<SecurityHeadersMiddleware>();
@@ -182,6 +216,6 @@ app.MapFoundationApi();
 app.MapObservabilityEndpoints();
 app.MapFallbackToFile("index.html");
 
-app.Run();
+await app.RunAsync();
 
 public partial class Program;

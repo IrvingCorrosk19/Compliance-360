@@ -66,18 +66,18 @@ public sealed class Tenant : Entity
         Slug = Guard.AgainstNullOrWhiteSpace(slug, nameof(slug), 80).ToLowerInvariant();
         LegalName = Guard.AgainstNullOrWhiteSpace(legalName, nameof(legalName), 220);
         CommercialName = Guard.AgainstNullOrWhiteSpace(commercialName, nameof(commercialName), 180);
-        TaxIdentifier = Guard.AgainstNullOrWhiteSpace(taxIdentifier, nameof(taxIdentifier), 80).ToUpperInvariant();
+        TaxIdentifier = TenantValueObjects.TaxId(taxIdentifier, nameof(taxIdentifier));
         Industry = string.Empty;
         Description = null;
         AddressLine1 = null;
         City = null;
         Province = null;
-        CountryCode = Guard.AgainstNullOrWhiteSpace(countryCode, nameof(countryCode), 2).ToUpperInvariant();
+        CountryCode = TenantValueObjects.Country(countryCode, nameof(countryCode));
         PostalCode = null;
         Phone = null;
         Email = null;
         Website = null;
-        Currency = Guard.AgainstNullOrWhiteSpace(currency, nameof(currency), 3).ToUpperInvariant();
+        Currency = TenantValueObjects.Currency(currency, nameof(currency));
         CreatedByUserId = createdByUserId;
         Status = TenantStatus.Draft;
         Settings = TenantSettings.CreateDefault(Id);
@@ -149,18 +149,18 @@ public sealed class Tenant : Entity
         Name = Guard.AgainstNullOrWhiteSpace(name, nameof(name), 180);
         LegalName = Guard.AgainstNullOrWhiteSpace(legalName, nameof(legalName), 220);
         CommercialName = Guard.AgainstNullOrWhiteSpace(commercialName, nameof(commercialName), 180);
-        TaxIdentifier = Guard.AgainstNullOrWhiteSpace(taxIdentifier, nameof(taxIdentifier), 80).ToUpperInvariant();
+        TaxIdentifier = TenantValueObjects.TaxId(taxIdentifier, nameof(taxIdentifier));
         Industry = Guard.AgainstNullOrWhiteSpace(industry, nameof(industry), 120);
         Description = NormalizeOptional(description, 1_000);
         AddressLine1 = NormalizeOptional(addressLine1, 220);
         City = NormalizeOptional(city, 120);
         Province = NormalizeOptional(province, 120);
-        CountryCode = Guard.AgainstNullOrWhiteSpace(countryCode, nameof(countryCode), 2).ToUpperInvariant();
+        CountryCode = TenantValueObjects.Country(countryCode, nameof(countryCode));
         PostalCode = NormalizeOptional(postalCode, 20);
-        Phone = NormalizeOptional(phone, 40);
-        Email = NormalizeOptional(email, 180);
-        Website = NormalizeOptional(website, 250);
-        Currency = Guard.AgainstNullOrWhiteSpace(currency, nameof(currency), 3).ToUpperInvariant();
+        Phone = TenantValueObjects.Phone(phone, nameof(phone));
+        Email = TenantValueObjects.OptionalEmail(email, nameof(email));
+        Website = TenantValueObjects.OptionalUrl(website, nameof(website));
+        Currency = TenantValueObjects.Currency(currency, nameof(currency));
         MarkUpdated(DateTimeOffset.UtcNow);
     }
 
@@ -284,8 +284,8 @@ public sealed class Company : TenantEntity
         : base(tenantId)
     {
         LegalName = Guard.AgainstNullOrWhiteSpace(legalName, nameof(legalName), 220);
-        TaxIdentifier = Guard.AgainstNullOrWhiteSpace(taxIdentifier, nameof(taxIdentifier), 80);
-        CountryCode = Guard.AgainstNullOrWhiteSpace(countryCode, nameof(countryCode), 2).ToUpperInvariant();
+        TaxIdentifier = TenantValueObjects.TaxId(taxIdentifier, nameof(taxIdentifier));
+        CountryCode = TenantValueObjects.Country(countryCode, nameof(countryCode));
         IsActive = true;
     }
 
@@ -418,7 +418,7 @@ public sealed class TenantSettings : TenantEntity
     {
         Culture = Guard.AgainstNullOrWhiteSpace(culture, nameof(culture), 12);
         Language = culture.Split('-', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "es";
-        TimeZone = Guard.AgainstNullOrWhiteSpace(timeZone, nameof(timeZone), 80);
+        TimeZone = TenantValueObjects.TimeZone(timeZone, nameof(timeZone));
         RequireMfa = requireMfa;
         DocumentRetentionDays = Guard.AgainstOutOfRange(documentRetentionDays, nameof(documentRetentionDays), 30, 18_250);
         MarkUpdated(DateTimeOffset.UtcNow);
@@ -439,7 +439,7 @@ public sealed class TenantSettings : TenantEntity
         PasswordExpirationDays = Guard.AgainstOutOfRange(passwordExpirationDays, nameof(passwordExpirationDays), 0, 730);
         LockoutMaxFailedAttempts = Guard.AgainstOutOfRange(lockoutMaxFailedAttempts, nameof(lockoutMaxFailedAttempts), 1, 25);
         LockoutMinutes = Guard.AgainstOutOfRange(lockoutMinutes, nameof(lockoutMinutes), 1, 1_440);
-        IpWhitelist = string.IsNullOrWhiteSpace(ipWhitelist) ? string.Empty : ipWhitelist.Trim();
+        IpWhitelist = TenantValueObjects.CidrList(ipWhitelist, nameof(ipWhitelist));
         TrustedDevicesEnabled = trustedDevicesEnabled;
         SecurityScore = Guard.AgainstOutOfRange(securityScore, nameof(securityScore), 0, 100);
         MarkUpdated(DateTimeOffset.UtcNow);
@@ -509,14 +509,29 @@ public sealed class TenantBranding : TenantEntity
         string? footerText)
     {
         DisplayName = Guard.AgainstNullOrWhiteSpace(displayName, nameof(displayName), 180);
-        LogoUri = string.IsNullOrWhiteSpace(logoUri) ? null : logoUri.Trim();
-        FaviconUri = string.IsNullOrWhiteSpace(faviconUri) ? null : faviconUri.Trim();
-        PrimaryColor = Guard.AgainstNullOrWhiteSpace(primaryColor, nameof(primaryColor), 20);
-        SecondaryColor = Guard.AgainstNullOrWhiteSpace(secondaryColor, nameof(secondaryColor), 20);
-        Theme = Guard.AgainstNullOrWhiteSpace(theme, nameof(theme), 40);
-        LoginBackgroundUri = string.IsNullOrWhiteSpace(loginBackgroundUri) ? null : loginBackgroundUri.Trim();
-        CorporateEmail = string.IsNullOrWhiteSpace(corporateEmail) ? string.Empty : corporateEmail.Trim();
-        FooterText = string.IsNullOrWhiteSpace(footerText) ? string.Empty : footerText.Trim();
+        LogoUri = NormalizeOptionalUrl(logoUri, nameof(logoUri));
+        FaviconUri = NormalizeOptionalUrl(faviconUri, nameof(faviconUri));
+        PrimaryColor = TenantValueObjects.Color(primaryColor, nameof(primaryColor));
+        SecondaryColor = TenantValueObjects.Color(secondaryColor, nameof(secondaryColor));
+        Theme = NormalizeTheme(theme);
+        LoginBackgroundUri = NormalizeOptionalUrl(loginBackgroundUri, nameof(loginBackgroundUri));
+        CorporateEmail = TenantValueObjects.OptionalEmail(corporateEmail, nameof(corporateEmail));
+        FooterText = string.IsNullOrWhiteSpace(footerText) ? string.Empty : Guard.AgainstNullOrWhiteSpace(footerText, nameof(footerText), 160);
         MarkUpdated(DateTimeOffset.UtcNow);
+    }
+
+    private static string? NormalizeOptionalUrl(string? value, string parameterName)
+    {
+        return string.IsNullOrWhiteSpace(value) ? null : TenantValueObjects.Url(value, parameterName);
+    }
+
+    private static string NormalizeTheme(string? theme)
+    {
+        var normalized = Guard.AgainstNullOrWhiteSpace(theme, nameof(theme), 40);
+        return normalized switch
+        {
+            "System" or "Light" or "Dark" => normalized,
+            _ => throw new DomainException("theme must be System, Light or Dark.")
+        };
     }
 }

@@ -438,6 +438,9 @@ public static class FoundationEndpoints
                 new CreatePermissionCommand(request.Module, request.Action, request.Description, ApiContext.UserId(httpContext), ApiContext.TenantId(httpContext, tenantId)),
                 cancellationToken)));
 
+        rbac.MapGet("/permissions", async (IRbacService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ListPermissionsAsync(cancellationToken)));
+
         rbac.MapPost("/roles/assign", async (Guid tenantId, AssignRoleRequest request, HttpContext httpContext, IRbacService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.AssignRoleAsync(
                 new RbacAssignRoleCommand(ApiContext.TenantId(httpContext, tenantId), request.UserId, request.RoleId, ApiContext.UserId(httpContext)),

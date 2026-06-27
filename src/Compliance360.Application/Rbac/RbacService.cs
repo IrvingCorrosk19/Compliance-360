@@ -45,9 +45,14 @@ public sealed class RbacService : IRbacService
         try
         {
             var permission = new Permission(command.Module, command.Action, command.Description);
-            if (await _repository.GetPermissionByCodeAsync(permission.Code, cancellationToken) is not null)
+            if (await _repository.GetPermissionByCodeAsync(permission.Code, cancellationToken) is { } existingPermission)
             {
-                return Result<PermissionSummary>.Failure("Permission code already exists.");
+                return Result<PermissionSummary>.Success(new PermissionSummary(
+                    existingPermission.Id,
+                    existingPermission.Module,
+                    existingPermission.Action,
+                    existingPermission.Code,
+                    existingPermission.Description));
             }
 
             await _repository.AddPermissionAsync(permission, cancellationToken);
@@ -61,6 +66,15 @@ public sealed class RbacService : IRbacService
         }
     }
 
+    public async Task<Result<IReadOnlyCollection<PermissionSummary>>> ListPermissionsAsync(CancellationToken cancellationToken = default)
+    {
+        var permissions = await _repository.ListPermissionsAsync(cancellationToken);
+        return Result<IReadOnlyCollection<PermissionSummary>>.Success(permissions
+            .OrderBy(permission => permission.Code)
+            .Select(permission => new PermissionSummary(permission.Id, permission.Module, permission.Action, permission.Code, permission.Description))
+            .ToArray());
+    }
+
     public async Task<Result> AssignRoleAsync(RbacAssignRoleCommand command, CancellationToken cancellationToken = default)
     {
         var user = await _repository.GetUserAsync(command.TenantId, command.UserId, cancellationToken);
@@ -70,7 +84,12 @@ public sealed class RbacService : IRbacService
             return Result.Failure("User or role not found in tenant.");
         }
 
-        user.AssignRole(role.Id);
+        if (await _repository.UserRoleExistsAsync(command.TenantId, user.Id, role.Id, cancellationToken))
+        {
+            return Result.Success();
+        }
+
+        await _repository.AddUserRoleAsync(new UserRole(command.TenantId, user.Id, role.Id), cancellationToken);
         await AppendAuditAsync(command.TenantId, command.RequestedByUserId, nameof(Role), role.Id, AuditAction.RoleAssigned, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
         return Result.Success();
@@ -85,7 +104,12 @@ public sealed class RbacService : IRbacService
             return Result.Failure("Role or permission not found.");
         }
 
-        role.GrantPermission(permission.Id);
+        if (await _repository.RolePermissionExistsAsync(command.TenantId, role.Id, permission.Id, cancellationToken))
+        {
+            return Result.Success();
+        }
+
+        await _repository.AddRolePermissionAsync(new RolePermission(command.TenantId, role.Id, permission.Id), cancellationToken);
         await AppendAuditAsync(command.TenantId, command.RequestedByUserId, nameof(Permission), permission.Id, AuditAction.PermissionChanged, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
         return Result.Success();

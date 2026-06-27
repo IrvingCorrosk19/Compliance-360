@@ -211,6 +211,8 @@ public sealed class RbacFoundationTests
         public List<User> Users { get; } = [];
         public List<Role> Roles { get; } = [];
         public List<Permission> Permissions { get; } = [];
+        public List<UserRole> UserRoles { get; } = [];
+        public List<RolePermission> RolePermissions { get; } = [];
         public List<AuditLog> AuditLogs { get; } = [];
 
         public Task<User?> GetUserAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default)
@@ -233,9 +235,28 @@ public sealed class RbacFoundationTests
             return Task.FromResult(Permissions.SingleOrDefault(permission => permission.Code == code.ToUpperInvariant()));
         }
 
+        public Task<IReadOnlyCollection<Permission>> ListPermissionsAsync(CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<IReadOnlyCollection<Permission>>(Permissions.OrderBy(permission => permission.Code).ToArray());
+        }
+
         public Task<bool> RoleNameExistsAsync(Guid tenantId, string normalizedName, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(Roles.Any(role => role.TenantId == tenantId && role.NormalizedName == normalizedName));
+        }
+
+        public Task<bool> UserRoleExistsAsync(Guid tenantId, Guid userId, Guid roleId, CancellationToken cancellationToken = default)
+        {
+            var exists = UserRoles.Any(userRole => userRole.TenantId == tenantId && userRole.UserId == userId && userRole.RoleId == roleId)
+                || Users.SingleOrDefault(user => user.Id == userId && user.TenantId == tenantId)?.Roles.Any(userRole => userRole.RoleId == roleId) == true;
+            return Task.FromResult(exists);
+        }
+
+        public Task<bool> RolePermissionExistsAsync(Guid tenantId, Guid roleId, Guid permissionId, CancellationToken cancellationToken = default)
+        {
+            var exists = RolePermissions.Any(rolePermission => rolePermission.TenantId == tenantId && rolePermission.RoleId == roleId && rolePermission.PermissionId == permissionId)
+                || Roles.SingleOrDefault(role => role.Id == roleId && role.TenantId == tenantId)?.Permissions.Any(rolePermission => rolePermission.PermissionId == permissionId) == true;
+            return Task.FromResult(exists);
         }
 
         public Task AddRoleAsync(Role role, CancellationToken cancellationToken = default)
@@ -250,18 +271,38 @@ public sealed class RbacFoundationTests
             return Task.CompletedTask;
         }
 
+        public Task AddUserRoleAsync(UserRole userRole, CancellationToken cancellationToken = default)
+        {
+            UserRoles.Add(userRole);
+            return Task.CompletedTask;
+        }
+
+        public Task AddRolePermissionAsync(RolePermission rolePermission, CancellationToken cancellationToken = default)
+        {
+            RolePermissions.Add(rolePermission);
+            return Task.CompletedTask;
+        }
+
         public Task<IReadOnlyCollection<string>> GetRoleNamesAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default)
         {
-            var roleNames = Users.SingleOrDefault(user => user.Id == userId && user.TenantId == tenantId)?.Roles
-                .Join(Roles, userRole => userRole.RoleId, role => role.Id, (_, role) => role.Name)
-                .ToList() ?? [];
+            var assignedRoleIds = (Users.SingleOrDefault(user => user.Id == userId && user.TenantId == tenantId)?.Roles.Select(userRole => userRole.RoleId) ?? [])
+                .Concat(UserRoles.Where(userRole => userRole.TenantId == tenantId && userRole.UserId == userId).Select(userRole => userRole.RoleId))
+                .ToHashSet();
+            var roleNames = Roles
+                .Where(role => assignedRoleIds.Contains(role.Id))
+                .Select(role => role.Name)
+                .ToList();
             return Task.FromResult<IReadOnlyCollection<string>>(roleNames);
         }
 
         public Task<IReadOnlyCollection<string>> GetPermissionCodesAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default)
         {
-            var roleIds = Users.SingleOrDefault(user => user.Id == userId && user.TenantId == tenantId)?.Roles.Select(role => role.RoleId).ToHashSet() ?? [];
-            var permissionIds = Roles.Where(role => roleIds.Contains(role.Id)).SelectMany(role => role.Permissions).Select(permission => permission.PermissionId).ToHashSet();
+            var roleIds = (Users.SingleOrDefault(user => user.Id == userId && user.TenantId == tenantId)?.Roles.Select(role => role.RoleId) ?? [])
+                .Concat(UserRoles.Where(userRole => userRole.TenantId == tenantId && userRole.UserId == userId).Select(userRole => userRole.RoleId))
+                .ToHashSet();
+            var permissionIds = Roles.Where(role => roleIds.Contains(role.Id)).SelectMany(role => role.Permissions).Select(permission => permission.PermissionId)
+                .Concat(RolePermissions.Where(rolePermission => rolePermission.TenantId == tenantId && roleIds.Contains(rolePermission.RoleId)).Select(rolePermission => rolePermission.PermissionId))
+                .ToHashSet();
             var permissions = Permissions.Where(permission => permissionIds.Contains(permission.Id)).Select(permission => permission.Code).ToList();
             return Task.FromResult<IReadOnlyCollection<string>>(permissions);
         }

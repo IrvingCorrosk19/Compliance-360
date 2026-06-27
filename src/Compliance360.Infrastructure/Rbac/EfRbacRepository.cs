@@ -39,9 +39,26 @@ public sealed class EfRbacRepository : IRbacRepository
         return _dbContext.Permissions.FirstOrDefaultAsync(permission => permission.Code == code.ToUpperInvariant(), cancellationToken);
     }
 
+    public async Task<IReadOnlyCollection<Permission>> ListPermissionsAsync(CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Permissions
+            .OrderBy(permission => permission.Code)
+            .ToListAsync(cancellationToken);
+    }
+
     public Task<bool> RoleNameExistsAsync(Guid tenantId, string normalizedName, CancellationToken cancellationToken = default)
     {
         return _dbContext.Roles.AnyAsync(role => role.TenantId == tenantId && role.NormalizedName == normalizedName, cancellationToken);
+    }
+
+    public Task<bool> UserRoleExistsAsync(Guid tenantId, Guid userId, Guid roleId, CancellationToken cancellationToken = default)
+    {
+        return _dbContext.UserRoles.AnyAsync(userRole => userRole.TenantId == tenantId && userRole.UserId == userId && userRole.RoleId == roleId, cancellationToken);
+    }
+
+    public Task<bool> RolePermissionExistsAsync(Guid tenantId, Guid roleId, Guid permissionId, CancellationToken cancellationToken = default)
+    {
+        return _dbContext.RolePermissions.AnyAsync(rolePermission => rolePermission.TenantId == tenantId && rolePermission.RoleId == roleId && rolePermission.PermissionId == permissionId, cancellationToken);
     }
 
     public async Task AddRoleAsync(Role role, CancellationToken cancellationToken = default)
@@ -52,6 +69,16 @@ public sealed class EfRbacRepository : IRbacRepository
     public async Task AddPermissionAsync(Permission permission, CancellationToken cancellationToken = default)
     {
         await _dbContext.Permissions.AddAsync(permission, cancellationToken);
+    }
+
+    public async Task AddUserRoleAsync(UserRole userRole, CancellationToken cancellationToken = default)
+    {
+        await _dbContext.UserRoles.AddAsync(userRole, cancellationToken);
+    }
+
+    public async Task AddRolePermissionAsync(RolePermission rolePermission, CancellationToken cancellationToken = default)
+    {
+        await _dbContext.RolePermissions.AddAsync(rolePermission, cancellationToken);
     }
 
     public async Task<IReadOnlyCollection<string>> GetRoleNamesAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default)
