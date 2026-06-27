@@ -2,10 +2,10 @@
 
 ## Modo
 
-**Ejecución:** análisis + limpieza controlada.  
+**Ejecución:** análisis + limpieza controlada + archivo aprobado.  
 **Eliminaciones realizadas:** 0.  
-**Archivos movidos:** 0.  
-**Carpeta creada:** `docs/archive/`.  
+**Archivos movidos:** 23.  
+**Carpeta usada:** `docs/archive/`.  
 **Regla aplicada:** si existe duda, no eliminar; archivar.
 
 ## Resumen ejecutivo
@@ -17,7 +17,7 @@ La documentación de Compliance 360 contiene cuatro grupos:
 - **Historial Academy:** auditorías V1/V2/V3 y reportes intermedios reemplazados por V4 y Word Phase 4.
 - **Borradores/prompts iniciales:** documentos numerados muy breves y prompts maestros ya ejecutados.
 
-No se identificó ningún documento del producto que deba eliminarse en esta primera pasada. Los candidatos a limpieza se recomiendan como **ARCHIVE**, no **DELETE SAFE**, para preservar trazabilidad histórica.
+No se identificó ningún documento del producto que deba eliminarse en esta primera pasada. Los candidatos a limpieza fueron tratados como **ARCHIVE**, no **DELETE SAFE**, para preservar trazabilidad histórica.
 
 ## Exclusiones del alcance
 
@@ -110,9 +110,9 @@ No se marca ningún archivo documental como **DELETE SAFE** en esta primera ejec
 
 Razón: aunque existen documentos muy breves y versiones reemplazadas, todos aportan contexto histórico o trazabilidad de decisiones. La eliminación segura requiere una segunda aprobación explícita y, preferiblemente, comparación de hashes/contenido después de archivar.
 
-## Fase 2 propuesta
+## Fase 2 ejecutada
 
-Tras aprobación del informe, mover a `docs/archive/` todos los archivos con estado **ARCHIVE**, manteniendo estructura de carpetas:
+Tras aprobación, se movieron a `docs/archive/` todos los archivos con estado **ARCHIVE**, manteniendo estructura de carpetas:
 
 - Archivos raíz numerados `01_*.md` a `18_*.md`.
 - Reportes históricos Academy reemplazados:
@@ -129,7 +129,7 @@ Ruta esperada de archivo:
 
 ## Fase 3 propuesta
 
-Después del movimiento aprobado, generar `DOCUMENTATION_ARCHIVE_REPORT.md` con:
+Si se requiere un entregable separado, generar `DOCUMENTATION_ARCHIVE_REPORT.md` con:
 
 - Archivos mantenidos.
 - Archivos archivados.
@@ -149,6 +149,6 @@ Después del movimiento aprobado, generar `DOCUMENTATION_ARCHIVE_REPORT.md` con:
 
 ## Decisión final de esta fase
 
-**Aprobación recomendada:** ejecutar Fase 2 de archivo controlado.  
-**Eliminación recomendada ahora:** ninguna.  
+**Fase 2:** ejecutada como archivo controlado.  
+**Eliminación realizada:** ninguna.  
 **Documentación protegida:** manuales Academy, V4, Word Phase 4, handbook, changelog y reportes finales.
