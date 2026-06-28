@@ -115,6 +115,7 @@ const navigation = [
     ["audit-trail", "Audit Trail"]
   ]},
   { group: "Operations", items: [
+    ["superadmin-platform", "SuperAdmin Platform"],
     ["documents", "Document Management"],
     ["technical-sheets", "Technical Sheets"],
     ["suppliers", "Supplier Management"],
