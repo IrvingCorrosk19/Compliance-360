@@ -990,8 +990,8 @@ async function renderSuperAdminPlatformCenter(content) {
         ${superAdminTabs().map((tab, index) => `<button class="tenant-tab ${tab.key === activePlatformTab ? "active" : ""}" type="button" data-tab="${tab.key}"><span>${index + 1}</span>${tab.label}</button>`).join("")}
       </aside>
       <div class="tenant-tab-panels">
-        ${superAdminPanel("executive", "Executive Dashboard", quickActionsPanel(quickActions) + createTenantPanel() + platformConsumptionPanel(metrics), activePlatformTab === "executive")}
-        ${superAdminPanel("tenants", "Tenants", tableCard("Tenant fleet", tenants.map(tenant => ({
+        ${superAdminPanel("executive", "Executive Dashboard", quickActionsPanel(quickActions) + platformConsumptionPanel(metrics), activePlatformTab === "executive")}
+        ${superAdminPanel("tenants", "Tenants", createTenantPanel() + tableCard("Tenant fleet", tenants.map(tenant => ({
           name: tenant.name,
           slug: tenant.slug,
           status: tenant.status,
@@ -1062,7 +1062,7 @@ function quickActionsPanel(actions) {
 
 function createTenantPanel() {
   return `
-    <section id="create-tenant-panel" class="card" hidden>
+    <section id="create-tenant-panel" class="card">
       <div class="section-heading">
         <div>
           <h2 class="section-title">Crear Tenant</h2>
@@ -1252,6 +1252,9 @@ function bindSuperAdminPlatformCenter() {
   document.querySelectorAll("[data-quick-action]").forEach(button => {
     button.addEventListener("click", event => {
       if (event.currentTarget.dataset.quickAction === "tenant-create") {
+        localStorage.setItem("c360.platformTab", "tenants");
+        document.querySelectorAll(".tenant-tab").forEach(item => item.classList.toggle("active", item.dataset.tab === "tenants"));
+        document.querySelectorAll(".tenant-panel").forEach(panel => panel.classList.toggle("active", panel.dataset.panel === "tenants"));
         const panel = document.querySelector("#create-tenant-panel");
         panel?.removeAttribute("hidden");
         panel?.scrollIntoView({ behavior: "smooth", block: "start" });
