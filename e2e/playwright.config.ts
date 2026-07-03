@@ -15,7 +15,7 @@ export default defineConfig({
   outputDir: "../artifacts/e2e/test-output",
   use: {
     baseURL: "http://localhost:5272",
-    headless: true,
+    headless: false,
     screenshot: "on",
     video: "on",
     trace: "on",
