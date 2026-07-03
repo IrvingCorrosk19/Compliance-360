@@ -1,0 +1,83 @@
+{
+    "baseUrl":  "http://localhost:5272",
+    "tenantId":  "ddcaf211-afe0-44a0-9c90-4fbda8fc4871",
+    "platform":  {
+                     "email":  "admin@compliance360.local",
+                     "tenantId":  "dc7c46ee-cb25-4ed5-b0b4-800788f7f626",
+                     "password":  "OwnerStart!2026",
+                     "role":  "Platform Administrator"
+                 },
+    "users":  [
+                  {
+                      "role":  "Tenant Administrator",
+                      "email":  "tenantadmin@alimentos-premium.test",
+                      "password":  "Premium!2026"
+                  },
+                  {
+                      "role":  "Tenant Security Administrator",
+                      "email":  "security@alimentos-premium.test",
+                      "password":  "Premium!2026"
+                  },
+                  {
+                      "role":  "Document Controller",
+                      "email":  "doccontrol@alimentos-premium.test",
+                      "password":  "Premium!2026"
+                  },
+                  {
+                      "role":  "Quality Manager",
+                      "email":  "quality@alimentos-premium.test",
+                      "password":  "Premium!2026"
+                  },
+                  {
+                      "role":  "Auditor",
+                      "email":  "auditor@alimentos-premium.test",
+                      "password":  "Premium!2026"
+                  },
+                  {
+                      "role":  "Supplier Manager",
+                      "email":  "supplier@alimentos-premium.test",
+                      "password":  "Premium!2026"
+                  },
+                  {
+                      "role":  "CAPA Manager",
+                      "email":  "capa@alimentos-premium.test",
+                      "password":  "Premium!2026"
+                  },
+                  {
+                      "role":  "Risk Manager",
+                      "email":  "risk@alimentos-premium.test",
+                      "password":  "Premium!2026"
+                  },
+                  {
+                      "role":  "Indicators Manager",
+                      "email":  "indicators@alimentos-premium.test",
+                      "password":  "Premium!2026"
+                  },
+                  {
+                      "role":  "Reporting Manager",
+                      "email":  "reporting@alimentos-premium.test",
+                      "password":  "Premium!2026"
+                  },
+                  {
+                      "role":  "Storage Administrator",
+                      "email":  "storage@alimentos-premium.test",
+                      "password":  "Premium!2026"
+                  },
+                  {
+                      "role":  "Notification Administrator",
+                      "email":  "notifications@alimentos-premium.test",
+                      "password":  "Premium!2026"
+                  },
+                  {
+                      "role":  "Viewer",
+                      "email":  "viewer@alimentos-premium.test",
+                      "password":  "Premium!2026"
+                  }
+              ],
+    "support":  {
+                    "role":  "Support Operator",
+                    "email":  "support@compliance360.local",
+                    "password":  "OwnerStart!2026",
+                    "tenantId":  "dc7c46ee-cb25-4ed5-b0b4-800788f7f626"
+                }
+}

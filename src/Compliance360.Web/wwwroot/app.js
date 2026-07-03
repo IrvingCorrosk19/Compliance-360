@@ -778,10 +778,12 @@ async function renderDashboard(content) {
 }
 
 async function renderIntegrationsAdministration(content) {
+  const canStorage = hasAnyPermission(["STORAGE.READ", "STORAGE.CREATE", "STORAGE.UPDATE", "TENANT.STORAGE"]);
+  const canNotifications = hasAnyPermission(["NOTIFICATION.READ", "NOTIFICATION.ADMIN", "NOTIFICATION.MANAGE", "TENANT.NOTIFICATIONS"]);
   const [health, notificationDashboard, storageProviders] = await Promise.allSettled([
     request("/health/ready"),
-    request(`/tenants/${state.tenantId}/notifications/dashboard`),
-    request(`/tenants/${state.tenantId}/storage/providers`)
+    canNotifications ? request(`/tenants/${state.tenantId}/notifications/dashboard`) : Promise.resolve({}),
+    canStorage ? request(`/tenants/${state.tenantId}/storage/providers`) : Promise.resolve([])
   ]);
   const healthText = health.status === "fulfilled" ? "Ready endpoint disponible" : "Ready endpoint degradado";
   const notification = notificationDashboard.status === "fulfilled" ? notificationDashboard.value : {};
@@ -795,33 +797,33 @@ async function renderIntegrationsAdministration(content) {
           <p>Email Providers, Storage Providers, Health Status, Connection Test, Usage Statistics, Failover Configuration y Provider Priority por tenant.</p>
         </div>
         <div class="hero-actions">
-          <button class="btn primary" id="create-storage-provider" type="button">Crear Storage Local</button>
-          <button class="btn" id="create-email-provider" type="button">Crear Email SMTP</button>
+          ${hasAnyPermission(["STORAGE.CREATE", "STORAGE.UPDATE", "TENANT.STORAGE"]) ? `<button class="btn primary" id="create-storage-provider" type="button">Crear Storage Local</button>` : ""}
+          ${hasAnyPermission(["NOTIFICATION.ADMIN", "NOTIFICATION.MANAGE", "TENANT.NOTIFICATIONS"]) ? `<button class="btn" id="create-email-provider" type="button">Crear Email SMTP</button>` : ""}
         </div>
       </div>
       <div class="metric-grid">
         <article class="metric-card"><span>Health Status</span><strong>${healthText}</strong></article>
-        <article class="metric-card"><span>Notifications Sent</span><strong>${notification.sent ?? 0}</strong></article>
+        ${canNotifications ? `<article class="metric-card"><span>Notifications Sent</span><strong>${notification.sent ?? 0}</strong></article>
         <article class="metric-card"><span>Delivery Rate</span><strong>${notification.deliveryRatePercent ?? 0}%</strong></article>
-        <article class="metric-card"><span>Dead Letters</span><strong>${notification.deadLetters ?? 0}</strong></article>
+        <article class="metric-card"><span>Dead Letters</span><strong>${notification.deadLetters ?? 0}</strong></article>` : ""}
       </div>
       <div class="grid two">
-        <article class="panel">
+        ${canNotifications ? `<article class="panel">
           <h2>Email Providers</h2>
           <p>SMTP, Gmail SMTP, Microsoft 365, Exchange Online, SendGrid, Mailgun, Resend y Amazon SES configurables por tenant.</p>
           ${tableCard("Email provider health", Object.entries(notification.providerHealth ?? {}).map(([provider, ok]) => ({ provider, status: ok ? "Saludable" : "Requiere configuracion" })), ["provider", "status"])}
-        </article>
-        <article class="panel">
+        </article>` : ""}
+        ${canStorage ? `<article class="panel">
           <h2>Storage Providers</h2>
           <p>Local, Azure Blob, AWS S3, MinIO, Google Cloud Storage y SFTP con prioridad/failover por tenant.</p>
           ${tableCard("Storage provider configurations", storage, ["provider", "name", "containerName", "priority", "isDefault", "isEnabled", "lastHealthStatus"])}
-        </article>
+        </article>` : ""}
       </div>
-      <article class="panel">
+      ${canStorage ? `<article class="panel">
         <h2>Connection Test & Failover</h2>
         <p>Usa prioridad ascendente: proveedor principal, secundario y terciario. Si el principal falla, el backend prueba el siguiente y registra AuditLog/Observability.</p>
         <button class="btn" id="test-first-storage-provider" type="button" ${storage.length ? "" : "disabled"}>Probar primer Storage Provider</button>
-      </article>
+      </article>` : ""}
     </section>
   `;
   content.querySelector("#create-storage-provider")?.addEventListener("click", event => createDefaultStorageProvider(event.currentTarget));

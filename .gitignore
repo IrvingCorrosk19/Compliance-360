@@ -4,6 +4,7 @@ obj/
 .vscode/
 TestResults/
 artifacts/
+e2e/node_modules/
 *.user
 *.suo
 *.rsuser

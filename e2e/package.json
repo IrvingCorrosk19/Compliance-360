@@ -1,0 +1,13 @@
+{
+  "name": "compliance360-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Compliance 360 role-based E2E functional certification (Playwright)",
+  "scripts": {
+    "test": "playwright test",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  }
+}

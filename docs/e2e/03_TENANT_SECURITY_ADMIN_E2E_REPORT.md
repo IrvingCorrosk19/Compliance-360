@@ -1,4 +1,4 @@
-# 2 — Tenant Administrator E2E Report
+# 3 — Tenant Security Administrator E2E Report
 
 Date: 2026-07-03
 URL: http://localhost:5272
@@ -9,20 +9,18 @@ Tenant: Alimentos Premium Panamá S.A. (`ddcaf211-afe0-44a0-9c90-4fbda8fc4871`)
 
 ## RBAC / Navigation
 
-- Permissions (13): AUDIT.READ, IDENTITY.MANAGE, RBAC.MANAGE, TENANT.AUDIT, TENANT.BACKUP, TENANT.BILLING, TENANT.BRANDING, TENANT.HEALTH…
-- Visible routes: dashboard, compliance, audit-trail, tenant-administration, template-builder, regulatory, training, customer-portal
+- Permissions (8): AUDIT.READ, TENANT.API_KEYS, TENANT.AUDIT, TENANT.DOMAINS, TENANT.READ, TENANT.SECURITY, TENANT.SSO, TENANT.WEBHOOKS
+- Visible routes: dashboard, compliance, audit-trail, regulatory, training, customer-portal, security
 - Console errors: 0
 - HTTP 5xx: 0
 
 
 ## Functional steps
 - **Login**: expected `OK`, got `OK` → PASS
-- **Tenant Administration Center**: expected `Hero visible`, got `OK` → PASS
-- **Users tab**: expected `Users panel`, got `OK` → PASS
-- **List users API**: expected `200`, got `200` → PASS
+- **Create security item**: expected `Toast success`, got `ENT-1783044903060` → PASS
 
 ## Evidence
-- `artifacts/e2e/Tenant_Administrator/`
+- `artifacts/e2e/Tenant_Security_Administrator/`
 - Screenshots: 01-after-login.png, functional-final.png
 - Trace/video: Playwright test-output
 
