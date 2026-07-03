@@ -135,6 +135,7 @@ public static class DependencyInjection
             services.AddScoped<ITenantManagementRepository, EfTenantManagementRepository>();
             services.AddScoped<IIdentityRepository, EfIdentityRepository>();
             services.AddScoped<IRbacRepository, EfRbacRepository>();
+            services.AddScoped<IRbacProvisioningService, EfRbacProvisioningService>();
             services.AddScoped<IMfaRepository, EfMfaRepository>();
             services.AddScoped<IStorageRepository, EfStorageRepository>();
             services.AddScoped<ISuperAdminPlatformRepository, EfSuperAdminPlatformRepository>();

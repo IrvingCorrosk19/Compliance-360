@@ -1,9 +1,39 @@
+using Compliance360.Domain.Identity;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Compliance360.Web.Security;
 
+/// <summary>
+/// Registers one authorization policy per official permission code plus a set of
+/// friendly named policies used by the API endpoints. There is no role-based
+/// bypass: authorization is always evaluated against the permission claims that
+/// were issued from the official RBAC catalog. Platform-wide access is granted
+/// through explicit PLATFORM.* permissions, never through a magic role name.
+/// </summary>
 public static class PermissionPolicies
 {
+    // ---- Platform (friendly names kept for endpoint stability) ------------
+    public const string SuperAdminDashboard = "Platform.Dashboard";
+    public const string SuperAdminTenantsRead = "Platform.Tenants.Read";
+    public const string SuperAdminTenantsCreate = "Platform.Tenants.Create";
+    public const string SuperAdminTenantsUpdate = "Platform.Tenants.Update";
+    public const string SuperAdminTenantsStatus = "Platform.Tenants.Status";
+    public const string SuperAdminTenantsDelete = "Platform.Tenants.Delete";
+    public const string SuperAdminLicenses = "Platform.Licenses";
+    public const string SuperAdminModules = "Platform.Modules";
+    public const string SuperAdminProviders = "Platform.Providers";
+    public const string SuperAdminSecurity = "Platform.Security";
+    public const string SuperAdminObservability = "Platform.Observability";
+    public const string SuperAdminAudit = "Platform.Audit";
+    public const string SuperAdminDatabase = "Platform.Database";
+    public const string SuperAdminAi = "Platform.Ai";
+    public const string SuperAdminConfiguration = "Platform.Configuration";
+    public const string SuperAdminBackups = "Platform.Backups";
+    public const string SuperAdminDevOps = "Platform.DevOps";
+    public const string SuperAdminSearch = "Platform.Search";
+    public const string PlatformSupportAccess = "Platform.Support.Access";
+
+    // ---- Tenant administration --------------------------------------------
     public const string TenantManage = "Tenant.Manage";
     public const string TenantRead = "Tenant.Read";
     public const string TenantCreate = "Tenant.Create";
@@ -29,6 +59,9 @@ public static class PermissionPolicies
     public const string IdentityManage = "Identity.Manage";
     public const string RbacManage = "Rbac.Manage";
     public const string AuditRead = "Audit.Read";
+
+    // ---- Business modules --------------------------------------------------
+    public const string AuditManagementRead = "AuditManagement.Read";
     public const string AuditManagementManage = "AuditManagement.Manage";
     public const string CapaManage = "Capa.Manage";
     public const string CapaRead = "Capa.Read";
@@ -47,123 +80,148 @@ public static class PermissionPolicies
     public const string ReportExecute = "Report.Execute";
     public const string ReportExport = "Report.Export";
     public const string ReportSchedule = "Report.Schedule";
-    public const string StorageManage = "Storage.Manage";
     public const string NotificationManage = "Notification.Manage";
     public const string NotificationSend = "Notification.Send";
     public const string NotificationRead = "Notification.Read";
     public const string NotificationTemplate = "Notification.Template";
     public const string NotificationAdmin = "Notification.Admin";
-    public const string DocumentManage = "Document.Manage";
-    public const string WorkflowManage = "Workflow.Manage";
-    public const string TechnicalSheetManage = "TechnicalSheet.Manage";
-    public const string SupplierManage = "Supplier.Manage";
+
+    // Split (granular) module policies. Values equal their catalog code so the
+    // per-code policy registration below covers them directly.
+    public const string DocumentRead = PermissionCatalog.DocumentRead;
+    public const string DocumentCreate = PermissionCatalog.DocumentCreate;
+    public const string DocumentUpdate = PermissionCatalog.DocumentUpdate;
+    public const string DocumentApprove = PermissionCatalog.DocumentApprove;
+    public const string WorkflowRead = PermissionCatalog.WorkflowRead;
+    public const string WorkflowCreate = PermissionCatalog.WorkflowCreate;
+    public const string WorkflowUpdate = PermissionCatalog.WorkflowUpdate;
+    public const string WorkflowApprove = PermissionCatalog.WorkflowApprove;
+    public const string TechnicalSheetRead = PermissionCatalog.TechnicalSheetRead;
+    public const string TechnicalSheetCreate = PermissionCatalog.TechnicalSheetCreate;
+    public const string TechnicalSheetUpdate = PermissionCatalog.TechnicalSheetUpdate;
+    public const string TechnicalSheetApprove = PermissionCatalog.TechnicalSheetApprove;
+    public const string SupplierRead = PermissionCatalog.SupplierRead;
+    public const string SupplierCreate = PermissionCatalog.SupplierCreate;
+    public const string SupplierUpdate = PermissionCatalog.SupplierUpdate;
+    public const string SupplierApprove = PermissionCatalog.SupplierApprove;
+    public const string StorageRead = PermissionCatalog.StorageRead;
+    public const string StorageCreate = PermissionCatalog.StorageCreate;
+    public const string StorageUpdate = PermissionCatalog.StorageUpdate;
+    public const string StorageDelete = PermissionCatalog.StorageDelete;
+
+    // ---- Observability -----------------------------------------------------
     public const string ObservabilityRead = "Observability.Read";
     public const string ObservabilityManage = "Observability.Manage";
     public const string ObservabilityAdmin = "Observability.Admin";
-    public const string SuperAdminDashboard = "SuperAdmin.Dashboard";
-    public const string SuperAdminTenantsRead = "SuperAdmin.Tenants.Read";
-    public const string SuperAdminTenantsCreate = "SuperAdmin.Tenants.Create";
-    public const string SuperAdminTenantsUpdate = "SuperAdmin.Tenants.Update";
-    public const string SuperAdminTenantsStatus = "SuperAdmin.Tenants.Status";
-    public const string SuperAdminTenantsDelete = "SuperAdmin.Tenants.Delete";
-    public const string SuperAdminLicenses = "SuperAdmin.Licenses";
-    public const string SuperAdminModules = "SuperAdmin.Modules";
-    public const string SuperAdminProviders = "SuperAdmin.Providers";
-    public const string SuperAdminSecurity = "SuperAdmin.Security";
-    public const string SuperAdminObservability = "SuperAdmin.Observability";
-    public const string SuperAdminAudit = "SuperAdmin.Audit";
-    public const string SuperAdminDatabase = "SuperAdmin.Database";
-    public const string SuperAdminAi = "SuperAdmin.Ai";
-    public const string SuperAdminConfiguration = "SuperAdmin.Configuration";
-    public const string SuperAdminBackups = "SuperAdmin.Backups";
-    public const string SuperAdminDevOps = "SuperAdmin.DevOps";
-    public const string SuperAdminSearch = "SuperAdmin.Search";
 
     public static void AddCompliancePolicies(this AuthorizationOptions options)
     {
-        options.AddPolicy(TenantManage, policy => policy.RequireAssertion(context => HasAnyPermission(context, "TENANT.READ", "TENANT.CREATE", "TENANT.UPDATE", "TENANT.STATUS", "TENANT.BRANDING", "TENANT.SECURITY", "TENANT.STORAGE", "TENANT.NOTIFICATIONS", "TENANT.INTEGRATIONS", "TENANT.BILLING", "TENANT.USERS", "TENANT.ROLES", "TENANT.AUDIT", "TENANT.DELETE", "TENANT.RESTORE", "TENANT.DOMAINS", "TENANT.SSO", "TENANT.WEBHOOKS", "TENANT.API_KEYS", "TENANT.HEALTH", "TENANT.BACKUP")));
-        options.AddPolicy(TenantRead, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.READ")));
-        options.AddPolicy(TenantCreate, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.CREATE")));
-        options.AddPolicy(TenantUpdate, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.UPDATE")));
-        options.AddPolicy(TenantStatus, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.STATUS")));
-        options.AddPolicy(TenantBranding, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.BRANDING")));
-        options.AddPolicy(TenantSecurity, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.SECURITY")));
-        options.AddPolicy(TenantStorage, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.STORAGE")));
-        options.AddPolicy(TenantNotifications, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.NOTIFICATIONS")));
-        options.AddPolicy(TenantIntegrations, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.INTEGRATIONS")));
-        options.AddPolicy(TenantBilling, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.BILLING")));
-        options.AddPolicy(TenantUsers, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.USERS")));
-        options.AddPolicy(TenantRoles, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.ROLES")));
-        options.AddPolicy(TenantAudit, policy => policy.RequireAssertion(context => HasAnyPermission(context, "TENANT.AUDIT", "AUDIT.READ", "AUDIT.MANAGE")));
-        options.AddPolicy(TenantDelete, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.DELETE")));
-        options.AddPolicy(TenantRestore, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.RESTORE")));
-        options.AddPolicy(TenantDomains, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.DOMAINS")));
-        options.AddPolicy(TenantSso, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.SSO")));
-        options.AddPolicy(TenantWebhooks, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.WEBHOOKS")));
-        options.AddPolicy(TenantApiKeys, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.API_KEYS")));
-        options.AddPolicy(TenantHealth, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.HEALTH")));
-        options.AddPolicy(TenantBackup, policy => policy.RequireAssertion(context => HasPermission(context, "TENANT.BACKUP")));
-        options.AddPolicy(IdentityManage, policy => policy.RequireAssertion(context => HasPermission(context, "IDENTITY.MANAGE")));
-        options.AddPolicy(RbacManage, policy => policy.RequireAssertion(context => HasPermission(context, "RBAC.MANAGE")));
-        options.AddPolicy(AuditRead, policy => policy.RequireAssertion(context => HasPermission(context, "AUDIT.READ") || HasPermission(context, "AUDIT.MANAGE")));
-        options.AddPolicy(AuditManagementManage, policy => policy.RequireAssertion(context => HasPermission(context, "AUDITMANAGEMENT.MANAGE") || HasPermission(context, "AUDIT.MANAGE")));
-        options.AddPolicy(CapaManage, policy => policy.RequireAssertion(context => HasPermission(context, "CAPA.MANAGE")));
-        options.AddPolicy(CapaRead, policy => policy.RequireAssertion(context => HasPermission(context, "CAPA.READ") || HasPermission(context, "CAPA.MANAGE")));
-        options.AddPolicy(CapaApprove, policy => policy.RequireAssertion(context => HasPermission(context, "CAPA.APPROVE") || HasPermission(context, "CAPA.MANAGE")));
-        options.AddPolicy(CapaClose, policy => policy.RequireAssertion(context => HasPermission(context, "CAPA.CLOSE") || HasPermission(context, "CAPA.MANAGE")));
-        options.AddPolicy(RiskManage, policy => policy.RequireAssertion(context => HasPermission(context, "RISK.MANAGE")));
-        options.AddPolicy(RiskRead, policy => policy.RequireAssertion(context => HasPermission(context, "RISK.READ") || HasPermission(context, "RISK.MANAGE")));
-        options.AddPolicy(RiskApprove, policy => policy.RequireAssertion(context => HasPermission(context, "RISK.APPROVE") || HasPermission(context, "RISK.MANAGE")));
-        options.AddPolicy(RiskClose, policy => policy.RequireAssertion(context => HasPermission(context, "RISK.CLOSE") || HasPermission(context, "RISK.MANAGE")));
-        options.AddPolicy(IndicatorManage, policy => policy.RequireAssertion(context => HasPermission(context, "INDICATOR.MANAGE")));
-        options.AddPolicy(IndicatorRead, policy => policy.RequireAssertion(context => HasPermission(context, "INDICATOR.READ") || HasPermission(context, "INDICATOR.MANAGE")));
-        options.AddPolicy(IndicatorApprove, policy => policy.RequireAssertion(context => HasPermission(context, "INDICATOR.APPROVE") || HasPermission(context, "INDICATOR.MANAGE")));
-        options.AddPolicy(IndicatorExport, policy => policy.RequireAssertion(context => HasPermission(context, "INDICATOR.EXPORT") || HasPermission(context, "INDICATOR.MANAGE")));
-        options.AddPolicy(ReportManage, policy => policy.RequireAssertion(context => HasPermission(context, "REPORT.MANAGE")));
-        options.AddPolicy(ReportRead, policy => policy.RequireAssertion(context => HasPermission(context, "REPORT.READ") || HasPermission(context, "REPORT.MANAGE")));
-        options.AddPolicy(ReportExecute, policy => policy.RequireAssertion(context => HasPermission(context, "REPORT.EXECUTE") || HasPermission(context, "REPORT.MANAGE")));
-        options.AddPolicy(ReportExport, policy => policy.RequireAssertion(context => HasPermission(context, "REPORT.EXPORT") || HasPermission(context, "REPORT.MANAGE")));
-        options.AddPolicy(ReportSchedule, policy => policy.RequireAssertion(context => HasPermission(context, "REPORT.SCHEDULE") || HasPermission(context, "REPORT.MANAGE")));
-        options.AddPolicy(StorageManage, policy => policy.RequireAssertion(context => HasPermission(context, "STORAGE.MANAGE")));
-        options.AddPolicy(NotificationManage, policy => policy.RequireAssertion(context => HasPermission(context, "NOTIFICATION.MANAGE")));
-        options.AddPolicy(NotificationSend, policy => policy.RequireAssertion(context => HasPermission(context, "NOTIFICATION.SEND") || HasPermission(context, "NOTIFICATION.MANAGE") || HasPermission(context, "NOTIFICATION.ADMIN")));
-        options.AddPolicy(NotificationRead, policy => policy.RequireAssertion(context => HasPermission(context, "NOTIFICATION.READ") || HasPermission(context, "NOTIFICATION.MANAGE") || HasPermission(context, "NOTIFICATION.ADMIN")));
-        options.AddPolicy(NotificationTemplate, policy => policy.RequireAssertion(context => HasPermission(context, "NOTIFICATION.TEMPLATE") || HasPermission(context, "NOTIFICATION.MANAGE") || HasPermission(context, "NOTIFICATION.ADMIN")));
-        options.AddPolicy(NotificationAdmin, policy => policy.RequireAssertion(context => HasPermission(context, "NOTIFICATION.ADMIN")));
-        options.AddPolicy(DocumentManage, policy => policy.RequireAssertion(context => HasPermission(context, "DOCUMENT.MANAGE")));
-        options.AddPolicy(WorkflowManage, policy => policy.RequireAssertion(context => HasPermission(context, "WORKFLOW.MANAGE")));
-        options.AddPolicy(TechnicalSheetManage, policy => policy.RequireAssertion(context => HasPermission(context, "TECHNICALSHEET.MANAGE")));
-        options.AddPolicy(SupplierManage, policy => policy.RequireAssertion(context => HasPermission(context, "SUPPLIER.MANAGE")));
-        options.AddPolicy(ObservabilityRead, policy => policy.RequireAssertion(context => HasPermission(context, "OBSERVABILITY.READ") || HasPermission(context, "OBSERVABILITY.MANAGE") || HasPermission(context, "OBSERVABILITY.ADMIN")));
-        options.AddPolicy(ObservabilityManage, policy => policy.RequireAssertion(context => HasPermission(context, "OBSERVABILITY.MANAGE") || HasPermission(context, "OBSERVABILITY.ADMIN")));
-        options.AddPolicy(ObservabilityAdmin, policy => policy.RequireAssertion(context => HasPermission(context, "OBSERVABILITY.ADMIN")));
-        options.AddPolicy(SuperAdminDashboard, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.DASHBOARD.READ")));
-        options.AddPolicy(SuperAdminTenantsRead, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.TENANTS.READ")));
-        options.AddPolicy(SuperAdminTenantsCreate, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.TENANTS.CREATE")));
-        options.AddPolicy(SuperAdminTenantsUpdate, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.TENANTS.UPDATE")));
-        options.AddPolicy(SuperAdminTenantsStatus, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.TENANTS.STATUS")));
-        options.AddPolicy(SuperAdminTenantsDelete, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.TENANTS.DELETE")));
-        options.AddPolicy(SuperAdminLicenses, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.LICENSES.MANAGE")));
-        options.AddPolicy(SuperAdminModules, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.MODULES.MANAGE")));
-        options.AddPolicy(SuperAdminProviders, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.PROVIDERS.MANAGE")));
-        options.AddPolicy(SuperAdminSecurity, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.SECURITY.MANAGE")));
-        options.AddPolicy(SuperAdminObservability, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.OBSERVABILITY.READ")));
-        options.AddPolicy(SuperAdminAudit, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.AUDIT.READ") || HasPermission(context, "SUPERADMIN.AUDIT.EXPORT")));
-        options.AddPolicy(SuperAdminDatabase, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.DATABASE.READ")));
-        options.AddPolicy(SuperAdminAi, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.AI.MANAGE")));
-        options.AddPolicy(SuperAdminConfiguration, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.CONFIGURATION.MANAGE")));
-        options.AddPolicy(SuperAdminBackups, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.BACKUPS.READ")));
-        options.AddPolicy(SuperAdminDevOps, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.DEVOPS.READ")));
-        options.AddPolicy(SuperAdminSearch, policy => policy.RequireAssertion(context => HasPermission(context, "SUPERADMIN.SEARCH")));
+        // 1) Strict policy per official permission code (name == code).
+        foreach (var permission in PermissionCatalog.All)
+        {
+            var code = permission.Code;
+            options.AddPolicy(code, policy => policy.RequireAssertion(context => HasPermission(context, code)));
+        }
+
+        // 2) Read policies accept any higher action within the same module so a
+        //    creator/approver can always read, without extra grants.
+        AddAny(options, PermissionCatalog.DocumentRead, PermissionCatalog.DocumentRead, PermissionCatalog.DocumentCreate, PermissionCatalog.DocumentUpdate, PermissionCatalog.DocumentApprove);
+        AddAny(options, PermissionCatalog.WorkflowRead, PermissionCatalog.WorkflowRead, PermissionCatalog.WorkflowCreate, PermissionCatalog.WorkflowUpdate, PermissionCatalog.WorkflowApprove);
+        AddAny(options, PermissionCatalog.TechnicalSheetRead, PermissionCatalog.TechnicalSheetRead, PermissionCatalog.TechnicalSheetCreate, PermissionCatalog.TechnicalSheetUpdate, PermissionCatalog.TechnicalSheetApprove);
+        AddAny(options, PermissionCatalog.SupplierRead, PermissionCatalog.SupplierRead, PermissionCatalog.SupplierCreate, PermissionCatalog.SupplierUpdate, PermissionCatalog.SupplierApprove);
+        AddAny(options, PermissionCatalog.StorageRead, PermissionCatalog.StorageRead, PermissionCatalog.StorageCreate, PermissionCatalog.StorageUpdate, PermissionCatalog.StorageDelete);
+
+        // 3) Friendly named policies used by the API endpoints.
+        AddAny(options, TenantManage,
+            PermissionCatalog.TenantRead, PermissionCatalog.TenantUpdate, PermissionCatalog.TenantBranding,
+            PermissionCatalog.TenantSecurity, PermissionCatalog.TenantStorage, PermissionCatalog.TenantNotifications,
+            PermissionCatalog.TenantIntegrations, PermissionCatalog.TenantBilling, PermissionCatalog.TenantUsers,
+            PermissionCatalog.TenantRoles, PermissionCatalog.TenantAudit, PermissionCatalog.TenantDomains,
+            PermissionCatalog.TenantSso, PermissionCatalog.TenantWebhooks, PermissionCatalog.TenantApiKeys,
+            PermissionCatalog.TenantHealth, PermissionCatalog.TenantBackup);
+        AddAny(options, TenantRead, PermissionCatalog.TenantRead);
+        AddAny(options, TenantCreate, PermissionCatalog.PlatformTenantCreate);
+        AddAny(options, TenantUpdate, PermissionCatalog.TenantUpdate);
+        AddAny(options, TenantStatus, PermissionCatalog.PlatformTenantStatus);
+        AddAny(options, TenantBranding, PermissionCatalog.TenantBranding);
+        AddAny(options, TenantSecurity, PermissionCatalog.TenantSecurity);
+        AddAny(options, TenantStorage, PermissionCatalog.TenantStorage);
+        AddAny(options, TenantNotifications, PermissionCatalog.TenantNotifications);
+        AddAny(options, TenantIntegrations, PermissionCatalog.TenantIntegrations);
+        AddAny(options, TenantBilling, PermissionCatalog.TenantBilling);
+        AddAny(options, TenantUsers, PermissionCatalog.TenantUsers);
+        AddAny(options, TenantRoles, PermissionCatalog.TenantRoles);
+        AddAny(options, TenantAudit, PermissionCatalog.TenantAudit, PermissionCatalog.AuditRead);
+        AddAny(options, TenantDelete, PermissionCatalog.PlatformTenantDelete);
+        AddAny(options, TenantRestore, PermissionCatalog.PlatformTenantRestore);
+        AddAny(options, TenantDomains, PermissionCatalog.TenantDomains);
+        AddAny(options, TenantSso, PermissionCatalog.TenantSso);
+        AddAny(options, TenantWebhooks, PermissionCatalog.TenantWebhooks);
+        AddAny(options, TenantApiKeys, PermissionCatalog.TenantApiKeys);
+        AddAny(options, TenantHealth, PermissionCatalog.TenantHealth);
+        AddAny(options, TenantBackup, PermissionCatalog.TenantBackup);
+        AddAny(options, IdentityManage, PermissionCatalog.IdentityManage);
+        AddAny(options, RbacManage, PermissionCatalog.RbacManage);
+        AddAny(options, AuditRead, PermissionCatalog.AuditRead);
+
+        AddAny(options, AuditManagementRead, PermissionCatalog.AuditManagementRead, PermissionCatalog.AuditManagementManage);
+        AddAny(options, AuditManagementManage, PermissionCatalog.AuditManagementManage);
+        AddAny(options, CapaManage, PermissionCatalog.CapaManage);
+        AddAny(options, CapaRead, PermissionCatalog.CapaRead, PermissionCatalog.CapaManage, PermissionCatalog.CapaApprove);
+        AddAny(options, CapaApprove, PermissionCatalog.CapaApprove);
+        AddAny(options, CapaClose, PermissionCatalog.CapaClose, PermissionCatalog.CapaApprove);
+        AddAny(options, RiskManage, PermissionCatalog.RiskManage);
+        AddAny(options, RiskRead, PermissionCatalog.RiskRead, PermissionCatalog.RiskManage, PermissionCatalog.RiskApprove);
+        AddAny(options, RiskApprove, PermissionCatalog.RiskApprove);
+        AddAny(options, RiskClose, PermissionCatalog.RiskClose, PermissionCatalog.RiskApprove);
+        AddAny(options, IndicatorManage, PermissionCatalog.IndicatorManage);
+        AddAny(options, IndicatorRead, PermissionCatalog.IndicatorRead, PermissionCatalog.IndicatorManage);
+        AddAny(options, IndicatorApprove, PermissionCatalog.IndicatorApprove);
+        AddAny(options, IndicatorExport, PermissionCatalog.IndicatorExport, PermissionCatalog.IndicatorManage);
+        AddAny(options, ReportManage, PermissionCatalog.ReportManage);
+        AddAny(options, ReportRead, PermissionCatalog.ReportRead, PermissionCatalog.ReportManage);
+        AddAny(options, ReportExecute, PermissionCatalog.ReportExecute, PermissionCatalog.ReportManage);
+        AddAny(options, ReportExport, PermissionCatalog.ReportExport, PermissionCatalog.ReportManage);
+        AddAny(options, ReportSchedule, PermissionCatalog.ReportSchedule, PermissionCatalog.ReportManage);
+        AddAny(options, NotificationManage, PermissionCatalog.NotificationManage, PermissionCatalog.NotificationAdmin);
+        AddAny(options, NotificationSend, PermissionCatalog.NotificationSend, PermissionCatalog.NotificationManage, PermissionCatalog.NotificationAdmin);
+        AddAny(options, NotificationRead, PermissionCatalog.NotificationRead, PermissionCatalog.NotificationManage, PermissionCatalog.NotificationAdmin);
+        AddAny(options, NotificationTemplate, PermissionCatalog.NotificationTemplate, PermissionCatalog.NotificationManage, PermissionCatalog.NotificationAdmin);
+        AddAny(options, NotificationAdmin, PermissionCatalog.NotificationAdmin);
+
+        AddAny(options, ObservabilityRead, PermissionCatalog.ObservabilityRead, PermissionCatalog.ObservabilityManage, PermissionCatalog.ObservabilityAdmin);
+        AddAny(options, ObservabilityManage, PermissionCatalog.ObservabilityManage, PermissionCatalog.ObservabilityAdmin);
+        AddAny(options, ObservabilityAdmin, PermissionCatalog.ObservabilityAdmin);
+
+        // Platform
+        AddAny(options, SuperAdminDashboard, PermissionCatalog.PlatformDashboardRead);
+        AddAny(options, SuperAdminTenantsRead, PermissionCatalog.PlatformTenantRead);
+        AddAny(options, SuperAdminTenantsCreate, PermissionCatalog.PlatformTenantCreate);
+        AddAny(options, SuperAdminTenantsUpdate, PermissionCatalog.PlatformTenantUpdate);
+        AddAny(options, SuperAdminTenantsStatus, PermissionCatalog.PlatformTenantStatus);
+        AddAny(options, SuperAdminTenantsDelete, PermissionCatalog.PlatformTenantDelete);
+        AddAny(options, SuperAdminLicenses, PermissionCatalog.PlatformLicenseManage);
+        AddAny(options, SuperAdminModules, PermissionCatalog.PlatformModuleManage);
+        AddAny(options, SuperAdminProviders, PermissionCatalog.PlatformProviderManage, PermissionCatalog.PlatformProviderRead);
+        AddAny(options, SuperAdminSecurity, PermissionCatalog.PlatformSecurityManage);
+        AddAny(options, SuperAdminObservability, PermissionCatalog.PlatformObservabilityRead);
+        AddAny(options, SuperAdminAudit, PermissionCatalog.PlatformAuditRead, PermissionCatalog.PlatformAuditExport);
+        AddAny(options, SuperAdminDatabase, PermissionCatalog.PlatformDatabaseRead);
+        AddAny(options, SuperAdminAi, PermissionCatalog.PlatformAiManage);
+        AddAny(options, SuperAdminConfiguration, PermissionCatalog.PlatformConfigurationManage);
+        AddAny(options, SuperAdminBackups, PermissionCatalog.PlatformBackupRead);
+        AddAny(options, SuperAdminDevOps, PermissionCatalog.PlatformDevOpsRead);
+        AddAny(options, SuperAdminSearch, PermissionCatalog.PlatformSearch);
+        AddAny(options, PlatformSupportAccess, PermissionCatalog.PlatformSupportAccess);
+    }
+
+    private static void AddAny(AuthorizationOptions options, string policyName, params string[] permissionCodes)
+    {
+        options.AddPolicy(policyName, policy => policy.RequireAssertion(context => HasAnyPermission(context, permissionCodes)));
     }
 
     private static bool HasPermission(AuthorizationHandlerContext context, string permission)
     {
-        if (HasPlatformSuperAdmin(context))
-        {
-            return true;
-        }
-
         return context.User.Claims.Any(claim =>
             string.Equals(claim.Type, "permission", StringComparison.OrdinalIgnoreCase)
             && string.Equals(claim.Value, permission, StringComparison.OrdinalIgnoreCase));
@@ -172,12 +230,5 @@ public static class PermissionPolicies
     private static bool HasAnyPermission(AuthorizationHandlerContext context, params string[] permissions)
     {
         return permissions.Any(permission => HasPermission(context, permission));
-    }
-
-    private static bool HasPlatformSuperAdmin(AuthorizationHandlerContext context)
-    {
-        return context.User.Claims.Any(claim =>
-            string.Equals(claim.Type, System.Security.Claims.ClaimTypes.Role, StringComparison.OrdinalIgnoreCase)
-            && string.Equals(claim.Value, "SuperAdmin", StringComparison.OrdinalIgnoreCase));
     }
 }

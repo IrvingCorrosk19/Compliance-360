@@ -169,7 +169,10 @@ public sealed record CreateTenantCommand(
     string? TaxIdentifier,
     string? CountryCode,
     string? Currency,
-    Guid? RequestedByUserId)
+    Guid? RequestedByUserId,
+    string? AdminEmail = null,
+    string? AdminFullName = null,
+    string? AdminPassword = null)
 {
     public CreateTenantCommand(string name, string slug, Guid? requestedByUserId)
         : this(name, slug, null, null, null, null, null, requestedByUserId)

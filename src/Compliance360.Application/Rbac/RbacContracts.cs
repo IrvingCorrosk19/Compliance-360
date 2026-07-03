@@ -21,6 +21,20 @@ public interface IRbacService
     Task<Result<UserPermissionSet>> GetUserPermissionsAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default);
 }
 
+/// <summary>
+/// Seeds the official RBAC catalog (permissions + role templates) into the
+/// database. Used by the development bootstrap for platform roles and by tenant
+/// creation to provision the full Enterprise RBAC for every new tenant.
+/// </summary>
+public interface IRbacProvisioningService
+{
+    Task EnsurePermissionCatalogAsync(CancellationToken cancellationToken = default);
+
+    Task<int> EnsurePlatformRolesAsync(Guid platformTenantId, CancellationToken cancellationToken = default);
+
+    Task<int> EnsureTenantRolesAsync(Guid tenantId, CancellationToken cancellationToken = default);
+}
+
 public interface IRbacRepository
 {
     Task<User?> GetUserAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default);

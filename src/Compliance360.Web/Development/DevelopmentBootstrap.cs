@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using Compliance360.Application;
 using Compliance360.Application.Identity;
+using Compliance360.Application.Rbac;
 using Compliance360.Application.Notifications;
 using Compliance360.Application.Storage;
 using Compliance360.Domain.Common;
@@ -303,6 +304,7 @@ public sealed class DevelopmentBootstrapRunner
         await using var scope = _serviceProvider.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<Compliance360DbContext>();
         var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+        var rbacProvisioning = scope.ServiceProvider.GetRequiredService<IRbacProvisioningService>();
 
         try
         {
@@ -344,14 +346,29 @@ public sealed class DevelopmentBootstrapRunner
             await EnsureTenantAsync(dbContext, options, cancellationToken);
             AddCheck(checks, "Tenant Bootstrap", DevelopmentBootstrapStatus.Ok, "Technical tenant is present and active.");
 
-            await EnsurePermissionsAsync(dbContext, options, cancellationToken);
-            AddCheck(checks, "Permissions", DevelopmentBootstrapStatus.Ok, "Required development permissions are present.");
+            await rbacProvisioning.EnsurePermissionCatalogAsync(cancellationToken);
+            AddCheck(checks, "Permissions", DevelopmentBootstrapStatus.Ok, $"Official permission catalog is present ({PermissionCatalog.AllCodes.Count} permissions).");
 
-            var role = await EnsureSuperAdminRoleAsync(dbContext, options, cancellationToken);
-            AddCheck(checks, "Roles", DevelopmentBootstrapStatus.Ok, "SuperAdmin role is present.");
+            await rbacProvisioning.EnsurePlatformRolesAsync(options.TenantId, cancellationToken);
+            var role = await EnsurePlatformAdministratorRoleAsync(dbContext, options, cancellationToken);
+
+            // Reconcile every existing business tenant with the official tenant
+            // role catalog so the whole environment is RBAC-consistent, not just
+            // newly created tenants.
+            var businessTenantIds = await dbContext.Tenants
+                .Where(tenant => tenant.Id != options.TenantId)
+                .Select(tenant => tenant.Id)
+                .ToListAsync(cancellationToken);
+            foreach (var businessTenantId in businessTenantIds)
+            {
+                await rbacProvisioning.EnsureTenantRolesAsync(businessTenantId, cancellationToken);
+            }
+
+            AddCheck(checks, "Roles", DevelopmentBootstrapStatus.Ok,
+                $"Role catalog present: {RoleCatalog.PlatformRoles.Count} platform + {RoleCatalog.TenantRoles.Count} tenant roles across {businessTenantIds.Count + 1} tenant(s).");
 
             await EnsureSuperAdminAsync(dbContext, passwordHasher, role, options, cancellationToken);
-            AddCheck(checks, "SuperAdmin", DevelopmentBootstrapStatus.Ok, "SuperAdmin user is present, active, assigned, and password hash is synchronized.");
+            AddCheck(checks, "Platform Administrator", DevelopmentBootstrapStatus.Ok, "Platform Administrator user is present, active, assigned, and password hash is synchronized.");
 
             foreach (var configurationCheck in await EnsureConfigurationAsync(scope.ServiceProvider, _configuration, options, cancellationToken))
             {
@@ -521,52 +538,21 @@ public sealed class DevelopmentBootstrapRunner
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    private static async Task EnsurePermissionsAsync(Compliance360DbContext dbContext, DevelopmentBootstrapOptions options, CancellationToken cancellationToken)
+    private static async Task<Role> EnsurePlatformAdministratorRoleAsync(Compliance360DbContext dbContext, DevelopmentBootstrapOptions options, CancellationToken cancellationToken)
     {
-        foreach (var code in options.RequiredPermissions)
-        {
-            var normalized = code.Trim().ToUpperInvariant();
-            var module = PermissionModule(normalized);
-            var action = PermissionActionName(normalized);
-            var description = $"Development bootstrap permission {normalized}.";
-
-            await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
-                insert into compliance360.permissions ("Id", "Module", "Action", "Code", "Description", "CreatedAtUtc", "UpdatedAtUtc")
-                values ({Guid.NewGuid()}, {module}, {action}, {normalized}, {description}, {DateTimeOffset.UtcNow}, null)
-                on conflict ("Code") do nothing
-                """, cancellationToken);
-        }
-    }
-
-    private static async Task<Role> EnsureSuperAdminRoleAsync(Compliance360DbContext dbContext, DevelopmentBootstrapOptions options, CancellationToken cancellationToken)
-    {
+        var normalizedName = options.SuperAdminRoleName.ToUpperInvariant();
         var role = await dbContext.Roles
-            .Include(item => item.Permissions)
-            .FirstOrDefaultAsync(item => item.TenantId == options.TenantId && item.NormalizedName == options.SuperAdminRoleName.ToUpperInvariant(), cancellationToken);
+            .FirstOrDefaultAsync(item => item.TenantId == options.TenantId && item.NormalizedName == normalizedName, cancellationToken);
 
         if (role is null)
         {
+            // Provisioning normally creates this role; keep the bootstrap resilient
+            // if the role name was overridden through configuration.
             role = new Role(options.TenantId, options.SuperAdminRoleName, isSystemRole: true);
             await dbContext.Roles.AddAsync(role, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
         }
 
-        var permissionIds = await dbContext.Permissions
-            .Where(permission => options.RequiredPermissions.Contains(permission.Code))
-            .Select(permission => permission.Id)
-            .ToArrayAsync(cancellationToken);
-
-        var currentPermissionIds = await dbContext.RolePermissions
-            .Where(item => item.TenantId == options.TenantId && item.RoleId == role.Id)
-            .Select(item => item.PermissionId)
-            .ToArrayAsync(cancellationToken);
-
-        foreach (var permissionId in permissionIds.Except(currentPermissionIds))
-        {
-            await dbContext.RolePermissions.AddAsync(new RolePermission(options.TenantId, role.Id, permissionId), cancellationToken);
-        }
-
-        await dbContext.SaveChangesAsync(cancellationToken);
         return role;
     }
 
@@ -582,29 +568,41 @@ public sealed class DevelopmentBootstrapRunner
         {
             user = new User(options.TenantId, options.SuperAdminEmail, options.SuperAdminFullName);
             user.SetPasswordHash(passwordHash);
-            user.AssignRole(role.Id);
             await dbContext.Users.AddAsync(user, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
         }
         else
         {
+            var mutated = false;
             var passwordIsValid = passwordHasher.Verify(options.SuperAdminPassword, user.PasswordHash) == PasswordVerificationResult.Success;
             if (!passwordIsValid && options.ResetPasswordWhenOutOfSync)
             {
                 user.ChangePassword(passwordHash, DateTimeOffset.UtcNow);
+                mutated = true;
             }
 
             if (user.IsLocked(DateTimeOffset.UtcNow) || user.Status == UserStatus.Locked)
             {
                 user.Unlock();
+                mutated = true;
             }
 
-            if (!user.Roles.Any(item => item.RoleId == role.Id))
+            if (mutated)
             {
-                user.AssignRole(role.Id);
+                await dbContext.SaveChangesAsync(cancellationToken);
             }
         }
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        // Assign the Platform Administrator role idempotently with a set-based
+        // statement. This avoids aggregate change-tracking side effects while the
+        // shared bootstrap DbContext is holding a large provisioning graph.
+        await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
+            insert into compliance360.user_roles ("Id", "TenantId", "UserId", "RoleId", "CreatedAtUtc")
+            select {Guid.NewGuid()}, {options.TenantId}, {user.Id}, {role.Id}, {DateTimeOffset.UtcNow}
+            where not exists (
+                select 1 from compliance360.user_roles
+                where "TenantId" = {options.TenantId} and "UserId" = {user.Id} and "RoleId" = {role.Id})
+            """, cancellationToken);
     }
 
     private static Task<IReadOnlyCollection<DevelopmentBootstrapCheck>> EnsureConfigurationAsync(IServiceProvider serviceProvider, IConfiguration configuration, DevelopmentBootstrapOptions options, CancellationToken cancellationToken)
@@ -655,20 +653,6 @@ public sealed class DevelopmentBootstrapRunner
         checks.Add(new DevelopmentBootstrapCheck("Observability", DevelopmentBootstrapStatus.Ok, "OpenTelemetry and observability services are registered."));
 
         return Task.FromResult<IReadOnlyCollection<DevelopmentBootstrapCheck>>(checks);
-    }
-
-    private static string PermissionModule(string code)
-    {
-        var lastDot = code.LastIndexOf('.');
-        return lastDot > 0 ? code[..lastDot] : code;
-    }
-
-    private static string PermissionActionName(string code)
-    {
-        var action = code[(code.LastIndexOf('.') + 1)..];
-        return Enum.TryParse<PermissionAction>(action, ignoreCase: true, out var parsed)
-            ? parsed.ToString()
-            : PermissionAction.Manage.ToString();
     }
 
     private static void SetEntityId(Entity entity, Guid id)
@@ -736,11 +720,11 @@ public sealed record DevelopmentBootstrapOptions
 
     public string SuperAdminEmail { get; set; } = "admin@compliance360.local";
 
-    public string SuperAdminFullName { get; set; } = "Compliance 360 SuperAdmin";
+    public string SuperAdminFullName { get; set; } = "Compliance 360 Platform Administrator";
 
     public string SuperAdminPassword { get; set; } = string.Empty;
 
-    public string SuperAdminRoleName { get; set; } = "SuperAdmin";
+    public string SuperAdminRoleName { get; set; } = RoleCatalog.PlatformAdministrator;
 
     public IReadOnlyCollection<string> RequiredPermissions { get; set; } = DefaultPermissions;
 

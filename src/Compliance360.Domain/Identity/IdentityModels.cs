@@ -290,6 +290,25 @@ public sealed class Permission : Entity
         Description = Guard.AgainstNullOrWhiteSpace(description, nameof(description), 250);
     }
 
+    private Permission(string code, string module, PermissionAction action, string description)
+    {
+        Module = Guard.AgainstNullOrWhiteSpace(module, nameof(module), 80);
+        Action = action;
+        Code = Guard.AgainstNullOrWhiteSpace(code, nameof(code), 140).ToUpperInvariant();
+        Description = Guard.AgainstNullOrWhiteSpace(description, nameof(description), 250);
+    }
+
+    // Factory used by the official RBAC catalog to define permissions with an
+    // explicit code (e.g. multi-segment platform codes) while keeping a
+    // representative enum action for persistence/reporting.
+    public static Permission Define(string code, PermissionAction action, string description)
+    {
+        var normalized = Guard.AgainstNullOrWhiteSpace(code, nameof(code), 140).ToUpperInvariant();
+        var lastDot = normalized.LastIndexOf('.');
+        var module = lastDot > 0 ? normalized[..lastDot] : normalized;
+        return new Permission(normalized, module, action, description);
+    }
+
     public string Module { get; private set; }
 
     public PermissionAction Action { get; private set; }

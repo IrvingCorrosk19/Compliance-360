@@ -34,7 +34,10 @@ public sealed record CreateTenantRequest(
     string? CommercialName,
     string? TaxIdentifier,
     string? CountryCode,
-    string? Currency);
+    string? Currency,
+    string? AdminEmail = null,
+    string? AdminFullName = null,
+    string? AdminPassword = null);
 
 public sealed record UpdateTenantGeneralInformationRequest(
     string Name,

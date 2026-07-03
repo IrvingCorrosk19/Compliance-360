@@ -1,0 +1,6 @@
+{
+  "ViewLoadFailed": "No se pudo cargar esta vista.",
+  "SessionExpired": "Sesion expirada. Inicia sesion nuevamente.",
+  "UnexpectedError": "Error inesperado.",
+  "Forbidden": "No tienes permiso para ejecutar esta accion."
+}

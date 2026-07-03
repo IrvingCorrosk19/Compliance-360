@@ -166,7 +166,7 @@ public static class FoundationEndpoints
 
         tenants.MapGet("/", async (string? searchText, TenantStatus? status, int page, int pageSize, ITenantManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.SearchTenantsAsync(new TenantSearchQuery(searchText, status, page, pageSize), cancellationToken)))
-            .RequireAuthorization(PermissionPolicies.TenantRead);
+            .RequireAuthorization(PermissionPolicies.SuperAdminTenantsRead);
 
         tenants.MapPost("/", async (CreateTenantRequest request, HttpContext httpContext, ITenantManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.CreateTenantAsync(new CreateTenantCommand(
@@ -177,7 +177,10 @@ public static class FoundationEndpoints
                 request.TaxIdentifier,
                 request.CountryCode,
                 request.Currency,
-                ApiContext.UserId(httpContext)), cancellationToken)))
+                ApiContext.UserId(httpContext),
+                request.AdminEmail,
+                request.AdminFullName,
+                request.AdminPassword), cancellationToken)))
             .RequireAuthorization(PermissionPolicies.TenantCreate);
 
         tenants.MapGet("/{tenantId:guid}", async (Guid tenantId, HttpContext httpContext, ITenantManagementService service, CancellationToken cancellationToken) =>
@@ -508,7 +511,7 @@ public static class FoundationEndpoints
     {
         var storage = api.MapGroup("/tenants/{tenantId:guid}/storage")
             .WithTags("Storage")
-            .RequireAuthorization(PermissionPolicies.StorageManage);
+            .RequireAuthorization(PermissionPolicies.StorageRead);
 
         storage.MapPost("/files", async (
                 Guid tenantId,
@@ -525,7 +528,8 @@ public static class FoundationEndpoints
                     new UploadFileCommand(ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), file.FileName, file.ContentType, stream, ownerEntityName, ownerEntityId, versionEntityId),
                     cancellationToken));
             })
-            .DisableAntiforgery();
+            .DisableAntiforgery()
+            .RequireAuthorization(PermissionPolicies.StorageCreate);
 
         storage.MapGet("/files/{storedFileId:guid}", async (Guid tenantId, Guid storedFileId, HttpContext httpContext, IStorageFoundationService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.GetAsync(
@@ -540,17 +544,20 @@ public static class FoundationEndpoints
         storage.MapPost("/files/{storedFileId:guid}/available", async (Guid tenantId, Guid storedFileId, HttpContext httpContext, IStorageFoundationService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.MarkAvailableAsync(
                 new ChangeStoredFileStatusCommand(ApiContext.TenantId(httpContext, tenantId), storedFileId, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.StorageUpdate);
 
         storage.MapPost("/files/{storedFileId:guid}/quarantine", async (Guid tenantId, Guid storedFileId, HttpContext httpContext, IStorageFoundationService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.QuarantineAsync(
                 new ChangeStoredFileStatusCommand(ApiContext.TenantId(httpContext, tenantId), storedFileId, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.StorageUpdate);
 
         storage.MapDelete("/files/{storedFileId:guid}", async (Guid tenantId, Guid storedFileId, HttpContext httpContext, IStorageFoundationService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.DeleteAsync(
                 new ChangeStoredFileStatusCommand(ApiContext.TenantId(httpContext, tenantId), storedFileId, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.StorageDelete);
 
         storage.MapGet("/providers", async (Guid tenantId, HttpContext httpContext, IStorageFoundationService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.ListProvidersAsync(ApiContext.TenantId(httpContext, tenantId), cancellationToken)));
@@ -558,22 +565,26 @@ public static class FoundationEndpoints
         storage.MapPost("/providers", async (Guid tenantId, ConfigureStorageProviderRequest request, HttpContext httpContext, IStorageFoundationService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.CreateProviderAsync(
                 new CreateStorageProviderConfigurationCommand(ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), request.Provider, request.Name, request.ContainerName, request.Priority, request.IsDefault, request.IsEnabled, request.SettingsJson),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.StorageCreate);
 
         storage.MapPut("/providers/{providerConfigurationId:guid}", async (Guid tenantId, Guid providerConfigurationId, ConfigureStorageProviderRequest request, HttpContext httpContext, IStorageFoundationService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.UpdateProviderAsync(
                 new UpdateStorageProviderConfigurationCommand(ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), providerConfigurationId, request.Name, request.ContainerName, request.Priority, request.IsDefault, request.IsEnabled, request.SettingsJson),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.StorageUpdate);
 
         storage.MapPost("/providers/{providerConfigurationId:guid}/disable", async (Guid tenantId, Guid providerConfigurationId, HttpContext httpContext, IStorageFoundationService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.DisableProviderAsync(
                 new ChangeStorageProviderCommand(ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), providerConfigurationId),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.StorageUpdate);
 
         storage.MapPost("/providers/{providerConfigurationId:guid}/activate", async (Guid tenantId, Guid providerConfigurationId, HttpContext httpContext, IStorageFoundationService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.SetActiveProviderAsync(
                 new ChangeStorageProviderCommand(ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), providerConfigurationId),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.StorageUpdate);
 
         storage.MapPost("/providers/{providerConfigurationId:guid}/test", async (Guid tenantId, Guid providerConfigurationId, HttpContext httpContext, IStorageFoundationService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.TestProviderAsync(
@@ -638,47 +649,55 @@ public static class FoundationEndpoints
     {
         var documents = api.MapGroup("/tenants/{tenantId:guid}/documents")
             .WithTags("Document Management")
-            .RequireAuthorization(PermissionPolicies.DocumentManage);
+            .RequireAuthorization(PermissionPolicies.DocumentRead);
 
         documents.MapPost("/types", async (Guid tenantId, CreateDocumentTypeRequest request, HttpContext httpContext, IDocumentManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.CreateTypeAsync(
                 new CreateDocumentTypeCommand(ApiContext.TenantId(httpContext, tenantId), request.Name, request.Code, request.RetentionDays, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.DocumentCreate);
 
         documents.MapPost("/categories", async (Guid tenantId, CreateDocumentCategoryRequest request, HttpContext httpContext, IDocumentManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.CreateCategoryAsync(
                 new CreateDocumentCategoryCommand(ApiContext.TenantId(httpContext, tenantId), request.Name, request.Code, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.DocumentCreate);
 
         documents.MapPost("/", async (Guid tenantId, CreateDocumentRequest request, HttpContext httpContext, IDocumentManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.CreateDocumentAsync(
                 new CreateDocumentCommand(ApiContext.TenantId(httpContext, tenantId), request.DocumentTypeId, request.CategoryId, request.Title, request.Code, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.DocumentCreate);
 
         documents.MapPost("/{documentId:guid}/versions", async (Guid tenantId, Guid documentId, AddDocumentVersionRequest request, HttpContext httpContext, IDocumentManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.AddVersionAsync(
                 new AddDocumentVersionCommand(ApiContext.TenantId(httpContext, tenantId), documentId, request.StoredFileId, request.ChangeSummary, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.DocumentCreate);
 
         documents.MapPost("/{documentId:guid}/submit", async (Guid tenantId, Guid documentId, HttpContext httpContext, IDocumentManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.SubmitForReviewAsync(
                 new DocumentActionCommand(ApiContext.TenantId(httpContext, tenantId), documentId, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.DocumentUpdate);
 
         documents.MapPost("/{documentId:guid}/decision", async (Guid tenantId, Guid documentId, DecideDocumentRequest request, HttpContext httpContext, IDocumentManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.DecideAsync(
                 new DecideDocumentCommand(ApiContext.TenantId(httpContext, tenantId), documentId, request.Decision, request.Comments, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.DocumentApprove);
 
         documents.MapPost("/{documentId:guid}/obsolete", async (Guid tenantId, Guid documentId, HttpContext httpContext, IDocumentManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.MarkObsoleteAsync(
                 new DocumentActionCommand(ApiContext.TenantId(httpContext, tenantId), documentId, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.DocumentUpdate);
 
         documents.MapPost("/{documentId:guid}/permissions", async (Guid tenantId, Guid documentId, GrantDocumentPermissionRequest request, HttpContext httpContext, IDocumentManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.GrantPermissionAsync(
                 new GrantDocumentPermissionCommand(ApiContext.TenantId(httpContext, tenantId), documentId, request.PrincipalId, request.Level, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.DocumentUpdate);
 
         documents.MapGet("/", async (
                 Guid tenantId,
@@ -700,57 +719,67 @@ public static class FoundationEndpoints
     {
         var workflows = api.MapGroup("/tenants/{tenantId:guid}/workflows")
             .WithTags("Workflow Engine")
-            .RequireAuthorization(PermissionPolicies.WorkflowManage);
+            .RequireAuthorization(PermissionPolicies.WorkflowRead);
 
         workflows.MapPost("/", async (Guid tenantId, CreateWorkflowRequest request, HttpContext httpContext, IWorkflowEngineService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.CreateWorkflowAsync(
                 new CreateWorkflowCommand(ApiContext.TenantId(httpContext, tenantId), request.Name, request.Code, request.EntityName, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.WorkflowCreate);
 
         workflows.MapPost("/{workflowId:guid}/steps", async (Guid tenantId, Guid workflowId, AddWorkflowStepRequest request, HttpContext httpContext, IWorkflowEngineService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.AddStepAsync(
                 new AddWorkflowStepCommand(ApiContext.TenantId(httpContext, tenantId), workflowId, request.Name, request.Type, request.Sequence, request.SlaHours, request.AssignedRoleId, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.WorkflowCreate);
 
         workflows.MapPost("/{workflowId:guid}/transitions", async (Guid tenantId, Guid workflowId, AddWorkflowTransitionRequest request, HttpContext httpContext, IWorkflowEngineService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.AddTransitionAsync(
                 new AddWorkflowTransitionCommand(ApiContext.TenantId(httpContext, tenantId), workflowId, request.FromStepId, request.ToStepId, request.Decision, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.WorkflowCreate);
 
         workflows.MapPost("/{workflowId:guid}/rules", async (Guid tenantId, Guid workflowId, AddWorkflowRuleRequest request, HttpContext httpContext, IWorkflowEngineService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.AddRuleAsync(
                 new AddWorkflowRuleCommand(ApiContext.TenantId(httpContext, tenantId), workflowId, request.FieldName, request.Operator, request.ExpectedValue, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.WorkflowCreate);
 
         workflows.MapPost("/{workflowId:guid}/activate", async (Guid tenantId, Guid workflowId, HttpContext httpContext, IWorkflowEngineService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.ActivateAsync(
                 new WorkflowActionCommand(ApiContext.TenantId(httpContext, tenantId), workflowId, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.WorkflowUpdate);
 
         workflows.MapPost("/{workflowId:guid}/instances", async (Guid tenantId, Guid workflowId, StartWorkflowRequest request, HttpContext httpContext, IWorkflowEngineService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.StartAsync(
                 new StartWorkflowCommand(ApiContext.TenantId(httpContext, tenantId), workflowId, request.EntityName, request.EntityId, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.WorkflowCreate);
 
         workflows.MapPost("/instances/{workflowInstanceId:guid}/assignments", async (Guid tenantId, Guid workflowInstanceId, AssignWorkflowRequest request, HttpContext httpContext, IWorkflowEngineService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.AssignAsync(
                 new AssignWorkflowCommand(ApiContext.TenantId(httpContext, tenantId), workflowInstanceId, request.StepId, request.AssignedToUserId, request.DueAtUtc, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.WorkflowUpdate);
 
         workflows.MapPost("/instances/{workflowInstanceId:guid}/complete", async (Guid tenantId, Guid workflowInstanceId, CompleteWorkflowAssignmentRequest request, HttpContext httpContext, IWorkflowEngineService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.CompleteAssignmentAsync(
                 new CompleteWorkflowAssignmentCommand(ApiContext.TenantId(httpContext, tenantId), workflowInstanceId, request.AssignmentId, request.Decision, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.WorkflowApprove);
 
         workflows.MapPost("/instances/{workflowInstanceId:guid}/escalate", async (Guid tenantId, Guid workflowInstanceId, EscalateWorkflowRequest request, HttpContext httpContext, IWorkflowEngineService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.EscalateAsync(
                 new EscalateWorkflowCommand(ApiContext.TenantId(httpContext, tenantId), workflowInstanceId, request.AssignmentId, request.EscalatedToUserId, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.WorkflowUpdate);
 
         workflows.MapPost("/instances/{workflowInstanceId:guid}/reminders", async (Guid tenantId, Guid workflowInstanceId, HttpContext httpContext, IWorkflowEngineService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.QueueReminderAsync(
                 new WorkflowInstanceActionCommand(ApiContext.TenantId(httpContext, tenantId), workflowInstanceId, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.WorkflowUpdate);
 
         workflows.MapGet("/instances", async (
                 Guid tenantId,
@@ -772,57 +801,67 @@ public static class FoundationEndpoints
     {
         var technicalSheets = api.MapGroup("/tenants/{tenantId:guid}/technical-sheets")
             .WithTags("Technical Sheets")
-            .RequireAuthorization(PermissionPolicies.TechnicalSheetManage);
+            .RequireAuthorization(PermissionPolicies.TechnicalSheetRead);
 
         technicalSheets.MapPost("/products", async (Guid tenantId, CreateProductRequest request, HttpContext httpContext, ITechnicalSheetService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.CreateProductAsync(
                 new CreateProductCommand(ApiContext.TenantId(httpContext, tenantId), request.Name, request.Sku, request.Description, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TechnicalSheetCreate);
 
         technicalSheets.MapPost("/", async (Guid tenantId, CreateTechnicalSheetRequest request, HttpContext httpContext, ITechnicalSheetService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.CreateSheetAsync(
                 new CreateTechnicalSheetCommand(ApiContext.TenantId(httpContext, tenantId), request.ProductId, request.Title, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TechnicalSheetCreate);
 
         technicalSheets.MapPost("/{technicalSheetId:guid}/versions", async (Guid tenantId, Guid technicalSheetId, CreateTechnicalSheetVersionRequest request, HttpContext httpContext, ITechnicalSheetService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.CreateVersionAsync(
                 new CreateTechnicalSheetVersionCommand(ApiContext.TenantId(httpContext, tenantId), technicalSheetId, request.ChangeSummary, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TechnicalSheetCreate);
 
         technicalSheets.MapPost("/{technicalSheetId:guid}/ingredients", async (Guid tenantId, Guid technicalSheetId, AddTechnicalSheetIngredientRequest request, HttpContext httpContext, ITechnicalSheetService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.AddIngredientAsync(
                 new AddIngredientCommand(ApiContext.TenantId(httpContext, tenantId), technicalSheetId, request.Name, request.Percentage, request.Allergen, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TechnicalSheetCreate);
 
         technicalSheets.MapPost("/{technicalSheetId:guid}/nutrients", async (Guid tenantId, Guid technicalSheetId, AddTechnicalSheetNutrientRequest request, HttpContext httpContext, ITechnicalSheetService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.AddNutrientAsync(
                 new AddNutrientCommand(ApiContext.TenantId(httpContext, tenantId), technicalSheetId, request.Name, request.Amount, request.Unit, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TechnicalSheetCreate);
 
         technicalSheets.MapPost("/{technicalSheetId:guid}/certifications", async (Guid tenantId, Guid technicalSheetId, AddTechnicalSheetCertificationRequest request, HttpContext httpContext, ITechnicalSheetService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.AddCertificationAsync(
                 new AddCertificationCommand(ApiContext.TenantId(httpContext, tenantId), technicalSheetId, request.Name, request.Issuer, request.ExpiresAtUtc, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TechnicalSheetCreate);
 
         technicalSheets.MapPost("/{technicalSheetId:guid}/submit", async (Guid tenantId, Guid technicalSheetId, HttpContext httpContext, ITechnicalSheetService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.SubmitAsync(
                 new TechnicalSheetActionCommand(ApiContext.TenantId(httpContext, tenantId), technicalSheetId, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TechnicalSheetUpdate);
 
         technicalSheets.MapPost("/{technicalSheetId:guid}/decision", async (Guid tenantId, Guid technicalSheetId, DecideTechnicalSheetRequest request, HttpContext httpContext, ITechnicalSheetService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.DecideAsync(
                 new DecideTechnicalSheetCommand(ApiContext.TenantId(httpContext, tenantId), technicalSheetId, request.Decision, request.Comments, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TechnicalSheetApprove);
 
         technicalSheets.MapPost("/{technicalSheetId:guid}/pdf", async (Guid tenantId, Guid technicalSheetId, AttachTechnicalSheetPdfRequest request, HttpContext httpContext, ITechnicalSheetService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.AttachPdfAsync(
                 new AttachTechnicalSheetPdfCommand(ApiContext.TenantId(httpContext, tenantId), technicalSheetId, request.PdfObjectKey, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TechnicalSheetUpdate);
 
         technicalSheets.MapPost("/{technicalSheetId:guid}/obsolete", async (Guid tenantId, Guid technicalSheetId, HttpContext httpContext, ITechnicalSheetService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.MarkObsoleteAsync(
                 new TechnicalSheetActionCommand(ApiContext.TenantId(httpContext, tenantId), technicalSheetId, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TechnicalSheetUpdate);
 
         technicalSheets.MapGet("/", async (
                 Guid tenantId,
@@ -843,47 +882,55 @@ public static class FoundationEndpoints
     {
         var suppliers = api.MapGroup("/tenants/{tenantId:guid}/suppliers")
             .WithTags("Supplier Management")
-            .RequireAuthorization(PermissionPolicies.SupplierManage);
+            .RequireAuthorization(PermissionPolicies.SupplierRead);
 
         suppliers.MapPost("/", async (Guid tenantId, CreateSupplierRequest request, HttpContext httpContext, ISupplierManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.CreateSupplierAsync(
                 new CreateSupplierCommand(ApiContext.TenantId(httpContext, tenantId), request.LegalName, request.TaxIdentifier, request.CountryCode, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.SupplierCreate);
 
         suppliers.MapPost("/{supplierId:guid}/documents", async (Guid tenantId, Guid supplierId, AddSupplierDocumentRequest request, HttpContext httpContext, ISupplierManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.AddDocumentAsync(
                 new AddSupplierDocumentCommand(ApiContext.TenantId(httpContext, tenantId), supplierId, request.Type, request.DocumentNumber, request.StoredFileId, request.IssuedAtUtc, request.ExpiresAtUtc, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.SupplierCreate);
 
         suppliers.MapPost("/{supplierId:guid}/documents/{supplierDocumentId:guid}/validate", async (Guid tenantId, Guid supplierId, Guid supplierDocumentId, HttpContext httpContext, ISupplierManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.ValidateDocumentAsync(
                 new ReviewSupplierDocumentCommand(ApiContext.TenantId(httpContext, tenantId), supplierId, supplierDocumentId, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.SupplierApprove);
 
         suppliers.MapPost("/{supplierId:guid}/documents/{supplierDocumentId:guid}/reject", async (Guid tenantId, Guid supplierId, Guid supplierDocumentId, RejectSupplierDocumentRequest request, HttpContext httpContext, ISupplierManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.RejectDocumentAsync(
                 new RejectSupplierDocumentCommand(ApiContext.TenantId(httpContext, tenantId), supplierId, supplierDocumentId, request.Reason, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.SupplierApprove);
 
         suppliers.MapPost("/{supplierId:guid}/evaluations", async (Guid tenantId, Guid supplierId, AddSupplierEvaluationRequest request, HttpContext httpContext, ISupplierManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.AddEvaluationAsync(
                 new AddSupplierEvaluationCommand(ApiContext.TenantId(httpContext, tenantId), supplierId, request.Score, request.Comments, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.SupplierCreate);
 
         suppliers.MapPost("/{supplierId:guid}/homologate", async (Guid tenantId, Guid supplierId, HttpContext httpContext, ISupplierManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.HomologateAsync(
                 new SupplierActionCommand(ApiContext.TenantId(httpContext, tenantId), supplierId, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.SupplierApprove);
 
         suppliers.MapPost("/{supplierId:guid}/documents/{supplierDocumentId:guid}/alerts", async (Guid tenantId, Guid supplierId, Guid supplierDocumentId, HttpContext httpContext, ISupplierManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.CreateExpirationAlertAsync(
                 new CreateSupplierExpirationAlertCommand(ApiContext.TenantId(httpContext, tenantId), supplierId, supplierDocumentId, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.SupplierCreate);
 
         suppliers.MapPost("/{supplierId:guid}/suspend", async (Guid tenantId, Guid supplierId, SuspendSupplierRequest request, HttpContext httpContext, ISupplierManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.SuspendAsync(
                 new SuspendSupplierCommand(ApiContext.TenantId(httpContext, tenantId), supplierId, request.Reason, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.SupplierUpdate);
 
         suppliers.MapGet("/", async (
                 Guid tenantId,
@@ -903,107 +950,127 @@ public static class FoundationEndpoints
     {
         var audits = api.MapGroup("/tenants/{tenantId:guid}/audit-management")
             .WithTags("Audit Management")
-            .RequireAuthorization(PermissionPolicies.AuditManagementManage);
+            .RequireAuthorization(PermissionPolicies.AuditManagementRead);
 
         audits.MapPost("/programs", async (Guid tenantId, CreateAuditProgramRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.CreateProgramAsync(
                 new CreateAuditProgramCommand(ApiContext.TenantId(httpContext, tenantId), request.Name, request.Code, request.Year, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.AuditManagementManage);
 
         audits.MapPost("/checklists", async (Guid tenantId, CreateAuditChecklistRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.CreateChecklistAsync(
                 new CreateAuditChecklistCommand(ApiContext.TenantId(httpContext, tenantId), request.Name, request.Code, request.Type, request.Version, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.AuditManagementManage);
 
         audits.MapPost("/checklists/{checklistId:guid}/items", async (Guid tenantId, Guid checklistId, AddAuditChecklistItemRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.AddChecklistItemAsync(
                 new AddAuditChecklistItemCommand(ApiContext.TenantId(httpContext, tenantId), checklistId, request.Clause, request.Question, request.Weight, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.AuditManagementManage);
 
         audits.MapPost("/plans", async (Guid tenantId, CreateAuditPlanRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.CreatePlanAsync(
                 new CreateAuditPlanCommand(ApiContext.TenantId(httpContext, tenantId), request.AuditProgramId, request.Scope, request.Criteria, request.PlannedStartUtc, request.PlannedEndUtc, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.AuditManagementManage);
 
         audits.MapPost("/", async (Guid tenantId, CreateManagedAuditRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.CreateAuditAsync(
                 new CreateManagedAuditCommand(ApiContext.TenantId(httpContext, tenantId), request.AuditProgramId, request.AuditPlanId, request.Title, request.Code, request.Type, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.AuditManagementManage);
 
         audits.MapPost("/{auditId:guid}/checklist", async (Guid tenantId, Guid auditId, AssignAuditChecklistRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.AssignChecklistAsync(
                 new AssignAuditChecklistCommand(ApiContext.TenantId(httpContext, tenantId), auditId, request.ChecklistId, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.AuditManagementManage);
 
         audits.MapPost("/{auditId:guid}/schedule", async (Guid tenantId, Guid auditId, ScheduleAuditRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.ScheduleAsync(
                 new ScheduleAuditCommand(ApiContext.TenantId(httpContext, tenantId), auditId, request.StartUtc, request.EndUtc, request.Location, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.AuditManagementManage);
 
         audits.MapPost("/{auditId:guid}/participants", async (Guid tenantId, Guid auditId, AddAuditParticipantRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.AddParticipantAsync(
                 new AddAuditParticipantCommand(ApiContext.TenantId(httpContext, tenantId), auditId, request.UserId, request.Role, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.AuditManagementManage);
 
         audits.MapPost("/{auditId:guid}/areas", async (Guid tenantId, Guid auditId, AddAuditAreaRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.AddAreaAsync(
                 new AddAuditAreaCommand(ApiContext.TenantId(httpContext, tenantId), auditId, request.Name, request.Process, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.AuditManagementManage);
 
         audits.MapPost("/{auditId:guid}/start", async (Guid tenantId, Guid auditId, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.StartAsync(
                 new ManagedAuditActionCommand(ApiContext.TenantId(httpContext, tenantId), auditId, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.AuditManagementManage);
 
         audits.MapPost("/{auditId:guid}/findings", async (Guid tenantId, Guid auditId, AddAuditFindingRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.AddFindingAsync(
                 new AddAuditFindingCommand(ApiContext.TenantId(httpContext, tenantId), auditId, request.Title, request.Description, request.Severity, request.ChecklistItemId, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.AuditManagementManage);
 
         audits.MapPost("/{auditId:guid}/evidence", async (Guid tenantId, Guid auditId, AddAuditEvidenceRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.AddEvidenceAsync(
                 new AddAuditEvidenceCommand(ApiContext.TenantId(httpContext, tenantId), auditId, request.FindingId, request.Type, request.StoredFileId, request.FileName, request.ContentType, request.SizeBytes, request.Sha256Hash, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.AuditManagementManage);
 
         audits.MapPost("/{auditId:guid}/observations", async (Guid tenantId, Guid auditId, AddAuditObservationRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.AddObservationAsync(
                 new AddAuditObservationCommand(ApiContext.TenantId(httpContext, tenantId), auditId, request.Description, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.AuditManagementManage);
 
         audits.MapPost("/{auditId:guid}/non-conformities", async (Guid tenantId, Guid auditId, AddAuditNonConformityRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.AddNonConformityAsync(
                 new AddAuditNonConformityCommand(ApiContext.TenantId(httpContext, tenantId), auditId, request.FindingId, request.Requirement, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.AuditManagementManage);
 
         audits.MapPost("/{auditId:guid}/recommendations", async (Guid tenantId, Guid auditId, AddAuditRecommendationRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.AddRecommendationAsync(
                 new AddAuditRecommendationCommand(ApiContext.TenantId(httpContext, tenantId), auditId, request.FindingId, request.Recommendation, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.AuditManagementManage);
 
         audits.MapPost("/{auditId:guid}/corrective-actions", async (Guid tenantId, Guid auditId, LinkAuditCorrectiveActionRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.LinkCorrectiveActionAsync(
                 new LinkAuditCorrectiveActionCommand(ApiContext.TenantId(httpContext, tenantId), auditId, request.FindingId, request.CorrectiveActionId, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.AuditManagementManage);
 
         audits.MapPost("/{auditId:guid}/attachments", async (Guid tenantId, Guid auditId, AddAuditAttachmentRequest request, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.AddAttachmentAsync(
                 new AddAuditAttachmentCommand(ApiContext.TenantId(httpContext, tenantId), auditId, request.StoredFileId, request.FileName, request.ContentType, request.SizeBytes, request.Sha256Hash, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.AuditManagementManage);
 
         audits.MapPost("/{auditId:guid}/complete", async (Guid tenantId, Guid auditId, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.CompleteAsync(
                 new ManagedAuditActionCommand(ApiContext.TenantId(httpContext, tenantId), auditId, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.AuditManagementManage);
 
         audits.MapPost("/{auditId:guid}/close", async (Guid tenantId, Guid auditId, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.CloseAsync(
                 new ManagedAuditActionCommand(ApiContext.TenantId(httpContext, tenantId), auditId, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.AuditManagementManage);
 
         audits.MapPost("/{auditId:guid}/reopen", async (Guid tenantId, Guid auditId, HttpContext httpContext, IAuditManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.ReopenAsync(
                 new ManagedAuditActionCommand(ApiContext.TenantId(httpContext, tenantId), auditId, ApiContext.UserId(httpContext)),
-                cancellationToken)));
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.AuditManagementManage);
 
         audits.MapGet("/", async (
                 Guid tenantId,
@@ -1134,7 +1201,7 @@ public static class FoundationEndpoints
             ApiResult.From(await service.AttachWorkflowAsync(
                 new AttachCapaWorkflowCommand(ApiContext.TenantId(httpContext, tenantId), capaId, request.WorkflowInstanceId, ApiContext.UserId(httpContext)),
                 cancellationToken)))
-            .RequireAuthorization(PermissionPolicies.WorkflowManage);
+            .RequireAuthorization(PermissionPolicies.WorkflowUpdate);
 
         capas.MapPost("/{capaId:guid}/approve-closure", async (Guid tenantId, Guid capaId, HttpContext httpContext, ICapaManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.ApproveClosureAsync(
@@ -1252,8 +1319,8 @@ public static class FoundationEndpoints
             .RequireAuthorization(PermissionPolicies.RiskApprove);
 
         risks.MapPost("/{riskId:guid}/workflow", async (Guid tenantId, Guid riskId, AttachRiskWorkflowRequest request, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
-            ApiResult.From(await service.AttachWorkflowAsync(new AttachRiskWorkflowCommand(ApiContext.TenantId(httpContext, tenantId), riskId, request.WorkflowInstanceId, ApiContext.UserId(httpContext)), cancellationToken)))
-            .RequireAuthorization(PermissionPolicies.WorkflowManage);
+            ApiResult.From(await service.AttachWorkflowAsync(                new AttachRiskWorkflowCommand(ApiContext.TenantId(httpContext, tenantId), riskId, request.WorkflowInstanceId, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.WorkflowUpdate);
 
         risks.MapPost("/{riskId:guid}/close", async (Guid tenantId, Guid riskId, HttpContext httpContext, IRiskManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.CloseAsync(new RiskActionCommand(ApiContext.TenantId(httpContext, tenantId), riskId, ApiContext.UserId(httpContext)), cancellationToken)))
@@ -1330,8 +1397,8 @@ public static class FoundationEndpoints
             .RequireAuthorization(PermissionPolicies.IndicatorManage);
 
         indicators.MapPost("/{indicatorId:guid}/workflow", async (Guid tenantId, Guid indicatorId, AttachIndicatorWorkflowRequest request, HttpContext httpContext, IQualityIndicatorService service, CancellationToken cancellationToken) =>
-            ApiResult.From(await service.AttachWorkflowAsync(new AttachIndicatorWorkflowCommand(ApiContext.TenantId(httpContext, tenantId), indicatorId, request.WorkflowInstanceId, ApiContext.UserId(httpContext)), cancellationToken)))
-            .RequireAuthorization(PermissionPolicies.WorkflowManage);
+            ApiResult.From(await service.AttachWorkflowAsync(                new AttachIndicatorWorkflowCommand(ApiContext.TenantId(httpContext, tenantId), indicatorId, request.WorkflowInstanceId, ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.WorkflowUpdate);
 
         indicators.MapPost("/{indicatorId:guid}/approve", async (Guid tenantId, Guid indicatorId, HttpContext httpContext, IQualityIndicatorService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.ApproveAsync(new IndicatorActionCommand(ApiContext.TenantId(httpContext, tenantId), indicatorId, ApiContext.UserId(httpContext)), cancellationToken)))

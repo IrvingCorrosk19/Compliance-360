@@ -1,4 +1,5 @@
 using System.Text;
+using System.Globalization;
 using System.Threading.RateLimiting;
 using Compliance360.Application;
 using Compliance360.Application.Notifications;
@@ -11,6 +12,7 @@ using Compliance360.Web.Observability;
 using Compliance360.Web.Security;
 using Compliance360.Domain.Notifications;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.OpenApi;
 using Microsoft.IdentityModel.Tokens;
 using OpenTelemetry.Logs;
@@ -70,6 +72,7 @@ if (string.IsNullOrWhiteSpace(builder.Configuration.GetConnectionString("Complia
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddDevelopmentBootstrap();
 builder.Services.AddSingleton<IObservabilityTelemetry, ObservabilityTelemetry>();
+builder.Services.AddLocalization();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -187,6 +190,23 @@ if (app.Environment.IsDevelopment() && !DevelopmentBootstrapRuntime.IsTestHost)
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseMiddleware<SecurityHeadersMiddleware>();
 app.UseSerilogRequestLogging();
+var supportedCultures = new[] { new CultureInfo("es-PA"), new CultureInfo("en-US") };
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("es-PA"),
+    SupportedCultures = supportedCultures,
+    SupportedUICultures = supportedCultures,
+    RequestCultureProviders =
+    [
+        new CustomRequestCultureProvider(context =>
+        {
+            var language = context.Request.Cookies["c360.language"];
+            var culture = language == "en" ? "en-US" : "es-PA";
+            return Task.FromResult<ProviderCultureResult?>(new ProviderCultureResult(culture, culture));
+        }),
+        new AcceptLanguageHeaderRequestCultureProvider()
+    ]
+});
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseSwagger();

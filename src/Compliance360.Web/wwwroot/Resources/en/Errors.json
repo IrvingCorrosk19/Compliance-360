@@ -1,0 +1,6 @@
+{
+  "ViewLoadFailed": "This view could not be loaded.",
+  "SessionExpired": "Session expired. Sign in again.",
+  "UnexpectedError": "Unexpected error.",
+  "Forbidden": "You do not have permission to perform this action."
+}

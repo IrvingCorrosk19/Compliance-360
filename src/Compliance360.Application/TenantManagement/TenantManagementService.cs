@@ -12,17 +12,20 @@ public sealed class TenantManagementService : ITenantManagementService
     private readonly IApplicationDbContext _dbContext;
     private readonly IClock _clock;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly Compliance360.Application.Rbac.IRbacProvisioningService? _rbacProvisioning;
 
     public TenantManagementService(
         ITenantManagementRepository repository,
         IApplicationDbContext dbContext,
         IClock clock,
-        IPasswordHasher? passwordHasher = null)
+        IPasswordHasher? passwordHasher = null,
+        Compliance360.Application.Rbac.IRbacProvisioningService? rbacProvisioning = null)
     {
         _repository = repository;
         _dbContext = dbContext;
         _clock = clock;
         _passwordHasher = passwordHasher ?? new Sha256PasswordHasher();
+        _rbacProvisioning = rbacProvisioning;
     }
 
     public async Task<Result<TenantSummary>> CreateTenantAsync(CreateTenantCommand command, CancellationToken cancellationToken = default)
@@ -47,6 +50,17 @@ public sealed class TenantManagementService : ITenantManagementService
             await _repository.AddAsync(tenant, cancellationToken);
             await AppendAuditAsync(tenant.Id, command.RequestedByUserId, nameof(Tenant), tenant.Id, AuditAction.TenantChanged, "Tenant created.", cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
+
+            // Provision the full Enterprise RBAC (roles + permission grants) so a
+            // new tenant is immediately usable without any manual setup.
+            if (_rbacProvisioning is not null)
+            {
+                await _rbacProvisioning.EnsureTenantRolesAsync(tenant.Id, cancellationToken);
+            }
+
+            // Provision an initial Tenant Administrator so the tenant can be
+            // administered without the platform operator touching business data.
+            await TryProvisionInitialTenantAdministratorAsync(tenant.Id, command, cancellationToken);
 
             return Result<TenantSummary>.Success(ToSummary(tenant));
         }
@@ -620,6 +634,36 @@ public sealed class TenantManagementService : ITenantManagementService
         }
 
         return Result<TenantUserAdministrationSummary>.Success(await BuildUserAdministrationAsync(tenantId, cancellationToken));
+    }
+
+    private async Task TryProvisionInitialTenantAdministratorAsync(Guid tenantId, CreateTenantCommand command, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(command.AdminEmail) || string.IsNullOrWhiteSpace(command.AdminPassword))
+        {
+            return;
+        }
+
+        if (ValidateInitialPassword(command.AdminPassword) is not null)
+        {
+            return;
+        }
+
+        var roles = await _repository.ListRolesAsync(tenantId, cancellationToken);
+        var administratorRole = roles.FirstOrDefault(role =>
+            string.Equals(role.Name, RoleCatalog.TenantAdministrator, StringComparison.OrdinalIgnoreCase));
+        if (administratorRole is null)
+        {
+            return;
+        }
+
+        var admin = new User(tenantId, command.AdminEmail, command.AdminFullName ?? command.AdminEmail);
+        admin.SetPasswordHash(_passwordHasher.HashPassword(command.AdminPassword));
+        admin.RequirePasswordChange();
+        admin.AssignRole(administratorRole.Id);
+
+        await _repository.AddUserAsync(admin, cancellationToken);
+        await AppendAuditAsync(tenantId, command.RequestedByUserId, nameof(User), admin.Id, AuditAction.TenantChanged, "Initial Tenant Administrator provisioned.", cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<Result<TenantUserSummary>> CreateUserAsync(CreateTenantUserCommand command, CancellationToken cancellationToken = default)

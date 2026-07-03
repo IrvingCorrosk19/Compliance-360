@@ -1,0 +1,8 @@
+{
+  "Title": "Centro de comando para cumplimiento, calidad y riesgo",
+  "ApiHealth": "Salud API",
+  "AuditOpen": "Auditorias abiertas",
+  "CapaOpen": "CAPA abiertas",
+  "RiskCritical": "Riesgos criticos",
+  "DashboardDatasets": "Datasets de dashboard"
+}

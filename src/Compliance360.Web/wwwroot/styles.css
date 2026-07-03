@@ -60,6 +60,26 @@ button, input, select, textarea {
   font: inherit;
 }
 
+.language-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.language-switch.compact {
+  margin-left: auto;
+}
+
+.language-switch select {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  padding: 6px 10px;
+}
+
 button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 2px;

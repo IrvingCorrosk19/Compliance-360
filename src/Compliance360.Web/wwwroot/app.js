@@ -9,6 +9,8 @@ const state = {
   email: localStorage.getItem("c360.email") || DEFAULT_EMAIL,
   userId: localStorage.getItem("c360.userId"),
   theme: localStorage.getItem("c360.theme") || "light",
+  language: detectInitialLanguage(),
+  translations: {},
   route: location.hash.replace("#/", "") || "dashboard",
   mfaChallenge: null,
   cache: {},
@@ -25,6 +27,101 @@ const state = {
     reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches
   }
 };
+
+function detectInitialLanguage() {
+  const stored = localStorage.getItem("c360.language") || sessionStorage.getItem("c360.language");
+  if (stored === "es" || stored === "en") return stored;
+  const cookie = document.cookie.split("; ").find(item => item.startsWith("c360.language="))?.split("=")[1];
+  if (cookie === "es" || cookie === "en") return cookie;
+  return navigator.language?.toLowerCase().startsWith("en") ? "en" : "es";
+}
+
+async function initializeI18n() {
+  await loadLanguage(state.language);
+  applyDocumentLanguage();
+}
+
+async function loadLanguage(language) {
+  const normalized = language === "en" ? "en" : "es";
+  const resources = ["Common", "Menu", "Validation", "Errors", "Dashboard", "Users", "Reports"];
+  const entries = await Promise.all(resources.map(async resource => {
+    const response = await fetch(`/Resources/${normalized}/${resource}.json`, { cache: "no-cache" });
+    if (!response.ok) return [resource, {}];
+    return [resource, await response.json()];
+  }));
+  state.language = normalized;
+  state.translations = Object.fromEntries(entries);
+  localStorage.setItem("c360.language", normalized);
+  sessionStorage.setItem("c360.language", normalized);
+  document.cookie = `c360.language=${normalized}; path=/; max-age=31536000; samesite=lax`;
+  applyDocumentLanguage();
+}
+
+function applyDocumentLanguage() {
+  document.documentElement.lang = state.language;
+}
+
+function i18nTextMap() {
+  return Object.values(state.translations).reduce((map, resource) => {
+    Object.assign(map, resource?.text || resource || {});
+    return map;
+  }, {});
+}
+
+function translateText(value) {
+  const text = String(value || "");
+  const map = i18nTextMap();
+  if (map[text]) return map[text];
+  const normalizedKey = Object.keys(map).find(key => key.toLowerCase() === text.toLowerCase());
+  return normalizedKey ? map[normalizedKey] : text;
+}
+
+function translateDom(root = document) {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      if (!node.nodeValue?.trim()) return NodeFilter.FILTER_REJECT;
+      if (["SCRIPT", "STYLE", "TEXTAREA"].includes(node.parentElement?.tagName)) return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(node => {
+    const original = node.nodeValue;
+    const trimmed = original.trim();
+    const translated = translateText(trimmed);
+    if (translated !== trimmed) {
+      node.nodeValue = original.replace(trimmed, translated);
+    }
+  });
+  root.querySelectorAll?.("[placeholder], [title], [aria-label]").forEach(element => {
+    ["placeholder", "title", "aria-label"].forEach(attribute => {
+      const value = element.getAttribute(attribute);
+      if (value) element.setAttribute(attribute, translateText(value));
+    });
+  });
+}
+
+function languageSelectorView(compact = false) {
+  return `
+    <label class="${compact ? "language-switch compact" : "language-switch"}">
+      <span>${translateText("Idioma")}</span>
+      <select id="language-selector" aria-label="${translateText("Idioma")}">
+        <option value="es" ${state.language === "es" ? "selected" : ""}>Español</option>
+        <option value="en" ${state.language === "en" ? "selected" : ""}>English</option>
+      </select>
+    </label>`;
+}
+
+function bindLanguageSelector() {
+  document.querySelectorAll("#language-selector").forEach(selector => {
+    selector.addEventListener("change", async event => {
+      await loadLanguage(event.currentTarget.value);
+      render();
+      toast(translateText("Idioma actualizado."), "success");
+    });
+  });
+}
 
 function permissionsFromToken(token) {
   if (!token) return [];
@@ -48,35 +145,37 @@ function hasAnyPermission(codes) {
 const routePermissions = {
   dashboard: ["TENANT.READ"],
   compliance: ["TENANT.READ"],
-  reports: ["REPORT.READ", "REPORT.EXECUTE"],
-  "audit-trail": ["AUDIT.READ"],
-  documents: ["DOCUMENT.READ", "DOCUMENT.MANAGE"],
-  "technical-sheets": ["TECHNICALSHEET.READ", "TECHNICALSHEET.MANAGE"],
-  suppliers: ["SUPPLIER.READ", "SUPPLIER.MANAGE"],
-  audits: ["AUDITMANAGEMENT.MANAGE"],
-  capa: ["CAPA.READ", "CAPA.MANAGE"],
-  risks: ["RISK.READ", "RISK.MANAGE"],
+  reports: ["REPORT.READ", "REPORT.EXECUTE", "REPORT.MANAGE"],
+  "audit-trail": ["AUDIT.READ", "TENANT.AUDIT"],
+  documents: ["DOCUMENT.READ", "DOCUMENT.CREATE", "DOCUMENT.UPDATE", "DOCUMENT.APPROVE"],
+  "technical-sheets": ["TECHNICALSHEET.READ", "TECHNICALSHEET.CREATE", "TECHNICALSHEET.UPDATE", "TECHNICALSHEET.APPROVE"],
+  suppliers: ["SUPPLIER.READ", "SUPPLIER.CREATE", "SUPPLIER.UPDATE", "SUPPLIER.APPROVE"],
+  audits: ["AUDITMANAGEMENT.READ", "AUDITMANAGEMENT.MANAGE"],
+  capa: ["CAPA.READ", "CAPA.MANAGE", "CAPA.APPROVE"],
+  risks: ["RISK.READ", "RISK.MANAGE", "RISK.APPROVE"],
   indicators: ["INDICATOR.READ", "INDICATOR.MANAGE"],
-  "superadmin-platform": ["SUPERADMIN.DASHBOARD"],
+  "superadmin-platform": ["PLATFORM.DASHBOARD.READ"],
   "tenant-administration": ["TENANT.USERS", "TENANT.ROLES", "TENANT.UPDATE"],
   "template-builder": ["TENANT.UPDATE"],
   regulatory: ["TENANT.READ"],
   training: ["TENANT.READ"],
-  "supplier-portal": ["SUPPLIER.READ", "SUPPLIER.MANAGE"],
+  "supplier-portal": ["SUPPLIER.READ", "SUPPLIER.CREATE", "SUPPLIER.UPDATE", "SUPPLIER.APPROVE"],
   "customer-portal": ["TENANT.READ"],
   security: ["TENANT.SECURITY"],
-  configuration: ["STORAGE.MANAGE", "NOTIFICATION.MANAGE", "NOTIFICATION.ADMIN"]
+  configuration: ["TENANT.STORAGE", "STORAGE.READ", "TENANT.NOTIFICATIONS", "NOTIFICATION.READ", "NOTIFICATION.ADMIN"]
 };
 
+// Permissions that unlock write/manage affordances (create & edit buttons) for
+// each operational route. A user with only READ sees a read-only experience.
 const routeManagePermissions = {
-  documents: "DOCUMENT.MANAGE",
-  "technical-sheets": "TECHNICALSHEET.MANAGE",
-  suppliers: "SUPPLIER.MANAGE",
-  audits: "AUDITMANAGEMENT.MANAGE",
-  capa: "CAPA.MANAGE",
-  risks: "RISK.MANAGE",
-  indicators: "INDICATOR.MANAGE",
-  configuration: "STORAGE.MANAGE"
+  documents: ["DOCUMENT.CREATE", "DOCUMENT.UPDATE"],
+  "technical-sheets": ["TECHNICALSHEET.CREATE", "TECHNICALSHEET.UPDATE"],
+  suppliers: ["SUPPLIER.CREATE", "SUPPLIER.UPDATE", "SUPPLIER.APPROVE"],
+  audits: ["AUDITMANAGEMENT.MANAGE"],
+  capa: ["CAPA.MANAGE"],
+  risks: ["RISK.MANAGE"],
+  indicators: ["INDICATOR.MANAGE"],
+  configuration: ["TENANT.STORAGE", "STORAGE.CREATE", "STORAGE.UPDATE", "TENANT.NOTIFICATIONS", "NOTIFICATION.ADMIN"]
 };
 
 function canNavigate(route) {
@@ -84,7 +183,7 @@ function canNavigate(route) {
 }
 
 function canManageRoute(route) {
-  return Boolean(routeManagePermissions[route] && hasPermission(routeManagePermissions[route]));
+  return Boolean(routeManagePermissions[route] && hasAnyPermission(routeManagePermissions[route]));
 }
 
 const loadingMessages = {
@@ -244,7 +343,7 @@ window.addEventListener("hashchange", () => {
   render();
 });
 
-render();
+initializeI18n().then(render);
 
 function render() {
   ensureLoadingHost();
@@ -252,17 +351,23 @@ function render() {
   if (!state.token && state.mfaChallenge) {
     app.innerHTML = mfaChallengeView();
     bindMfaChallenge();
+    bindLanguageSelector();
+    translateDom(app);
     return;
   }
 
   if (!state.token) {
     app.innerHTML = loginView();
     bindLogin();
+    bindLanguageSelector();
+    translateDom(app);
     return;
   }
 
   app.innerHTML = shellView();
   bindShell();
+  bindLanguageSelector();
+  translateDom(app);
   renderRoute();
 }
 
@@ -273,6 +378,7 @@ function mfaChallengeView() {
         <div class="brand-line">
           <div class="brand-mark" aria-hidden="true">C360</div>
           <span class="product-badge">MFA Required</span>
+          ${languageSelectorView(true)}
         </div>
         <h1 id="mfa-title">Verificacion de segundo factor</h1>
         <p>El tenant o el usuario requiere MFA. Ingresa el codigo TOTP para emitir el token final de sesion.</p>
@@ -302,6 +408,7 @@ function loginView() {
         <div class="brand-line">
           <div class="brand-mark" aria-hidden="true">C360</div>
           <span class="product-badge">Enterprise SaaS</span>
+          ${languageSelectorView(true)}
         </div>
         <h1 id="login-title">Compliance 360 Enterprise</h1>
         <p>Suite corporativa para cumplimiento, calidad, riesgos, auditorias, CAPA, proveedores, documentos, KPIs y reportes ejecutivos.</p>
@@ -354,6 +461,7 @@ function shellView() {
             <div class="brand-subtitle">Enterprise Edition</div>
           </div>
         </div>
+        ${languageSelectorView(true)}
         <section class="sidebar-status" aria-label="Estado de la plataforma">
           <span class="status-pill ok">Live</span>
           <strong>Production Core 100%</strong>
@@ -597,18 +705,19 @@ async function renderRoute() {
     content.querySelector("#retry-route")?.addEventListener("click", renderRoute);
   } finally {
     stopLoading();
+    translateDom(content);
   }
 }
 
 async function renderDashboard(content) {
   const dashboardRequests = {
     health: fetch("/health").then(r => r.json()),
-    auditDashboard: hasPermission("AUDITMANAGEMENT.MANAGE") ? request(`/tenants/${state.tenantId}/audit-management/dashboard`) : Promise.resolve({}),
-    capaDashboard: hasAnyPermission(["CAPA.READ", "CAPA.MANAGE"]) ? request(`/tenants/${state.tenantId}/capas/dashboard`) : Promise.resolve({}),
-    riskDashboard: hasAnyPermission(["RISK.READ", "RISK.MANAGE"]) ? request(`/tenants/${state.tenantId}/risks/dashboard`) : Promise.resolve({}),
+    auditDashboard: hasAnyPermission(["AUDITMANAGEMENT.READ", "AUDITMANAGEMENT.MANAGE"]) ? request(`/tenants/${state.tenantId}/audit-management/dashboard`) : Promise.resolve({}),
+    capaDashboard: hasAnyPermission(["CAPA.READ", "CAPA.MANAGE", "CAPA.APPROVE"]) ? request(`/tenants/${state.tenantId}/capas/dashboard`) : Promise.resolve({}),
+    riskDashboard: hasAnyPermission(["RISK.READ", "RISK.MANAGE", "RISK.APPROVE"]) ? request(`/tenants/${state.tenantId}/risks/dashboard`) : Promise.resolve({}),
     indicatorDashboard: hasAnyPermission(["INDICATOR.READ", "INDICATOR.MANAGE"]) ? request(`/tenants/${state.tenantId}/indicators/dashboard`) : Promise.resolve({}),
-    reports: hasAnyPermission(["REPORT.READ", "REPORT.EXECUTE"]) ? request(`/tenants/${state.tenantId}/reports/dashboard-datasets`) : Promise.resolve({ datasets: [] }),
-    heatMap: hasAnyPermission(["RISK.READ", "RISK.MANAGE"]) ? request(`/tenants/${state.tenantId}/risks/heat-map`) : Promise.resolve([])
+    reports: hasAnyPermission(["REPORT.READ", "REPORT.EXECUTE", "REPORT.MANAGE"]) ? request(`/tenants/${state.tenantId}/reports/dashboard-datasets`) : Promise.resolve({ datasets: [] }),
+    heatMap: hasAnyPermission(["RISK.READ", "RISK.MANAGE", "RISK.APPROVE"]) ? request(`/tenants/${state.tenantId}/risks/heat-map`) : Promise.resolve([])
   };
   const dashboardResults = Object.fromEntries(await Promise.all(
     Object.entries(dashboardRequests).map(async ([key, promise]) => [key, await promiseSettled(promise)])
@@ -1069,7 +1178,7 @@ function createTenantPanel() {
           <h2 class="section-title">Crear Tenant</h2>
           <p class="metric-label">Alta enterprise de tenant. Al guardar se abrira automaticamente el Tenant Administration Center del nuevo tenant.</p>
         </div>
-        <span class="status-pill ok">SUPERADMIN.TENANTS.CREATE</span>
+        <span class="status-pill ok">PLATFORM.TENANT.CREATE</span>
       </div>
       <form id="create-tenant-form" class="form-stack">
         <div class="grid two">
@@ -2060,7 +2169,14 @@ function tenantAlerts(alerts) {
 }
 
 function formatDate(value) {
-  return value ? new Date(value).toLocaleString() : "n/a";
+  if (!value) return "n/a";
+  return new Intl.DateTimeFormat(state.language === "en" ? "en-US" : "es-PA", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(new Date(value));
 }
 
 function formatBytes(value) {
@@ -3082,7 +3198,7 @@ function toast(message, type = "info") {
   const region = document.querySelector("#toast-region");
   const node = document.createElement("div");
   node.className = `toast ${type}`;
-  node.textContent = message;
+  node.textContent = translateText(message);
   region.appendChild(node);
   setTimeout(() => node.remove(), 4200);
 }
