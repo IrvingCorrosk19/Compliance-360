@@ -43,6 +43,8 @@ public static class RoleCatalog
                 P.PlatformObservabilityRead, P.PlatformAuditRead, P.PlatformAuditExport, P.PlatformDatabaseRead,
                 P.PlatformAiManage, P.PlatformConfigurationManage, P.PlatformBackupRead, P.PlatformDevOpsRead,
                 P.PlatformSearch,
+                P.TenantUsers, P.TenantRoles, P.TenantBranding, P.TenantDomains, P.TenantSso, P.TenantWebhooks,
+                P.TenantApiKeys, P.TenantHealth, P.TenantBackup, P.TenantIntegrations, P.IdentityManage, P.RbacManage,
             ]),
         new(PlatformOperations, PlatformOperations, RoleScope.Platform,
             "Runs day-to-day platform operations: tenant lifecycle, providers, modules and licenses.",

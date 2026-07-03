@@ -155,7 +155,7 @@ const routePermissions = {
   risks: ["RISK.READ", "RISK.MANAGE", "RISK.APPROVE"],
   indicators: ["INDICATOR.READ", "INDICATOR.MANAGE"],
   "superadmin-platform": ["PLATFORM.DASHBOARD.READ"],
-  "tenant-administration": ["TENANT.USERS", "TENANT.ROLES", "TENANT.UPDATE"],
+  "tenant-administration": ["PLATFORM.TENANT.READ", "TENANT.USERS", "TENANT.ROLES", "TENANT.UPDATE"],
   "template-builder": ["TENANT.UPDATE"],
   regulatory: ["TENANT.READ"],
   training: ["TENANT.READ"],

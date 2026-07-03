@@ -996,7 +996,7 @@ public static class DevelopmentBootstrapConsole
             Schema ................. {SummaryStatus(checks, "Schema")}
             Migrations ............. {SummaryStatus(checks, "Migrations")}
             Identity ............... {SummaryStatus(checks, "Identity")}
-            SuperAdmin ............. {SummaryStatus(checks, "SuperAdmin")}
+            Platform Administrator . {SummaryStatus(checks, "Platform Administrator")}
             Permissions ............ {SummaryStatus(checks, "Permissions")}
             SMTP ................... {SummaryStatus(checks, "SMTP")}
             Storage ................ {SummaryStatus(checks, "Storage")}

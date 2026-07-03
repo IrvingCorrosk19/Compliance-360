@@ -139,19 +139,19 @@ public static class PermissionPolicies
             PermissionCatalog.TenantRoles, PermissionCatalog.TenantAudit, PermissionCatalog.TenantDomains,
             PermissionCatalog.TenantSso, PermissionCatalog.TenantWebhooks, PermissionCatalog.TenantApiKeys,
             PermissionCatalog.TenantHealth, PermissionCatalog.TenantBackup);
-        AddAny(options, TenantRead, PermissionCatalog.TenantRead);
+        AddAny(options, TenantRead, PermissionCatalog.TenantRead, PermissionCatalog.PlatformTenantRead);
         AddAny(options, TenantCreate, PermissionCatalog.PlatformTenantCreate);
-        AddAny(options, TenantUpdate, PermissionCatalog.TenantUpdate);
+        AddAny(options, TenantUpdate, PermissionCatalog.TenantUpdate, PermissionCatalog.PlatformTenantUpdate);
         AddAny(options, TenantStatus, PermissionCatalog.PlatformTenantStatus);
         AddAny(options, TenantBranding, PermissionCatalog.TenantBranding);
-        AddAny(options, TenantSecurity, PermissionCatalog.TenantSecurity);
+        AddAny(options, TenantSecurity, PermissionCatalog.TenantSecurity, PermissionCatalog.PlatformSecurityManage);
         AddAny(options, TenantStorage, PermissionCatalog.TenantStorage);
         AddAny(options, TenantNotifications, PermissionCatalog.TenantNotifications);
         AddAny(options, TenantIntegrations, PermissionCatalog.TenantIntegrations);
-        AddAny(options, TenantBilling, PermissionCatalog.TenantBilling);
+        AddAny(options, TenantBilling, PermissionCatalog.TenantBilling, PermissionCatalog.PlatformLicenseManage);
         AddAny(options, TenantUsers, PermissionCatalog.TenantUsers);
         AddAny(options, TenantRoles, PermissionCatalog.TenantRoles);
-        AddAny(options, TenantAudit, PermissionCatalog.TenantAudit, PermissionCatalog.AuditRead);
+        AddAny(options, TenantAudit, PermissionCatalog.TenantAudit, PermissionCatalog.AuditRead, PermissionCatalog.PlatformAuditRead);
         AddAny(options, TenantDelete, PermissionCatalog.PlatformTenantDelete);
         AddAny(options, TenantRestore, PermissionCatalog.PlatformTenantRestore);
         AddAny(options, TenantDomains, PermissionCatalog.TenantDomains);

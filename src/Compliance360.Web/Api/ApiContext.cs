@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Compliance360.Domain.Identity;
 
 namespace Compliance360.Web.Api;
 
@@ -34,6 +35,30 @@ public static class ApiContext
         return tenantId;
     }
 
+    /// <summary>
+    /// Resolves the tenant id for Tenant Administration Center routes. Platform
+    /// operators with <see cref="PermissionCatalog.PlatformTenantRead"/> may
+    /// administer any tenant without the break-glass support permission.
+    /// </summary>
+    public static Guid AdministrationTenantId(HttpContext httpContext, Guid tenantId)
+    {
+        if (tenantId == Guid.Empty)
+        {
+            throw new ArgumentException("Tenant id is required.", nameof(tenantId));
+        }
+
+        var claimTenantId = ReadGuidClaim(httpContext.User, "tenant_id");
+        if (claimTenantId.HasValue
+            && claimTenantId.Value != tenantId
+            && !HasSupportAccess(httpContext.User)
+            && !HasPlatformTenantAdministrationAccess(httpContext.User))
+        {
+            throw new UnauthorizedAccessException("Tenant context does not match authenticated user.");
+        }
+
+        return tenantId;
+    }
+
     public static string? IpAddress(HttpContext httpContext)
     {
         return httpContext.Connection.RemoteIpAddress?.ToString();
@@ -55,9 +80,19 @@ public static class ApiContext
     // implicit SuperAdmin role bypass anymore.
     private static bool HasSupportAccess(ClaimsPrincipal principal)
     {
+        return HasPermission(principal, PermissionCatalog.PlatformSupportAccess);
+    }
+
+    private static bool HasPlatformTenantAdministrationAccess(ClaimsPrincipal principal)
+    {
+        return HasPermission(principal, PermissionCatalog.PlatformTenantRead);
+    }
+
+    private static bool HasPermission(ClaimsPrincipal principal, string permissionCode)
+    {
         return principal.Claims.Any(claim =>
             string.Equals(claim.Type, "permission", StringComparison.OrdinalIgnoreCase) &&
-            string.Equals(claim.Value, "PLATFORM.SUPPORT.ACCESS", StringComparison.OrdinalIgnoreCase));
+            string.Equals(claim.Value, permissionCode, StringComparison.OrdinalIgnoreCase));
     }
 
     private static Guid? ReadGuidHeader(HttpContext httpContext, string headerName)
