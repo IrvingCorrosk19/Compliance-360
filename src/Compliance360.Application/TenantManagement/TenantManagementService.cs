@@ -38,6 +38,12 @@ public sealed class TenantManagementService : ITenantManagementService
                 return Result<TenantSummary>.Failure("Tenant slug already exists.");
             }
 
+            if (!string.IsNullOrWhiteSpace(command.TaxIdentifier)
+                && await _repository.TaxIdentifierExistsAsync(command.TaxIdentifier.Trim().ToUpperInvariant(), cancellationToken))
+            {
+                return Result<TenantSummary>.Failure("Tenant tax identifier already exists.");
+            }
+
             var tenant = new Tenant(
                 command.Name,
                 normalizedSlug,

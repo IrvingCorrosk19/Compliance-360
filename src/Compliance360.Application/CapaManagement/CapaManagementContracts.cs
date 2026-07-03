@@ -16,6 +16,7 @@ public interface ICapaManagementService
     Task<Result<CapaActionSummary>> AddContainmentActionAsync(AddCapaActionCommand command, CancellationToken cancellationToken = default);
     Task<Result<CapaActionSummary>> AddCorrectiveActionAsync(AddCapaActionCommand command, CancellationToken cancellationToken = default);
     Task<Result<CapaActionSummary>> AddPreventiveActionAsync(AddCapaActionCommand command, CancellationToken cancellationToken = default);
+    Task<Result<CapaActionSummary>> CompleteActionAsync(CompleteCapaActionCommand command, CancellationToken cancellationToken = default);
     Task<Result<CapaEvidenceSummary>> AddEvidenceAsync(AddCapaEvidenceCommand command, CancellationToken cancellationToken = default);
     Task<Result<CapaAttachmentSummary>> AddAttachmentAsync(AddCapaAttachmentCommand command, CancellationToken cancellationToken = default);
     Task<Result> RegisterFollowUpAsync(CapaFollowUpCommand command, CancellationToken cancellationToken = default);
@@ -60,6 +61,7 @@ public sealed record DefineCapaRootCauseCommand(Guid TenantId, Guid CapaId, stri
 public sealed record AddCapaFiveWhyCommand(Guid TenantId, Guid CapaId, string Why1, string Why2, string Why3, string Why4, string Why5, Guid RequestedByUserId);
 public sealed record AddCapaIshikawaCommand(Guid TenantId, Guid CapaId, string People, string Process, string Equipment, string Material, string Environment, string Measurement, Guid RequestedByUserId);
 public sealed record AddCapaActionCommand(Guid TenantId, Guid CapaId, string Description, Guid ResponsibleUserId, DateTimeOffset DueAtUtc, Guid RequestedByUserId);
+public sealed record CompleteCapaActionCommand(Guid TenantId, Guid CapaId, Guid ActionId, Guid RequestedByUserId);
 public sealed record AddCapaEvidenceCommand(Guid TenantId, Guid CapaId, Guid StoredFileId, string FileName, string ContentType, long SizeBytes, string Sha256Hash, Guid RequestedByUserId);
 public sealed record AddCapaAttachmentCommand(Guid TenantId, Guid CapaId, Guid StoredFileId, string FileName, string ContentType, long SizeBytes, string Sha256Hash, Guid RequestedByUserId);
 public sealed record CapaFollowUpCommand(Guid TenantId, Guid CapaId, string Notes, Guid RequestedByUserId);

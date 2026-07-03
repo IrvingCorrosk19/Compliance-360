@@ -28,6 +28,12 @@ public sealed class EfTenantManagementRepository : ITenantManagementRepository
         return _dbContext.Tenants.AnyAsync(tenant => tenant.Id != excludeTenantId && tenant.Slug == normalizedSlug, cancellationToken);
     }
 
+    public Task<bool> TaxIdentifierExistsAsync(string taxIdentifier, CancellationToken cancellationToken = default)
+    {
+        var normalizedTaxIdentifier = taxIdentifier.Trim().ToUpperInvariant();
+        return _dbContext.Tenants.AnyAsync(tenant => tenant.TaxIdentifier == normalizedTaxIdentifier, cancellationToken);
+    }
+
     public Task<bool> TaxIdentifierExistsAsync(Guid excludeTenantId, string taxIdentifier, CancellationToken cancellationToken = default)
     {
         var normalizedTaxIdentifier = taxIdentifier.Trim().ToUpperInvariant();

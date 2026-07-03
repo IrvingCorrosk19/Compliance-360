@@ -93,6 +93,30 @@ public static class FoundationEndpoints
             return Results.Text(string.Join(Environment.NewLine, lines), "text/csv");
         })
             .RequireAuthorization(PermissionPolicies.SuperAdminAudit);
+
+        // Tenant lifecycle is platform governance: the Platform Administrator/Operator manages every
+        // tenant's lifecycle from the platform center. These deliberately bypass the tenant-context
+        // match (the caller's JWT is scoped to the platform tenant) and are gated purely by platform
+        // permissions, so tenant isolation for business data is unaffected.
+        superAdmin.MapPost("/tenants/{tenantId:guid}/trial", async (Guid tenantId, HttpContext httpContext, ITenantManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.StartTrialAsync(tenantId, ApiContext.UserId(httpContext), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TenantStatus);
+
+        superAdmin.MapPost("/tenants/{tenantId:guid}/activate", async (Guid tenantId, HttpContext httpContext, ITenantManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ActivateTenantAsync(tenantId, ApiContext.UserId(httpContext), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TenantStatus);
+
+        superAdmin.MapPost("/tenants/{tenantId:guid}/suspend", async (Guid tenantId, HttpContext httpContext, ITenantManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.SuspendTenantAsync(tenantId, ApiContext.UserId(httpContext), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TenantStatus);
+
+        superAdmin.MapPost("/tenants/{tenantId:guid}/archive", async (Guid tenantId, HttpContext httpContext, ITenantManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ArchiveTenantAsync(tenantId, ApiContext.UserId(httpContext), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TenantDelete);
+
+        superAdmin.MapPost("/tenants/{tenantId:guid}/restore", async (Guid tenantId, HttpContext httpContext, ITenantManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.RestoreTenantAsync(tenantId, ApiContext.UserId(httpContext), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.TenantRestore);
     }
 
     private static void MapIdentity(RouteGroupBuilder api)
@@ -515,17 +539,36 @@ public static class FoundationEndpoints
 
         storage.MapPost("/files", async (
                 Guid tenantId,
-                IFormFile file,
-                string ownerEntityName,
-                Guid ownerEntityId,
-                Guid? versionEntityId,
                 HttpContext httpContext,
                 IStorageFoundationService service,
                 CancellationToken cancellationToken) =>
             {
+                var form = await httpContext.Request.ReadFormAsync(cancellationToken);
+                var file = form.Files.GetFile("file");
+                if (file is null || file.Length == 0)
+                {
+                    return Results.Problem("A non-empty file is required.", statusCode: StatusCodes.Status400BadRequest);
+                }
+
+                var ownerEntityName = form["ownerEntityName"].ToString();
+                if (string.IsNullOrWhiteSpace(ownerEntityName))
+                {
+                    return Results.Problem("ownerEntityName is required.", statusCode: StatusCodes.Status400BadRequest);
+                }
+
+                if (!Guid.TryParse(form["ownerEntityId"], out var ownerEntityId))
+                {
+                    return Results.Problem("ownerEntityId is required.", statusCode: StatusCodes.Status400BadRequest);
+                }
+
+                Guid? versionEntityId = Guid.TryParse(form["versionEntityId"], out var parsedVersionEntityId)
+                    ? parsedVersionEntityId
+                    : null;
+
                 await using var stream = file.OpenReadStream();
+                var contentType = string.IsNullOrWhiteSpace(file.ContentType) ? "application/octet-stream" : file.ContentType;
                 return ApiResult.From(await service.UploadAsync(
-                    new UploadFileCommand(ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), file.FileName, file.ContentType, stream, ownerEntityName, ownerEntityId, versionEntityId),
+                    new UploadFileCommand(ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), file.FileName, contentType, stream, ownerEntityName, ownerEntityId, versionEntityId),
                     cancellationToken));
             })
             .DisableAntiforgery()
@@ -1158,6 +1201,12 @@ public static class FoundationEndpoints
         capas.MapPost("/{capaId:guid}/corrective-actions", async (Guid tenantId, Guid capaId, AddCapaActionRequest request, HttpContext httpContext, ICapaManagementService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.AddCorrectiveActionAsync(
                 new AddCapaActionCommand(ApiContext.TenantId(httpContext, tenantId), capaId, request.Description, request.ResponsibleUserId, request.DueAtUtc, ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.CapaManage);
+
+        capas.MapPost("/{capaId:guid}/actions/{actionId:guid}/complete", async (Guid tenantId, Guid capaId, Guid actionId, HttpContext httpContext, ICapaManagementService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CompleteActionAsync(
+                new CompleteCapaActionCommand(ApiContext.TenantId(httpContext, tenantId), capaId, actionId, ApiContext.UserId(httpContext)),
                 cancellationToken)))
             .RequireAuthorization(PermissionPolicies.CapaManage);
 

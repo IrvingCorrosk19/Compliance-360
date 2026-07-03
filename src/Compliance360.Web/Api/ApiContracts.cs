@@ -298,6 +298,8 @@ public sealed record AddCapaIshikawaRequest(string People, string Process, strin
 
 public sealed record AddCapaActionRequest(string Description, Guid ResponsibleUserId, DateTimeOffset DueAtUtc);
 
+public sealed record CompleteCapaActionRequest(Guid ActionId);
+
 public sealed record AddCapaEvidenceRequest(Guid StoredFileId, string FileName, string ContentType, long SizeBytes, string Sha256Hash);
 
 public sealed record AddCapaAttachmentRequest(Guid StoredFileId, string FileName, string ContentType, long SizeBytes, string Sha256Hash);

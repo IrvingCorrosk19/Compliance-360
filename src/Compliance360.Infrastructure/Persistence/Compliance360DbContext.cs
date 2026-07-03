@@ -16,6 +16,7 @@ using Compliance360.Domain.TechnicalSheets;
 using Compliance360.Domain.TenantManagement;
 using Compliance360.Domain.Workflows;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Compliance360.Infrastructure.Persistence;
 
@@ -301,6 +302,33 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
         return base.SaveChangesAsync(cancellationToken);
     }
 
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        base.ConfigureConventions(configurationBuilder);
+
+        // PostgreSQL 'timestamp with time zone' only accepts UTC (offset 0). Normalize every
+        // DateTimeOffset to UTC on write so clients sending a local offset (e.g. -05:00) never
+        // trigger an Npgsql write failure. Same store type, so no schema/migration change.
+        configurationBuilder.Properties<DateTimeOffset>().HaveConversion<UtcDateTimeOffsetConverter>();
+        configurationBuilder.Properties<DateTimeOffset?>().HaveConversion<NullableUtcDateTimeOffsetConverter>();
+    }
+
+    private sealed class UtcDateTimeOffsetConverter : ValueConverter<DateTimeOffset, DateTimeOffset>
+    {
+        public UtcDateTimeOffsetConverter()
+            : base(value => value.ToUniversalTime(), value => value)
+        {
+        }
+    }
+
+    private sealed class NullableUtcDateTimeOffsetConverter : ValueConverter<DateTimeOffset?, DateTimeOffset?>
+    {
+        public NullableUtcDateTimeOffsetConverter()
+            : base(value => value.HasValue ? value.Value.ToUniversalTime() : value, value => value)
+        {
+        }
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("compliance360");
@@ -320,6 +348,26 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
         ConfigureQualityIndicators(modelBuilder);
         ConfigureReportingEngine(modelBuilder);
         ConfigureEnterpriseWorkspaces(modelBuilder);
+
+        // Every domain aggregate/entity assigns its own Guid identifier in its constructor
+        // (see Domain.Common.Entity). By EF convention a Guid key is treated as store-generated,
+        // which makes EF mistake a NEW child added to a *tracked* aggregate during an update for an
+        // existing row (issuing UPDATE ... affecting 0 rows instead of INSERT). Declaring the key
+        // client-generated aligns EF with the domain design and fixes add-child-on-update across all
+        // modules. Same column type (uuid), so no schema/migration change.
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (!typeof(Entity).IsAssignableFrom(entityType.ClrType))
+            {
+                continue;
+            }
+
+            var key = entityType.FindPrimaryKey();
+            if (key is { Properties.Count: 1 } && key.Properties[0].Name == nameof(Entity.Id) && key.Properties[0].ClrType == typeof(Guid))
+            {
+                modelBuilder.Entity(entityType.ClrType).Property(nameof(Entity.Id)).ValueGeneratedNever();
+            }
+        }
     }
 
     private static void ConfigureTenantManagement(ModelBuilder modelBuilder)

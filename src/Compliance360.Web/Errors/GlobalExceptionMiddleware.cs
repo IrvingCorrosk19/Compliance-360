@@ -21,6 +21,11 @@ public sealed class GlobalExceptionMiddleware
         {
             await WriteProblemAsync(httpContext, StatusCodes.Status403Forbidden, "Forbidden", exception.Message);
         }
+        catch (BadHttpRequestException exception)
+        {
+            await WriteProblemAsync(httpContext, StatusCodes.Status400BadRequest, "Malformed request", "The request body could not be read or is not valid.");
+            _logger.LogWarning(exception, "Rejected malformed request body.");
+        }
         catch (ArgumentException exception)
         {
             await WriteProblemAsync(httpContext, StatusCodes.Status400BadRequest, "Validation error", exception.Message);

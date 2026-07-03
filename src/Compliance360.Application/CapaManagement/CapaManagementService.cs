@@ -84,6 +84,11 @@ public sealed class CapaManagementService : ICapaManagementService
         return await ChangeWithValueAsync(command.TenantId, command.CapaId, command.RequestedByUserId, "Preventive action registered.", capa => ToSummary(capa.AddPreventiveAction(command.Description, command.ResponsibleUserId, command.DueAtUtc, command.RequestedByUserId, _clock.UtcNow)), cancellationToken);
     }
 
+    public async Task<Result<CapaActionSummary>> CompleteActionAsync(CompleteCapaActionCommand command, CancellationToken cancellationToken = default)
+    {
+        return await ChangeWithValueAsync(command.TenantId, command.CapaId, command.RequestedByUserId, "CAPA action completed.", capa => ToSummary(capa.CompleteAction(command.ActionId, command.RequestedByUserId, _clock.UtcNow)), cancellationToken);
+    }
+
     public async Task<Result<CapaEvidenceSummary>> AddEvidenceAsync(AddCapaEvidenceCommand command, CancellationToken cancellationToken = default)
     {
         return await ChangeWithValueAsync(command.TenantId, command.CapaId, command.RequestedByUserId, "CAPA evidence attached.", capa => ToSummary(capa.AddEvidence(command.StoredFileId, command.FileName, command.ContentType, command.SizeBytes, command.Sha256Hash, command.RequestedByUserId, _clock.UtcNow)), cancellationToken);

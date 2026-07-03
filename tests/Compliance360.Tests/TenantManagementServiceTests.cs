@@ -476,6 +476,11 @@ public sealed class TenantManagementServiceTests
             return Task.FromResult(Tenants.Any(tenant => tenant.Id != excludeTenantId && tenant.Slug == slug.Trim().ToLowerInvariant()));
         }
 
+        public Task<bool> TaxIdentifierExistsAsync(string taxIdentifier, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(Tenants.Any(tenant => tenant.TaxIdentifier == taxIdentifier.Trim().ToUpperInvariant()));
+        }
+
         public Task<bool> TaxIdentifierExistsAsync(Guid excludeTenantId, string taxIdentifier, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(Tenants.Any(tenant => tenant.Id != excludeTenantId && tenant.TaxIdentifier == taxIdentifier.Trim().ToUpperInvariant()));

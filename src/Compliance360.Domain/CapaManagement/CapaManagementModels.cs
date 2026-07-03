@@ -238,6 +238,28 @@ public sealed class Capa : TenantEntity
         return action;
     }
 
+    public CapaAction CompleteAction(Guid actionId, Guid requestedByUserId, DateTimeOffset occurredAtUtc)
+    {
+        var action = FindAction(actionId);
+        action.Complete(occurredAtUtc);
+        AddHistory($"{action.Type} action completed.", requestedByUserId, occurredAtUtc);
+        return action;
+    }
+
+    private CapaAction FindAction(Guid actionId)
+    {
+        var action = _containmentActions.FirstOrDefault(candidate => candidate.Id == actionId)
+            ?? (CapaAction?)_correctiveActions.FirstOrDefault(candidate => candidate.Id == actionId)
+            ?? (CapaAction?)_preventiveActions.FirstOrDefault(candidate => candidate.Id == actionId);
+
+        if (action is null)
+        {
+            throw new DomainException("CAPA action was not found.");
+        }
+
+        return action;
+    }
+
     public CapaEvidence AddEvidence(Guid storedFileId, string fileName, string contentType, long sizeBytes, string sha256Hash, Guid uploadedByUserId, DateTimeOffset uploadedAtUtc)
     {
         var evidence = new CapaEvidence(TenantId, Id, storedFileId, fileName, contentType, sizeBytes, sha256Hash, uploadedByUserId, uploadedAtUtc);

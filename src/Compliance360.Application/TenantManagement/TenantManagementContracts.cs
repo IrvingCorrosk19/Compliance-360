@@ -88,6 +88,8 @@ public interface ITenantManagementRepository
 
     Task<bool> SlugExistsAsync(Guid excludeTenantId, string slug, CancellationToken cancellationToken = default);
 
+    Task<bool> TaxIdentifierExistsAsync(string taxIdentifier, CancellationToken cancellationToken = default);
+
     Task<bool> TaxIdentifierExistsAsync(Guid excludeTenantId, string taxIdentifier, CancellationToken cancellationToken = default);
 
     Task<Tenant?> GetByIdAsync(Guid tenantId, CancellationToken cancellationToken = default);
