@@ -8,9 +8,10 @@ export default defineConfig({
   workers: 1,
   retries: 0,
   reporter: [
+    ["./reporters/certification-reporter.ts"],
     ["list"],
     ["html", { outputFolder: "../artifacts/e2e/html-report", open: "never" }],
-    ["json", { outputFile: "../artifacts/e2e/results.json" }],
+    ["json", { outputFile: "../artifacts/e2e/final-certification-results.json" }],
   ],
   outputDir: "../artifacts/e2e/test-output",
   use: {

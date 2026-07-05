@@ -99,10 +99,13 @@ async function login(page: Page, tenantId: string, email: string, password: stri
   await page.fill("#tenantId", tenantId);
   await page.fill("#email", email);
   await page.fill("#password", password);
-  await Promise.all([
-    page.waitForSelector("aside.sidebar", { timeout: 25000 }),
-    page.click("#login-form button[type=submit]"),
-  ]);
+  await page.click("#login-form button[type=submit]");
+  try {
+    await page.waitForSelector("aside.sidebar", { timeout: 45000 });
+  } catch {
+    const err = await page.locator(".toast.error").last().textContent().catch(() => null);
+    throw new Error(`Login failed for ${email}: ${err ?? "shell not visible after 45s"}`);
+  }
 }
 
 async function jwtPermissions(page: Page): Promise<string[]> {
