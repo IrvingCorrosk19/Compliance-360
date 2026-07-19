@@ -61,6 +61,25 @@ Preparación → Revisión técnica → Aprobación interna para sometimiento �
 - Rol: Regulatory Manager
 - UI: Pipeline Renovacion / StartRenewal
 
+## Alert Center (paralelo al expediente)
+
+Configuración del canal (antes o en paralelo a la operación RA):
+
+```
+Tenant Administrator asigna NA → Notification Administrator configura
+Templates / Reglas / Destinatarios / Scheduler / Providers
+→ Eventos de dominio (RA dual-write) → Worker → Inbox / email
+```
+
+| Capacidad | Rol | Ruta |
+|-----------|-----|------|
+| Inbox (leer/marcar/archivar/favorito) | Roles con `NOTIFICATION.READ` (RA, QM, Viewer, NA…) | `#/alert-center` / campana |
+| Template Center, Reglas, Destinatarios, Scheduler, Operaciones | Notification Administrator | `#/alert-center` → consolas |
+| Provider Center (SMTP/cloud) | Notification Administrator | `#/alert-center` → Proveedores |
+| Storage documental | Storage Administrator (**no** NA) | Storage |
+
+**No confundir:** la vista RA «Alertas» (`#/regulatory → Alertas`) es riesgo/vencimiento del módulo regulatorio. El **Alert Center** es el canal empresarial de notificaciones.
+
 ## Etiquetas UI (regulatory-affairs.js STATUS_LABELS)
 - `Draft` → Borrador
 - `Planning` → Planificación / Preparación

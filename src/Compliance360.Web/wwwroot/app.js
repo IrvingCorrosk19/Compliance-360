@@ -36,7 +36,8 @@ const state = {
     skeleton: localStorage.getItem("c360.loading.skeleton") !== "false",
     messages: localStorage.getItem("c360.loading.messages") !== "false",
     reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  }
+  },
+  sessionEnding: false
 };
 window.state = state;
 
@@ -52,6 +53,10 @@ function detectInitialLanguage() {
 async function initializeI18n() {
   await window.I18n.ready;
   state.language = window.I18n.getLanguage();
+  if (state.token && isAccessTokenExpired(state.token)) {
+    endSessionGracefully("expired", { silentBoot: true });
+    return;
+  }
   if (state.token && state.tenantId) {
     try {
       const prefs = await request(`/tenants/${state.tenantId}/users/me/preferences`);
@@ -59,10 +64,15 @@ async function initializeI18n() {
         await window.I18n.setLanguage(prefs.preferredLanguage);
         state.language = prefs.preferredLanguage;
       }
-    } catch {
+    } catch (error) {
+      if (String(error?.message || "").includes("401") || /sesi[oó]n expir/i.test(String(error?.message || ""))) {
+        endSessionGracefully("expired");
+        return;
+      }
       /* preferences are optional on first boot */
     }
   }
+  scheduleSessionWatch();
 }
 
 async function loadLanguage(language) {
@@ -849,6 +859,7 @@ function completeLogin(result) {
   state.auth.preselectedOrganizationId = null;
   state.auth.selectedOrganizationId = null;
   state.auth.rememberMe = document.querySelector("#rememberMe")?.checked || false;
+  state.sessionEnding = false;
   localStorage.setItem("c360.token", state.token);
   localStorage.setItem("c360.tenantId", state.tenantId);
   localStorage.setItem("c360.email", state.email);
@@ -859,6 +870,7 @@ function completeLogin(result) {
   else localStorage.removeItem("c360.displayName");
   localStorage.setItem("c360.rememberMe", state.auth.rememberMe ? "true" : "false");
   toast(t("Login.SignedIn"), "success");
+  scheduleSessionWatch();
   render();
 }
 
@@ -912,20 +924,7 @@ function bindShell() {
     render();
   });
   document.querySelector("#logout").addEventListener("click", () => {
-    localStorage.removeItem("c360.token");
-    localStorage.removeItem("c360.tenantId");
-    localStorage.removeItem("c360.email");
-    localStorage.removeItem("c360.userId");
-    localStorage.removeItem("c360.role");
-    localStorage.removeItem("c360.displayName");
-    sessionStorage.clear();
-    state.token = null;
-    state.permissions = [];
-    state.role = null;
-    state.displayName = null;
-    state.tenantId = null;
-    state.email = null;
-    state.userId = null;
+    clearSessionLocalState();
     toast(t("Login.SignedOut"), "success");
     location.hash = "#/login";
     render();
@@ -1133,16 +1132,8 @@ async function renderRoute() {
     }
     renderRoadmap(content, state.route);
   } catch (error) {
-    if (String(error.message).includes("401")) {
-      localStorage.removeItem("c360.token");
-      localStorage.removeItem("c360.role");
-      localStorage.removeItem("c360.displayName");
-      state.token = null;
-      state.permissions = [];
-      state.role = null;
-      state.displayName = null;
-      render();
-      toast(t("Login.SessionExpired"), "error");
+    if (isSessionExpiredError(error)) {
+      endSessionGracefully("expired");
       return;
     }
     content.innerHTML = errorView(error.message);
@@ -3511,7 +3502,11 @@ async function request(path, options = {}) {
     });
     if (!response.ok) {
       const text = await response.text();
-      throw new Error(parseApiErrorDetail(text, response.status));
+      const detail = parseApiErrorDetail(text, response.status);
+      if (response.status === 401 && !options.anonymous) {
+        endSessionGracefully("expired");
+      }
+      throw new Error(detail);
     }
     if (response.status === 204) {
       return {};
@@ -3931,6 +3926,121 @@ function toast(message, type = "info") {
   setTimeout(() => node.remove(), 4200);
 }
 window.toast = toast;
+
+let sessionWatchTimer = null;
+
+function tokenExpiresAtMs(token) {
+  const payload = decodeTokenPayload(token);
+  if (!payload?.exp) return null;
+  return Number(payload.exp) * 1000;
+}
+
+function isAccessTokenExpired(token) {
+  const expiresAt = tokenExpiresAtMs(token);
+  return expiresAt != null && Date.now() >= expiresAt - 250;
+}
+
+function isSessionExpiredError(error) {
+  const message = String(error?.message || error || "");
+  return message.includes("401") || /sesi[oó]n expir/i.test(message) || /session expired/i.test(message);
+}
+
+function clearSessionLocalState() {
+  if (sessionWatchTimer) {
+    clearTimeout(sessionWatchTimer);
+    sessionWatchTimer = null;
+  }
+  localStorage.removeItem("c360.token");
+  localStorage.removeItem("c360.tenantId");
+  localStorage.removeItem("c360.email");
+  localStorage.removeItem("c360.userId");
+  localStorage.removeItem("c360.role");
+  localStorage.removeItem("c360.displayName");
+  sessionStorage.clear();
+  state.token = null;
+  state.permissions = [];
+  state.role = null;
+  state.displayName = null;
+  state.tenantId = null;
+  state.email = null;
+  state.userId = null;
+  state.mfaChallenge = null;
+}
+
+function scheduleSessionWatch() {
+  if (sessionWatchTimer) {
+    clearTimeout(sessionWatchTimer);
+    sessionWatchTimer = null;
+  }
+  if (!state.token) return;
+  const expiresAt = tokenExpiresAtMs(state.token);
+  if (!expiresAt) return;
+  const delay = Math.max(0, expiresAt - Date.now() - 400);
+  sessionWatchTimer = setTimeout(() => endSessionGracefully("expired"), delay);
+}
+
+function endSessionGracefully(reason = "expired", options = {}) {
+  if (state.sessionEnding) return;
+  state.sessionEnding = true;
+  clearSessionLocalState();
+  showSessionEndedDialog(reason, options);
+}
+
+function showSessionEndedDialog(reason = "expired", options = {}) {
+  document.querySelector("#session-ended-overlay")?.remove();
+
+  const overlay = document.createElement("div");
+  overlay.id = "session-ended-overlay";
+  overlay.className = "session-ended-overlay";
+  overlay.setAttribute("role", "dialog");
+  overlay.setAttribute("aria-modal", "true");
+  overlay.setAttribute("aria-labelledby", "session-ended-title");
+
+  const title = t("Login.SessionEndedTitle");
+  const body = reason === "expired"
+    ? t("Login.SessionEndedBody")
+    : t("Login.SessionEndedBodyGeneric");
+  const cta = t("Login.SessionEndedContinue");
+
+  overlay.innerHTML = `
+    <div class="session-ended-card">
+      <div class="session-ended-glow" aria-hidden="true"></div>
+      <div class="session-ended-icon" aria-hidden="true">
+        <svg viewBox="0 0 64 64" width="56" height="56" fill="none">
+          <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-width="2" opacity="0.25"/>
+          <path d="M32 18v18" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+          <circle cx="32" cy="44" r="2.5" fill="currentColor"/>
+        </svg>
+      </div>
+      <p class="session-ended-eyebrow">${escapeHtml(t("Login.Title"))}</p>
+      <h2 id="session-ended-title">${escapeHtml(title)}</h2>
+      <p class="session-ended-body">${escapeHtml(body)}</p>
+      <button type="button" class="btn primary session-ended-cta" id="session-ended-continue">${escapeHtml(cta)}</button>
+    </div>`;
+
+  document.body.appendChild(overlay);
+
+  const finish = () => {
+    overlay.classList.add("is-leaving");
+    setTimeout(() => {
+      overlay.remove();
+      state.sessionEnding = false;
+      location.hash = "#/login";
+      render();
+    }, 280);
+  };
+
+  overlay.querySelector("#session-ended-continue")?.addEventListener("click", finish);
+  if (!options.silentBoot) {
+    requestAnimationFrame(() => overlay.classList.add("is-visible"));
+  } else {
+    overlay.classList.add("is-visible");
+  }
+
+  // Auto-continue after a short pause so the message is readable, then logout UI.
+  setTimeout(finish, 6500);
+}
+window.endSessionGracefully = endSessionGracefully;
 
 async function ensureFormTemplateBuilder() {
   if (typeof window.renderFormTemplateBuilder === "function") {

@@ -16,22 +16,24 @@ No requiere npm, servidor, base de datos ni autenticación real.
 
 | Dimensión | Cantidad | Notas |
 |-----------|----------|-------|
-| Roles documentados | 9 | TAC, RA Admin, Manager, Specialist, Reviewer, Approver, Submitter, Viewer, Quality Manager |
-| Pantallas inventariadas | 17 | Login, TAC, Audit, shell RA + 11 vistas internas |
-| Campos explicados | 16 | Incluye nombre regulatorio, clase riesgo, CT/RS, oportunidad, fechas |
-| Botones explicados | 19 | Prep, Aceptar/Rechazar, Aprobar internamente, Someter, Observación, Aprobación externa, Stage, Bootstrap |
-| Tutoriales | 40+ | Por rol, paso concretos |
+| Roles documentados | 10 | TAC, **Notification Administrator**, RA Admin, Manager, Specialist, Reviewer, Approver, Submitter, Viewer, Quality Manager |
+| Pantallas inventariadas | 24 | Login, TAC, Audit, shell RA + vistas RA + **7 pantallas Alert Center** |
+| Campos explicados | 19+ | Incluye nombre regulatorio, clase riesgo, CT/RS, búsqueda Inbox, código de regla, tipo provider |
+| Botones explicados | 28 | Prep/SoD RA + campana, Inbox, Template Center, Reglas, Providers, Operations |
+| Tutoriales | 50+ | Por rol; incluye Inbox y configuración Alert Center (NA) |
 | Pasos simulador | 15 | Specialist → … → CT/RS → Renovación |
-| Errores simulados | 11 | SoD + validación + sesión |
-| Términos glosario | 26 | Incluye aprobación interna ≠ externa |
-| Pruebas Playwright | 10/10 PASS | Ver `MANUAL_FUNCTIONAL_TEST_REPORT.md` |
+| Errores simulados | 14 | SoD + validación + sesión + 401 Alert Center + provider + SoD Storage |
+| Términos glosario | 32+ | Incluye aprobación interna ≠ externa + Alert Center / Inbox / NOTIFICATION.* |
+| Pruebas Playwright | 10/10 PASS (baseline RA) | Ver `MANUAL_FUNCTIONAL_TEST_REPORT.md` — ampliar NA en siguiente ciclo |
 
 ## Fuentes reales (sin invención)
 
 - `src/Compliance360.Domain/Identity/RoleCatalog.cs`
 - `src/Compliance360.Domain/Identity/RbacCatalog.cs`
 - `src/Compliance360.Web/wwwroot/regulatory-affairs.js` (STATUS_LABELS, botones, vistas)
-- `src/Compliance360.Web/wwwroot/app.js` (rutas hash)
+- `src/Compliance360.Web/wwwroot/alert-center.js` (Inbox, Template Center, Rules, Scheduler, Providers, Operations)
+- `src/Compliance360.Web/wwwroot/app.js` (rutas hash, campana)
+- `docs/alert-center/` (arquitectura, RBAC, manual administrador)
 - `docs/regulatory-affairs/security/04_TARGET_ROLE_MODEL.md`
 - `docs/regulatory-affairs/security/17_ROLE_TEST_USER_MATRIX.md`
 - `docs/regulatory-affairs/security/21_ROLE_UI_CERTIFICATION.md`
@@ -46,6 +48,8 @@ No requiere npm, servidor, base de datos ni autenticación real.
 | Observado por autoridad | Observación recibida | Manager registra |
 | Aprobación registrada de MINSA/CSS (externa) | Decisión externa | Manager / QM |
 | CT/RS activo | Número emitido por autoridad | Manager / QM |
+| Alert Center Inbox | Notificaciones persistentes del usuario | Roles con NOTIFICATION.READ |
+| Configuración Alert Center | Templates/reglas/providers/ops | Notification Administrator |
 
 ## Estructura
 
@@ -53,7 +57,7 @@ No requiere npm, servidor, base de datos ni autenticación real.
 docs/user-manual/
 ├── index.html
 ├── assets/css|js|icons|images
-├── roles/*.html (9)
+├── roles/*.html (10)
 ├── data/*.json
 ├── docs/*.md (trazabilidad + reportes)
 └── README.md
@@ -71,3 +75,4 @@ docs/user-manual/
 - `http://localhost:5272`
 - Login `#/login`
 - Consola `#/regulatory`
+- Alert Center `#/alert-center`

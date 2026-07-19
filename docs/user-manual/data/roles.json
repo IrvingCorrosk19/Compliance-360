@@ -13,14 +13,16 @@
       "Ejecutar Bootstrap regulatorio / CONFIGURE (REGULATORY.CONFIGURE)",
       "Ver SoD Settings (REGULATORY.SOD.MANAGE)",
       "Consultar lecturas RA (productos, expedientes, CT/RS, licencias, dashboard)",
-      "Ver Audit Trail (AUDIT.READ / TENANT.AUDIT)"
+      "Ver Audit Trail (AUDIT.READ / TENANT.AUDIT)",
+      "Asignar rol Notification Administrator para configuración de Alert Center"
     ],
     "cannot": [
       "Crear expedientes (sin REGULATORY.DOSSIER.CREATE)",
       "Aprobar internamente para sometimiento",
       "Registrar sometimiento",
       "Registrar aprobación externa MINSA/CSS + CT/RS",
-      "Sustituir al Specialist, Reviewer, Approver o Submitter en el flujo operativo"
+      "Sustituir al Specialist, Reviewer, Approver o Submitter en el flujo operativo",
+      "Configurar providers/SMTP/reglas de Alert Center (requiere Notification Administrator)"
     ],
     "flowStage": "IAM · configuración · sin operación de expediente",
     "receives": "Solicitudes de acceso y asignación de roles del equipo regulatorio.",
@@ -41,9 +43,59 @@
       "tac-configure-ra",
       "tac-sod",
       "tac-no-operate",
-      "tac-logout"
+      "tac-logout",
+      "tac-assign-na"
     ],
     "file": "tenant-administrator.html"
+  },
+  {
+    "id": "notification-administrator",
+    "name": "Notification Administrator",
+    "short": "NA",
+    "color": "#06b6d4",
+    "icon": "bell",
+    "purpose": "Configura y opera Alert Center Enterprise: plantillas, reglas, destinatarios, scheduler, providers y consola operativa. No administra almacenamiento (SoD).",
+    "can": [
+      "Abrir Alert Center Inbox y campana (#/alert-center)",
+      "Template Center: versiones inmutables, preview, maker-checker (NOTIFICATION.TEMPLATE)",
+      "Motor de reglas: condiciones, simulación, publicación (NOTIFICATION.MANAGE)",
+      "Directorio de destinatarios (Owner/Role/Group/Dept/listas/externos)",
+      "Scheduler durable (cron, calendarios, quiet hours)",
+      "Provider Center: SMTP/M365/SendGrid/Mailgun/Resend/SES (NOTIFICATION.ADMIN)",
+      "Operations: cola, DLQ, retry, export CSV (NOTIFICATION.MANAGE)",
+      "Consultar auditoría de canal (AUDIT.READ)"
+    ],
+    "cannot": [
+      "Administrar Storage / proveedores de documentos (Storage Administrator)",
+      "Preparar, revisar, aprobar o presentar expedientes regulatorios",
+      "Sustituir decisión de negocio o SoD regulatorio"
+    ],
+    "flowStage": "Configuración y operación del canal de alertas (paralelo al flujo del expediente)",
+    "receives": "Asignación de rol y tenant del Tenant Administrator; eventos de dominio (p. ej. RA) vía dual-write.",
+    "delivers": "Plantillas/reglas/providers activos; alertas entregadas al Inbox de usuarios operativos.",
+    "screens": [
+      "login",
+      "alert-center-inbox",
+      "alert-center-templates",
+      "alert-center-rules",
+      "alert-center-scheduler",
+      "alert-center-recipients",
+      "alert-center-providers",
+      "alert-center-operations",
+      "audit-trail"
+    ],
+    "tutorials": [
+      "na-login",
+      "na-inbox",
+      "na-templates",
+      "na-rules",
+      "na-recipients",
+      "na-scheduler",
+      "na-providers",
+      "na-operations",
+      "na-sod-storage"
+    ],
+    "file": "notification-administrator.html"
   },
   {
     "id": "regulatory-administrator",
@@ -51,19 +103,21 @@
     "short": "RA-ADM",
     "color": "#0ea5e9",
     "icon": "sliders",
-    "purpose": "Configura el módulo Regulatory Affairs: autoridades, packs, alertas e importación REGUTRACK.",
+    "purpose": "Configura el módulo Regulatory Affairs: autoridades, packs e importación REGUTRACK. Puede recibir alertas en Inbox; no administra Alert Center.",
     "can": [
       "Bootstrap regulatorio (autoridades MINSA/CSS + pack de requisitos)",
       "Importación Stage XLSX REGUTRACK (REGULATORY.CONFIGURE)",
       "Gestionar productos y fabricantes (MANAGE)",
       "Gestionar licencias operativas",
-      "Ver SoD Settings y lecturas del módulo"
+      "Ver SoD Settings y lecturas del módulo",
+      "Usar Inbox de Alert Center (campana / #/alert-center): leer, marcar, archivar y favoritos (NOTIFICATION.READ)"
     ],
     "cannot": [
       "Aprobar internamente (APPROVE_FOR_SUBMISSION)",
       "Registrar sometimiento (SUBMIT)",
       "Registrar decisión externa / CT/RS (APPROVE)",
-      "Operar el expediente como Specialist por defecto"
+      "Operar el expediente como Specialist por defecto",
+      "Configurar Alert Center (plantillas, reglas, providers) — rol Notification Administrator"
     ],
     "flowStage": "Configuración previa al flujo del expediente",
     "receives": "Archivo REGUTRACK y reglas SoD del Tenant Administrator.",
@@ -76,14 +130,16 @@
       "regulatory-manufacturers",
       "regulatory-licenses",
       "regulatory-alerts",
-      "regulatory-dashboard"
+      "regulatory-dashboard",
+      "alert-center-inbox"
     ],
     "tutorials": [
       "adm-bootstrap",
       "adm-authority",
       "adm-import",
       "adm-alerts",
-      "adm-sod-view"
+      "adm-sod-view",
+      "adm-inbox"
     ],
     "file": "regulatory-administrator.html"
   },
@@ -100,11 +156,13 @@
       "Registrar observación de autoridad (OBSERVATION.MANAGE)",
       "Registrar aprobación externa MINSA/CSS + CT/RS (DOSSIER.APPROVE)",
       "Gestionar registros y renovaciones (REGISTRATION.MANAGE)",
-      "SoD manage y emergency override auditado"
+      "SoD manage y emergency override auditado",
+      "Usar Inbox de Alert Center (campana / #/alert-center): leer, marcar, archivar y favoritos (NOTIFICATION.READ)"
     ],
     "cannot": [
       "Sustituir Specialist + Approver + Submitter a la vez sin override",
-      "Representar que la aprobación interna es la de MINSA/CSS"
+      "Representar que la aprobación interna es la de MINSA/CSS",
+      "Configurar Alert Center (plantillas, reglas, providers) — rol Notification Administrator"
     ],
     "flowStage": "Observación → Respuesta → Decisión externa → CT/RS → Renovación",
     "receives": "Expedientes sometidos por el Submitter; respuestas del Specialist a observaciones.",
@@ -116,14 +174,16 @@
       "regulatory-dossiers",
       "regulatory-registrations",
       "regulatory-alerts",
-      "regulatory-sod"
+      "regulatory-sod",
+      "alert-center-inbox"
     ],
     "tutorials": [
       "mgr-dashboard",
       "mgr-observe",
       "mgr-external-approve",
       "mgr-renewal",
-      "mgr-breakglass"
+      "mgr-breakglass",
+      "mgr-inbox"
     ],
     "file": "regulatory-manager.html"
   },
@@ -140,13 +200,15 @@
       "Marcar requisito recibido",
       "Alta fabricante y certificados",
       "Responder observación de autoridad",
-      "Ver CT/RS y dashboard en lectura"
+      "Ver CT/RS y dashboard en lectura",
+      "Usar Inbox de Alert Center (campana / #/alert-center): leer, marcar, archivar y favoritos (NOTIFICATION.READ)"
     ],
     "cannot": [
       "Revisar su propio expediente (PreventSelfReview / SoD)",
       "Aprobar internamente para sometimiento",
       "Registrar sometimiento",
-      "Registrar aprobación externa / crear CT/RS"
+      "Registrar aprobación externa / crear CT/RS",
+      "Configurar Alert Center (plantillas, reglas, providers) — rol Notification Administrator"
     ],
     "flowStage": "Preparación (Planning → ReadyForSubmission) y respuesta a observaciones",
     "receives": "Packs/autoridades del Administrator; devoluciones del Reviewer; observaciones del Manager.",
@@ -157,7 +219,8 @@
       "regulatory-dossiers",
       "regulatory-manufacturers",
       "regulatory-pipeline",
-      "regulatory-dashboard"
+      "regulatory-dashboard",
+      "alert-center-inbox"
     ],
     "tutorials": [
       "spec-product",
@@ -166,7 +229,8 @@
       "spec-checklist",
       "spec-ready",
       "spec-respond-obs",
-      "spec-fix-return"
+      "spec-fix-return",
+      "spec-inbox"
     ],
     "file": "regulatory-specialist.html"
   },
@@ -181,13 +245,15 @@
       "Abrir expedientes en revisión (DOSSIER.READ + REVIEW)",
       "Aceptar requisito",
       "Rechazar requisito (con comentario)",
-      "Consultar dashboard y CT/RS en lectura"
+      "Consultar dashboard y CT/RS en lectura",
+      "Usar Inbox de Alert Center (campana / #/alert-center): leer, marcar, archivar y favoritos (NOTIFICATION.READ)"
     ],
     "cannot": [
       "Crear productos/expedientes",
       "Aprobar internamente para sometimiento",
       "Registrar sometimiento",
-      "Preparar el mismo caso si PreventSelfReview está activo"
+      "Preparar el mismo caso si PreventSelfReview está activo",
+      "Configurar Alert Center (plantillas, reglas, providers) — rol Notification Administrator"
     ],
     "flowStage": "Revisión técnica (antes de ReadyForSubmission / hacia Approver)",
     "receives": "Expedientes armados por el Specialist.",
@@ -196,13 +262,15 @@
       "login",
       "regulatory-dossiers",
       "regulatory-pipeline",
-      "regulatory-dashboard"
+      "regulatory-dashboard",
+      "alert-center-inbox"
     ],
     "tutorials": [
       "rev-queue",
       "rev-accept",
       "rev-reject",
-      "rev-return"
+      "rev-return",
+      "rev-inbox"
     ],
     "file": "regulatory-reviewer.html"
   },
@@ -216,12 +284,14 @@
     "can": [
       "Ver expedientes en estado Técnicamente completo",
       "Presionar «Aprobar internamente para sometimiento» (APPROVE_FOR_SUBMISSION)",
-      "Consultar lecturas RA"
+      "Consultar lecturas RA",
+      "Usar Inbox de Alert Center (campana / #/alert-center): leer, marcar, archivar y favoritos (NOTIFICATION.READ)"
     ],
     "cannot": [
       "Preparar el expediente",
       "Registrar sometimiento (SeparateApproverAndSubmitter)",
-      "Registrar aprobación externa / CT/RS"
+      "Registrar aprobación externa / CT/RS",
+      "Configurar Alert Center (plantillas, reglas, providers) — rol Notification Administrator"
     ],
     "flowStage": "Aprobación interna (ReadyForSubmission → ApprovedForSubmission)",
     "receives": "Expedientes declarados técnicamente completos.",
@@ -230,12 +300,14 @@
       "login",
       "regulatory-dossiers",
       "regulatory-pipeline",
-      "regulatory-dashboard"
+      "regulatory-dashboard",
+      "alert-center-inbox"
     ],
     "tutorials": [
       "appr-queue",
       "appr-approve",
-      "appr-why-no-submit"
+      "appr-why-no-submit",
+      "appr-inbox"
     ],
     "file": "regulatory-approver.html"
   },
@@ -249,12 +321,14 @@
     "can": [
       "Ver expedientes «Aprobado internamente para sometimiento»",
       "Presionar «Registrar sometimiento» (DOSSIER.SUBMIT)",
-      "Consultar lecturas RA"
+      "Consultar lecturas RA",
+      "Usar Inbox de Alert Center (campana / #/alert-center): leer, marcar, archivar y favoritos (NOTIFICATION.READ)"
     ],
     "cannot": [
       "Aprobar internamente",
       "Registrar decisión externa / CT/RS",
-      "Preparar o revisar requisitos"
+      "Preparar o revisar requisitos",
+      "Configurar Alert Center (plantillas, reglas, providers) — rol Notification Administrator"
     ],
     "flowStage": "Sometimiento (ApprovedForSubmission → Submitted)",
     "receives": "Expedientes con aprobación interna del Approver.",
@@ -263,12 +337,14 @@
       "login",
       "regulatory-dossiers",
       "regulatory-pipeline",
-      "regulatory-dashboard"
+      "regulatory-dashboard",
+      "alert-center-inbox"
     ],
     "tutorials": [
       "sub-queue",
       "sub-submit",
-      "sub-why-no-approve"
+      "sub-why-no-approve",
+      "sub-inbox"
     ],
     "file": "regulatory-submitter.html"
   },
@@ -281,10 +357,12 @@
     "purpose": "Solo lectura del portafolio regulatorio, pipeline y CT/RS.",
     "can": [
       "Ver Dashboard, Portafolio, Pipeline, Expedientes, CT/RS, Alertas",
-      "Consultar sin modificar"
+      "Consultar sin modificar",
+      "Usar Inbox de Alert Center (campana / #/alert-center): leer, marcar, archivar y favoritos (NOTIFICATION.READ)"
     ],
     "cannot": [
-      "Cualquier botón de mutación (Nuevo, Aprobar, Someter, Stage, Bootstrap, etc.)"
+      "Cualquier botón de mutación (Nuevo, Aprobar, Someter, Stage, Bootstrap, etc.)",
+      "Configurar Alert Center (plantillas, reglas, providers) — rol Notification Administrator"
     ],
     "flowStage": "Consulta transversal (sin etapa de escritura)",
     "receives": "Visibilidad del estado del flujo después de cada rol operativo.",
@@ -296,11 +374,13 @@
       "regulatory-pipeline",
       "regulatory-dossiers",
       "regulatory-registrations",
-      "regulatory-alerts"
+      "regulatory-alerts",
+      "alert-center-inbox"
     ],
     "tutorials": [
       "view-read",
-      "view-no-edit"
+      "view-no-edit",
+      "view-inbox"
     ],
     "file": "regulatory-viewer.html"
   },
@@ -315,11 +395,13 @@
       "Registrar aprobación externa / CT/RS (DOSSIER.APPROVE + REGISTRATION.MANAGE)",
       "Leer expedientes y reportes RA",
       "Aprobar documentos, CAPA, riesgos y fichas técnicas (módulos QMS)",
-      "Ver Audit Trail"
+      "Ver Audit Trail",
+      "Usar Inbox de Alert Center (campana / #/alert-center): leer, marcar, archivar y favoritos (NOTIFICATION.READ)"
     ],
     "cannot": [
       "Preparar expedientes (sin CREATE/UPDATE de preparación por defecto)",
-      "Sustituir al Regulatory Manager en supervisión diaria salvo su permiso de APPROVE"
+      "Sustituir al Regulatory Manager en supervisión diaria salvo su permiso de APPROVE",
+      "Configurar Alert Center (plantillas, reglas, providers) — rol Notification Administrator"
     ],
     "flowStage": "Decisión externa / CT/RS (junto o en apoyo al Manager)",
     "receives": "Expedientes sometidos listos para decisión de autoridad.",
@@ -329,12 +411,14 @@
       "regulatory-dossiers",
       "regulatory-registrations",
       "regulatory-dashboard",
-      "audit-trail"
+      "audit-trail",
+      "alert-center-inbox"
     ],
     "tutorials": [
       "qm-external",
       "qm-limits",
-      "qm-audit"
+      "qm-audit",
+      "qm-inbox"
     ],
     "file": "quality-manager.html"
   }

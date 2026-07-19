@@ -62,6 +62,8 @@
       <h2 class="section-title" id="can">¿Qué puedo hacer?</h2>
       <div class="card"><ul class="list-tight"><li>Registrar aprobación externa / CT/RS (DOSSIER.APPROVE + REGISTRATION.MANAGE)</li><li>Leer expedientes y reportes RA</li><li>Aprobar documentos, CAPA, riesgos y fichas técnicas (módulos QMS)</li><li>Ver Audit Trail</li></ul></div>
 
+      <div class="card" style="margin-top:.75rem"><p><strong>Alert Center:</strong> puede usar el Inbox (<code>NOTIFICATION.READ</code>). La configuración (templates/reglas/providers) es del <a href="notification-administrator.html">Notification Administrator</a>.</p></div>
+
       <h2 class="section-title" id="cannot">¿Qué no puedo hacer?</h2>
       <div class="card"><ul class="list-tight"><li>Preparar expedientes (sin CREATE/UPDATE de preparación por defecto)</li><li>Sustituir al Regulatory Manager en supervisión diaria salvo su permiso de APPROVE</li></ul>
       <p class="muted">Si un botón no aparece, normalmente falta el permiso o SoD lo bloquea. No es un fallo de la pantalla.</p></div>
@@ -76,6 +78,7 @@
       <div class="card">
         <ol>
           <li>Inicie sesión en <code>http://localhost:5272</code> → <code>#/login</code>.</li>
+          <li>Revise la <strong>campana</strong> / <code>#/alert-center</code> (Inbox): lea, marque, archive o favoritos. No configure providers ni reglas (eso es Notification Administrator).</li>
           <li>Abra <strong>Regulatory Management</strong> → <code>#/regulatory</code>.</li>
           <li>Vaya a la vista de su cola (Pipeline / Expedientes / Configuración según rol).</li>
           <li>Ejecute solo las acciones de su etapa.</li>

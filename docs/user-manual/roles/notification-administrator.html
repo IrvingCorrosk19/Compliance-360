@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Notification Administrator · Manual Compliance 360</title>
+  <link rel="stylesheet" href="../assets/css/manual.css" />
+  <link rel="stylesheet" href="../assets/css/light-theme.css" />
+  <link rel="stylesheet" href="../assets/css/dark-theme.css" />
+</head>
+<body data-theme="light">
+  <a class="skip" href="#main">Saltar al contenido</a>
+  <header class="app-header">
+    <a class="brand-lockup" href="../index.html">
+      <div class="brand-mark">C360</div>
+      <div>
+        <div class="brand-title">Compliance 360</div>
+        <div class="brand-sub">Manual · Notification Administrator</div>
+      </div>
+    </a>
+    <div class="header-actions">
+      <span class="pill" style="--role-color:#06b6d4">NA</span>
+      <span data-progress-role="notification-administrator">0%</span>
+      <button type="button" class="btn" data-theme-set="light">Claro</button>
+      <button type="button" class="btn" data-theme-set="dark">Oscuro</button>
+      <button type="button" class="btn" data-theme-set="system">Sistema</button>
+      <a class="btn" href="../index.html">Inicio</a>
+    </div>
+  </header>
+  <div class="layout">
+    <nav class="sidebar" aria-label="Capítulos">
+      <h3>Capítulos</h3>
+      <a href="#who">1. ¿Quién soy?</a>
+      <a href="#responsibility">2. Responsabilidad</a>
+      <a href="#can">3. Qué puedo hacer</a>
+      <a href="#cannot">4. Qué no puedo</a>
+      <a href="#handoff">5–6. Recibo / Entrego</a>
+      <a href="#daily">7. Flujo diario</a>
+      <a href="#screens">8. Mis pantallas</a>
+      <a href="#tasks">9. Tareas frecuentes</a>
+      <a href="#common-errors">10. Errores comunes</a>
+      <a href="#sim-ui">Pantalla simulada</a>
+      <a href="#tutorials">Tutoriales</a>
+      <a href="#simulator-root">Simulador</a>
+      <a href="#role-checklist">Checklist</a>
+      <h3>Acceso real</h3>
+      <p class="muted" style="font-size:.8rem">App: http://localhost:5272<br/>Login: #/login<br/>Alert Center: #/alert-center<br/>Usuario ej.: notifications@cert.local</p>
+    </nav>
+    <main id="main" class="main">
+      <section id="who" class="card">
+        <div class="pill" style="--role-color:#06b6d4">NA</div>
+        <h1>Notification Administrator</h1>
+        <p class="lead">Configura y opera <strong>Alert Center Enterprise</strong>: plantillas, reglas, destinatarios, scheduler, providers y consola operativa. No administra almacenamiento documental (SoD).</p>
+        <p class="muted">Progreso de este rol: <strong data-progress-role="notification-administrator">0%</strong></p>
+        <div class="progress-ring"><span></span></div>
+      </section>
+
+      <h2 class="section-title" id="responsibility">¿Cuál es mi responsabilidad?</h2>
+      <div class="card">
+        <p>Usted es el dueño de la <strong>configuración del canal de alertas</strong>. Los roles regulatorios reciben notificaciones en el Inbox; usted define <em>qué</em> se envía, <em>a quién</em> y <em>por qué canal</em>.</p>
+        <div class="flow" id="role-flow"></div>
+      </div>
+
+      <h2 class="section-title" id="can">¿Qué puedo hacer?</h2>
+      <div class="card"><ul class="list-tight">
+        <li>Abrir Alert Center Inbox y campana (<code>#/alert-center</code>)</li>
+        <li>Template Center: versiones inmutables, preview, maker-checker (<code>NOTIFICATION.TEMPLATE</code>)</li>
+        <li>Motor de reglas: condiciones, simulación, publicación (<code>NOTIFICATION.MANAGE</code>)</li>
+        <li>Directorio de destinatarios (Owner/Role/Group/Dept/listas/externos)</li>
+        <li>Scheduler durable (cron, calendarios, quiet hours)</li>
+        <li>Provider Center: SMTP/M365/SendGrid/Mailgun/Resend/SES (<code>NOTIFICATION.ADMIN</code>)</li>
+        <li>Operations: cola, DLQ, retry, export CSV</li>
+        <li>Consultar auditoría de canal (<code>AUDIT.READ</code>)</li>
+      </ul></div>
+
+      <h2 class="section-title" id="cannot">¿Qué no puedo hacer?</h2>
+      <div class="card"><ul class="list-tight">
+        <li>Administrar Storage / proveedores de documentos (Storage Administrator)</li>
+        <li>Preparar, revisar, aprobar o presentar expedientes regulatorios</li>
+        <li>Sustituir decisión de negocio o SoD regulatorio</li>
+      </ul>
+      <p class="muted">Si no ve Template Center / Proveedores / Operaciones, faltan permisos <code>NOTIFICATION.TEMPLATE</code>, <code>NOTIFICATION.ADMIN</code> o <code>NOTIFICATION.MANAGE</code>.</p></div>
+
+      <h2 class="section-title" id="handoff">¿Qué recibo y qué entrego?</h2>
+      <div class="card">
+        <p><strong>Recibo:</strong> Asignación de rol y tenant del Tenant Administrator; eventos de dominio (p. ej. cambios de expediente) vía dual-write al Alert Center.</p>
+        <p><strong>Entrego:</strong> Plantillas/reglas/providers activos; alertas entregadas al Inbox de usuarios operativos (RA, QM, etc.).</p>
+      </div>
+
+      <h2 class="section-title" id="daily">Mi flujo de trabajo diario</h2>
+      <div class="card">
+        <ol>
+          <li>Inicie sesión en <code>http://localhost:5272</code> → <code>#/login</code> (ej. <code>notifications@cert.local</code>).</li>
+          <li>Abra la <strong>campana</strong> o <code>#/alert-center</code> (Inbox).</li>
+          <li>Revise <strong>Operaciones</strong> (cola / DLQ) si hay fallos de entrega.</li>
+          <li>Mantenga <strong>Template Center</strong> y <strong>Reglas</strong> alineados a eventos regulatorios.</li>
+          <li>Verifique <strong>Proveedores</strong> (conexión, circuit breaker) sin exponer secretos.</li>
+          <li>No opere expedientes: eso es del equipo Regulatory Affairs.</li>
+        </ol>
+      </div>
+
+      <h2 class="section-title" id="screens">Mis pantallas</h2>
+      <div class="role-grid">
+        <article class="card"><h3>Inbox</h3><p class="muted"><code>#/alert-center</code></p><p>Bandeja personal y punto de entrada a las consolas admin.</p></article>
+        <article class="card"><h3>Template Center</h3><p class="muted"><code>#/alert-center → Template Center</code></p><p>Plantillas versionadas y maker-checker.</p></article>
+        <article class="card"><h3>Reglas</h3><p class="muted"><code>#/alert-center → Reglas</code></p><p>Condiciones, destinatarios, canales y simulación.</p></article>
+        <article class="card"><h3>Scheduler</h3><p class="muted"><code>#/alert-center → Programaciones</code></p><p>Cron durable, calendarios y quiet hours.</p></article>
+        <article class="card"><h3>Destinatarios</h3><p class="muted"><code>#/alert-center → Destinatarios</code></p><p>Directorio de resolución de audiencias.</p></article>
+        <article class="card"><h3>Proveedores</h3><p class="muted"><code>#/alert-center → Proveedores</code></p><p>SMTP y proveedores cloud; secretos write-only.</p></article>
+        <article class="card"><h3>Operaciones</h3><p class="muted"><code>#/alert-center → Operaciones</code></p><p>Cola, DLQ, retry y export CSV.</p></article>
+      </div>
+
+      <h2 class="section-title" id="tasks">Tareas frecuentes y campos</h2>
+      <div class="card">
+        <h3>Campos que usará</h3>
+        <table class="table"><thead><tr><th>Campo</th><th>Obligatorio</th><th>Qué escribir</th><th>Ejemplo</th></tr></thead>
+        <tbody>
+          <tr><td>Correo</td><td>Sí</td><td>Usuario Notification Administrator</td><td><code>notifications@cert.local</code></td></tr>
+          <tr><td>Buscar Inbox</td><td>No</td><td>Asunto o contenido</td><td><code>expediente</code></td></tr>
+          <tr><td>Código de regla</td><td>Sí</td><td>Identificador estable</td><td><code>RA-DOSSIER-STATUS-HIGH</code></td></tr>
+          <tr><td>Tipo de proveedor</td><td>Sí</td><td>Canal de entrega</td><td><code>Smtp</code></td></tr>
+        </tbody></table>
+        <h3>Botones de su rol</h3>
+        <table class="table"><thead><tr><th>Botón</th><th>Resultado</th><th>Permiso</th></tr></thead>
+        <tbody>
+          <tr><td>Campana / Actualizar</td><td>Abre o refresca Inbox</td><td>NOTIFICATION.READ</td></tr>
+          <tr><td>Template Center</td><td>Consola de plantillas</td><td>NOTIFICATION.TEMPLATE</td></tr>
+          <tr><td>Reglas / Crear regla</td><td>Motor de reglas</td><td>NOTIFICATION.MANAGE</td></tr>
+          <tr><td>Proveedores / Configurar</td><td>Provider Center</td><td>NOTIFICATION.ADMIN</td></tr>
+          <tr><td>Operaciones / Exportar CSV</td><td>Telemetría y evidencia</td><td>NOTIFICATION.MANAGE</td></tr>
+          <tr><td>Marcar leída / Favorito / Archivar</td><td>Estado del ítem Inbox</td><td>NOTIFICATION.READ</td></tr>
+        </tbody></table>
+      </div>
+
+      <h2 class="section-title" id="common-errors">Errores comunes</h2>
+      <div class="card">
+        <p><button type="button" class="btn" data-error-id="alert-401">Simular: 401 en Alert Center</button></p>
+        <p><button type="button" class="btn" data-error-id="alert-no-provider">Simular: No se entrega correo</button></p>
+        <p><button type="button" class="btn" data-error-id="alert-sod-storage">Simular: SoD Storage vs Notificaciones</button></p>
+        <p><button type="button" class="btn" data-error-id="session">Simular: Sesión expirada</button></p>
+      </div>
+
+      <h2 class="section-title" id="sim-ui">Pantalla recreada (interactiva)</h2>
+      <div class="card">
+        <p>Réplica visual del Alert Center. Haga clic en los marcadores numerados.</p>
+        <div class="sim-shell" style="position:relative">
+          <aside class="sim-nav">
+            <div style="font-weight:700;margin-bottom:.5rem">C360 · Alert</div>
+            <button type="button" class="active">Inbox</button>
+            <button type="button">Templates</button>
+            <button type="button">Reglas</button>
+            <button type="button">Proveedores</button>
+            <button type="button">Operaciones</button>
+          </aside>
+          <div class="sim-body" style="position:relative;min-height:320px">
+            <div class="sim-topbar">
+              <div><strong>Enterprise Alert Center</strong><div class="muted">Rol activo: Notification Administrator</div></div>
+              <span class="badge">Lab tenant</span>
+            </div>
+            <table class="table">
+              <thead><tr><th>Asunto</th><th>Prioridad</th><th>Estado</th></tr></thead>
+              <tbody>
+                <tr><td>Dossier listo para revisión</td><td>High</td><td>No leída</td></tr>
+                <tr><td>Aprobado para sometimiento</td><td>Normal</td><td>Leída</td></tr>
+              </tbody>
+            </table>
+            <button type="button" class="marker" style="top:70px;left:40px" tabindex="0" data-name="Navegación Alert Center" data-what="Inbox, Templates, Reglas, Destinatarios, Scheduler, Proveedores, Operaciones" data-when="Tras abrir #/alert-center" data-role="Notification Administrator" data-result="Cambia la consola sin salir del módulo" data-error="Botones ausentes = faltan NOTIFICATION.*" data-tip="Empiece por Inbox y luego Templates">1</button>
+            <button type="button" class="marker" style="top:70px;right:80px" tabindex="0" data-name="Campana / contexto" data-what="Acceso rápido al Inbox y contador de no leídas" data-when="Siempre tras login con NOTIFICATION.READ" data-role="Notification Administrator" data-result="Abre #/alert-center" data-error="Sin campana = sin permiso de lectura" data-tip="El contador refleja solo sus ítems">2</button>
+            <button type="button" class="marker" style="top:140px;left:260px" tabindex="0" data-name="Lista Inbox" data-what="Notificaciones persistentes con filtros y acciones" data-when="Tras cargar Inbox" data-role="Notification Administrator" data-result="Puede marcar leída, favorito o archivar" data-error="401 = token sin NOTIFICATION.READ" data-tip="Use filtros antes de marcar todas leídas">3</button>
+          </div>
+        </div>
+        <div class="panel" id="marker-panel" style="margin-top:1rem">
+          <p class="muted">Seleccione un marcador (1–3) para ver la explicación.</p>
+        </div>
+      </div>
+
+      <h2 class="section-title">Tutoriales paso a paso</h2>
+      <div id="tutorials"></div>
+
+      <h2 class="section-title">Simulación guiada</h2>
+      <div id="simulator-root"></div>
+
+      <h2 class="section-title">Checklist de finalización</h2>
+      <div class="card checklist" id="role-checklist"></div>
+
+      <p class="footer-note">Fuente: RoleCatalog.cs, alert-center.js, docs/alert-center, RbacCatalog (NOTIFICATION.*). SoD: separado de Storage Administrator.</p>
+    </main>
+  </div>
+
+  <div class="dialog-backdrop" id="error-dialog" role="dialog" aria-modal="true">
+    <div class="dialog">
+      <div id="error-dialog-body"></div>
+      <p style="margin-top:1rem"><button type="button" class="btn primary" data-close>Cerrar</button></p>
+    </div>
+  </div>
+
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/progress.js"></script>
+  <script src="../assets/js/search.js"></script>
+  <script src="../assets/js/simulator.js"></script>
+  <script src="../assets/js/manual.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var flow = document.getElementById("role-flow");
+      var roleName = "Notification Administrator";
+      if (flow && window.C360_MANUAL && window.C360_MANUAL.data && window.C360_MANUAL.data.workflow) {
+        var steps = window.C360_MANUAL.data.workflow.steps;
+        flow.innerHTML = steps.map(function (s, i) {
+          var cur = s.role.indexOf(roleName) >= 0;
+          return '<span class="step' + (cur ? ' current' : '') + '">' + s.label + '</span>' +
+            (i < steps.length - 1 ? '<span class="arrow">→</span>' : '');
+        }).join("");
+        if (!steps.some(function (s) { return s.role.indexOf(roleName) >= 0; })) {
+          flow.innerHTML =
+            '<span class="step">Tenant Admin asigna NA</span><span class="arrow">→</span>' +
+            '<span class="step current">Configurar Alert Center</span><span class="arrow">→</span>' +
+            '<span class="step">Eventos de dominio</span><span class="arrow">→</span>' +
+            '<span class="step">Entrega Inbox / email</span>';
+        }
+      }
+      window.C360_MANUAL.ui.initRolePage("notification-administrator");
+    });
+  </script>
+</body>
+</html>

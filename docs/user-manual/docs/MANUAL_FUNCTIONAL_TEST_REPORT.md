@@ -8,7 +8,7 @@
 
 | # | Case | Result |
 |---|------|--------|
-| 1 | Abrir index y mostrar 9 roles | PASS |
+| 1 | Abrir index y mostrar 10 roles (incluye Notification Administrator) | PASS (actualizado v1.1 Alert Center) |
 | 2 | Cambiar tema claro/oscuro | PASS |
 | 3 | Buscador (“expediente”) | PASS |
 | 4 | Entrar a Specialist + completar tutorial | PASS |

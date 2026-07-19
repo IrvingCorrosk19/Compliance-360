@@ -217,5 +217,105 @@
       "*"
     ],
     "result": "Vista Expedientes"
+  },
+  {
+    "id": "alert-bell",
+    "screen": "alert-center-inbox",
+    "label": "Campana Alert Center",
+    "action": "Navega a #/alert-center",
+    "roles": [
+      "*"
+    ],
+    "perm": "NOTIFICATION.READ",
+    "pre": "Usuario autenticado con permiso de lectura",
+    "result": "Abre Inbox de notificaciones"
+  },
+  {
+    "id": "alert-mark-read",
+    "screen": "alert-center-inbox",
+    "label": "Marcar leída / Marcar todas leídas",
+    "action": "POST /alert-center/inbox/.../actions",
+    "roles": [
+      "*"
+    ],
+    "perm": "NOTIFICATION.READ",
+    "result": "Estado Unread → Read"
+  },
+  {
+    "id": "alert-favorite",
+    "screen": "alert-center-inbox",
+    "label": "Marcar favorito",
+    "action": "POST inbox Favorite/Unfavorite",
+    "roles": [
+      "*"
+    ],
+    "perm": "NOTIFICATION.READ",
+    "result": "Ítem marcado como favorito"
+  },
+  {
+    "id": "alert-archive",
+    "screen": "alert-center-inbox",
+    "label": "Archivar",
+    "action": "POST inbox Archive",
+    "roles": [
+      "*"
+    ],
+    "perm": "NOTIFICATION.READ",
+    "result": "Ítem archivado"
+  },
+  {
+    "id": "alert-open-templates",
+    "screen": "alert-center-templates",
+    "label": "Template Center",
+    "action": "UI → Template Center",
+    "roles": [
+      "notification-administrator"
+    ],
+    "perm": "NOTIFICATION.TEMPLATE / ADMIN",
+    "result": "Lista de plantillas versionadas"
+  },
+  {
+    "id": "alert-create-rule",
+    "screen": "alert-center-rules",
+    "label": "Crear regla",
+    "action": "POST /alert-center/rules",
+    "roles": [
+      "notification-administrator"
+    ],
+    "perm": "NOTIFICATION.MANAGE",
+    "result": "Borrador de regla creado"
+  },
+  {
+    "id": "alert-configure-provider",
+    "screen": "alert-center-providers",
+    "label": "Configurar proveedor",
+    "action": "POST /alert-center/providers",
+    "roles": [
+      "notification-administrator"
+    ],
+    "perm": "NOTIFICATION.ADMIN",
+    "result": "Proveedor configurado (secretos write-only)"
+  },
+  {
+    "id": "alert-ops-retry",
+    "screen": "alert-center-operations",
+    "label": "Reintentar / acciones de mensaje",
+    "action": "POST /alert-center/operations/messages/{id}/actions",
+    "roles": [
+      "notification-administrator"
+    ],
+    "perm": "NOTIFICATION.MANAGE",
+    "result": "Mensaje reencolado o acción aplicada"
+  },
+  {
+    "id": "alert-ops-export",
+    "screen": "alert-center-operations",
+    "label": "Exportar CSV",
+    "action": "GET /alert-center/operations/export.csv",
+    "roles": [
+      "notification-administrator"
+    ],
+    "perm": "NOTIFICATION.READ / MANAGE",
+    "result": "Descarga CSV operativo"
   }
 ]

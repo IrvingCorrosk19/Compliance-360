@@ -54,3 +54,14 @@
 | Quality Manager | Registros CT/RS | `#/regulatory → Registros CT/RS` | `wwwroot/regulatory-affairs.js` / `app.js` | (ver RoleCatalog) | navigate | qm-external | security/21 |
 | Quality Manager | Dashboard RA | `#/regulatory → Dashboard` | `wwwroot/regulatory-affairs.js` / `app.js` | (ver RoleCatalog) | navigate | qm-external | security/21 |
 | Quality Manager | Audit Trail | `#/audit-trail` | `wwwroot/regulatory-affairs.js` / `app.js` | (ver RoleCatalog) | navigate | qm-external | security/21 |
+
+| Notification Administrator | Inicio de sesión | `#/login` | `wwwroot/app.js` | (login) | navigate | na-login | RoleCatalog |
+| Notification Administrator | Alert Center · Inbox | `#/alert-center` | `wwwroot/alert-center.js` | NOTIFICATION.READ | inbox | na-inbox | docs/alert-center |
+| Notification Administrator | Template Center | `#/alert-center → Template Center` | `wwwroot/alert-center.js` | NOTIFICATION.TEMPLATE | templates | na-templates | docs/alert-center |
+| Notification Administrator | Reglas | `#/alert-center → Reglas` | `wwwroot/alert-center.js` | NOTIFICATION.MANAGE | rules | na-rules | docs/alert-center |
+| Notification Administrator | Scheduler | `#/alert-center → Programaciones` | `wwwroot/alert-center.js` | NOTIFICATION.MANAGE | schedules | na-scheduler | docs/alert-center |
+| Notification Administrator | Destinatarios | `#/alert-center → Destinatarios` | `wwwroot/alert-center.js` | NOTIFICATION.MANAGE | recipients | na-recipients | docs/alert-center |
+| Notification Administrator | Provider Center | `#/alert-center → Proveedores` | `wwwroot/alert-center.js` | NOTIFICATION.ADMIN | providers | na-providers | docs/alert-center |
+| Notification Administrator | Operaciones | `#/alert-center → Operaciones` | `wwwroot/alert-center.js` | NOTIFICATION.MANAGE | operations | na-operations | docs/alert-center |
+| Regulatory Specialist | Alert Center · Inbox | `#/alert-center` | `wwwroot/alert-center.js` | NOTIFICATION.READ | inbox | spec-inbox | docs/alert-center |
+| Tenant Administrator | Asignar Notification Administrator | `#/tenant-administration` | `wwwroot/app.js` | TENANT.ROLES | assign role | tac-assign-na | RoleCatalog |

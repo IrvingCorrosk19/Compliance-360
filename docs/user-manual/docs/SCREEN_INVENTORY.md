@@ -19,3 +19,10 @@
 | Importación | `#/regulatory → Importación` | Regulatory Affairs | Stage XLSX del libro REGUTRACK. |
 | Configuración | `#/regulatory → Configuración` | Regulatory Affairs | Bootstrap regulatorio (autoridades + pack). |
 | SoD Settings | `#/regulatory → SoD Settings` | Regulatory Affairs | Consultar política de segregación de funciones. |
+| Alert Center · Inbox | `#/alert-center` | Alert Center | Bandeja de notificaciones persistentes por usuario (campana). Leer, filtrar, marcar, archivar y favoritos. |
+| Alert Center · Template Center | `#/alert-center → Template Center` | Alert Center | Gestionar plantillas versionadas con sanitización HTML y aprobación maker-checker. |
+| Alert Center · Reglas | `#/alert-center → Reglas` | Alert Center | Definir condiciones, destinatarios, canales y simulación de reglas de alerta. |
+| Alert Center · Scheduler | `#/alert-center → Programaciones` | Alert Center | Programaciones durables (cron), calendarios y quiet hours. |
+| Alert Center · Destinatarios | `#/alert-center → Destinatarios` | Alert Center | Directorio de resolución: Owner, Role, Group, Department, listas y externos autorizados. |
+| Alert Center · Provider Center | `#/alert-center → Proveedores` | Alert Center | Configurar proveedores de entrega (SMTP/M365/SendGrid/etc.), secretos write-only y pruebas de conexión. |
+| Alert Center · Operaciones | `#/alert-center → Operaciones` | Alert Center | Telemetría de cola, mensajes, DLQ, reintentos y exportación CSV. |

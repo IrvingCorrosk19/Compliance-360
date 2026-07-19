@@ -246,5 +246,32 @@
     "roles": [
       "regulatory-specialist"
     ]
+  },
+  {
+    "id": "alert-search",
+    "screen": "alert-center-inbox",
+    "label": "Buscar (asunto o contenido)",
+    "required": false,
+    "type": "text",
+    "hint": "Filtra notificaciones del Inbox.",
+    "example": "expediente"
+  },
+  {
+    "id": "alert-rule-code",
+    "screen": "alert-center-rules",
+    "label": "Código de regla",
+    "required": true,
+    "type": "text",
+    "hint": "Identificador estable de la regla.",
+    "example": "RA-DOSSIER-STATUS-HIGH"
+  },
+  {
+    "id": "alert-provider-type",
+    "screen": "alert-center-providers",
+    "label": "Tipo de proveedor",
+    "required": true,
+    "type": "select",
+    "hint": "SMTP, Microsoft365, SendGrid, Mailgun, Resend o SES.",
+    "example": "Smtp"
   }
 ]

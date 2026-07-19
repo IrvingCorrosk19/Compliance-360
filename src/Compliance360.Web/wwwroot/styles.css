@@ -1533,6 +1533,106 @@ tr:last-child td {
 .toast.error { border-left-color: var(--danger); }
 .toast.success { border-left-color: var(--success); }
 
+.session-ended-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(15, 23, 42, 0.18), transparent 45%),
+    radial-gradient(ellipse at 80% 90%, rgba(14, 165, 233, 0.16), transparent 40%),
+    rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.session-ended-overlay.is-visible { opacity: 1; }
+.session-ended-overlay.is-leaving { opacity: 0; }
+
+.session-ended-card {
+  position: relative;
+  width: min(440px, 100%);
+  overflow: hidden;
+  border-radius: 22px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: 0 28px 80px rgba(15, 23, 42, 0.28);
+  padding: 2rem 1.75rem 1.6rem;
+  text-align: center;
+  transform: translateY(14px) scale(0.98);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.session-ended-overlay.is-visible .session-ended-card {
+  transform: translateY(0) scale(1);
+}
+
+.session-ended-glow {
+  position: absolute;
+  inset: -40% auto auto 50%;
+  width: 220px;
+  height: 220px;
+  transform: translateX(-50%);
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.22), transparent 68%);
+  pointer-events: none;
+}
+
+.session-ended-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 0.85rem;
+  border-radius: 50%;
+  color: var(--accent, #0ea5e9);
+  background: color-mix(in srgb, var(--accent, #0ea5e9) 12%, transparent);
+  animation: sessionEndedPulse 2.4s ease-in-out infinite;
+}
+
+.session-ended-eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.session-ended-card h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.45rem;
+  line-height: 1.25;
+  color: var(--text);
+}
+
+.session-ended-body {
+  margin: 0 0 1.35rem;
+  color: var(--muted);
+  line-height: 1.55;
+  font-size: 0.98rem;
+}
+
+.session-ended-cta {
+  min-width: 220px;
+}
+
+@keyframes sessionEndedPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.04); opacity: 0.88; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .session-ended-overlay,
+  .session-ended-card,
+  .session-ended-icon {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 @keyframes shimmer {
   0% { background-position: 120% 0; }
   100% { background-position: -120% 0; }

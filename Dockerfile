@@ -16,6 +16,9 @@ COPY . .
 RUN dotnet build "Compliance360.sln" --configuration Release --no-restore -warnaserror
 RUN dotnet publish "src/Compliance360.Web/Compliance360.Web.csproj" --configuration Release --no-build --output /app/web
 RUN dotnet publish "src/Compliance360.Worker/Compliance360.Worker.csproj" --configuration Release --no-build --output /app/worker
+# Interactive role manual served at /user-manual/
+RUN mkdir -p /app/web/wwwroot/user-manual \
+    && cp -r docs/user-manual/. /app/web/wwwroot/user-manual/
 
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app/web

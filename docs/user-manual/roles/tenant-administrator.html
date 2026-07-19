@@ -60,7 +60,7 @@
       <div class="flow" id="role-flow"></div></div>
 
       <h2 class="section-title" id="can">¿Qué puedo hacer?</h2>
-      <div class="card"><ul class="list-tight"><li>Crear y desactivar usuarios (TENANT.USERS)</li><li>Asignar roles (TENANT.ROLES / RBAC.MANAGE)</li><li>Configurar branding y perfil del tenant</li><li>Ejecutar Bootstrap regulatorio / CONFIGURE (REGULATORY.CONFIGURE)</li><li>Ver SoD Settings (REGULATORY.SOD.MANAGE)</li><li>Consultar lecturas RA (productos, expedientes, CT/RS, licencias, dashboard)</li><li>Ver Audit Trail (AUDIT.READ / TENANT.AUDIT)</li></ul></div>
+      <div class="card"><ul class="list-tight"><li>Crear y desactivar usuarios (TENANT.USERS)</li><li>Asignar roles (TENANT.ROLES / RBAC.MANAGE), incluido Notification Administrator para Alert Center</li><li>Configurar branding y perfil del tenant</li><li>Ejecutar Bootstrap regulatorio / CONFIGURE (REGULATORY.CONFIGURE)</li><li>Ver SoD Settings (REGULATORY.SOD.MANAGE)</li><li>Consultar lecturas RA (productos, expedientes, CT/RS, licencias, dashboard)</li><li>Ver Audit Trail (AUDIT.READ / TENANT.AUDIT)</li></ul></div>
 
       <h2 class="section-title" id="cannot">¿Qué no puedo hacer?</h2>
       <div class="card"><ul class="list-tight"><li>Crear expedientes (sin REGULATORY.DOSSIER.CREATE)</li><li>Aprobar internamente para sometimiento</li><li>Registrar sometimiento</li><li>Registrar aprobación externa MINSA/CSS + CT/RS</li><li>Sustituir al Specialist, Reviewer, Approver o Submitter en el flujo operativo</li></ul>
@@ -79,6 +79,7 @@
           <li>Abra <strong>Regulatory Management</strong> → <code>#/regulatory</code>.</li>
           <li>Vaya a la vista de su cola (Pipeline / Expedientes / Configuración según rol).</li>
           <li>Ejecute solo las acciones de su etapa.</li>
+          <li>Asigne <strong>Notification Administrator</strong> a quien configure Alert Center (no combine con Storage Administrator si SoD lo prohíbe).</li>
           <li>Confirme el estado en español (ej. «Aprobado internamente para sometimiento» ≠ «Aprobación registrada de MINSA/CSS (externa)»).</li>
         </ol>
       </div>

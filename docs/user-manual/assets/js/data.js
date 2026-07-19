@@ -1,4 +1,4 @@
-/* Auto-generated — facts from RoleCatalog, regulatory-affairs.js, security docs */
+/* Auto-generated — facts from RoleCatalog, Alert Center, regulatory-affairs.js, security docs */
 window.C360_MANUAL = window.C360_MANUAL || {};
 window.C360_MANUAL.data = {
   "roles": [
@@ -16,14 +16,16 @@ window.C360_MANUAL.data = {
         "Ejecutar Bootstrap regulatorio / CONFIGURE (REGULATORY.CONFIGURE)",
         "Ver SoD Settings (REGULATORY.SOD.MANAGE)",
         "Consultar lecturas RA (productos, expedientes, CT/RS, licencias, dashboard)",
-        "Ver Audit Trail (AUDIT.READ / TENANT.AUDIT)"
+        "Ver Audit Trail (AUDIT.READ / TENANT.AUDIT)",
+        "Asignar rol Notification Administrator para configuración de Alert Center"
       ],
       "cannot": [
         "Crear expedientes (sin REGULATORY.DOSSIER.CREATE)",
         "Aprobar internamente para sometimiento",
         "Registrar sometimiento",
         "Registrar aprobación externa MINSA/CSS + CT/RS",
-        "Sustituir al Specialist, Reviewer, Approver o Submitter en el flujo operativo"
+        "Sustituir al Specialist, Reviewer, Approver o Submitter en el flujo operativo",
+        "Configurar providers/SMTP/reglas de Alert Center (requiere Notification Administrator)"
       ],
       "flowStage": "IAM · configuración · sin operación de expediente",
       "receives": "Solicitudes de acceso y asignación de roles del equipo regulatorio.",
@@ -44,9 +46,59 @@ window.C360_MANUAL.data = {
         "tac-configure-ra",
         "tac-sod",
         "tac-no-operate",
-        "tac-logout"
+        "tac-logout",
+        "tac-assign-na"
       ],
       "file": "tenant-administrator.html"
+    },
+    {
+      "id": "notification-administrator",
+      "name": "Notification Administrator",
+      "short": "NA",
+      "color": "#06b6d4",
+      "icon": "bell",
+      "purpose": "Configura y opera Alert Center Enterprise: plantillas, reglas, destinatarios, scheduler, providers y consola operativa. No administra almacenamiento (SoD).",
+      "can": [
+        "Abrir Alert Center Inbox y campana (#/alert-center)",
+        "Template Center: versiones inmutables, preview, maker-checker (NOTIFICATION.TEMPLATE)",
+        "Motor de reglas: condiciones, simulación, publicación (NOTIFICATION.MANAGE)",
+        "Directorio de destinatarios (Owner/Role/Group/Dept/listas/externos)",
+        "Scheduler durable (cron, calendarios, quiet hours)",
+        "Provider Center: SMTP/M365/SendGrid/Mailgun/Resend/SES (NOTIFICATION.ADMIN)",
+        "Operations: cola, DLQ, retry, export CSV (NOTIFICATION.MANAGE)",
+        "Consultar auditoría de canal (AUDIT.READ)"
+      ],
+      "cannot": [
+        "Administrar Storage / proveedores de documentos (Storage Administrator)",
+        "Preparar, revisar, aprobar o presentar expedientes regulatorios",
+        "Sustituir decisión de negocio o SoD regulatorio"
+      ],
+      "flowStage": "Configuración y operación del canal de alertas (paralelo al flujo del expediente)",
+      "receives": "Asignación de rol y tenant del Tenant Administrator; eventos de dominio (p. ej. RA) vía dual-write.",
+      "delivers": "Plantillas/reglas/providers activos; alertas entregadas al Inbox de usuarios operativos.",
+      "screens": [
+        "login",
+        "alert-center-inbox",
+        "alert-center-templates",
+        "alert-center-rules",
+        "alert-center-scheduler",
+        "alert-center-recipients",
+        "alert-center-providers",
+        "alert-center-operations",
+        "audit-trail"
+      ],
+      "tutorials": [
+        "na-login",
+        "na-inbox",
+        "na-templates",
+        "na-rules",
+        "na-recipients",
+        "na-scheduler",
+        "na-providers",
+        "na-operations",
+        "na-sod-storage"
+      ],
+      "file": "notification-administrator.html"
     },
     {
       "id": "regulatory-administrator",
@@ -54,19 +106,21 @@ window.C360_MANUAL.data = {
       "short": "RA-ADM",
       "color": "#0ea5e9",
       "icon": "sliders",
-      "purpose": "Configura el módulo Regulatory Affairs: autoridades, packs, alertas e importación REGUTRACK.",
+      "purpose": "Configura el módulo Regulatory Affairs: autoridades, packs e importación REGUTRACK. Puede recibir alertas en Inbox; no administra Alert Center.",
       "can": [
         "Bootstrap regulatorio (autoridades MINSA/CSS + pack de requisitos)",
         "Importación Stage XLSX REGUTRACK (REGULATORY.CONFIGURE)",
         "Gestionar productos y fabricantes (MANAGE)",
         "Gestionar licencias operativas",
-        "Ver SoD Settings y lecturas del módulo"
+        "Ver SoD Settings y lecturas del módulo",
+        "Usar Inbox de Alert Center (campana / #/alert-center): leer, marcar, archivar y favoritos (NOTIFICATION.READ)"
       ],
       "cannot": [
         "Aprobar internamente (APPROVE_FOR_SUBMISSION)",
         "Registrar sometimiento (SUBMIT)",
         "Registrar decisión externa / CT/RS (APPROVE)",
-        "Operar el expediente como Specialist por defecto"
+        "Operar el expediente como Specialist por defecto",
+        "Configurar Alert Center (plantillas, reglas, providers) — rol Notification Administrator"
       ],
       "flowStage": "Configuración previa al flujo del expediente",
       "receives": "Archivo REGUTRACK y reglas SoD del Tenant Administrator.",
@@ -79,14 +133,16 @@ window.C360_MANUAL.data = {
         "regulatory-manufacturers",
         "regulatory-licenses",
         "regulatory-alerts",
-        "regulatory-dashboard"
+        "regulatory-dashboard",
+        "alert-center-inbox"
       ],
       "tutorials": [
         "adm-bootstrap",
         "adm-authority",
         "adm-import",
         "adm-alerts",
-        "adm-sod-view"
+        "adm-sod-view",
+        "adm-inbox"
       ],
       "file": "regulatory-administrator.html"
     },
@@ -103,11 +159,13 @@ window.C360_MANUAL.data = {
         "Registrar observación de autoridad (OBSERVATION.MANAGE)",
         "Registrar aprobación externa MINSA/CSS + CT/RS (DOSSIER.APPROVE)",
         "Gestionar registros y renovaciones (REGISTRATION.MANAGE)",
-        "SoD manage y emergency override auditado"
+        "SoD manage y emergency override auditado",
+        "Usar Inbox de Alert Center (campana / #/alert-center): leer, marcar, archivar y favoritos (NOTIFICATION.READ)"
       ],
       "cannot": [
         "Sustituir Specialist + Approver + Submitter a la vez sin override",
-        "Representar que la aprobación interna es la de MINSA/CSS"
+        "Representar que la aprobación interna es la de MINSA/CSS",
+        "Configurar Alert Center (plantillas, reglas, providers) — rol Notification Administrator"
       ],
       "flowStage": "Observación → Respuesta → Decisión externa → CT/RS → Renovación",
       "receives": "Expedientes sometidos por el Submitter; respuestas del Specialist a observaciones.",
@@ -119,14 +177,16 @@ window.C360_MANUAL.data = {
         "regulatory-dossiers",
         "regulatory-registrations",
         "regulatory-alerts",
-        "regulatory-sod"
+        "regulatory-sod",
+        "alert-center-inbox"
       ],
       "tutorials": [
         "mgr-dashboard",
         "mgr-observe",
         "mgr-external-approve",
         "mgr-renewal",
-        "mgr-breakglass"
+        "mgr-breakglass",
+        "mgr-inbox"
       ],
       "file": "regulatory-manager.html"
     },
@@ -143,13 +203,15 @@ window.C360_MANUAL.data = {
         "Marcar requisito recibido",
         "Alta fabricante y certificados",
         "Responder observación de autoridad",
-        "Ver CT/RS y dashboard en lectura"
+        "Ver CT/RS y dashboard en lectura",
+        "Usar Inbox de Alert Center (campana / #/alert-center): leer, marcar, archivar y favoritos (NOTIFICATION.READ)"
       ],
       "cannot": [
         "Revisar su propio expediente (PreventSelfReview / SoD)",
         "Aprobar internamente para sometimiento",
         "Registrar sometimiento",
-        "Registrar aprobación externa / crear CT/RS"
+        "Registrar aprobación externa / crear CT/RS",
+        "Configurar Alert Center (plantillas, reglas, providers) — rol Notification Administrator"
       ],
       "flowStage": "Preparación (Planning → ReadyForSubmission) y respuesta a observaciones",
       "receives": "Packs/autoridades del Administrator; devoluciones del Reviewer; observaciones del Manager.",
@@ -160,7 +222,8 @@ window.C360_MANUAL.data = {
         "regulatory-dossiers",
         "regulatory-manufacturers",
         "regulatory-pipeline",
-        "regulatory-dashboard"
+        "regulatory-dashboard",
+        "alert-center-inbox"
       ],
       "tutorials": [
         "spec-product",
@@ -169,7 +232,8 @@ window.C360_MANUAL.data = {
         "spec-checklist",
         "spec-ready",
         "spec-respond-obs",
-        "spec-fix-return"
+        "spec-fix-return",
+        "spec-inbox"
       ],
       "file": "regulatory-specialist.html"
     },
@@ -184,13 +248,15 @@ window.C360_MANUAL.data = {
         "Abrir expedientes en revisión (DOSSIER.READ + REVIEW)",
         "Aceptar requisito",
         "Rechazar requisito (con comentario)",
-        "Consultar dashboard y CT/RS en lectura"
+        "Consultar dashboard y CT/RS en lectura",
+        "Usar Inbox de Alert Center (campana / #/alert-center): leer, marcar, archivar y favoritos (NOTIFICATION.READ)"
       ],
       "cannot": [
         "Crear productos/expedientes",
         "Aprobar internamente para sometimiento",
         "Registrar sometimiento",
-        "Preparar el mismo caso si PreventSelfReview está activo"
+        "Preparar el mismo caso si PreventSelfReview está activo",
+        "Configurar Alert Center (plantillas, reglas, providers) — rol Notification Administrator"
       ],
       "flowStage": "Revisión técnica (antes de ReadyForSubmission / hacia Approver)",
       "receives": "Expedientes armados por el Specialist.",
@@ -199,13 +265,15 @@ window.C360_MANUAL.data = {
         "login",
         "regulatory-dossiers",
         "regulatory-pipeline",
-        "regulatory-dashboard"
+        "regulatory-dashboard",
+        "alert-center-inbox"
       ],
       "tutorials": [
         "rev-queue",
         "rev-accept",
         "rev-reject",
-        "rev-return"
+        "rev-return",
+        "rev-inbox"
       ],
       "file": "regulatory-reviewer.html"
     },
@@ -219,12 +287,14 @@ window.C360_MANUAL.data = {
       "can": [
         "Ver expedientes en estado Técnicamente completo",
         "Presionar «Aprobar internamente para sometimiento» (APPROVE_FOR_SUBMISSION)",
-        "Consultar lecturas RA"
+        "Consultar lecturas RA",
+        "Usar Inbox de Alert Center (campana / #/alert-center): leer, marcar, archivar y favoritos (NOTIFICATION.READ)"
       ],
       "cannot": [
         "Preparar el expediente",
         "Registrar sometimiento (SeparateApproverAndSubmitter)",
-        "Registrar aprobación externa / CT/RS"
+        "Registrar aprobación externa / CT/RS",
+        "Configurar Alert Center (plantillas, reglas, providers) — rol Notification Administrator"
       ],
       "flowStage": "Aprobación interna (ReadyForSubmission → ApprovedForSubmission)",
       "receives": "Expedientes declarados técnicamente completos.",
@@ -233,12 +303,14 @@ window.C360_MANUAL.data = {
         "login",
         "regulatory-dossiers",
         "regulatory-pipeline",
-        "regulatory-dashboard"
+        "regulatory-dashboard",
+        "alert-center-inbox"
       ],
       "tutorials": [
         "appr-queue",
         "appr-approve",
-        "appr-why-no-submit"
+        "appr-why-no-submit",
+        "appr-inbox"
       ],
       "file": "regulatory-approver.html"
     },
@@ -252,12 +324,14 @@ window.C360_MANUAL.data = {
       "can": [
         "Ver expedientes «Aprobado internamente para sometimiento»",
         "Presionar «Registrar sometimiento» (DOSSIER.SUBMIT)",
-        "Consultar lecturas RA"
+        "Consultar lecturas RA",
+        "Usar Inbox de Alert Center (campana / #/alert-center): leer, marcar, archivar y favoritos (NOTIFICATION.READ)"
       ],
       "cannot": [
         "Aprobar internamente",
         "Registrar decisión externa / CT/RS",
-        "Preparar o revisar requisitos"
+        "Preparar o revisar requisitos",
+        "Configurar Alert Center (plantillas, reglas, providers) — rol Notification Administrator"
       ],
       "flowStage": "Sometimiento (ApprovedForSubmission → Submitted)",
       "receives": "Expedientes con aprobación interna del Approver.",
@@ -266,12 +340,14 @@ window.C360_MANUAL.data = {
         "login",
         "regulatory-dossiers",
         "regulatory-pipeline",
-        "regulatory-dashboard"
+        "regulatory-dashboard",
+        "alert-center-inbox"
       ],
       "tutorials": [
         "sub-queue",
         "sub-submit",
-        "sub-why-no-approve"
+        "sub-why-no-approve",
+        "sub-inbox"
       ],
       "file": "regulatory-submitter.html"
     },
@@ -284,10 +360,12 @@ window.C360_MANUAL.data = {
       "purpose": "Solo lectura del portafolio regulatorio, pipeline y CT/RS.",
       "can": [
         "Ver Dashboard, Portafolio, Pipeline, Expedientes, CT/RS, Alertas",
-        "Consultar sin modificar"
+        "Consultar sin modificar",
+        "Usar Inbox de Alert Center (campana / #/alert-center): leer, marcar, archivar y favoritos (NOTIFICATION.READ)"
       ],
       "cannot": [
-        "Cualquier botón de mutación (Nuevo, Aprobar, Someter, Stage, Bootstrap, etc.)"
+        "Cualquier botón de mutación (Nuevo, Aprobar, Someter, Stage, Bootstrap, etc.)",
+        "Configurar Alert Center (plantillas, reglas, providers) — rol Notification Administrator"
       ],
       "flowStage": "Consulta transversal (sin etapa de escritura)",
       "receives": "Visibilidad del estado del flujo después de cada rol operativo.",
@@ -299,11 +377,13 @@ window.C360_MANUAL.data = {
         "regulatory-pipeline",
         "regulatory-dossiers",
         "regulatory-registrations",
-        "regulatory-alerts"
+        "regulatory-alerts",
+        "alert-center-inbox"
       ],
       "tutorials": [
         "view-read",
-        "view-no-edit"
+        "view-no-edit",
+        "view-inbox"
       ],
       "file": "regulatory-viewer.html"
     },
@@ -318,11 +398,13 @@ window.C360_MANUAL.data = {
         "Registrar aprobación externa / CT/RS (DOSSIER.APPROVE + REGISTRATION.MANAGE)",
         "Leer expedientes y reportes RA",
         "Aprobar documentos, CAPA, riesgos y fichas técnicas (módulos QMS)",
-        "Ver Audit Trail"
+        "Ver Audit Trail",
+        "Usar Inbox de Alert Center (campana / #/alert-center): leer, marcar, archivar y favoritos (NOTIFICATION.READ)"
       ],
       "cannot": [
         "Preparar expedientes (sin CREATE/UPDATE de preparación por defecto)",
-        "Sustituir al Regulatory Manager en supervisión diaria salvo su permiso de APPROVE"
+        "Sustituir al Regulatory Manager en supervisión diaria salvo su permiso de APPROVE",
+        "Configurar Alert Center (plantillas, reglas, providers) — rol Notification Administrator"
       ],
       "flowStage": "Decisión externa / CT/RS (junto o en apoyo al Manager)",
       "receives": "Expedientes sometidos listos para decisión de autoridad.",
@@ -332,12 +414,14 @@ window.C360_MANUAL.data = {
         "regulatory-dossiers",
         "regulatory-registrations",
         "regulatory-dashboard",
-        "audit-trail"
+        "audit-trail",
+        "alert-center-inbox"
       ],
       "tutorials": [
         "qm-external",
         "qm-limits",
-        "qm-audit"
+        "qm-audit",
+        "qm-inbox"
       ],
       "file": "quality-manager.html"
     }
@@ -461,6 +545,55 @@ window.C360_MANUAL.data = {
       "route": "#/regulatory → SoD Settings",
       "module": "Regulatory Affairs",
       "objective": "Consultar política de segregación de funciones."
+    },
+    {
+      "id": "alert-center-inbox",
+      "name": "Alert Center · Inbox",
+      "route": "#/alert-center",
+      "module": "Alert Center",
+      "objective": "Bandeja de notificaciones persistentes por usuario (campana). Leer, filtrar, marcar, archivar y favoritos."
+    },
+    {
+      "id": "alert-center-templates",
+      "name": "Alert Center · Template Center",
+      "route": "#/alert-center → Template Center",
+      "module": "Alert Center",
+      "objective": "Gestionar plantillas versionadas con sanitización HTML y aprobación maker-checker."
+    },
+    {
+      "id": "alert-center-rules",
+      "name": "Alert Center · Reglas",
+      "route": "#/alert-center → Reglas",
+      "module": "Alert Center",
+      "objective": "Definir condiciones, destinatarios, canales y simulación de reglas de alerta."
+    },
+    {
+      "id": "alert-center-scheduler",
+      "name": "Alert Center · Scheduler",
+      "route": "#/alert-center → Programaciones",
+      "module": "Alert Center",
+      "objective": "Programaciones durables (cron), calendarios y quiet hours."
+    },
+    {
+      "id": "alert-center-recipients",
+      "name": "Alert Center · Destinatarios",
+      "route": "#/alert-center → Destinatarios",
+      "module": "Alert Center",
+      "objective": "Directorio de resolución: Owner, Role, Group, Department, listas y externos autorizados."
+    },
+    {
+      "id": "alert-center-providers",
+      "name": "Alert Center · Provider Center",
+      "route": "#/alert-center → Proveedores",
+      "module": "Alert Center",
+      "objective": "Configurar proveedores de entrega (SMTP/M365/SendGrid/etc.), secretos write-only y pruebas de conexión."
+    },
+    {
+      "id": "alert-center-operations",
+      "name": "Alert Center · Operaciones",
+      "route": "#/alert-center → Operaciones",
+      "module": "Alert Center",
+      "objective": "Telemetría de cola, mensajes, DLQ, reintentos y exportación CSV."
     }
   ],
   "fields": [
@@ -711,6 +844,33 @@ window.C360_MANUAL.data = {
       "roles": [
         "regulatory-specialist"
       ]
+    },
+    {
+      "id": "alert-search",
+      "screen": "alert-center-inbox",
+      "label": "Buscar (asunto o contenido)",
+      "required": false,
+      "type": "text",
+      "hint": "Filtra notificaciones del Inbox.",
+      "example": "expediente"
+    },
+    {
+      "id": "alert-rule-code",
+      "screen": "alert-center-rules",
+      "label": "Código de regla",
+      "required": true,
+      "type": "text",
+      "hint": "Identificador estable de la regla.",
+      "example": "RA-DOSSIER-STATUS-HIGH"
+    },
+    {
+      "id": "alert-provider-type",
+      "screen": "alert-center-providers",
+      "label": "Tipo de proveedor",
+      "required": true,
+      "type": "select",
+      "hint": "SMTP, Microsoft365, SendGrid, Mailgun, Resend o SES.",
+      "example": "Smtp"
     }
   ],
   "buttons": [
@@ -932,6 +1092,106 @@ window.C360_MANUAL.data = {
         "*"
       ],
       "result": "Vista Expedientes"
+    },
+    {
+      "id": "alert-bell",
+      "screen": "alert-center-inbox",
+      "label": "Campana Alert Center",
+      "action": "Navega a #/alert-center",
+      "roles": [
+        "*"
+      ],
+      "perm": "NOTIFICATION.READ",
+      "pre": "Usuario autenticado con permiso de lectura",
+      "result": "Abre Inbox de notificaciones"
+    },
+    {
+      "id": "alert-mark-read",
+      "screen": "alert-center-inbox",
+      "label": "Marcar leída / Marcar todas leídas",
+      "action": "POST /alert-center/inbox/.../actions",
+      "roles": [
+        "*"
+      ],
+      "perm": "NOTIFICATION.READ",
+      "result": "Estado Unread → Read"
+    },
+    {
+      "id": "alert-favorite",
+      "screen": "alert-center-inbox",
+      "label": "Marcar favorito",
+      "action": "POST inbox Favorite/Unfavorite",
+      "roles": [
+        "*"
+      ],
+      "perm": "NOTIFICATION.READ",
+      "result": "Ítem marcado como favorito"
+    },
+    {
+      "id": "alert-archive",
+      "screen": "alert-center-inbox",
+      "label": "Archivar",
+      "action": "POST inbox Archive",
+      "roles": [
+        "*"
+      ],
+      "perm": "NOTIFICATION.READ",
+      "result": "Ítem archivado"
+    },
+    {
+      "id": "alert-open-templates",
+      "screen": "alert-center-templates",
+      "label": "Template Center",
+      "action": "UI → Template Center",
+      "roles": [
+        "notification-administrator"
+      ],
+      "perm": "NOTIFICATION.TEMPLATE / ADMIN",
+      "result": "Lista de plantillas versionadas"
+    },
+    {
+      "id": "alert-create-rule",
+      "screen": "alert-center-rules",
+      "label": "Crear regla",
+      "action": "POST /alert-center/rules",
+      "roles": [
+        "notification-administrator"
+      ],
+      "perm": "NOTIFICATION.MANAGE",
+      "result": "Borrador de regla creado"
+    },
+    {
+      "id": "alert-configure-provider",
+      "screen": "alert-center-providers",
+      "label": "Configurar proveedor",
+      "action": "POST /alert-center/providers",
+      "roles": [
+        "notification-administrator"
+      ],
+      "perm": "NOTIFICATION.ADMIN",
+      "result": "Proveedor configurado (secretos write-only)"
+    },
+    {
+      "id": "alert-ops-retry",
+      "screen": "alert-center-operations",
+      "label": "Reintentar / acciones de mensaje",
+      "action": "POST /alert-center/operations/messages/{id}/actions",
+      "roles": [
+        "notification-administrator"
+      ],
+      "perm": "NOTIFICATION.MANAGE",
+      "result": "Mensaje reencolado o acción aplicada"
+    },
+    {
+      "id": "alert-ops-export",
+      "screen": "alert-center-operations",
+      "label": "Exportar CSV",
+      "action": "GET /alert-center/operations/export.csv",
+      "roles": [
+        "notification-administrator"
+      ],
+      "perm": "NOTIFICATION.READ / MANAGE",
+      "result": "Descarga CSV operativo"
     }
   ],
   "workflow": {
@@ -1344,6 +1604,73 @@ window.C360_MANUAL.data = {
       "roles": [
         "regulatory-administrator"
       ]
+    },
+    {
+      "term": "Alert Center",
+      "def": "Centro empresarial de alertas: Inbox, plantillas, reglas, destinatarios, scheduler, providers y operaciones.",
+      "example": "#/alert-center o campana",
+      "screens": [
+        "alert-center-inbox"
+      ],
+      "roles": [
+        "notification-administrator",
+        "regulatory-specialist"
+      ]
+    },
+    {
+      "term": "Inbox",
+      "def": "Bandeja personal de notificaciones persistentes, aislada por tenant y usuario.",
+      "example": "Campana con contador de no leídas",
+      "screens": [
+        "alert-center-inbox"
+      ],
+      "roles": [
+        "*"
+      ]
+    },
+    {
+      "term": "Template Center",
+      "def": "Gestión de plantillas versionadas con sanitización y maker-checker.",
+      "example": "Botón Template Center",
+      "screens": [
+        "alert-center-templates"
+      ],
+      "roles": [
+        "notification-administrator"
+      ]
+    },
+    {
+      "term": "Provider Center",
+      "def": "Configuración de canales de entrega (SMTP/M365/SendGrid/etc.) con secretos write-only.",
+      "example": "Botón Proveedores",
+      "screens": [
+        "alert-center-providers"
+      ],
+      "roles": [
+        "notification-administrator"
+      ]
+    },
+    {
+      "term": "NOTIFICATION.READ",
+      "def": "Permiso para leer el Inbox y consultar historial/telemetría de lectura.",
+      "example": "Roles RA/QM/Viewer con inbox",
+      "screens": [
+        "alert-center-inbox"
+      ],
+      "roles": [
+        "*"
+      ]
+    },
+    {
+      "term": "NOTIFICATION.ADMIN",
+      "def": "Permiso para administrar providers/SMTP del Alert Center.",
+      "example": "Notification Administrator",
+      "screens": [
+        "alert-center-providers"
+      ],
+      "roles": [
+        "notification-administrator"
+      ]
     }
   ],
   "errors": [
@@ -1423,6 +1750,27 @@ window.C360_MANUAL.data = {
       "why": "JWT inválido o ausente.",
       "fix": "Vuelva a #/login e inicie sesión.",
       "who": "Cualquier usuario"
+    },
+    {
+      "id": "alert-401",
+      "title": "401 en Alert Center",
+      "why": "El token no tiene NOTIFICATION.READ (Inbox) o NOTIFICATION.ADMIN/MANAGE/TEMPLATE (consolas).",
+      "fix": "Pida al Tenant Administrator el rol Notification Administrator o NOTIFICATION.READ según corresponda.",
+      "who": "Cualquier usuario"
+    },
+    {
+      "id": "alert-no-provider",
+      "title": "No se entrega correo",
+      "why": "No hay provider habilitado o el circuito está abierto.",
+      "fix": "Notification Administrator → Proveedores → configurar/probar conexión.",
+      "who": "Notification Administrator"
+    },
+    {
+      "id": "alert-sod-storage",
+      "title": "Confusión Storage vs Notificaciones",
+      "why": "Storage Administrator y Notification Administrator están segregados (SoD).",
+      "fix": "Asigne roles distintos; no combine administración de storage y SMTP en la misma persona si la política lo prohíbe.",
+      "who": "Tenant Administrator"
     }
   ],
   "tutorials": {
@@ -1546,10 +1894,13 @@ window.C360_MANUAL.data = {
       "title": "Consultar alertas",
       "role": "regulatory-administrator",
       "steps": [
-        "Abra Alertas",
-        "Revise alertType y message de la evaluación"
+        "Login Regulatory Administrator",
+        "Menú → Regulatory Management → Alertas (vista RA de vencimiento/riesgo operativo)",
+        "Evalúe alertas del módulo Regulatory Affairs",
+        "Para configurar plantillas/providers use Notification Administrator → #/alert-center",
+        "Puede usar la campana Inbox con NOTIFICATION.READ"
       ],
-      "result": "Lista de alertas",
+      "result": "Alertas RA consultadas; Alert Center configurado por NA",
       "next": "—"
     },
     "adm-sod-view": {
@@ -1861,10 +2212,248 @@ window.C360_MANUAL.data = {
       ],
       "result": "Trazabilidad",
       "next": "—"
+    },
+    "spec-inbox": {
+      "title": "Usar Inbox de Alert Center",
+      "role": "regulatory-specialist",
+      "steps": [
+        "Inicie sesión en http://localhost:5272 → #/login",
+        "Haga clic en la campana del encabezado o abra #/alert-center",
+        "Revise contadores (No leídas / Leídas / Archivadas / Favoritas)",
+        "Abra una notificación, márquela leída, archívela o márquela favorita",
+        "Use filtros de búsqueda/estado y paginación",
+        "No configure Template Center / Proveedores sin rol Notification Administrator"
+      ],
+      "result": "Inbox operativo para alertas del tenant",
+      "next": "Continúe su cola regulatoria"
+    },
+    "rev-inbox": {
+      "title": "Usar Inbox de Alert Center",
+      "role": "regulatory-reviewer",
+      "steps": [
+        "Inicie sesión en http://localhost:5272 → #/login",
+        "Haga clic en la campana del encabezado o abra #/alert-center",
+        "Revise contadores (No leídas / Leídas / Archivadas / Favoritas)",
+        "Abra una notificación, márquela leída, archívela o márquela favorita",
+        "Use filtros de búsqueda/estado y paginación",
+        "No configure Template Center / Proveedores sin rol Notification Administrator"
+      ],
+      "result": "Inbox operativo para alertas del tenant",
+      "next": "Continúe su cola regulatoria"
+    },
+    "appr-inbox": {
+      "title": "Usar Inbox de Alert Center",
+      "role": "regulatory-approver",
+      "steps": [
+        "Inicie sesión en http://localhost:5272 → #/login",
+        "Haga clic en la campana del encabezado o abra #/alert-center",
+        "Revise contadores (No leídas / Leídas / Archivadas / Favoritas)",
+        "Abra una notificación, márquela leída, archívela o márquela favorita",
+        "Use filtros de búsqueda/estado y paginación",
+        "No configure Template Center / Proveedores sin rol Notification Administrator"
+      ],
+      "result": "Inbox operativo para alertas del tenant",
+      "next": "Continúe su cola regulatoria"
+    },
+    "sub-inbox": {
+      "title": "Usar Inbox de Alert Center",
+      "role": "regulatory-submitter",
+      "steps": [
+        "Inicie sesión en http://localhost:5272 → #/login",
+        "Haga clic en la campana del encabezado o abra #/alert-center",
+        "Revise contadores (No leídas / Leídas / Archivadas / Favoritas)",
+        "Abra una notificación, márquela leída, archívela o márquela favorita",
+        "Use filtros de búsqueda/estado y paginación",
+        "No configure Template Center / Proveedores sin rol Notification Administrator"
+      ],
+      "result": "Inbox operativo para alertas del tenant",
+      "next": "Continúe su cola regulatoria"
+    },
+    "mgr-inbox": {
+      "title": "Usar Inbox de Alert Center",
+      "role": "regulatory-manager",
+      "steps": [
+        "Inicie sesión en http://localhost:5272 → #/login",
+        "Haga clic en la campana del encabezado o abra #/alert-center",
+        "Revise contadores (No leídas / Leídas / Archivadas / Favoritas)",
+        "Abra una notificación, márquela leída, archívela o márquela favorita",
+        "Use filtros de búsqueda/estado y paginación",
+        "No configure Template Center / Proveedores sin rol Notification Administrator"
+      ],
+      "result": "Inbox operativo para alertas del tenant",
+      "next": "Continúe su cola regulatoria"
+    },
+    "view-inbox": {
+      "title": "Consultar Inbox (solo lectura operativa)",
+      "role": "regulatory-viewer",
+      "steps": [
+        "Inicie sesión en http://localhost:5272 → #/login",
+        "Haga clic en la campana del encabezado o abra #/alert-center",
+        "Revise contadores (No leídas / Leídas / Archivadas / Favoritas)",
+        "Abra una notificación, márquela leída, archívela o márquela favorita",
+        "Use filtros de búsqueda/estado y paginación",
+        "No configure Template Center / Proveedores sin rol Notification Administrator"
+      ],
+      "result": "Inbox operativo para alertas del tenant",
+      "next": "Continúe su cola regulatoria"
+    },
+    "qm-inbox": {
+      "title": "Usar Inbox de Alert Center",
+      "role": "quality-manager",
+      "steps": [
+        "Inicie sesión en http://localhost:5272 → #/login",
+        "Haga clic en la campana del encabezado o abra #/alert-center",
+        "Revise contadores (No leídas / Leídas / Archivadas / Favoritas)",
+        "Abra una notificación, márquela leída, archívela o márquela favorita",
+        "Use filtros de búsqueda/estado y paginación",
+        "No configure Template Center / Proveedores sin rol Notification Administrator"
+      ],
+      "result": "Inbox operativo para alertas del tenant",
+      "next": "Continúe su cola regulatoria"
+    },
+    "adm-inbox": {
+      "title": "Usar Inbox (sin configurar Alert Center)",
+      "role": "regulatory-administrator",
+      "steps": [
+        "Inicie sesión en http://localhost:5272 → #/login",
+        "Haga clic en la campana del encabezado o abra #/alert-center",
+        "Revise contadores (No leídas / Leídas / Archivadas / Favoritas)",
+        "Abra una notificación, márquela leída, archívela o márquela favorita",
+        "Use filtros de búsqueda/estado y paginación",
+        "No configure Template Center / Proveedores sin rol Notification Administrator"
+      ],
+      "result": "Inbox operativo para alertas del tenant",
+      "next": "Continúe su cola regulatoria"
+    },
+    "tac-assign-na": {
+      "title": "Asignar Notification Administrator",
+      "role": "tenant-administrator",
+      "steps": [
+        "Menú → Tenant Administration",
+        "Cree o seleccione el usuario (ej. notifications@cert.local)",
+        "Asigne el rol «Notification Administrator»",
+        "No combine Storage Administrator + Notification Administrator si SoD lo prohíbe",
+        "Pida al usuario que abra #/alert-center y vea Template Center / Proveedores"
+      ],
+      "result": "Canal de alertas administrable por un rol dedicado",
+      "next": "Verificar Inbox en un rol RA"
+    },
+    "na-login": {
+      "title": "Iniciar sesión como Notification Administrator",
+      "role": "notification-administrator",
+      "steps": [
+        "Abra http://localhost:5272 → #/login",
+        "Use el correo del Notification Administrator (ej. notifications@cert.local)",
+        "Complete login y seleccione la organización si aplica",
+        "Verifique que aparece la campana de Alert Center"
+      ],
+      "result": "Sesión con permisos NOTIFICATION.*",
+      "next": "Abrir Inbox"
+    },
+    "na-inbox": {
+      "title": "Operar el Inbox",
+      "role": "notification-administrator",
+      "steps": [
+        "Inicie sesión en http://localhost:5272 → #/login",
+        "Haga clic en la campana del encabezado o abra #/alert-center",
+        "Revise contadores (No leídas / Leídas / Archivadas / Favoritas)",
+        "Abra una notificación, márquela leída, archívela o márquela favorita",
+        "Use filtros de búsqueda/estado y paginación"
+      ],
+      "result": "Inbox funcional",
+      "next": "Template Center"
+    },
+    "na-templates": {
+      "title": "Template Center",
+      "role": "notification-administrator",
+      "steps": [
+        "En #/alert-center abra «Template Center»",
+        "Revise versiones y ciclo de vida (Draft / InReview / Published / Retired)",
+        "Cree o duplique una versión; use Preview",
+        "Envíe a revisión / publique según maker-checker del tenant",
+        "No reutilice HTML no sanitizado"
+      ],
+      "result": "Plantilla lista para reglas",
+      "next": "Reglas"
+    },
+    "na-rules": {
+      "title": "Crear y simular una regla",
+      "role": "notification-administrator",
+      "steps": [
+        "Abra «Reglas»",
+        "Presione «Crear regla»",
+        "Seleccione evento, prioridad, código y condición",
+        "Agregue destinatarios (Owner/Role/Group/…) y canal con plantilla publicada",
+        "Guarde y simule si está disponible",
+        "Publique según política de aprobación"
+      ],
+      "result": "Regla administrable conectada a eventos de dominio",
+      "next": "Destinatarios / Scheduler"
+    },
+    "na-recipients": {
+      "title": "Directorio de destinatarios",
+      "role": "notification-administrator",
+      "steps": [
+        "Abra «Destinatarios»",
+        "Revise grupos, departamentos y externos autorizados",
+        "Agregue un destinatario externo autorizado si la política lo permite",
+        "Use preview de resolución desde reglas cuando exista"
+      ],
+      "result": "Audiencias resolubles",
+      "next": "Scheduler"
+    },
+    "na-scheduler": {
+      "title": "Programaciones durables",
+      "role": "notification-administrator",
+      "steps": [
+        "Desde Reglas abra «Programaciones» / Scheduler",
+        "Revise NextExecutionAtUtc y estado activo",
+        "Configure cron/calendario/quiet hours según política",
+        "Confirme que el worker procesa en el ambiente"
+      ],
+      "result": "Schedules durables",
+      "next": "Proveedores"
+    },
+    "na-providers": {
+      "title": "Provider Center",
+      "role": "notification-administrator",
+      "steps": [
+        "Abra «Proveedores»",
+        "Configure un proveedor (SMTP u otro soportado)",
+        "Guarde secretos (write-only; no se reexponen)",
+        "Ejecute prueba de conexión",
+        "No administre storage documental desde este rol"
+      ],
+      "result": "Canal de entrega habilitado",
+      "next": "Operaciones"
+    },
+    "na-operations": {
+      "title": "Consola operativa",
+      "role": "notification-administrator",
+      "steps": [
+        "Abra «Operaciones»",
+        "Revise dashboard (cola, DLQ, latencias)",
+        "Busque un mensaje y aplique retry/cancel según permiso",
+        "Exporte CSV si necesita evidencia operativa"
+      ],
+      "result": "Operación del canal sin tocar el expediente",
+      "next": "SoD vs Storage"
+    },
+    "na-sod-storage": {
+      "title": "SoD: no administrar Storage",
+      "role": "notification-administrator",
+      "steps": [
+        "Confirme que no tiene menús de Storage Administration",
+        "Si necesita storage, solicite otro usuario Storage Administrator",
+        "Mantenga maker distinto de approver en plantillas/reglas cuando SoD aplique"
+      ],
+      "result": "Segregación canal vs almacenamiento",
+      "next": "—"
     }
   },
   "appUrl": "http://localhost:5272",
   "raRoute": "#/regulatory",
   "loginRoute": "#/login",
-  "version": "1.0.0-certified-flow"
+  "version": "1.1.0-alert-center",
+  "alertCenterRoute": "#/alert-center"
 };

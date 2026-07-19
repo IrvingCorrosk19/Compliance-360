@@ -62,6 +62,8 @@
       <h2 class="section-title" id="can">¿Qué puedo hacer?</h2>
       <div class="card"><ul class="list-tight"><li>Bootstrap regulatorio (autoridades MINSA/CSS + pack de requisitos)</li><li>Importación Stage XLSX REGUTRACK (REGULATORY.CONFIGURE)</li><li>Gestionar productos y fabricantes (MANAGE)</li><li>Gestionar licencias operativas</li><li>Ver SoD Settings y lecturas del módulo</li></ul></div>
 
+      <div class="card" style="margin-top:.75rem"><p><strong>Alert Center:</strong> puede usar el Inbox (<code>NOTIFICATION.READ</code>). La configuración (templates/reglas/providers) es del <a href="notification-administrator.html">Notification Administrator</a>.</p></div>
+
       <h2 class="section-title" id="cannot">¿Qué no puedo hacer?</h2>
       <div class="card"><ul class="list-tight"><li>Aprobar internamente (APPROVE_FOR_SUBMISSION)</li><li>Registrar sometimiento (SUBMIT)</li><li>Registrar decisión externa / CT/RS (APPROVE)</li><li>Operar el expediente como Specialist por defecto</li></ul>
       <p class="muted">Si un botón no aparece, normalmente falta el permiso o SoD lo bloquea. No es un fallo de la pantalla.</p></div>
@@ -76,6 +78,7 @@
       <div class="card">
         <ol>
           <li>Inicie sesión en <code>http://localhost:5272</code> → <code>#/login</code>.</li>
+          <li>Revise la <strong>campana</strong> / <code>#/alert-center</code> (Inbox): lea, marque, archive o favoritos. No configure providers ni reglas (eso es Notification Administrator).</li>
           <li>Abra <strong>Regulatory Management</strong> → <code>#/regulatory</code>.</li>
           <li>Vaya a la vista de su cola (Pipeline / Expedientes / Configuración según rol).</li>
           <li>Ejecute solo las acciones de su etapa.</li>

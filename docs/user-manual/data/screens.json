@@ -117,5 +117,54 @@
     "route": "#/regulatory → SoD Settings",
     "module": "Regulatory Affairs",
     "objective": "Consultar política de segregación de funciones."
+  },
+  {
+    "id": "alert-center-inbox",
+    "name": "Alert Center · Inbox",
+    "route": "#/alert-center",
+    "module": "Alert Center",
+    "objective": "Bandeja de notificaciones persistentes por usuario (campana). Leer, filtrar, marcar, archivar y favoritos."
+  },
+  {
+    "id": "alert-center-templates",
+    "name": "Alert Center · Template Center",
+    "route": "#/alert-center → Template Center",
+    "module": "Alert Center",
+    "objective": "Gestionar plantillas versionadas con sanitización HTML y aprobación maker-checker."
+  },
+  {
+    "id": "alert-center-rules",
+    "name": "Alert Center · Reglas",
+    "route": "#/alert-center → Reglas",
+    "module": "Alert Center",
+    "objective": "Definir condiciones, destinatarios, canales y simulación de reglas de alerta."
+  },
+  {
+    "id": "alert-center-scheduler",
+    "name": "Alert Center · Scheduler",
+    "route": "#/alert-center → Programaciones",
+    "module": "Alert Center",
+    "objective": "Programaciones durables (cron), calendarios y quiet hours."
+  },
+  {
+    "id": "alert-center-recipients",
+    "name": "Alert Center · Destinatarios",
+    "route": "#/alert-center → Destinatarios",
+    "module": "Alert Center",
+    "objective": "Directorio de resolución: Owner, Role, Group, Department, listas y externos autorizados."
+  },
+  {
+    "id": "alert-center-providers",
+    "name": "Alert Center · Provider Center",
+    "route": "#/alert-center → Proveedores",
+    "module": "Alert Center",
+    "objective": "Configurar proveedores de entrega (SMTP/M365/SendGrid/etc.), secretos write-only y pruebas de conexión."
+  },
+  {
+    "id": "alert-center-operations",
+    "name": "Alert Center · Operaciones",
+    "route": "#/alert-center → Operaciones",
+    "module": "Alert Center",
+    "objective": "Telemetría de cola, mensajes, DLQ, reintentos y exportación CSV."
   }
 ]
