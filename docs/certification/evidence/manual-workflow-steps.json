@@ -1,0 +1,123 @@
+{
+  "when": "2026-07-19T00:14:46.560Z",
+  "dossierId": "af80914d-f33e-40d1-88cb-24e179642b88",
+  "catalogCode": "FLOW-941663",
+  "failed": 0,
+  "steps": [
+    {
+      "step": "SPEC-CREATE-MODAL",
+      "pass": true,
+      "detail": "catalog=FLOW-941663"
+    },
+    {
+      "step": "SPEC-PRODUCT-LISTED",
+      "pass": true,
+      "detail": "152281a8-5d14-4749-9efa-3615b2cb1dbd"
+    },
+    {
+      "step": "SPEC-DOSSIER-CREATED",
+      "pass": true,
+      "detail": "status=Draft"
+    },
+    {
+      "step": "SPEC-UI-Planning",
+      "pass": true,
+      "detail": "btn=Iniciar planificación;status=Planning"
+    },
+    {
+      "step": "SPEC-UI-WaitingManufacturerDocuments",
+      "pass": true,
+      "detail": "btn=Pedir docs fábrica;status=WaitingManufacturerDocuments"
+    },
+    {
+      "step": "SPEC-UI-DocumentsReceived",
+      "pass": true,
+      "detail": "btn=Docs recibidos;status=DocumentsReceived"
+    },
+    {
+      "step": "SPEC-UI-Assembling",
+      "pass": true,
+      "detail": "btn=Armar;status=Assembling"
+    },
+    {
+      "step": "SPEC-MARK-RECEIVED",
+      "pass": true,
+      "detail": "22/22 requisitos con evidencia persistida"
+    },
+    {
+      "step": "SPEC-UI-UnderTechnicalReview",
+      "pass": true,
+      "detail": "status=UnderTechnicalReview"
+    },
+    {
+      "step": "REV-SEES-ACCEPT",
+      "pass": true,
+      "detail": "buttons=22"
+    },
+    {
+      "step": "REV-ACCEPT-ALL",
+      "pass": true,
+      "detail": "pendingRequired=0"
+    },
+    {
+      "step": "REV-COMPLETE-TECHNICAL-REVIEW",
+      "pass": true,
+      "detail": "http=200;status=ReadyForSubmission"
+    },
+    {
+      "step": "APPR-INTERNAL-UI",
+      "pass": true,
+      "detail": "status=ApprovedForSubmission"
+    },
+    {
+      "step": "SUB-SUBMIT-UI",
+      "pass": true,
+      "detail": "status=Submitted"
+    },
+    {
+      "step": "MGR-OBSERVE-MODAL",
+      "pass": true,
+      "detail": "status=Observed"
+    },
+    {
+      "step": "SPEC-SEES-RESPOND",
+      "pass": true,
+      "detail": "botón Responder visible"
+    },
+    {
+      "step": "SPEC-RESPOND",
+      "pass": true,
+      "detail": "obs=Submitted;dossier=CorrectingObservation"
+    },
+    {
+      "step": "SUB-RESUBMIT",
+      "pass": true,
+      "detail": "status=Resubmitted"
+    },
+    {
+      "step": "MGR-EXTERNAL-MODAL",
+      "pass": true,
+      "detail": "status=Closed;ctrs=MQ-941663-07-26"
+    },
+    {
+      "step": "CTRS-LISTED",
+      "pass": true,
+      "detail": "MQ-941663-07-26"
+    },
+    {
+      "step": "SPEC-MFR-MODAL",
+      "pass": true,
+      "detail": "Cert Medical 941663"
+    },
+    {
+      "step": "ADM-LICENSE-MODAL",
+      "pass": true,
+      "detail": "Cert Distribution 941663"
+    },
+    {
+      "step": "NO-NATIVE-DIALOGS",
+      "pass": true,
+      "detail": "native=0"
+    }
+  ]
+}

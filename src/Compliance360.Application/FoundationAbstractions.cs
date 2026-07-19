@@ -52,7 +52,8 @@ public sealed record AuthenticatedUser(
     string Email,
     string FullName,
     IReadOnlyCollection<string> Roles,
-    IReadOnlyCollection<string> Permissions);
+    IReadOnlyCollection<string> Permissions,
+    Guid? SessionId = null);
 
 public sealed record JwtTokenResult(
     string AccessToken,

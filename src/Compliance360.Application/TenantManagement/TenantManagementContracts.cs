@@ -71,9 +71,13 @@ public interface ITenantManagementService
 
     Task<Result<TenantUserSummary>> CreateUserAsync(CreateTenantUserCommand command, CancellationToken cancellationToken = default);
 
+    Task<Result<TenantUserSummary>> UpdateUserAsync(UpdateTenantUserCommand command, CancellationToken cancellationToken = default);
+
     Task<Result> ChangeUserStatusAsync(ChangeTenantUserStatusCommand command, CancellationToken cancellationToken = default);
 
     Task<Result> ResetUserMfaAsync(TenantUserActionCommand command, CancellationToken cancellationToken = default);
+
+    Task<Result> ResetUserPasswordAsync(ResetTenantUserPasswordCommand command, CancellationToken cancellationToken = default);
 
     Task<Result> AssignUserRoleAsync(AssignTenantUserRoleCommand command, CancellationToken cancellationToken = default);
 
@@ -147,6 +151,8 @@ public interface ITenantManagementRepository
     Task<IReadOnlyCollection<User>> ListUsersAsync(Guid tenantId, CancellationToken cancellationToken = default);
 
     Task<User?> GetUserAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default);
+
+    Task<bool> UserEmailExistsAsync(Guid tenantId, string normalizedEmail, Guid? excludeUserId, CancellationToken cancellationToken = default);
 
     Task<Role?> GetRoleAsync(Guid tenantId, Guid roleId, CancellationToken cancellationToken = default);
 
@@ -412,6 +418,10 @@ public sealed record UpsertTenantLicenseCommand(Guid TenantId, string LicenseNum
 public sealed record RecordTenantBackupCommand(Guid TenantId, string BackupKind, string Result, DateTimeOffset StartedAtUtc, DateTimeOffset CompletedAtUtc, long SizeBytes, string Message, int RpoMinutes, int RtoMinutes, Guid RequestedByUserId);
 
 public sealed record CreateTenantUserCommand(Guid TenantId, string Email, string FullName, string InitialPassword, bool ForcePasswordChange, Guid? RoleId, string? ChangeReason, Guid RequestedByUserId);
+
+public sealed record UpdateTenantUserCommand(Guid TenantId, Guid UserId, string Email, string FullName, string? ChangeReason, Guid RequestedByUserId);
+
+public sealed record ResetTenantUserPasswordCommand(Guid TenantId, Guid UserId, string NewPassword, bool ForcePasswordChange, string? ChangeReason, Guid RequestedByUserId);
 
 public sealed record ChangeTenantUserStatusCommand(Guid TenantId, Guid UserId, UserStatus Status, string? ChangeReason, Guid RequestedByUserId);
 

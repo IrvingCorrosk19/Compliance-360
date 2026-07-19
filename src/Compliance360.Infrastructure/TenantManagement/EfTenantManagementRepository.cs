@@ -74,12 +74,11 @@ public sealed class EfTenantManagementRepository : ITenantManagementRepository
         var users = await _dbContext.Users.AsNoTracking().Where(user => user.TenantId == tenantId).CountAsync(cancellationToken);
         var activeUsers = await _dbContext.Users.AsNoTracking().Where(user => user.TenantId == tenantId && user.Status.ToString() == "Active").CountAsync(cancellationToken);
         var roles = await _dbContext.Roles.AsNoTracking().Where(role => role.TenantId == tenantId).CountAsync(cancellationToken);
-        var documents = await _dbContext.Documents.AsNoTracking().Where(document => document.TenantId == tenantId).CountAsync(cancellationToken);
-        var suppliers = await _dbContext.Suppliers.AsNoTracking().Where(supplier => supplier.TenantId == tenantId).CountAsync(cancellationToken);
-        var audits = await _dbContext.ManagedAudits.AsNoTracking().Where(audit => audit.TenantId == tenantId).CountAsync(cancellationToken);
-        var capas = await _dbContext.Capas.AsNoTracking().Where(capa => capa.TenantId == tenantId).CountAsync(cancellationToken);
-        var risks = await _dbContext.Risks.AsNoTracking().Where(risk => risk.TenantId == tenantId).CountAsync(cancellationToken);
-        var indicators = await _dbContext.QualityIndicators.AsNoTracking().Where(indicator => indicator.TenantId == tenantId).CountAsync(cancellationToken);
+        var products = await _dbContext.MedicalDeviceProducts.AsNoTracking().Where(product => product.TenantId == tenantId).CountAsync(cancellationToken);
+        var dossiers = await _dbContext.RegistrationDossiers.AsNoTracking().Where(dossier => dossier.TenantId == tenantId).CountAsync(cancellationToken);
+        var manufacturers = await _dbContext.ManufacturerProfiles.AsNoTracking().Where(manufacturer => manufacturer.TenantId == tenantId).CountAsync(cancellationToken);
+        var licenses = await _dbContext.OperatingLicenses.AsNoTracking().Where(license => license.TenantId == tenantId).CountAsync(cancellationToken);
+        var importJobs = await _dbContext.RegutrackImportJobs.AsNoTracking().Where(job => job.TenantId == tenantId).CountAsync(cancellationToken);
         var notifications = await _dbContext.NotificationMessages.AsNoTracking().Where(notification => notification.TenantId == tenantId).CountAsync(cancellationToken);
         var storageProviders = await _dbContext.StorageProviderConfigurations.AsNoTracking().Where(provider => provider.TenantId == tenantId).CountAsync(cancellationToken);
         var notificationProviders = await _dbContext.NotificationProviderConfigurations.AsNoTracking().Where(provider => provider.TenantId == tenantId).CountAsync(cancellationToken);
@@ -95,12 +94,12 @@ public sealed class EfTenantManagementRepository : ITenantManagementRepository
             activeUsers,
             roles,
             storageBytes,
-            documents,
-            suppliers,
-            audits,
-            capas,
-            risks,
-            indicators,
+            products,
+            manufacturers,
+            dossiers,
+            licenses,
+            importJobs,
+            0,
             notifications,
             storageProviders,
             notificationProviders,
@@ -262,6 +261,19 @@ public sealed class EfTenantManagementRepository : ITenantManagementRepository
             .Include(user => user.Sessions)
             .AsSplitQuery()
             .FirstOrDefaultAsync(user => user.TenantId == tenantId && user.Id == userId, cancellationToken);
+    }
+
+    public Task<bool> UserEmailExistsAsync(
+        Guid tenantId,
+        string normalizedEmail,
+        Guid? excludeUserId,
+        CancellationToken cancellationToken = default)
+    {
+        return _dbContext.Users.AnyAsync(
+            user => user.TenantId == tenantId
+                && user.NormalizedEmail == normalizedEmail
+                && (!excludeUserId.HasValue || user.Id != excludeUserId.Value),
+            cancellationToken);
     }
 
     public Task<Role?> GetRoleAsync(Guid tenantId, Guid roleId, CancellationToken cancellationToken = default)

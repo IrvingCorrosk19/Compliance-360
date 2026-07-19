@@ -4,6 +4,7 @@ using Compliance360.Application.AuditManagement;
 using Compliance360.Application.CapaManagement;
 using Compliance360.Application.Documents;
 using Compliance360.Application.Enterprise;
+using Compliance360.Application.FormTemplates;
 using Compliance360.Application.Identity;
 using Compliance360.Application.Mfa;
 using Compliance360.Application.Notifications;
@@ -11,6 +12,7 @@ using Compliance360.Application.Rbac;
 using Compliance360.Application.RiskManagement;
 using Compliance360.Application.QualityIndicators;
 using Compliance360.Application.Reporting;
+using Compliance360.Application.RegulatoryAffairs;
 using Compliance360.Application.Storage;
 using Compliance360.Application.SuperAdmin;
 using Compliance360.Application.Suppliers;
@@ -23,6 +25,7 @@ using Compliance360.Infrastructure.AuditManagement;
 using Compliance360.Infrastructure.CapaManagement;
 using Compliance360.Infrastructure.Documents;
 using Compliance360.Infrastructure.Enterprise;
+using Compliance360.Infrastructure.FormTemplates;
 using Compliance360.Infrastructure.Identity;
 using Compliance360.Infrastructure.Mfa;
 using Compliance360.Infrastructure.Notifications;
@@ -31,6 +34,7 @@ using Compliance360.Infrastructure.Rbac;
 using Compliance360.Infrastructure.RiskManagement;
 using Compliance360.Infrastructure.QualityIndicators;
 using Compliance360.Infrastructure.Reporting;
+using Compliance360.Infrastructure.RegulatoryAffairs;
 using Compliance360.Infrastructure.Security;
 using Compliance360.Infrastructure.Storage;
 using Compliance360.Infrastructure.SuperAdmin;
@@ -50,6 +54,7 @@ public static class DependencyInjection
     {
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services.Configure<MfaChallengeOptions>(configuration.GetSection(MfaChallengeOptions.SectionName));
+        services.Configure<AuthResolverOptions>(configuration.GetSection(AuthResolverOptions.SectionName));
         services.Configure<RefreshTokenOptions>(configuration.GetSection(RefreshTokenOptions.SectionName));
         services.Configure<StorageOptions>(configuration.GetSection(StorageOptions.SectionName));
         services.Configure<PasswordPolicyOptions>(configuration.GetSection(PasswordPolicyOptions.SectionName));
@@ -62,17 +67,17 @@ public static class DependencyInjection
         services.Configure<NotificationProviderOptions>(configuration.GetSection(NotificationProviderOptions.SectionName));
 
         services.AddDataProtection();
+        services.AddMemoryCache();
         services.AddHttpClient();
         services.AddSingleton<IClock, SystemClock>();
         services.AddSingleton<IAuditContextAccessor, AuditContextAccessor>();
         services.AddScoped<IAuditPermissionEvaluator, AuditPermissionEvaluator>();
         services.AddScoped<IAuditService, AuditService>();
-        services.AddScoped<IAuditManagementService, AuditManagementService>();
-        services.AddScoped<ICapaManagementService, CapaManagementService>();
-        services.AddScoped<IRiskManagementService, RiskManagementService>();
-        services.AddScoped<IQualityIndicatorService, QualityIndicatorService>();
-        services.AddScoped<IReportingEngineService, ReportingEngineService>();
-        services.AddScoped<IEnterpriseWorkspaceService, EnterpriseWorkspaceService>();
+        services.AddScoped<IRegulatoryAffairsService, RegulatoryAffairsService>();
+        services.AddScoped<IRegulatoryWorkflowV2Service, RegulatoryWorkflowV2Service>();
+        services.AddScoped<IRegulatorySoDGate, RegulatorySoDGate>();
+        services.AddScoped<ICurrentUserPermissions, AllowAllUserPermissions>();
+        services.AddScoped<IRegutrackWorkbookParser, ClosedXmlRegutrackWorkbookParser>();
         services.AddScoped<AuditSaveChangesInterceptor>();
         services.AddScoped<IMfaSecretProtector, DataProtectionMfaSecretProtector>();
         services.AddScoped<ITotpService, TotpService>();
@@ -82,6 +87,7 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IRefreshTokenGenerator, RefreshTokenGenerator>();
         services.AddScoped<IMfaChallengeTokenService, MfaChallengeTokenService>();
+        services.AddScoped<IAuthResolverTokenService, AuthResolverTokenService>();
         services.AddScoped<IStorageProvider, LocalStorageProvider>();
         services.AddScoped<IStorageProvider>(_ => new ConfiguredObjectStorageProvider(StorageProviderKind.AzureBlob));
         services.AddScoped<IStorageProvider>(_ => new ConfiguredObjectStorageProvider(StorageProviderKind.AwsS3));
@@ -107,13 +113,20 @@ public static class DependencyInjection
         services.AddScoped<INotificationProviderFactory, NotificationProviderFactory>();
         services.AddScoped<INotificationDispatcher, EnterpriseNotificationDispatcher>();
         services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<ITenantManagementService, TenantManagementService>();
+        services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<IRbacService, RbacService>();
+        services.AddScoped<IEnterpriseWorkspaceService, EnterpriseWorkspaceService>();
+        services.AddScoped<IFormTemplateService, FormTemplateService>();
         services.AddScoped<IDocumentManagementService, DocumentManagementService>();
         services.AddScoped<IWorkflowEngineService, WorkflowEngineService>();
         services.AddScoped<ITechnicalSheetService, TechnicalSheetService>();
         services.AddScoped<ISupplierManagementService, SupplierManagementService>();
-        services.AddScoped<ITenantManagementService, TenantManagementService>();
-        services.AddScoped<IIdentityService, IdentityService>();
-        services.AddScoped<IRbacService, RbacService>();
+        services.AddScoped<IAuditManagementService, AuditManagementService>();
+        services.AddScoped<ICapaManagementService, CapaManagementService>();
+        services.AddScoped<IRiskManagementService, RiskManagementService>();
+        services.AddScoped<IQualityIndicatorService, QualityIndicatorService>();
+        services.AddScoped<IReportingEngineService, ReportingEngineService>();
 
         var connectionString = configuration.GetConnectionString("Compliance360");
         if (!string.IsNullOrWhiteSpace(connectionString))
@@ -126,12 +139,8 @@ public static class DependencyInjection
             });
             services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<Compliance360DbContext>());
             services.AddScoped<IAuditRepository, EfAuditRepository>();
-            services.AddScoped<IAuditManagementRepository, EfAuditManagementRepository>();
-            services.AddScoped<ICapaManagementRepository, EfCapaManagementRepository>();
-            services.AddScoped<IRiskManagementRepository, EfRiskManagementRepository>();
-            services.AddScoped<IQualityIndicatorRepository, EfQualityIndicatorRepository>();
-            services.AddScoped<IReportingEngineRepository, EfReportingEngineRepository>();
-            services.AddScoped<IEnterpriseWorkspaceRepository, EfEnterpriseWorkspaceRepository>();
+            services.AddScoped<IRegulatoryAffairsRepository, EfRegulatoryAffairsRepository>();
+            services.AddScoped<IRegulatoryWorkflowV2Repository, EfRegulatoryWorkflowV2Repository>();
             services.AddScoped<ITenantManagementRepository, EfTenantManagementRepository>();
             services.AddScoped<IIdentityRepository, EfIdentityRepository>();
             services.AddScoped<IRbacRepository, EfRbacRepository>();
@@ -140,10 +149,17 @@ public static class DependencyInjection
             services.AddScoped<IStorageRepository, EfStorageRepository>();
             services.AddScoped<ISuperAdminPlatformRepository, EfSuperAdminPlatformRepository>();
             services.AddScoped<INotificationRepository, EfNotificationRepository>();
+            services.AddScoped<IEnterpriseWorkspaceRepository, EfEnterpriseWorkspaceRepository>();
+            services.AddScoped<IFormTemplateRepository, EfFormTemplateRepository>();
             services.AddScoped<IDocumentRepository, EfDocumentRepository>();
             services.AddScoped<IWorkflowRepository, EfWorkflowRepository>();
             services.AddScoped<ITechnicalSheetRepository, EfTechnicalSheetRepository>();
             services.AddScoped<ISupplierRepository, EfSupplierRepository>();
+            services.AddScoped<IAuditManagementRepository, EfAuditManagementRepository>();
+            services.AddScoped<ICapaManagementRepository, EfCapaManagementRepository>();
+            services.AddScoped<IRiskManagementRepository, EfRiskManagementRepository>();
+            services.AddScoped<IQualityIndicatorRepository, EfQualityIndicatorRepository>();
+            services.AddScoped<IReportingEngineRepository, EfReportingEngineRepository>();
         }
 
         return services;

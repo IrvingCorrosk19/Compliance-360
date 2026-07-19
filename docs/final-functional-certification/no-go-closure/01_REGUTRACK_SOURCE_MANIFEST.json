@@ -1,0 +1,13 @@
+{
+  "original": {
+    "path": "c:\\Proyectos\\Compliance 360\\REGUTRACK 02JUN26 MG.xlsx",
+    "bytes": 483047,
+    "sha256": "bd88a4a67fc3d7c3b24b63364456aece36d5d6b885fa9d06df4e7fe74176a20b"
+  },
+  "copy": {
+    "path": "c:\\Proyectos\\Compliance 360\\docs\\final-functional-certification\\no-go-closure\\REGUTRACK_02JUN26_MG_CLOSURE_COPY.xlsx",
+    "bytes": 483047,
+    "sha256": "bd88a4a67fc3d7c3b24b63364456aece36d5d6b885fa9d06df4e7fe74176a20b"
+  },
+  "sha256Match": true
+}

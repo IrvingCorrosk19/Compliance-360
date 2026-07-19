@@ -167,4 +167,34 @@ public sealed class RbacCatalogTests
             Assert.DoesNotContain(action, writeActions);
         }
     }
+
+    [Fact]
+    public void Regulatory_Administrator_Creates_Initial_Cases_But_Cannot_Operate_Them()
+    {
+        var role = RoleCatalog.Find(RoleCatalog.RegulatoryAdministrator)!;
+
+        Assert.Contains(PermissionCatalog.RegulatoryProductManage, role.PermissionCodes);
+        Assert.Contains(PermissionCatalog.RegulatoryDossierCreate, role.PermissionCodes);
+        Assert.DoesNotContain(PermissionCatalog.RegulatoryDossierUpdate, role.PermissionCodes);
+        Assert.DoesNotContain(PermissionCatalog.RegulatoryDossierReview, role.PermissionCodes);
+        Assert.DoesNotContain(PermissionCatalog.RegulatoryDossierApproveForSubmission, role.PermissionCodes);
+        Assert.DoesNotContain(PermissionCatalog.RegulatoryDossierSubmit, role.PermissionCodes);
+        Assert.DoesNotContain(PermissionCatalog.AuditRead, role.PermissionCodes);
+    }
+
+    [Fact]
+    public void Regulatory_Specialist_Prepares_Cases_Without_Audit_Or_Decision_Permissions()
+    {
+        var role = RoleCatalog.Find(RoleCatalog.RegulatorySpecialist)!;
+
+        Assert.Contains(PermissionCatalog.RegulatoryProductManage, role.PermissionCodes);
+        Assert.Contains(PermissionCatalog.RegulatoryDossierCreate, role.PermissionCodes);
+        Assert.Contains(PermissionCatalog.RegulatoryDossierUpdate, role.PermissionCodes);
+        Assert.Contains(PermissionCatalog.RegulatoryRequirementManage, role.PermissionCodes);
+        Assert.DoesNotContain(PermissionCatalog.RegulatoryDossierReview, role.PermissionCodes);
+        Assert.DoesNotContain(PermissionCatalog.RegulatoryDossierApproveForSubmission, role.PermissionCodes);
+        Assert.DoesNotContain(PermissionCatalog.RegulatoryDossierSubmit, role.PermissionCodes);
+        Assert.DoesNotContain(PermissionCatalog.RegulatoryDossierApprove, role.PermissionCodes);
+        Assert.DoesNotContain(PermissionCatalog.AuditRead, role.PermissionCodes);
+    }
 }

@@ -1,0 +1,250 @@
+[
+  {
+    "id": "email",
+    "screen": "login",
+    "label": "Correo",
+    "tech": "email",
+    "type": "email",
+    "required": true,
+    "purpose": "Identifica al usuario en el tenant.",
+    "example": "ra.spec@cert.local",
+    "invalid": "texto sin @",
+    "format": "email",
+    "max": 256,
+    "roles": [
+      "*"
+    ]
+  },
+  {
+    "id": "password",
+    "screen": "login",
+    "label": "Contraseña",
+    "tech": "password",
+    "type": "password",
+    "required": true,
+    "purpose": "Autenticación.",
+    "example": "(la asignada por TAC)",
+    "invalid": "vacía",
+    "format": "secreto",
+    "roles": [
+      "*"
+    ]
+  },
+  {
+    "id": "brand",
+    "screen": "regulatory-portfolio",
+    "label": "Marca",
+    "tech": "brand",
+    "type": "text",
+    "required": true,
+    "purpose": "Marca comercial del dispositivo.",
+    "example": "DEMO",
+    "invalid": "(vacío)",
+    "max": 120,
+    "roles": [
+      "regulatory-specialist",
+      "regulatory-administrator"
+    ]
+  },
+  {
+    "id": "regulatoryName",
+    "screen": "regulatory-portfolio",
+    "label": "Nombre regulatorio",
+    "tech": "regulatoryName",
+    "type": "text",
+    "required": true,
+    "purpose": "Nombre oficial del producto para expediente y CT/RS. Puede diferir del comercial.",
+    "example": "PRODUCTO DEMO",
+    "invalid": "(vacío)",
+    "max": 320,
+    "roles": [
+      "regulatory-specialist",
+      "regulatory-administrator"
+    ]
+  },
+  {
+    "id": "catalogCode",
+    "screen": "regulatory-portfolio",
+    "label": "Código catálogo",
+    "tech": "catalogCode",
+    "type": "code",
+    "required": true,
+    "purpose": "Código único por tenant. Duplicado genera error.",
+    "example": "CAT-123456",
+    "invalid": "código ya existente",
+    "max": 120,
+    "roles": [
+      "regulatory-specialist",
+      "regulatory-administrator"
+    ]
+  },
+  {
+    "id": "riskClass",
+    "screen": "regulatory-portfolio",
+    "label": "Clase de riesgo",
+    "tech": "riskClass",
+    "type": "select",
+    "required": true,
+    "purpose": "Clase A, B o C del dispositivo. No es el módulo Risk Management. Influye en Requirement Pack.",
+    "example": "A",
+    "invalid": "valor fuera de A/B/C",
+    "allowed": [
+      "A",
+      "B",
+      "C"
+    ],
+    "roles": [
+      "regulatory-specialist",
+      "regulatory-administrator"
+    ]
+  },
+  {
+    "id": "countryCode",
+    "screen": "regulatory-portfolio",
+    "label": "País",
+    "tech": "countryCode",
+    "type": "text",
+    "required": true,
+    "purpose": "Código de país del producto (UI demo usa PA).",
+    "example": "PA",
+    "invalid": "(vacío)",
+    "roles": [
+      "regulatory-specialist"
+    ]
+  },
+  {
+    "id": "mfrLegalName",
+    "screen": "regulatory-manufacturers",
+    "label": "Nombre legal fabricante",
+    "tech": "legalName",
+    "type": "text",
+    "required": true,
+    "purpose": "Razón social del fabricante.",
+    "example": "Acme Medical Co.",
+    "invalid": "(vacío)",
+    "max": 220,
+    "roles": [
+      "regulatory-specialist",
+      "regulatory-administrator"
+    ]
+  },
+  {
+    "id": "mfrCountry",
+    "screen": "regulatory-manufacturers",
+    "label": "País",
+    "tech": "countryCode",
+    "type": "text",
+    "required": true,
+    "purpose": "País del fabricante.",
+    "example": "CN",
+    "invalid": "(vacío)",
+    "roles": [
+      "regulatory-specialist",
+      "regulatory-administrator"
+    ]
+  },
+  {
+    "id": "obsDescription",
+    "screen": "regulatory-dossier-detail",
+    "label": "Descripción de la observación",
+    "tech": "description",
+    "type": "textarea",
+    "required": true,
+    "purpose": "Texto de la observación emitida por la autoridad.",
+    "example": "Falta actualización de literatura técnica",
+    "invalid": "(vacío)",
+    "max": 4000,
+    "roles": [
+      "regulatory-manager"
+    ]
+  },
+  {
+    "id": "ctrsNumber",
+    "screen": "regulatory-dossier-detail",
+    "label": "Número CT/RS",
+    "tech": "registrationNumber",
+    "type": "text",
+    "required": true,
+    "purpose": "Número emitido por la autoridad. No lo genera Compliance 360.",
+    "example": "MQ-4521-07-26",
+    "invalid": "(vacío)",
+    "max": 120,
+    "roles": [
+      "regulatory-manager",
+      "quality-manager"
+    ]
+  },
+  {
+    "id": "ctrsExpires",
+    "screen": "regulatory-dossier-detail",
+    "label": "Vencimiento ISO",
+    "tech": "expiresOn",
+    "type": "date",
+    "required": true,
+    "purpose": "Fecha de vencimiento del CT/RS (YYYY-MM-DD).",
+    "example": "2029-07-13",
+    "invalid": "2029/07/13 o fecha anterior a emisión",
+    "format": "YYYY-MM-DD",
+    "roles": [
+      "regulatory-manager",
+      "quality-manager"
+    ]
+  },
+  {
+    "id": "licenseCompany",
+    "screen": "regulatory-licenses",
+    "label": "Compañía",
+    "tech": "companyName",
+    "type": "text",
+    "required": true,
+    "purpose": "Nombre de la empresa titular de la licencia operativa.",
+    "example": "Irving Corro S.A",
+    "invalid": "(vacío)",
+    "roles": [
+      "regulatory-administrator"
+    ]
+  },
+  {
+    "id": "licenseType",
+    "screen": "regulatory-licenses",
+    "label": "Tipo de licencia",
+    "tech": "licenseType",
+    "type": "text",
+    "required": true,
+    "purpose": "Tipo/descripción de la licencia operativa.",
+    "example": "Distribución de dispositivos médicos",
+    "invalid": "(vacío)",
+    "roles": [
+      "regulatory-administrator"
+    ]
+  },
+  {
+    "id": "opportunityAmount",
+    "screen": "regulatory-dashboard",
+    "label": "Opportunity Amount",
+    "tech": "opportunityAmount",
+    "type": "currency",
+    "required": false,
+    "purpose": "Valor comercial asociado al producto/expediente. No cambia la decisión de autoridad; alimenta priorización y dashboard.",
+    "example": "15000.00",
+    "invalid": "texto no numérico",
+    "roles": [
+      "regulatory-specialist",
+      "regulatory-manager"
+    ]
+  },
+  {
+    "id": "maxReception",
+    "screen": "regulatory-dossier-detail",
+    "label": "Fecha máxima de recepción",
+    "tech": "maximumReceptionOn",
+    "type": "datetime",
+    "required": false,
+    "purpose": "Límite para recibir documentos del fabricante. Puede generar alertas si se vence en estado Espera docs fábrica.",
+    "example": "2026-08-01T00:00:00Z",
+    "invalid": "fecha mal formada",
+    "roles": [
+      "regulatory-specialist"
+    ]
+  }
+]

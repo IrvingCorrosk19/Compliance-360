@@ -1,0 +1,779 @@
+#!/usr/bin/env python3
+"""Generate premium interactive Tenant Administrator manual (self-contained HTML).
+
+Source of truth: RoleCatalog.cs, app.js TAC panels, routePermissions.
+Output: docs/tenant-administrator-manual/index.html
+"""
+from __future__ import annotations
+
+import json
+from datetime import date
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+OUT_DIR = ROOT / "docs" / "tenant-administrator-manual"
+OUT_HTML = OUT_DIR / "index.html"
+VERSION = "1.0.0"
+GEN_DATE = date.today().isoformat()
+APP_URL = "http://localhost:5272"
+
+# ---- Data from RoleCatalog + app.js (verified) ----
+
+PERMISSIONS = [
+    "TENANT.READ", "TENANT.UPDATE", "TENANT.BRANDING", "TENANT.BILLING",
+    "TENANT.INTEGRATIONS", "TENANT.HEALTH", "TENANT.BACKUP", "TENANT.USERS",
+    "TENANT.ROLES", "IDENTITY.MANAGE", "RBAC.MANAGE", "TENANT.AUDIT", "AUDIT.READ",
+]
+
+NAV_VISIBLE = [
+    {"g": "Centro de comando", "route": "dashboard", "label": "Panel ejecutivo",
+     "ui": "Executive Dashboard"},
+    {"g": "Centro de comando", "route": "compliance", "label": "Panel de cumplimiento",
+     "ui": "Compliance Dashboard"},
+    {"g": "Centro de comando", "route": "audit-trail", "label": "Bitácora de auditoría",
+     "ui": "Audit Trail"},
+    {"g": "Empresa", "route": "tenant-administration", "label": "Administración del tenant",
+     "ui": "Tenant Administration"},
+    {"g": "Empresa", "route": "template-builder", "label": "Constructor de plantillas",
+     "ui": "Template Builder"},
+]
+
+# Solo pestañas que el Administrador del Tenant puede operar (filtradas por permiso).
+TAC_TABS = [
+    {"key": "general", "label": "Información general", "can": True, "perm": "TENANT.UPDATE",
+     "importance": "Crítica", "freq": "Al alta y en cambios legales"},
+    {"key": "branding", "label": "Identidad visual (Branding)", "can": True, "perm": "TENANT.BRANDING",
+     "importance": "Alta", "freq": "Al incorporar al cliente o cambiar marca"},
+    {"key": "users", "label": "Usuarios", "can": True, "perm": "TENANT.USERS",
+     "importance": "Crítica", "freq": "Diaria / semanal"},
+    {"key": "rbac", "label": "Roles y permisos", "can": True, "perm": "RBAC.MANAGE",
+     "importance": "Crítica", "freq": "Al crear roles u otorgar permisos"},
+    {"key": "licensing", "label": "Licenciamiento", "can": True, "perm": "TENANT.BILLING",
+     "importance": "Media", "freq": "Renovaciones"},
+    {"key": "health", "label": "Salud y respaldos", "can": True, "perm": "TENANT.HEALTH / BACKUP",
+     "importance": "Media", "freq": "Operaciones"},
+    {"key": "audit", "label": "Auditoría", "can": True, "perm": "TENANT.AUDIT",
+     "importance": "Alta", "freq": "Auditorías / incidentes"},
+]
+
+FIELDS = {
+    "general": [
+        {"label": "Nombre del tenant", "tech": "name", "type": "texto", "req": True, "ex": "Alimentos Premium",
+         "why": "Nombre interno del espacio de trabajo. Debe ser claro para su equipo.", "max": 180,
+         "err": "No puede estar vacío."},
+        {"label": "Razón social", "tech": "legalName", "type": "texto", "req": True,
+         "ex": "Alimentos Premium Panama, S.A.", "why": "Nombre legal en contratos y facturación.", "max": 220},
+        {"label": "Nombre comercial", "tech": "commercialName", "type": "texto", "req": True,
+         "ex": "Alimentos Premium", "why": "Nombre visible para los usuarios de la empresa.", "max": 180},
+        {"label": "RUC / identificación fiscal", "tech": "taxIdentifier", "type": "texto", "req": True,
+         "ex": "RUC-155999999-2-2026", "why": "Identificación fiscal. Se normaliza a mayúsculas.", "max": 80,
+         "fmt": "Letras, números, guiones o puntos"},
+        {"label": "Industria", "tech": "industry", "type": "texto", "req": True, "ex": "Manufactura de alimentos",
+         "why": "Sector principal del cliente."},
+        {"label": "País", "tech": "countryCode", "type": "lista", "req": True, "ex": "PA",
+         "why": "Código ISO del país. Panamá = PA."},
+        {"label": "Moneda", "tech": "currency", "type": "lista", "req": True, "ex": "USD",
+         "why": "Moneda ISO-4217 del tenant."},
+        {"label": "Teléfono", "tech": "phone", "type": "teléfono", "req": False, "ex": "+507 6000-0000",
+         "why": "Contacto telefónico corporativo."},
+        {"label": "Correo de la empresa", "tech": "email", "type": "correo", "req": False, "ex": "contacto@empresa.com",
+         "why": "Correo de contacto de la EMPRESA (no el inicio de sesión de un usuario)."},
+        {"label": "Sitio web", "tech": "website", "type": "url", "req": False, "ex": "https://empresa.com",
+         "why": "Debe iniciar con http:// o https://."},
+        {"label": "Ciudad", "tech": "city", "type": "texto", "req": False, "ex": "Panamá"},
+        {"label": "Provincia", "tech": "province", "type": "texto", "req": False, "ex": "Panamá"},
+        {"label": "Código postal", "tech": "postalCode", "type": "texto", "req": False},
+        {"label": "Dirección", "tech": "addressLine1", "type": "texto", "req": False},
+        {"label": "Descripción", "tech": "description", "type": "área de texto", "req": False,
+         "why": "Contexto libre del tenant."},
+        {"label": "Motivo del cambio", "tech": "changeReason", "type": "texto", "req": False,
+         "why": "Opcional; queda en la auditoría."},
+    ],
+    "branding": [
+        {"label": "Nombre mostrado", "tech": "displayName", "type": "texto", "req": True,
+         "ex": "Alimentos Premium", "why": "Texto de marca en el inicio de sesión y cabeceras."},
+        {"label": "Logo", "tech": "logoUri", "type": "url", "req": False, "ex": "https://empresa.com/logo.png"},
+        {"label": "Favicon", "tech": "faviconUri", "type": "url", "req": False},
+        {"label": "Color primario", "tech": "primaryColor", "type": "color", "req": True, "ex": "#1769aa"},
+        {"label": "Color secundario", "tech": "secondaryColor", "type": "color", "req": True, "ex": "#0f766e"},
+        {"label": "Tema", "tech": "theme", "type": "lista", "req": True, "ex": "Sistema",
+         "why": "Sistema / Claro / Oscuro."},
+        {"label": "Fondo de inicio de sesión", "tech": "loginBackgroundUri", "type": "url", "req": False},
+        {"label": "Correo corporativo", "tech": "corporateEmail", "type": "correo", "req": False},
+        {"label": "Pie de página", "tech": "footerText", "type": "texto", "req": False, "ex": "Compliance 360"},
+    ],
+    "users": [
+        {"label": "Correo del usuario", "tech": "email", "type": "correo", "req": True,
+         "ex": "doccontrol@empresa.com", "why": "Correo de inicio de sesión de la persona. No use el nombre del tenant."},
+        {"label": "Nombre completo", "tech": "fullName", "type": "texto", "req": True,
+         "ex": "Ana López"},
+        {"label": "Contraseña inicial", "tech": "initialPassword", "type": "contraseña", "req": True,
+         "ex": "SecurePass!2026", "why": "Mínimo 12 caracteres: mayúscula, minúscula, número y símbolo."},
+        {"label": "Rol inicial", "tech": "roleId", "type": "lista", "req": False,
+         "ex": "Document Controller", "why": "Para el primer administrador use Tenant Administrator (Administrador del tenant)."},
+        {"label": "Forzar cambio de contraseña en el primer ingreso", "tech": "forcePasswordChange",
+         "type": "casilla", "req": False, "why": "Obliga al usuario a cambiar la clave al entrar."},
+        {"label": "Motivo", "tech": "changeReason", "type": "texto", "req": False, "ex": "Alta operativa desde administración"},
+    ],
+    "rbac_role": [
+        {"label": "Nombre del rol", "tech": "name", "type": "texto", "req": True, "ex": "Quality Manager"},
+        {"label": "Rol de sistema", "tech": "isSystemRole", "type": "casilla", "req": False},
+    ],
+    "rbac_grant": [
+        {"label": "Rol", "tech": "roleId", "type": "lista", "req": True},
+        {"label": "Módulo", "tech": "module", "type": "texto", "req": True, "ex": "TECHNICALSHEET",
+         "why": "Ejemplo para habilitar fichas técnicas: TECHNICALSHEET + CREATE."},
+        {"label": "Acción", "tech": "action", "type": "lista", "req": True, "ex": "Create (Crear)"},
+        {"label": "Descripción", "tech": "description", "type": "texto", "req": True},
+    ],
+    "login": [
+        {"label": "Correo electrónico", "tech": "email", "type": "correo", "req": True,
+         "ex": "tenantadmin@empresa.com", "why": "Identifica sus organizaciones sin GUID de tenant."},
+        {"label": "Organización", "tech": "organizationId", "type": "opción", "req": True,
+         "ex": "Alimentos Premium", "why": "Confirma el tenant al que ingresará."},
+        {"label": "Contraseña", "tech": "password", "type": "contraseña", "req": True,
+         "why": "La contraseña que le asignó el administrador."},
+        {"label": "Recordarme en este dispositivo", "tech": "rememberMe", "type": "casilla", "req": False},
+    ],
+}
+
+WIZARD = [
+    {"id": "w1", "title": "Iniciar sesión", "obj": "Entrar con su correo corporativo (inicio de sesión en 3 pasos).",
+     "press": "Siguiente → Continuar → Iniciar sesión", "fill": "Correo, organización, contraseña",
+     "ok": "Mensaje «Sesión iniciada correctamente» y menú filtrado según su rol.",
+     "err": "Correo o contraseña incorrectos; MFA sin código; organización no encontrada.",
+     "tip": "Verifique que eligió el tenant de su empresa, no la plataforma Compliance 360."},
+    {"id": "w2", "title": "Reconocer el tenant correcto", "obj": "Confirmar que trabaja en su organización.",
+     "press": "Revise el indicador de organización en la barra superior y el nombre comercial.",
+     "fill": "—", "ok": "Nombre e indicador coinciden con su empresa.",
+     "err": "Entró a otro tenant por seleccionar mal la organización al iniciar sesión.",
+     "tip": "Si duda, cierre sesión y vuelva a identificar el correo."},
+    {"id": "w3", "title": "Entender el panel ejecutivo", "obj": "Ver indicadores y accesos rápidos.",
+     "press": "Menú → Panel ejecutivo", "fill": "—",
+     "ok": "Tarjetas de métricas y accesos según permisos.",
+     "err": "Módulos de negocio no aparecen: es normal (el administrador del tenant no opera documentos/CAPA).",
+     "tip": "Usted administra el espacio; los especialistas operan calidad."},
+    {"id": "w4", "title": "Abrir Administración del tenant", "obj": "Entrar al centro de administración.",
+     "press": "Empresa → Administración del tenant", "fill": "—",
+     "ok": "Solo ve las pestañas que su rol puede usar (Información, Branding, Usuarios, Roles, etc.).",
+     "err": "Si no ve Administración del tenant, no tiene los permisos requeridos.",
+     "tip": "Su día a día: Información general, Usuarios, Roles y permisos, Identidad visual."},
+    {"id": "w5", "title": "Completar datos de la empresa", "obj": "Guardar Información general.",
+     "press": "Guardar información general", "fill": "Razón social, RUC, país, moneda…",
+     "ok": "Mensaje de guardado y datos persistidos.",
+     "err": "RUC duplicado, campos obligatorios vacíos, correo inválido.",
+     "tip": "Use Motivo del cambio en auditorías formales."},
+    {"id": "w6", "title": "Crear un usuario especialista", "obj": "Invitar un Controlador de documentos u otro rol.",
+     "press": "Crear / Invitar usuario", "fill": "Correo de la persona, nombre, contraseña fuerte, rol",
+     "ok": "El usuario aparece en la tabla; puede iniciar sesión.",
+     "err": "Contraseña débil; correo inválido.",
+     "tip": "No confunda el correo de la empresa (Información general) con el correo del usuario."},
+    {"id": "w7", "title": "Asignar u otorgar permisos", "obj": "Usar Roles y permisos cuando falte un permiso.",
+     "press": "Crear permiso y otorgar / Asignar rol", "fill": "Ej. TECHNICALSHEET + CREATE",
+     "ok": "Permiso en el catálogo; el usuario debe volver a iniciar sesión.",
+     "err": "Módulo mal escrito; rol no seleccionado.",
+     "tip": "Principio de mínimo privilegio."},
+    {"id": "w8", "title": "Revisar auditoría", "obj": "Verificar que los cambios quedaron registrados.",
+     "press": "Pestaña Auditoría o menú Bitácora de auditoría → Exportar si aplica",
+     "fill": "Filtros de fecha/acción", "ok": "Eventos de cambio visibles en la bitácora.",
+     "err": "Sin eventos: verifique el tenant y el rango de fechas.",
+     "tip": "Exporte evidencia antes de auditorías externas."},
+    {"id": "w9", "title": "Cerrar sesión", "obj": "Salir de forma segura.",
+     "press": "Botón Salir en la barra superior", "fill": "—",
+     "ok": "Vuelve a la pantalla de inicio de sesión.",
+     "err": "—", "tip": "Obligatorio en equipos compartidos."},
+]
+
+SCREENS = [
+    {"id": "login", "cat": "Inicio", "level": "Básico", "kind": "Consulta", "title": "Inicio de sesión (3 pasos)",
+     "route": "#/login", "perm": "Público", "goal": "Identificar la organización e iniciar sesión sin GUID.",
+     "fields_key": "login", "can": True},
+    {"id": "shell", "cat": "Inicio", "level": "Básico", "kind": "Consulta", "title": "Entorno y menú lateral",
+     "route": "#/dashboard", "perm": "Token + permisos", "goal": "Navegar solo por módulos permitidos.",
+     "fields_key": None, "can": True},
+    {"id": "dashboard", "cat": "Inicio", "level": "Básico", "kind": "Consulta", "title": "Panel ejecutivo",
+     "route": "#/dashboard", "perm": "TENANT.READ", "goal": "Ver indicadores del tenant.",
+     "fields_key": None, "can": True},
+    {"id": "tac", "cat": "Administración", "level": "Básico", "kind": "Configuración", "title": "Centro de administración del tenant",
+     "route": "#/tenant-administration", "perm": "TENANT.USERS / ROLES / UPDATE",
+     "goal": "Centro para perfil, usuarios, roles y configuración del tenant.",
+     "fields_key": None, "can": True},
+    {"id": "general", "cat": "Administración", "level": "Básico", "kind": "Edición", "title": "Información general",
+     "route": "#/tenant-administration (pestaña general)", "perm": "TENANT.UPDATE",
+     "goal": "Mantener datos legales y de contacto de la empresa.",
+     "fields_key": "general", "can": True},
+    {"id": "branding", "cat": "Configuración", "level": "Intermedio", "kind": "Edición", "title": "Identidad visual",
+     "route": "#/tenant-administration (pestaña branding)", "perm": "TENANT.BRANDING",
+     "goal": "Identidad visual del inicio de sesión y la marca.",
+     "fields_key": "branding", "can": True},
+    {"id": "users", "cat": "Seguridad", "level": "Básico", "kind": "Creación", "title": "Usuarios",
+     "route": "#/tenant-administration (pestaña users)", "perm": "TENANT.USERS",
+     "goal": "Crear, bloquear y administrar personas del tenant.",
+     "fields_key": "users", "can": True},
+    {"id": "rbac", "cat": "Seguridad", "level": "Intermedio", "kind": "Configuración", "title": "Roles y permisos",
+     "route": "#/tenant-administration (pestaña rbac)", "perm": "RBAC.MANAGE",
+     "goal": "Crear roles, otorgar permisos y asignarlos a usuarios.",
+     "fields_key": "rbac_grant", "can": True},
+    {"id": "licensing", "cat": "Administración", "level": "Avanzado", "kind": "Configuración", "title": "Licenciamiento",
+     "route": "#/tenant-administration (pestaña licensing)", "perm": "TENANT.BILLING",
+     "goal": "Consultar o ajustar el plan y los cupos.", "fields_key": None, "can": True},
+    {"id": "health", "cat": "Monitoreo", "level": "Intermedio", "kind": "Configuración", "title": "Salud y respaldos",
+     "route": "#/tenant-administration (pestaña health)", "perm": "TENANT.HEALTH / BACKUP",
+     "goal": "Salud operativa y registro de respaldos.", "fields_key": None, "can": True},
+    {"id": "audit", "cat": "Monitoreo", "level": "Intermedio", "kind": "Consulta", "title": "Auditoría del tenant",
+     "route": "#/tenant-administration (pestaña audit) / #/audit-trail", "perm": "TENANT.AUDIT / AUDIT.READ",
+     "goal": "Trazar quién hizo qué y cuándo.", "fields_key": None, "can": True},
+]
+
+PAYLOAD = {
+    "version": VERSION,
+    "date": GEN_DATE,
+    "appUrl": APP_URL,
+    "permissions": PERMISSIONS,
+    "navVisible": NAV_VISIBLE,
+    "tacTabs": TAC_TABS,
+    "fields": FIELDS,
+    "wizard": WIZARD,
+    "screens": SCREENS,
+}
+
+
+CSS = r"""
+:root{
+  --bg:#eef2f7;--surface:#fff;--muted:#64748b;--text:#0f172a;--border:#d8e0ea;
+  --accent:#0f4c81;--accent2:#1769aa;--ok:#0f766e;--warn:#b45309;--danger:#b91c1c;
+  --shadow:0 18px 40px rgba(15,23,42,.08);--radius:16px;--sidebar:280px;
+  --grad:linear-gradient(135deg,#0f4c81 0%,#1769aa 45%,#0f766e 100%);
+  font-family:"Segoe UI",system-ui,sans-serif;
+}
+[data-theme=dark]{
+  --bg:#0b1220;--surface:#111827;--muted:#94a3b8;--text:#e2e8f0;--border:#1f2a3d;
+  --shadow:0 18px 40px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top left,rgba(23,105,170,.12),transparent 28rem),var(--bg);color:var(--text)}
+a{color:var(--accent2)}button,input,select,textarea{font:inherit}
+.app{display:grid;grid-template-columns:var(--sidebar) 1fr;min-height:100vh}
+.sidebar{position:sticky;top:0;height:100vh;overflow:auto;background:rgba(255,255,255,.92);border-right:1px solid var(--border);padding:1rem;backdrop-filter:blur(12px)}
+[data-theme=dark] .sidebar{background:rgba(17,24,39,.94)}
+.brand{display:flex;gap:.7rem;align-items:center;margin-bottom:1rem}
+.brand-mark{width:40px;height:40px;border-radius:12px;background:var(--grad);color:#fff;display:grid;place-items:center;font-weight:800;font-size:.75rem}
+.brand strong{display:block;font-size:.92rem}.brand small{color:var(--muted);font-size:.72rem}
+.side-nav{display:grid;gap:.25rem;margin-top:.75rem}
+.side-nav button{text-align:left;border:0;background:transparent;padding:.55rem .7rem;border-radius:10px;color:var(--text);cursor:pointer}
+.side-nav button.active,.side-nav button:hover{background:rgba(23,105,170,.1);color:var(--accent)}
+.progress-wrap{margin:1rem 0;padding:.75rem;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+.progress-bar{height:8px;border-radius:999px;background:var(--border);overflow:hidden;margin-top:.4rem}
+.progress-bar>i{display:block;height:100%;width:0;background:var(--grad);transition:width .3s}
+.main{min-width:0}
+.topbar{position:sticky;top:0;z-index:20;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;padding:.65rem 1rem;background:rgba(255,255,255,.9);border-bottom:1px solid var(--border);backdrop-filter:blur(12px)}
+[data-theme=dark] .topbar{background:rgba(17,24,39,.92)}
+.search{flex:1;min-width:180px;border:1px solid var(--border);border-radius:10px;padding:.55rem .75rem;background:var(--surface);color:var(--text)}
+.chip{font-size:.72rem;padding:.25rem .55rem;border-radius:999px;border:1px solid var(--border);background:var(--surface)}
+.chip.ok{color:var(--ok);border-color:rgba(15,118,110,.3);background:rgba(15,118,110,.08)}
+.chip.warn{color:var(--warn);border-color:rgba(180,83,9,.3);background:rgba(180,83,9,.08)}
+.chip.no{color:var(--danger);border-color:rgba(185,28,28,.3);background:rgba(185,28,28,.08)}
+.btn{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:.5rem .85rem;cursor:pointer;font-weight:600;color:var(--text)}
+.btn.primary{background:var(--grad);border-color:var(--accent);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.content{padding:1.25rem 1.5rem 3rem;max-width:1180px}
+.view{display:none}.view.active{display:block;animation:in .35s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.hero{border-radius:calc(var(--radius) + 6px);padding:2.5rem 2rem;background:var(--grad);color:#fff;box-shadow:var(--shadow);margin-bottom:1.25rem}
+.hero h1{margin:0 0 .5rem;font-size:1.85rem;letter-spacing:-.02em}
+.hero p{margin:0;opacity:.92;line-height:1.55;max-width:52rem}
+.grid{display:grid;gap:1rem}.grid.two{grid-template-columns:1fr 1fr}.grid.three{grid-template-columns:repeat(3,1fr)}
+@media(max-width:980px){.app{grid-template-columns:1fr}.sidebar{position:relative;height:auto}.grid.two,.grid.three{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem;box-shadow:var(--shadow)}
+.card h3{margin:0 0 .4rem;font-size:1rem;color:var(--accent)}
+.card p,.muted{color:var(--muted);font-size:.88rem;line-height:1.55}
+.simple{background:linear-gradient(135deg,#f8faff,#eef6ff);border-left:4px solid var(--accent2);border-radius:0 12px 12px 0;padding:1rem;margin:1rem 0}
+[data-theme=dark] .simple{background:rgba(23,105,170,.12)}
+.filters{display:flex;flex-wrap:wrap;gap:.4rem;margin:1rem 0}
+.filters button{font-size:.75rem}.filters button.active{background:var(--accent2);color:#fff;border-color:var(--accent2)}
+.mock{border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--bg);margin:1rem 0}
+.mock-bar{display:flex;gap:.4rem;align-items:center;padding:.55rem .75rem;background:var(--surface);border-bottom:1px solid var(--border);font-size:.75rem}
+.mock-body{display:grid;grid-template-columns:210px 1fr;min-height:320px}
+.mock-side{background:var(--surface);border-right:1px solid var(--border);padding:.75rem;font-size:.78rem}
+.mock-side .navi{display:block;padding:.4rem .5rem;border-radius:8px;margin:.15rem 0}
+.mock-side .navi.on{background:rgba(23,105,170,.12);font-weight:700;color:var(--accent)}
+.mock-main{padding:1rem}
+.field{display:grid;gap:.25rem;margin-bottom:.65rem;font-size:.82rem}
+.field label{font-weight:650}.field input,.field select,.field textarea{border:1px solid var(--border);border-radius:8px;padding:.45rem .55rem;background:var(--surface);color:var(--text)}
+.field small{color:var(--muted);font-size:.72rem}
+.hot{outline:2px solid #d4af37;outline-offset:2px;border-radius:8px;animation:pulse 1.6s infinite}
+@keyframes pulse{50%{outline-color:transparent}}
+.marker{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:.65rem;font-weight:800;margin-right:.35rem}
+.callout{display:grid;gap:.55rem;margin-top:.75rem}
+.callout article{border:1px solid var(--border);border-radius:10px;padding:.7rem;background:var(--surface);cursor:pointer}
+.callout article.active{border-color:var(--accent2);box-shadow:inset 3px 0 0 var(--accent2)}
+.table{width:100%;border-collapse:collapse;font-size:.8rem}
+.table th,.table td{border:1px solid var(--border);padding:.45rem .55rem;text-align:left}
+.table th{background:rgba(23,105,170,.06);font-size:.7rem;text-transform:uppercase;color:var(--muted)}
+.toast{position:fixed;right:1rem;bottom:1rem;z-index:50;background:#ecfdf5;border:1px solid #86efac;color:var(--ok);padding:.7rem 1rem;border-radius:12px;box-shadow:var(--shadow);display:none}
+.toast.show{display:block;animation:in .3s ease}
+.toast.err{background:#fef2f2;border-color:#fecaca;color:var(--danger)}
+.wizard-nav{display:flex;gap:.5rem;align-items:center;margin-top:1rem}
+.steps-dots{display:flex;gap:.3rem;flex-wrap:wrap;margin:.75rem 0}
+.steps-dots span{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);display:grid;place-items:center;font-size:.65rem;font-weight:800;cursor:pointer;background:var(--surface)}
+.steps-dots span.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.steps-dots span.done{background:var(--ok);color:#fff;border-color:var(--ok)}
+.badge-can{display:inline-flex;align-items:center;gap:.25rem}
+.done-check{accent-color:var(--ok)}
+.footer-note{margin-top:2rem;padding:1rem;border-top:1px solid var(--border);font-size:.8rem;color:var(--muted)}
+.cover-actions{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1.25rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.6rem;margin-top:1rem}
+.stat{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:12px;padding:.75rem}
+.stat b{display:block;font-size:1.25rem}
+"""
+
+
+def main() -> None:
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    data_json = json.dumps(PAYLOAD, ensure_ascii=False)
+    html = f"""<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Manual interactivo — Administrador del Tenant | Compliance 360</title>
+<style>{CSS}</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">C360</div>
+      <div><strong>Compliance 360</strong><small>Manual · Administrador del Tenant</small></div>
+    </div>
+    <div class="progress-wrap">
+      <div style="display:flex;justify-content:space-between;font-size:.75rem"><span>Progreso</span><span id="progText">0%</span></div>
+      <div class="progress-bar"><i id="progBar"></i></div>
+    </div>
+    <nav class="side-nav" id="sideNav"></nav>
+    <p style="font-size:.7rem;color:var(--muted);margin-top:1rem;line-height:1.4">v{VERSION} · {GEN_DATE}<br>HTML autocontenido · sin servidor</p>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <input class="search" id="searchBox" placeholder="Buscar pantalla, campo o acción…" aria-label="Buscar"/>
+      <select id="filterLevel" class="btn" title="Nivel"><option value="">Nivel: todos</option><option>Básico</option><option>Intermedio</option><option>Avanzado</option></select>
+      <select id="filterKind" class="btn" title="Tipo"><option value="">Tipo: todos</option><option>Consulta</option><option>Creación</option><option>Edición</option><option>Seguridad</option><option>Configuración</option></select>
+      <button type="button" class="btn" id="btnTheme">Tema</button>
+      <button type="button" class="btn" id="btnReset">Reiniciar progreso</button>
+      <span class="chip ok">Simulación · no conecta al sistema real</span>
+    </header>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const DATA = {data_json};
+const KEY = 'c360.ta.manual.v1';
+let state = {{ view:'cover', wizard:0, done:{{}}, marker:null }};
+
+function load(){{ try{{ Object.assign(state, JSON.parse(localStorage.getItem(KEY)||'{{}}')); }}catch(e){{}} }}
+function save(){{ localStorage.setItem(KEY, JSON.stringify({{ view:state.view, wizard:state.wizard, done:state.done }})); updateProgress(); }}
+
+function toast(msg, err){{
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show'+(err?' err':'');
+  setTimeout(()=>t.classList.remove('show'), 3200);
+}}
+
+function esc(s){{ const d=document.createElement('div'); d.textContent=s??''; return d.innerHTML; }}
+
+function updateProgress(){{
+  const total = DATA.screens.length + DATA.wizard.length + 3;
+  const n = Object.keys(state.done).filter(k=>state.done[k]).length;
+  const pct = Math.min(100, Math.round(n*100/total));
+  document.getElementById('progText').textContent=pct+'%';
+  document.getElementById('progBar').style.width=pct+'%';
+}}
+
+function markDone(id){{ state.done[id]=true; save(); }}
+
+function navItems(){{
+  return [
+    {{id:'cover', label:'Portada'}},
+    {{id:'welcome', label:'Bienvenida'}},
+    {{id:'map', label:'Mapa del sistema'}},
+    {{id:'wizard', label:'Recorrido guiado'}},
+    ...DATA.screens.map(s=>({{id:s.id, label:s.title}})),
+    {{id:'summary', label:'Resumen de cobertura'}},
+  ];
+}}
+
+function renderNav(){{
+  document.getElementById('sideNav').innerHTML = navItems().map(i=>`
+    <button type="button" data-view="${{i.id}}" class="${{state.view===i.id?'active':''}}">
+      ${{state.done[i.id]?'✓ ':''}}${{esc(i.label)}}
+    </button>`).join('');
+  document.querySelectorAll('#sideNav button').forEach(b=>b.onclick=()=>go(b.dataset.view));
+}}
+
+function go(id){{
+  state.view=id; save(); renderNav(); renderView();
+  document.getElementById('content').scrollTop=0; window.scrollTo(0,0);
+}}
+
+function mockShell(active, body){{
+  const nav = DATA.navVisible.map(n=>`<span class="navi ${{n.route===active?'on':''}}">${{esc(n.label)}}</span>`).join('');
+  return `<div class="mock"><div class="mock-bar"><strong>Compliance 360</strong><span class="chip">Organización: Alimentos Premium</span><span style="margin-left:auto" class="btn" style="padding:.2rem .5rem;font-size:.7rem">Salir</span></div>
+  <div class="mock-body"><aside class="mock-side"><div style="font-size:.65rem;color:var(--muted);margin-bottom:.35rem">CENTRO DE COMANDO / EMPRESA</div>${{nav}}</aside><div class="mock-main">${{body}}</div></div></div>`;
+}}
+
+function fieldsTable(key){{
+  const rows=(DATA.fields[key]||[]);
+  if(!rows.length) return '';
+  return `<div class="card"><h3>Explicación de los campos</h3>
+  <table class="table"><thead><tr><th>Campo</th><th>Tipo</th><th>Obligatorio</th><th>Ejemplo</th><th>Para qué sirve</th></tr></thead>
+  <tbody>${{rows.map(f=>`<tr><td><strong>${{esc(f.label)}}</strong><br><code style="font-size:.65rem">${{esc(f.tech||'')}}</code></td>
+  <td>${{esc(f.type)}}</td><td>${{f.req?'Sí *':'Opcional'}}</td><td><code>${{esc(f.ex||'—')}}</code></td>
+  <td>${{esc(f.why||f.fmt||'—')}}</td></tr>`).join('')}}</tbody></table></div>`;
+}}
+
+function screenCard(s){{
+  const q = (document.getElementById('searchBox').value||'').toLowerCase();
+  const lv = document.getElementById('filterLevel').value;
+  const kd = document.getElementById('filterKind').value;
+  if(lv && s.level!==lv) return '';
+  if(kd && s.kind!==kd) return '';
+  const blob = (s.title+' '+s.goal+' '+s.route+' '+(s.perm||'')).toLowerCase();
+  if(q && !blob.includes(q) && !(DATA.fields[s.fields_key]||[]).some(f=>(f.label+f.tech).toLowerCase().includes(q))) return '';
+  return `<article class="card" style="cursor:pointer" data-go="${{s.id}}">
+    <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.35rem">
+      <span class="chip">${{esc(s.cat)}}</span><span class="chip">${{esc(s.level)}}</span>
+      <span class="chip ${{s.can?'ok':'no'}}">${{s.can?'Puede operar':'Límite / separación de deberes'}}</span>
+    </div>
+    <h3>${{esc(s.title)}}</h3>
+    <p>${{esc(s.goal)}}</p>
+    <p><code>${{esc(s.route)}}</code></p>
+    <button type="button" class="btn primary" style="margin-top:.5rem">Ver guía</button>
+  </article>`;
+}}
+
+function renderCover(){{
+  markDone('cover');
+  return `<section class="hero">
+    <span class="chip" style="background:rgba(255,255,255,.2);border-color:transparent;color:#fff">Compliance 360 Empresarial</span>
+    <h1>Manual interactivo del Administrador del Tenant</h1>
+    <p>Guía paso a paso para administrar el espacio de trabajo de su organización — dirigida a personas que ingresan por primera vez, sin jerga innecesaria.</p>
+    <div class="stats">
+      <div class="stat"><b>${{DATA.screens.length}}</b><span>Pantallas</span></div>
+      <div class="stat"><b>${{DATA.tacTabs.length}}</b><span>Pestañas</span></div>
+      <div class="stat"><b>${{DATA.permissions.length}}</b><span>Permisos</span></div>
+      <div class="stat"><b>${{DATA.wizard.length}}</b><span>Pasos del recorrido</span></div>
+    </div>
+    <div class="cover-actions">
+      <button type="button" class="btn primary" id="btnStart">Comenzar recorrido</button>
+      <button type="button" class="btn" data-go="map">Ver mapa del sistema</button>
+    </div>
+    <p style="margin-top:1rem;font-size:.8rem;opacity:.85">Versión ${{DATA.version}} · Generado el ${{DATA.date}} · Basado en el código real del sistema</p>
+  </section>
+  <div class="simple"><strong>En palabras sencillas</strong><p style="margin:.4rem 0 0;color:inherit">
+  El <em>Administrador del Tenant</em> (rol «Tenant Administrator» en el sistema) es la persona responsable de configurar y administrar el espacio de trabajo de <em>su</em> organización:
+  usuarios, roles, datos de la empresa e identidad visual. No administra otras organizaciones ni la plataforma global, y por defecto no opera
+  documentos, CAPA ni otros módulos de calidad (eso lo hacen los especialistas).</p></div>`;
+}}
+
+function renderWelcome(){{
+  markDone('welcome');
+  return `<div class="card"><h3>Bienvenida</h3>
+  <div class="simple"><strong>¿Qué es un tenant?</strong><p style="margin:.35rem 0 0">Es el espacio aislado de su empresa dentro de Compliance 360. Sus datos no se mezclan con los de otros clientes.</p></div>
+  <h3 style="margin-top:1rem">Qué controla usted</h3>
+  <ul style="line-height:1.7;font-size:.9rem">
+    <li>Datos generales e identidad visual del tenant.</li>
+    <li>Usuarios: crear, desactivar, desbloquear y cerrar sesiones.</li>
+    <li>Roles y permisos de acceso.</li>
+    <li>Licenciamiento (si tiene el permiso correspondiente).</li>
+    <li>Salud / respaldos y auditoría del tenant.</li>
+  </ul>
+  <h3>Qué NO controla (otro rol lo hace; ya no aparece en su menú)</h3>
+  <ul style="line-height:1.7;font-size:.9rem">
+    <li>Seguridad avanzada, SSO, dominios, claves de API, webhooks → Administrador de seguridad del tenant.</li>
+    <li>Almacenamiento / correo SMTP → administradores especializados.</li>
+    <li>Estado del tenant (activar/archivar) → Administrador de plataforma.</li>
+    <li>Documentos, CAPA, riesgos → roles operativos de calidad.</li>
+  </ul>
+  <div class="card" style="margin-top:1rem;background:rgba(180,83,9,.06)"><strong>Antes de comenzar</strong>
+  <p class="muted">Use la aplicación real en <code>${{esc(DATA.appUrl)}}</code> después de practicar aquí. Las contraseñas de demostración están en <code>e2e/testdata.json</code>. Si el tenant está en Borrador, pida su activación.</p></div>
+  <button type="button" class="btn primary" data-go="map" style="margin-top:1rem">Ir al mapa →</button></div>`;
+}}
+
+function renderMap(){{
+  markDone('map');
+  return `<h2>Mapa de lo que usted puede usar</h2>
+  <p class="muted">Solo aparece lo que su rol puede operar. La aplicación ahora oculta pestañas y menús ajenos a sus permisos.</p>
+  <h3 style="margin:1rem 0 .5rem">Menú disponible</h3>
+  <div class="grid three">${{DATA.navVisible.map(n=>`<div class="card"><h3>${{esc(n.label)}}</h3><p>${{esc(n.g)}} · <code>#/${{n.route}}</code>${{n.ui?`<br><span class="muted">En la app: ${{esc(n.ui)}}</span>`:''}}</p></div>`).join('')}}</div>
+  <h3 style="margin:1.25rem 0 .5rem">Pestañas del centro de administración</h3>
+  <div class="grid two" id="mapCards">${{DATA.tacTabs.map(t=>`
+    <article class="card">
+      <div class="badge-can"><span class="chip ok">Puede usar</span>
+      <span class="chip">${{esc(t.importance)}}</span></div>
+      <h3 style="margin-top:.5rem">${{esc(t.label)}}</h3>
+      <p>Permiso: <code>${{esc(t.perm)}}</code><br>Uso: ${{esc(t.freq)}}</p>
+      <button type="button" class="btn" data-go="${{t.key}}">Ver guía</button>
+    </article>`).join('')}}</div>
+  <div class="grid two" id="screenGrid" style="margin-top:1rem">${{DATA.screens.map(screenCard).join('')}}</div>
+  <button type="button" class="btn primary" data-go="wizard" style="margin-top:1rem">Iniciar recorrido guiado →</button>`;
+}}
+
+function renderWizard(){{
+  const i = Math.max(0, Math.min(DATA.wizard.length-1, state.wizard|0));
+  const w = DATA.wizard[i];
+  markDone('wizard'); markDone(w.id);
+  const mock = mockShell('tenant-administration', `<div class="card"><h3>Paso ${{i+1}}: ${{esc(w.title)}}</h3>
+    <p>${{esc(w.obj)}}</p>
+    <div class="field hot"><label>Qué debe pulsar</label><input readonly value="${{esc(w.press)}}"/></div>
+    <div class="field"><label>Qué debe completar</label><input readonly value="${{esc(w.fill)}}"/></div>
+    <button type="button" class="btn primary" onclick="toast('Simulación: resultado esperado alcanzado')">Simular éxito</button>
+    <button type="button" class="btn" onclick="toast('Simulación de error frecuente', true)">Simular error</button>
+  </div>`);
+  return `<h2>Recorrido guiado</h2>
+  <div class="steps-dots">${{DATA.wizard.map((_,n)=>`<span class="${{n===i?'on':n<i?'done':''}}" data-w="${{n}}">${{n+1}}</span>`).join('')}}</div>
+  ${{mock}}
+  <div class="grid two">
+    <div class="card"><h3>Resultado esperado</h3><p>${{esc(w.ok)}}</p></div>
+    <div class="card"><h3>Errores frecuentes</h3><p>${{esc(w.err)}}</p></div>
+  </div>
+  <div class="simple"><strong>Recomendación</strong><p style="margin:.35rem 0 0">${{esc(w.tip)}}</p></div>
+  <div class="wizard-nav">
+    <button type="button" class="btn" id="wizPrev" ${{i===0?'disabled':''}}>← Anterior</button>
+    <span class="muted">Paso ${{i+1}} de ${{DATA.wizard.length}}</span>
+    <button type="button" class="btn primary" id="wizNext">${{i>=DATA.wizard.length-1?'Finalizar':'Siguiente →'}}</button>
+  </div>`;
+}}
+
+function renderScreen(s){{
+  markDone(s.id);
+  let body = '';
+  if(s.id==='login'){{
+    body = `<div class="card" style="max-width:380px"><span class="product-badge chip">Inicio de sesión empresarial</span>
+      <h3>Compliance 360</h3>
+      <div class="field hot"><label>1 Correo electrónico</label><input value="tenantadmin@empresa.com" readonly/><small>Pulse Siguiente</small></div>
+      <div class="field"><label>2 Organización</label><input value="Alimentos Premium" readonly/></div>
+      <div class="field"><label>3 Contraseña</label><input type="password" value="••••••••••••" readonly/></div>
+      <button class="btn primary" type="button" onclick="toast('Sesión iniciada correctamente (simulado)')">Iniciar sesión</button></div>`;
+  }} else if(s.id==='users'){{
+    body = mockShell('tenant-administration', `<h3>Administración de usuarios</h3>
+      <p class="muted">Crear, bloquear, desbloquear y cerrar sesiones. Restablecer MFA requiere otro rol.</p>
+      <form class="grid two" onsubmit="event.preventDefault();toast('Usuario creado (simulado)')">
+        <div class="field hot"><label>Correo del usuario</label><input value="doccontrol@empresa.com"/></div>
+        <div class="field"><label>Nombre completo</label><input value="Ana López"/></div>
+        <div class="field"><label>Contraseña inicial</label><input type="password" value="SecurePass!2026"/></div>
+        <div class="field"><label>Rol inicial</label><select><option>Document Controller (Controlador de documentos)</option><option selected>Tenant Administrator (Administrador del tenant)</option></select></div>
+        <button class="btn primary" type="submit">Crear / Invitar usuario</button>
+      </form>
+      <table class="table" style="margin-top:1rem"><thead><tr><th>Correo</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody><tr><td>doccontrol@empresa.com</td><td>Activo</td><td>
+        <button class="btn" type="button" onclick="toast('Usuario desbloqueado (simulado)')">Desbloquear</button>
+        <button class="btn" type="button" onclick="toast('Usuario desactivado (simulado)')">Desactivar</button>
+        <button class="btn" type="button" onclick="toast('Sesiones cerradas (simulado)')">Cerrar sesiones</button>
+      </td></tr></tbody></table>`);
+  }} else if(s.id==='general'){{
+    body = mockShell('tenant-administration', `<h3>Información general</h3>
+      <div class="grid two">
+        <div class="field hot"><label>Nombre del tenant</label><input value="Alimentos Premium"/></div>
+        <div class="field"><label>Razón social</label><input value="Alimentos Premium Panama, S.A."/></div>
+        <div class="field"><label>RUC / identificación fiscal</label><input value="RUC-155999999-2-2026"/></div>
+        <div class="field"><label>País</label><select><option>Panamá</option></select></div>
+        <div class="field"><label>Correo de la empresa</label><input value="contacto@empresa.com"/><small>No es el inicio de sesión del usuario</small></div>
+      </div>
+      <button class="btn primary" type="button" onclick="toast('Información general guardada (simulado)')">Guardar información general</button>`);
+  }} else if(s.id==='rbac'){{
+    body = mockShell('tenant-administration', `<h3>Roles y permisos</h3>
+      <div class="grid two">
+        <div class="card"><h3>Crear rol</h3><div class="field"><label>Nombre del rol</label><input value="Quality Manager"/></div>
+        <button class="btn primary" type="button" onclick="toast('Rol creado (simulado)')">Crear rol</button></div>
+        <div class="card"><h3>Crear permiso y otorgarlo</h3>
+          <div class="field hot"><label>Módulo</label><input value="TECHNICALSHEET"/></div>
+          <div class="field"><label>Acción</label><select><option>Create (Crear)</option><option>Read (Ver)</option><option>Update (Editar)</option></select></div>
+          <button class="btn primary" type="button" onclick="toast('Permiso otorgado. El usuario debe volver a iniciar sesión.')">Crear permiso y otorgar</button></div>
+      </div>`);
+  }} else if(s.id==='forbidden'){{
+    body = `<div class="card"><p>Esta sección ya no forma parte del recorrido de su rol.</p></div>`;
+  }} else if(s.id==='audit'){{
+    body = mockShell('audit-trail', `<h3>Auditoría / bitácora</h3>
+      <div class="grid two"><div class="field"><label>Filtro de acción</label><select><option>Cambio en el tenant</option><option>Usuario creado</option><option>Rol asignado</option></select></div>
+      <div class="field"><label>Usuario</label><input value="tenantadmin@empresa.com"/></div></div>
+      <table class="table"><thead><tr><th>Fecha/hora</th><th>Actor</th><th>Acción</th><th>Detalle</th><th>IP</th></tr></thead>
+      <tbody>
+        <tr><td>2026-07-13 18:02</td><td>tenantadmin@…</td><td>Usuario creado</td><td>doccontrol@empresa.com</td><td>190.34.x.x</td></tr>
+        <tr><td>2026-07-13 17:55</td><td>tenantadmin@…</td><td>Tenant modificado</td><td>Información general</td><td>190.34.x.x</td></tr>
+        <tr><td>2026-07-12 09:10</td><td>platform@…</td><td>Tenant activado</td><td>Borrador → Activo</td><td>—</td></tr>
+      </tbody></table>
+      <button class="btn primary" type="button" onclick="toast('Exportación simulada (evidencia)')">Exportar evidencia</button>
+      <p class="muted" style="margin-top:.5rem">La IP y la hora ayudan a correlacionar incidencias. Usted consulta; no puede borrar la bitácora.</p>`);
+  }} else if(s.id==='branding'){{
+    body = mockShell('tenant-administration', `<h3>Identidad visual</h3>
+      <div class="grid two">
+        <div class="field hot"><label>Nombre mostrado</label><input value="Alimentos Premium"/></div>
+        <div class="field"><label>Color primario</label><input type="color" value="#1769aa"/></div>
+        <div class="field"><label>Color secundario</label><input type="color" value="#0f766e"/></div>
+        <div class="field"><label>Tema</label><select><option>Sistema</option><option>Claro</option><option>Oscuro</option></select></div>
+      </div>
+      <button class="btn primary" type="button" onclick="toast('Identidad visual guardada (simulado)')">Guardar identidad visual</button>
+      <p class="muted">Afecta a todos los usuarios del tenant. Puede requerir actualizar el navegador.</p>`);
+  }} else if(s.id==='shell' || s.id==='dashboard' || s.id==='tac' || s.id==='health' || s.id==='licensing'){{
+    const active = s.id==='dashboard'||s.id==='shell'?'dashboard':'tenant-administration';
+    body = mockShell(active, `<div class="card"><h3>${{esc(s.title)}}</h3><p class="muted">${{esc(s.goal)}}</p>
+      <p>Ruta: <code>${{esc(s.route)}}</code> · Permiso: <code>${{esc(s.perm)}}</code></p>
+      <button class="btn primary" type="button" onclick="toast('Acción simulada correcta')">Probar acción principal</button></div>`);
+  }} else {{
+    body = `<div class="card"><p>${{esc(s.goal)}}</p></div>`;
+  }}
+
+  const markers = [
+    {{n:1,t:'Menú lateral filtrado por permisos'}},
+    {{n:2,t:'Indicador de la organización activa'}},
+    {{n:3,t:'Acción principal (botón destacado)'}},
+    {{n:4,t:'Campos obligatorios resaltados en la guía'}},
+  ];
+
+  return `<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem">
+    <span class="chip">${{esc(s.cat)}}</span><span class="chip">${{esc(s.level)}}</span>
+    <span class="chip ${{s.can?'ok':'no'}}">${{s.can?'Puede operar':'Límite por separación de deberes'}}</span>
+    <label style="font-size:.8rem;margin-left:auto"><input type="checkbox" class="done-check" ${{state.done[s.id+'_read']?'checked':''}} data-mark="${{s.id}}_read"/> Completé esta sección</label>
+  </div>
+  <h2>${{esc(s.title)}}</h2>
+  <p class="muted"><strong>Objetivo:</strong> ${{esc(s.goal)}} · <code>${{esc(s.route)}}</code></p>
+  <div class="simple"><strong>¿Para qué sirve?</strong><p style="margin:.35rem 0 0">${{esc(s.goal)}} La usa el Administrador del Tenant (o roles con los mismos permisos). Resultado: datos o accesos del tenant actualizados o consultados.</p></div>
+  <h3>Vista recreada</h3>${{body}}
+  <div class="callout" id="markers">${{markers.map(m=>`<article data-m="${{m.n}}"><span class="marker">${{m.n}}</span><strong>${{esc(m.t)}}</strong></article>`).join('')}}</div>
+  ${{s.fields_key?fieldsTable(s.fields_key):''}}
+  <div class="card" style="margin-top:1rem"><h3>Botones típicos</h3>
+    <table class="table"><thead><tr><th>Botón</th><th>Acción</th><th>Resultado</th><th>Riesgo</th></tr></thead><tbody>
+      <tr><td>Guardar / Crear</td><td>Persiste en el sistema real</td><td>Mensaje de éxito + auditoría</td><td>Bajo si revisa los datos</td></tr>
+      <tr><td>Desactivar</td><td>Restringe el acceso</td><td>El usuario no puede entrar</td><td>Medio — confirme la identidad</td></tr>
+      <tr><td>Restablecer MFA</td><td>Solo con permiso de seguridad</td><td>Error 403 para este rol</td><td>—</td></tr>
+      <tr><td>Salir</td><td>Cierra la sesión</td><td>Vuelve al inicio de sesión</td><td>Ninguno</td></tr>
+    </tbody></table></div>
+  <div class="card" style="margin-top:1rem"><h3>Procedimiento paso a paso</h3>
+    <ol style="font-size:.88rem;line-height:1.7;margin:0;padding-left:1.2rem">
+      <li>Confirme la organización activa en la barra superior.</li>
+      <li>Abra Empresa → Administración del tenant (o la ruta de esta pantalla).</li>
+      <li>Complete o revise los campos documentados arriba.</li>
+      <li>Pulse la acción principal (Guardar / Crear / Exportar).</li>
+      <li>Espere el mensaje de éxito o corrija el mensaje de error.</li>
+      <li>Verifique el listado, el detalle o la pestaña Auditoría.</li>
+    </ol>
+    <p class="muted" style="margin-top:.6rem">Resultado esperado: mensaje de éxito y cambio visible; en la aplicación real, el evento queda en auditoría.</p>
+  </div>
+  ${{s.id==='users'?`<div class="card" style="margin-top:1rem"><h3>Escenarios de usuario (simulados)</h3>
+    <table class="table"><thead><tr><th>Escenario</th><th>Qué verá</th><th>Qué hacer</th></tr></thead><tbody>
+      <tr><td>Activo</td><td>Estado Activo</td><td>Puede Desactivar / Cerrar sesiones</td></tr>
+      <tr><td>Inactivo</td><td>Estado Desactivado</td><td>Desbloquear (activar de nuevo)</td></tr>
+      <tr><td>Pendiente del primer ingreso</td><td>Debe cambiar contraseña</td><td>Entregar la contraseña de forma segura</td></tr>
+      <tr><td>Bloqueado por intentos fallidos</td><td>Bloqueo</td><td>Desbloquear</td></tr>
+      <tr><td>Sin rol</td><td>Tabla de roles vacía</td><td>Asignar rol en Roles y permisos</td></tr>
+      <tr><td>Restablecer MFA</td><td>Botón visible</td><td>Error 403 → escalar a Administrador de seguridad</td></tr>
+    </tbody></table></div>`:''}}
+  ${{s.id==='rbac'?`<div class="card" style="margin-top:1rem"><h3>Matriz conceptual de permisos</h3>
+    <table class="table"><thead><tr><th>Módulo</th><th>Ver</th><th>Crear</th><th>Editar</th><th>Eliminar</th><th>Exportar</th><th>Administrar</th></tr></thead>
+    <tbody>
+      <tr><td>Tenant (general)</td><td>✓</td><td>—</td><td>✓</td><td>—</td><td>—</td><td>TENANT.UPDATE</td></tr>
+      <tr><td>Usuarios</td><td>✓</td><td>✓</td><td>estado</td><td>—</td><td>—</td><td>TENANT.USERS</td></tr>
+      <tr><td>Roles y permisos</td><td>✓</td><td>✓</td><td>asignar</td><td>—</td><td>—</td><td>RBAC.MANAGE</td></tr>
+      <tr><td>Auditoría</td><td>✓</td><td>—</td><td>—</td><td>—</td><td>✓</td><td>TENANT.AUDIT</td></tr>
+      <tr><td>Seguridad / SSO</td><td>vista</td><td>✗</td><td>✗</td><td>✗</td><td>—</td><td>otro rol</td></tr>
+      <tr><td>Fichas técnicas*</td><td>según permiso</td><td>otorgable</td><td>otorgable</td><td>otorgable</td><td>—</td><td>otorgable aquí</td></tr>
+    </tbody></table>
+    <p class="muted">* Ejemplo: si un especialista necesita fichas técnicas, otorgue TECHNICALSHEET + CREATE/UPDATE.</p></div>`:''}}
+  <div class="grid two" style="margin-top:1rem">
+    <div class="card"><h3>Errores frecuentes</h3><ul style="font-size:.85rem;line-height:1.6;margin:0;padding-left:1.1rem">
+      <li>Campos obligatorios vacíos</li><li>Correo inválido / RUC duplicado</li>
+      <li>Contraseña débil (menos de 12 caracteres o sin símbolo)</li><li>Error 403: pestaña de otro rol</li>
+      <li>Sesión expirada → vuelva a iniciar sesión</li><li>Tenant en borrador: pida activación al Administrador de plataforma</li>
+    </ul></div>
+    <div class="card"><h3>Buenas prácticas</h3><ul style="font-size:.85rem;line-height:1.6;margin:0;padding-left:1.1rem">
+      <li>Verificar siempre la organización activa</li><li>Mínimo privilegio al asignar roles</li>
+      <li>No compartir contraseñas iniciales por chat abierto</li><li>Motivo del cambio en cambios sensibles</li>
+      <li>Revisar auditoría tras altas de usuarios</li><li>Cerrar sesión en equipos compartidos</li>
+    </ul></div>
+  </div>
+  <div class="wizard-nav"><button type="button" class="btn" data-go="map">← Mapa</button>
+  <button type="button" class="btn primary" data-go="summary">Ver resumen →</button></div>`;
+}}
+
+function renderSummary(){{
+  markDone('summary');
+  const fields = Object.values(DATA.fields).reduce((n,a)=>n+a.length,0);
+  return `<section class="hero"><h1>Resumen de cobertura</h1>
+  <p>Manual basado en el código real de Compliance 360. La carpeta «NuevoAnalisis/backoffice-web» no existe en este repositorio.</p>
+  <div class="stats">
+    <div class="stat"><b>${{DATA.screens.length}}</b>Pantallas</div>
+    <div class="stat"><b>${{DATA.tacTabs.length}}</b>Pestañas</div>
+    <div class="stat"><b>${{fields}}</b>Campos documentados</div>
+    <div class="stat"><b>${{DATA.permissions.length}}</b>Permisos</div>
+    <div class="stat"><b>${{DATA.wizard.length}}</b>Pasos del recorrido</div>
+    <div class="stat"><b>${{DATA.tacTabs.filter(t=>t.can).length}}</b>Pestañas operables</div>
+  </div></section>
+  <div class="card"><h3>Archivos generados</h3>
+  <ul style="font-size:.88rem;line-height:1.7">
+    <li><code>docs/tenant-administrator-manual/index.html</code></li>
+    <li><code>analysis/TENANT_ADMIN_SCREEN_INVENTORY.md</code></li>
+    <li><code>analysis/TENANT_ADMIN_PERMISSION_MATRIX.md</code></li>
+    <li><code>analysis/TENANT_ADMIN_TRACEABILITY.md</code></li>
+    <li><code>README.md</code></li>
+  </ul></div>
+  <div class="card" style="margin-top:1rem"><h3>Limitaciones encontradas</h3>
+  <ul style="font-size:.88rem;line-height:1.7">
+    <li>La aplicación filtra pestañas y menús por permiso de rol (ya no muestra API Keys ni SSO a este rol).</li>
+    <li>Este HTML es capacitación simulada: no guarda datos reales.</li>
+  </ul></div>
+  <div class="simple"><strong>Veredicto</strong><p style="margin:.35rem 0 0">Cobertura orientada solo a lo operable por el Administrador del Tenant.</p></div>`;
+}}
+
+function renderView(){{
+  const root=document.getElementById('content');
+  const s = DATA.screens.find(x=>x.id===state.view);
+  let html='';
+  if(state.view==='cover') html=renderCover();
+  else if(state.view==='welcome') html=renderWelcome();
+  else if(state.view==='map') html=renderMap();
+  else if(state.view==='wizard') html=renderWizard();
+  else if(state.view==='summary') html=renderSummary();
+  else if(s) html=renderScreen(s);
+  else html=renderCover();
+  root.innerHTML=html;
+  bindDynamic();
+}}
+
+function bindDynamic(){{
+  document.querySelectorAll('[data-go]').forEach(el=>el.addEventListener('click',()=>go(el.getAttribute('data-go'))));
+  document.getElementById('btnStart')?.addEventListener('click',()=>go('welcome'));
+  document.getElementById('wizPrev')?.addEventListener('click',()=>{{ state.wizard=Math.max(0,state.wizard-1); save(); renderView(); }});
+  document.getElementById('wizNext')?.addEventListener('click',()=>{{
+    if(state.wizard>=DATA.wizard.length-1) go('summary');
+    else {{ state.wizard++; save(); renderView(); }}
+  }});
+  document.querySelectorAll('[data-w]').forEach(d=>d.addEventListener('click',()=>{{ state.wizard=+d.dataset.w; save(); renderView(); }}));
+  document.querySelectorAll('[data-mark]').forEach(c=>c.addEventListener('change',()=>{{ state.done[c.dataset.mark]=c.checked; save(); renderNav(); }}));
+  document.querySelectorAll('#markers article').forEach(a=>a.addEventListener('click',()=>{{
+    document.querySelectorAll('#markers article').forEach(x=>x.classList.remove('active')); a.classList.add('active');
+  }}));
+}}
+
+document.getElementById('btnTheme').onclick=()=>{{
+  const cur=document.documentElement.getAttribute('data-theme')==='dark'?'':'dark';
+  document.documentElement.setAttribute('data-theme',cur);
+}};
+document.getElementById('btnReset').onclick=()=>{{ if(confirm('¿Reiniciar progreso?')){{ state.done={{}}; state.wizard=0; save(); renderNav(); renderView(); toast('Progreso reiniciado'); }}}};
+document.getElementById('searchBox').oninput=()=>{{ if(state.view==='map') renderView(); }};
+document.getElementById('filterLevel').onchange=()=>{{ if(state.view==='map') renderView(); }};
+document.getElementById('filterKind').onchange=()=>{{ if(state.view==='map') renderView(); }};
+
+load(); renderNav(); renderView();
+</script>
+</body>
+</html>
+"""
+    OUT_HTML.write_text(html, encoding="utf-8")
+    print(f"Wrote {OUT_HTML.relative_to(ROOT)}")
+    print(f"  Screens: {len(SCREENS)}, TAC tabs: {len(TAC_TABS)}, Wizard: {len(WIZARD)}")
+    print(f"  Fields documented: {sum(len(v) for v in FIELDS.values())}")
+    print(f"  Permissions: {len(PERMISSIONS)}")
+
+
+if __name__ == "__main__":
+    main()

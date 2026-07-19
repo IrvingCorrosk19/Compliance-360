@@ -1,0 +1,3227 @@
+{
+  "file": "REGUTRACK 02JUN26 MG.xlsx",
+  "sheets": [
+    {
+      "name": "CTT REGISTROS (2)",
+      "maxRow": 192,
+      "maxCol": 108,
+      "headerRow": 1,
+      "headerCount": 88,
+      "dataRowsFilled": 191,
+      "columns": [
+        {
+          "index": 1,
+          "header": "País",
+          "nonEmpty": 191,
+          "uniqueApprox": 1,
+          "samples": [
+            "PA",
+            "PA",
+            "PA",
+            "PA",
+            "PA"
+          ]
+        },
+        {
+          "index": 2,
+          "header": "Categoria",
+          "nonEmpty": 191,
+          "uniqueApprox": 4,
+          "samples": [
+            "Insumos Médicos ",
+            "Insumos Médicos",
+            "Insumos Médicos",
+            "Insumos Médicos ",
+            "Insumos Médicos"
+          ]
+        },
+        {
+          "index": 3,
+          "header": "Marca",
+          "nonEmpty": 191,
+          "uniqueApprox": 45,
+          "samples": [
+            "ENVIROTACK",
+            "4HOSPITALS, INC. ",
+            "4HOSPITALS, INC. ",
+            "4HOSPITALS INSUMOS Y EQUIPOS MEDICOS ",
+            "4HOSPITALS, INC. "
+          ]
+        },
+        {
+          "index": 4,
+          "header": "Nombre del Producto Como aparece en el CT",
+          "nonEmpty": 191,
+          "uniqueApprox": 182,
+          "samples": [
+            "ALFOMBRAS PARA COLOCAR EN AREA DE PREPARACION DE MEZCLAS PARENTERALES",
+            "APLICADOR DE MADERA CON ALGODON, NO ESTERIL ",
+            "APLICADOR DE MADERA CON ALGODON, ESTERIL ",
+            "APOSITO TRANSPARENTE ESTERIL ",
+            "APOSITO OCULAR ADULTO "
+          ]
+        },
+        {
+          "index": 5,
+          "header": "Descripción",
+          "nonEmpty": 169,
+          "uniqueApprox": 115,
+          "samples": [
+            "3plg x5mm DIAMETRO DE ALGODON\n\n6plg x5mm DIAMETRO DE ALGODON\n6plg x10mm DIAMETRO",
+            "3plg DE LONGITUD \n6plg DE LONGITUD ",
+            "4.4 cm x 4.4 cm\n4.4.cm x 4.4 cm, CON APERTURA EN U\n4.4. cm x 4.4 cm, CON ALMOHAD",
+            "6x8 cm ovalado",
+            "N/A"
+          ]
+        },
+        {
+          "index": 6,
+          "header": "Catálogo / Código de Producto",
+          "nonEmpty": 186,
+          "uniqueApprox": 183,
+          "samples": [
+            "PM184634W\n PM184634B\n PM184634G",
+            "4H-TRM-300\n4H-TRM-301\n4H-TRM-302",
+            "4H-TRM-303\n4H-TRM-304",
+            "4H-ZLM-201\n4H-ZLM-202\n4H-ZLM-203\n4H-ZLM-204\n4H-ZLM-205\n4H-ZLM-206\n4H-ZLM-207\n4H-",
+            "4H-TRM-200\n"
+          ]
+        },
+        {
+          "index": 7,
+          "header": "Fabricante y País de Origen",
+          "nonEmpty": 191,
+          "uniqueApprox": 62,
+          "samples": [
+            "PURUS INTERNATIONAL. INC\nChina",
+            "TAIZHOU RICH MEDICAL PRODUCTS CO., LTD \nChina",
+            "TAIZHOU RICH MEDICAL PRODUCTS CO., LTD \nChina",
+            "ZHEJIANG LONGTERM MEDICAL TECHNOLOGY CO LTD\nChina",
+            "TAIZHOU RICH MEDICAL PRODUCTS CO., LTD \nChina"
+          ]
+        },
+        {
+          "index": 8,
+          "header": "Distribuidor / Importador",
+          "nonEmpty": 191,
+          "uniqueApprox": 2,
+          "samples": [
+            "4 Hospital, Inc.",
+            "4 Hospital, Inc.",
+            "4 Hospital, Inc.",
+            "4 Hospital, Inc.",
+            "4 Hospital, Inc."
+          ]
+        },
+        {
+          "index": 9,
+          "header": "Iniciativa",
+          "nonEmpty": 191,
+          "uniqueApprox": 1,
+          "samples": [
+            "NEGOCIO BASE",
+            "NEGOCIO BASE",
+            "NEGOCIO BASE",
+            "NEGOCIO BASE",
+            "NEGOCIO BASE"
+          ]
+        },
+        {
+          "index": 10,
+          "header": "Ficha Tecnica",
+          "nonEmpty": 191,
+          "uniqueApprox": 177,
+          "samples": [
+            "12031",
+            "21726",
+            "21728",
+            "21744",
+            "21754"
+          ]
+        },
+        {
+          "index": 11,
+          "header": "Entidad Emisora",
+          "nonEmpty": 178,
+          "uniqueApprox": 2,
+          "samples": [
+            "CSS",
+            "CSS",
+            "MINSA",
+            "CSS",
+            "MINSA"
+          ]
+        },
+        {
+          "index": 12,
+          "header": "Criterio Técnico/ Registro Sanitario No.",
+          "nonEmpty": 183,
+          "uniqueApprox": 171,
+          "samples": [
+            "N/A",
+            "MQ-4736-03-22",
+            "MQ-4893-06-22",
+            "MQ-1347-08-22",
+            "MQ-4735-03-22"
+          ]
+        },
+        {
+          "index": 13,
+          "header": "Fecha Criterio  /Registro",
+          "nonEmpty": 184,
+          "uniqueApprox": 140,
+          "samples": [
+            "2020-11-18 00:00:00",
+            "2022-03-10 00:00:00",
+            "2022-06-07 00:00:00",
+            "2022-08-09 00:00:00",
+            "2022-03-10 00:00:00"
+          ]
+        },
+        {
+          "index": 14,
+          "header": "Proveedores Registrados",
+          "nonEmpty": 189,
+          "uniqueApprox": 25,
+          "samples": [
+            "7",
+            "4",
+            "3",
+            "14",
+            "2"
+          ]
+        },
+        {
+          "index": 15,
+          "header": "Clase de Riesgo",
+          "nonEmpty": 184,
+          "uniqueApprox": 4,
+          "samples": [
+            "A",
+            "A",
+            "A",
+            "B",
+            "A"
+          ]
+        },
+        {
+          "index": 16,
+          "header": "Tipo de Proceso",
+          "nonEmpty": 109,
+          "uniqueApprox": 2,
+          "samples": [
+            "RENOVACION",
+            "RENOVACION",
+            "RENOVACION",
+            "RENOVACION",
+            "RENOVACION"
+          ]
+        },
+        {
+          "index": 17,
+          "header": "Formulario",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 18,
+          "header": "Copia simple de la cedula o pasaporte del representante legal",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 19,
+          "header": "Copia simple de la Licencia de operaciones",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 20,
+          "header": "Copia Simple del certificado del registro publico",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 21,
+          "header": "Copia simple del certificado de oferente",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 22,
+          "header": "Copia de la ficha Tecnica",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 23,
+          "header": "Literatura Técnica del Dispositivo Médico",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 24,
+          "header": "Instructivo de Uso / Inserto",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 25,
+          "header": "Carta de compromiso del fabricante",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 26,
+          "header": "ISO",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 27,
+          "header": "Cert. De Libre Venta (CLV ) o FDA",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 28,
+          "header": "Fotos",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 29,
+          "header": "Etiquetas del producto",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 30,
+          "header": "Metodo de esterilización",
+          "nonEmpty": 1,
+          "uniqueApprox": 1,
+          "samples": [
+            "SI APLICA"
+          ]
+        },
+        {
+          "index": 31,
+          "header": "Resumen de estudios o ensayos clinicos",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 32,
+          "header": "Descripcion de manufactura y empaque",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 33,
+          "header": "Análisis de Riesgo",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 34,
+          "header": "Protocolo de trazabilidad",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 35,
+          "header": "Muestras",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 36,
+          "header": "Manual de Operación y/o Matenimiento",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 37,
+          "header": "Certificación de Soporte Técnico Local",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 38,
+          "header": "Datos de Almacenamiento y Transporte",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 39,
+          "header": "Listado de Accesorios, Repuestos y Consumibles",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 40,
+          "header": "Solicitud de documentos a Fabrica",
+          "nonEmpty": 177,
+          "uniqueApprox": 177,
+          "samples": [
+            "=BC2-150",
+            "=BC3-150",
+            "=BC4-150",
+            "=BC5-150",
+            "=BC6-150"
+          ]
+        },
+        {
+          "index": 41,
+          "header": "Fecha estimada de Recepción de Documentos",
+          "nonEmpty": 176,
+          "uniqueApprox": 176,
+          "samples": [
+            "=AN2+30",
+            "=AN3+30",
+            "=AN4+30",
+            "=AN5+30",
+            "=AN6+30"
+          ]
+        },
+        {
+          "index": 42,
+          "header": "Fecha máxima para recepción de documentos",
+          "nonEmpty": 150,
+          "uniqueApprox": 150,
+          "samples": [
+            "=AO2+7",
+            "=AO3+7",
+            "=AO4+7",
+            "=AO5+7",
+            "=AO6+7"
+          ]
+        },
+        {
+          "index": 43,
+          "header": "Fecha de recepción de documentos",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 44,
+          "header": "Alerta",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 45,
+          "header": "Fecha de Armado de Expediente",
+          "nonEmpty": 173,
+          "uniqueApprox": 173,
+          "samples": [
+            "=AP2+50",
+            "=AP3+50",
+            "=AP4+50",
+            "=AP5+50",
+            "=AP6+50"
+          ]
+        },
+        {
+          "index": 46,
+          "header": "Fecha Estimada de Sometimiento",
+          "nonEmpty": 148,
+          "uniqueApprox": 147,
+          "samples": [
+            "=AS2+15",
+            "=AS3+15",
+            "=AS4+15",
+            "=AS5+15",
+            "=AS6+15"
+          ]
+        },
+        {
+          "index": 47,
+          "header": "Fecha de Sometimiento",
+          "nonEmpty": 11,
+          "uniqueApprox": 6,
+          "samples": [
+            "2024-07-30 00:00:00",
+            "2024-07-30 00:00:00",
+            "2024-10-24 00:00:00",
+            "2024-10-24 00:00:00",
+            "2024-08-06 00:00:00"
+          ]
+        },
+        {
+          "index": 48,
+          "header": "Fecha de observación",
+          "nonEmpty": 1,
+          "uniqueApprox": 1,
+          "samples": [
+            "2024-09-05 00:00:00"
+          ]
+        },
+        {
+          "index": 49,
+          "header": "Fecha estimada para la aprobación",
+          "nonEmpty": 150,
+          "uniqueApprox": 150,
+          "samples": [
+            "=AT2+30",
+            "=AT3+30",
+            "=AT4+30",
+            "=AT5+30",
+            "=AT6+30"
+          ]
+        },
+        {
+          "index": 50,
+          "header": "Fecha de la aprobación",
+          "nonEmpty": 6,
+          "uniqueApprox": 4,
+          "samples": [
+            "2024-08-29 00:00:00",
+            "2024-08-29 00:00:00",
+            "2024-09-10 00:00:00",
+            "2024-09-10 00:00:00",
+            "2024-08-19 00:00:00"
+          ]
+        },
+        {
+          "index": 51,
+          "header": "Sales / Mkt input",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 52,
+          "header": "Prioridad",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 53,
+          "header": "Oportunidad",
+          "nonEmpty": 174,
+          "uniqueApprox": 122,
+          "samples": [
+            "924.00",
+            "10,638.73",
+            "131,031.68",
+            "195,406.34",
+            "10,183.80"
+          ]
+        },
+        {
+          "index": 54,
+          "header": "Comentarios",
+          "nonEmpty": 10,
+          "uniqueApprox": 8,
+          "samples": [
+            "Se sometio a fecha tardia en espera de libre venta",
+            "SE SOMETIO PARA RENOVACION\n EL 24-10-24",
+            "Se sometio de forma tardia porque no tenia Libre venta",
+            "El catálogo no sale en la página Web.  Fabricante actualizó página pero le falta",
+            "EN PROCESO DE PREPARACION DE EXPEDIENTE\nEN ESPERA DE CATALOGO EN LA WEB "
+          ]
+        },
+        {
+          "index": 55,
+          "header": "Fecha de vencimiento",
+          "nonEmpty": 173,
+          "uniqueApprox": 120,
+          "samples": [
+            "2027-03-10 00:00:00",
+            "2027-06-07 00:00:00",
+            "2027-08-09 00:00:00",
+            "2027-03-10 00:00:00",
+            "2028-08-07 00:00:00"
+          ]
+        },
+        {
+          "index": 56,
+          "header": "Fecha de Actualización",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 57,
+          "header": "Fecha de Actualización2",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 58,
+          "header": "Fecha de Actualización3",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 59,
+          "header": "Fecha de Actualización4",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 60,
+          "header": "Fecha de Actualización5",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 61,
+          "header": "Fecha de Actualización6",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 62,
+          "header": "Fecha de Actualización7",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 63,
+          "header": "Fecha de Actualización8",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 64,
+          "header": "Fecha de Actualización9",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 65,
+          "header": "Fecha de Actualización10",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 66,
+          "header": "Fecha de Actualización11",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 67,
+          "header": "Fecha de Actualización12",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 68,
+          "header": "Fecha de Actualización13",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 69,
+          "header": "Fecha de Actualización14",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 70,
+          "header": "Fecha de Actualización15",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 71,
+          "header": "Fecha de Actualización16",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 72,
+          "header": "Fecha de Actualización17",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 73,
+          "header": "Fecha de Actualización18",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 74,
+          "header": "Fecha de Actualización19",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 75,
+          "header": "Fecha de Actualización20",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 76,
+          "header": "Fecha de Actualización21",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 77,
+          "header": "Fecha de Actualización22",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 78,
+          "header": "Fecha de Actualización23",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 79,
+          "header": "Fecha de Actualización24",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 80,
+          "header": "Fecha de Actualización25",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 81,
+          "header": "Fecha de Actualización26",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 82,
+          "header": "Fecha de Actualización27",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 83,
+          "header": "Fecha de Actualización28",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 84,
+          "header": "Fecha de Actualización29",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 85,
+          "header": "Fecha de Actualización30",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 86,
+          "header": "Fecha de Actualización31",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 87,
+          "header": "Fecha de Actualización32",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 88,
+          "header": "Linea",
+          "nonEmpty": 156,
+          "uniqueApprox": 156,
+          "samples": [
+            "304",
+            "4",
+            "3",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "index": 89,
+          "header": "COL_89",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 90,
+          "header": "COL_90",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 91,
+          "header": "COL_91",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 92,
+          "header": "COL_92",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 93,
+          "header": "COL_93",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 94,
+          "header": "COL_94",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 95,
+          "header": "COL_95",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 96,
+          "header": "COL_96",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 97,
+          "header": "COL_97",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 98,
+          "header": "COL_98",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 99,
+          "header": "COL_99",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 100,
+          "header": "COL_100",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 101,
+          "header": "COL_101",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 102,
+          "header": "COL_102",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 103,
+          "header": "COL_103",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 104,
+          "header": "COL_104",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 105,
+          "header": "COL_105",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 106,
+          "header": "COL_106",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 107,
+          "header": "COL_107",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 108,
+          "header": "COL_108",
+          "nonEmpty": 4,
+          "uniqueApprox": 4,
+          "samples": [
+            "A",
+            "B",
+            "C",
+            "D"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "DOCUMENTACION",
+      "maxRow": 303,
+      "maxCol": 26,
+      "headerRow": 2,
+      "headerCount": 15,
+      "dataRowsFilled": 213,
+      "columns": [
+        {
+          "index": 1,
+          "header": "FABRICANTE",
+          "nonEmpty": 138,
+          "uniqueApprox": 47,
+          "samples": [
+            "SUZHOU ZEDE MEDICAL",
+            "SUZHOU SUNING",
+            "DAESUNG MAREF CO., LTD.",
+            "SKLAR",
+            "SUZHOU SUNING"
+          ]
+        },
+        {
+          "index": 2,
+          "header": "ESTATUS",
+          "nonEmpty": 138,
+          "uniqueApprox": 2,
+          "samples": [
+            "ACTIVO",
+            "ACTIVO",
+            "ACTIVO",
+            "ACTIVO",
+            "ACTIVO"
+          ]
+        },
+        {
+          "index": 3,
+          "header": "PAIS DE FABRICANTE",
+          "nonEmpty": 135,
+          "uniqueApprox": 8,
+          "samples": [
+            "CHINA",
+            "CHINA",
+            "USA",
+            "CHINA",
+            "FINLANDIA"
+          ]
+        },
+        {
+          "index": 4,
+          "header": "DOCUMENTO",
+          "nonEmpty": 138,
+          "uniqueApprox": 4,
+          "samples": [
+            "CERTIFICADO DE LIBRE VENTA",
+            "CERTIFICADO ISO 13485",
+            "CERTIFICADO CE (EUROPA)",
+            "CERTIFICADO ISO 13485",
+            "CERTIFICADO CE (EUROPA)"
+          ]
+        },
+        {
+          "index": 5,
+          "header": "FECHA DE VENCIMIENTO",
+          "nonEmpty": 119,
+          "uniqueApprox": 103,
+          "samples": [
+            "2028-04-21 00:00:00",
+            "2028-08-31 00:00:00",
+            "2030-07-10 00:00:00",
+            "2025-01-29 00:00:00",
+            "2028-04-23 00:00:00"
+          ]
+        },
+        {
+          "index": 6,
+          "header": "FORMATO",
+          "nonEmpty": 98,
+          "uniqueApprox": 1,
+          "samples": [
+            "ORIGINAL O COPIA NOTARIADA - APOSTILLADO",
+            "ORIGINAL O COPIA NOTARIADA - APOSTILLADO",
+            "ORIGINAL O COPIA NOTARIADA - APOSTILLADO",
+            "ORIGINAL O COPIA NOTARIADA - APOSTILLADO",
+            "ORIGINAL O COPIA NOTARIADA - APOSTILLADO"
+          ]
+        },
+        {
+          "index": 7,
+          "header": "ESTATUS2",
+          "nonEmpty": 129,
+          "uniqueApprox": 2,
+          "samples": [
+            "VENCIDO",
+            "VIGENTE",
+            "VIGENTE",
+            "VENCIDO",
+            "VIGENTE"
+          ]
+        },
+        {
+          "index": 8,
+          "header": "FECHA CIERTA DE SOLICITUD",
+          "nonEmpty": 185,
+          "uniqueApprox": 185,
+          "samples": [
+            "=E4-90",
+            "=E5-90",
+            "=E6-90",
+            "=E7-90",
+            "=E8-90"
+          ]
+        },
+        {
+          "index": 9,
+          "header": "TRAMITE- REQUISITO",
+          "nonEmpty": 60,
+          "uniqueApprox": 1,
+          "samples": [
+            "CRITERIO TÉCNICO \n",
+            "CRITERIO TÉCNICO \n",
+            "CRITERIO TÉCNICO \n",
+            "CRITERIO TÉCNICO \n",
+            "CRITERIO TÉCNICO \n"
+          ]
+        },
+        {
+          "index": 10,
+          "header": "COMENTARIOS",
+          "nonEmpty": 61,
+          "uniqueApprox": 4,
+          "samples": [
+            "EL FABRICANTE DEBE ENVIAR COPIA POR CORREO PARA REVISIÓN ANTES DE SER APOSTILLAD",
+            "EL FABRICANTE DEBE ENVIAR COPIA POR CORREO PARA REVISIÓN ANTES DE SER APOSTILLAD",
+            "NO COMERCIALIZAN PRODUCTOS CON LA CE",
+            "EL FABRICANTE DEBE ENVIAR COPIA POR CORREO PARA REVISIÓN ANTES DE SER APOSTILLAD",
+            "EL FABRICANTE DEBE ENVIAR COPIA POR CORREO PARA REVISIÓN ANTES DE SER APOSTILLAD"
+          ]
+        },
+        {
+          "index": 11,
+          "header": "SEGUIMIENTO",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 12,
+          "header": "COL_12",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 13,
+          "header": "COL_13",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 14,
+          "header": "COL_14",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 15,
+          "header": "COL_15",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 16,
+          "header": "COL_16",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 17,
+          "header": "COL_17",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 18,
+          "header": "VIGENTE",
+          "nonEmpty": 1,
+          "uniqueApprox": 1,
+          "samples": [
+            "VENCIDO"
+          ]
+        },
+        {
+          "index": 19,
+          "header": "CRITERIO TÉCNICO \nRS COSMETICO\nRS MEDICAMENTO\nRS GORGAS\nRS BIO",
+          "nonEmpty": 4,
+          "uniqueApprox": 4,
+          "samples": [
+            "CRITERIO TÉCNICO \n",
+            "RS COSMETICOS",
+            "RS MEDICAMENTO",
+            "RS BIO"
+          ]
+        },
+        {
+          "index": 20,
+          "header": "COL_20",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 21,
+          "header": "ORIGINAL O COPIA NOTARIADA - APOSTILLADO",
+          "nonEmpty": 1,
+          "uniqueApprox": 1,
+          "samples": [
+            "ORIGINAL - APOSTILLADO"
+          ]
+        },
+        {
+          "index": 22,
+          "header": "COL_22",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 23,
+          "header": "COL_23",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 24,
+          "header": "CERTIFICADO ISO 13485",
+          "nonEmpty": 6,
+          "uniqueApprox": 6,
+          "samples": [
+            "CERTIFICADO DE LIBRE VENTA",
+            "CFG - SOLO USA ",
+            "CERTIFICADO CE (EUROPA)",
+            "CERTIFICDO ISO",
+            "GMP "
+          ]
+        },
+        {
+          "index": 25,
+          "header": "COL_25",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 26,
+          "header": "COL_26",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        }
+      ]
+    },
+    {
+      "name": "CTT REGISTROS",
+      "maxRow": 201,
+      "maxCol": 108,
+      "headerRow": 2,
+      "headerCount": 88,
+      "dataRowsFilled": 191,
+      "columns": [
+        {
+          "index": 1,
+          "header": "País",
+          "nonEmpty": 191,
+          "uniqueApprox": 1,
+          "samples": [
+            "PA",
+            "PA",
+            "PA",
+            "PA",
+            "PA"
+          ]
+        },
+        {
+          "index": 2,
+          "header": "Categoria",
+          "nonEmpty": 191,
+          "uniqueApprox": 4,
+          "samples": [
+            "Insumos Médicos ",
+            "Insumos Médicos",
+            "Insumos Médicos",
+            "Insumos Médicos ",
+            "Insumos Médicos"
+          ]
+        },
+        {
+          "index": 3,
+          "header": "Marca",
+          "nonEmpty": 191,
+          "uniqueApprox": 45,
+          "samples": [
+            "ENVIROTACK",
+            "4HOSPITALS, INC. ",
+            "4HOSPITALS, INC. ",
+            "4HOSPITALS INSUMOS Y EQUIPOS MEDICOS ",
+            "4HOSPITALS, INC. "
+          ]
+        },
+        {
+          "index": 4,
+          "header": "Nombre del Producto Como aparece en el CT",
+          "nonEmpty": 191,
+          "uniqueApprox": 182,
+          "samples": [
+            "ALFOMBRAS PARA COLOCAR EN AREA DE PREPARACION DE MEZCLAS PARENTERALES",
+            "APLICADOR DE MADERA CON ALGODON, NO ESTERIL ",
+            "APLICADOR DE MADERA CON ALGODON, ESTERIL ",
+            "APOSITO TRANSPARENTE ESTERIL ",
+            "APOSITO OCULAR ADULTO "
+          ]
+        },
+        {
+          "index": 5,
+          "header": "Descripción",
+          "nonEmpty": 169,
+          "uniqueApprox": 115,
+          "samples": [
+            "3plg x5mm DIAMETRO DE ALGODON\n\n6plg x5mm DIAMETRO DE ALGODON\n6plg x10mm DIAMETRO",
+            "3plg DE LONGITUD \n6plg DE LONGITUD ",
+            "4.4 cm x 4.4 cm\n4.4.cm x 4.4 cm, CON APERTURA EN U\n4.4. cm x 4.4 cm, CON ALMOHAD",
+            "6x8 cm ovalado",
+            "N/A"
+          ]
+        },
+        {
+          "index": 6,
+          "header": "Catálogo / Código de Producto",
+          "nonEmpty": 186,
+          "uniqueApprox": 183,
+          "samples": [
+            "PM184634W\n PM184634B\n PM184634G",
+            "4H-TRM-300\n4H-TRM-301\n4H-TRM-302",
+            "4H-TRM-303\n4H-TRM-304",
+            "4H-ZLM-201\n4H-ZLM-202\n4H-ZLM-203\n4H-ZLM-204\n4H-ZLM-205\n4H-ZLM-206\n4H-ZLM-207\n4H-",
+            "4H-TRM-200\n"
+          ]
+        },
+        {
+          "index": 7,
+          "header": "Fabricante y País de Origen",
+          "nonEmpty": 191,
+          "uniqueApprox": 62,
+          "samples": [
+            "PURUS INTERNATIONAL. INC\nChina",
+            "TAIZHOU RICH MEDICAL PRODUCTS CO., LTD \nChina",
+            "TAIZHOU RICH MEDICAL PRODUCTS CO., LTD \nChina",
+            "ZHEJIANG LONGTERM MEDICAL TECHNOLOGY CO LTD\nChina",
+            "TAIZHOU RICH MEDICAL PRODUCTS CO., LTD \nChina"
+          ]
+        },
+        {
+          "index": 8,
+          "header": "Distribuidor / Importador",
+          "nonEmpty": 191,
+          "uniqueApprox": 2,
+          "samples": [
+            "4 Hospital, Inc.",
+            "4 Hospital, Inc.",
+            "4 Hospital, Inc.",
+            "4 Hospital, Inc.",
+            "4 Hospital, Inc."
+          ]
+        },
+        {
+          "index": 9,
+          "header": "Iniciativa",
+          "nonEmpty": 191,
+          "uniqueApprox": 1,
+          "samples": [
+            "NEGOCIO BASE",
+            "NEGOCIO BASE",
+            "NEGOCIO BASE",
+            "NEGOCIO BASE",
+            "NEGOCIO BASE"
+          ]
+        },
+        {
+          "index": 10,
+          "header": "Ficha Tecnica",
+          "nonEmpty": 191,
+          "uniqueApprox": 177,
+          "samples": [
+            "12031",
+            "21726",
+            "21728",
+            "21744",
+            "21754"
+          ]
+        },
+        {
+          "index": 11,
+          "header": "Entidad Emisora",
+          "nonEmpty": 178,
+          "uniqueApprox": 2,
+          "samples": [
+            "CSS",
+            "CSS",
+            "MINSA",
+            "CSS",
+            "MINSA"
+          ]
+        },
+        {
+          "index": 12,
+          "header": "Criterio Técnico/ Registro Sanitario No.",
+          "nonEmpty": 183,
+          "uniqueApprox": 171,
+          "samples": [
+            "N/A",
+            "MQ-4736-03-22",
+            "MQ-4893-06-22",
+            "MQ-1347-08-22",
+            "MQ-4735-03-22"
+          ]
+        },
+        {
+          "index": 13,
+          "header": "Fecha Criterio  /Registro",
+          "nonEmpty": 184,
+          "uniqueApprox": 140,
+          "samples": [
+            "2020-11-18 00:00:00",
+            "2022-03-10 00:00:00",
+            "2022-06-07 00:00:00",
+            "2022-08-09 00:00:00",
+            "2022-03-10 00:00:00"
+          ]
+        },
+        {
+          "index": 14,
+          "header": "Proveedores Registrados",
+          "nonEmpty": 189,
+          "uniqueApprox": 25,
+          "samples": [
+            "7",
+            "4",
+            "3",
+            "14",
+            "2"
+          ]
+        },
+        {
+          "index": 15,
+          "header": "Clase de Riesgo",
+          "nonEmpty": 184,
+          "uniqueApprox": 4,
+          "samples": [
+            "A",
+            "A",
+            "A",
+            "B",
+            "A"
+          ]
+        },
+        {
+          "index": 16,
+          "header": "Tipo de Proceso",
+          "nonEmpty": 109,
+          "uniqueApprox": 2,
+          "samples": [
+            "RENOVACION",
+            "RENOVACION",
+            "RENOVACION",
+            "RENOVACION",
+            "RENOVACION"
+          ]
+        },
+        {
+          "index": 17,
+          "header": "Formulario",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 18,
+          "header": "Copia simple de la cedula o pasaporte del representante legal",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 19,
+          "header": "Copia simple de la Licencia de operaciones",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 20,
+          "header": "Copia Simple del certificado del registro publico",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 21,
+          "header": "Copia simple del certificado de oferente",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 22,
+          "header": "Copia de la ficha Tecnica",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 23,
+          "header": "Literatura Técnica del Dispositivo Médico",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 24,
+          "header": "Instructivo de Uso / Inserto",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 25,
+          "header": "Carta de compromiso del fabricante",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 26,
+          "header": "ISO",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 27,
+          "header": "Cert. De Libre Venta (CLV ) o FDA",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 28,
+          "header": "Fotos",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 29,
+          "header": "Etiquetas del producto",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 30,
+          "header": "Metodo de esterilización",
+          "nonEmpty": 1,
+          "uniqueApprox": 1,
+          "samples": [
+            "SI APLICA"
+          ]
+        },
+        {
+          "index": 31,
+          "header": "Resumen de estudios o ensayos clinicos",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 32,
+          "header": "Descripcion de manufactura y empaque",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 33,
+          "header": "Análisis de Riesgo",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 34,
+          "header": "Protocolo de trazabilidad",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 35,
+          "header": "Muestras",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 36,
+          "header": "Manual de Operación y/o Matenimiento",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 37,
+          "header": "Certificación de Soporte Técnico Local",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 38,
+          "header": "Datos de Almacenamiento y Transporte",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 39,
+          "header": "Listado de Accesorios, Repuestos y Consumibles",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 40,
+          "header": "Solicitud de documentos a Fabrica",
+          "nonEmpty": 177,
+          "uniqueApprox": 177,
+          "samples": [
+            "=BC3-150",
+            "=BC4-150",
+            "=BC5-150",
+            "=BC6-150",
+            "=BC7-150"
+          ]
+        },
+        {
+          "index": 41,
+          "header": "Fecha estimada de Recepción de Documentos",
+          "nonEmpty": 176,
+          "uniqueApprox": 176,
+          "samples": [
+            "=AN3+30",
+            "=AN4+30",
+            "=AN5+30",
+            "=AN6+30",
+            "=AN7+30"
+          ]
+        },
+        {
+          "index": 42,
+          "header": "Fecha máxima para recepción de documentos",
+          "nonEmpty": 150,
+          "uniqueApprox": 150,
+          "samples": [
+            "=AO3+7",
+            "=AO4+7",
+            "=AO5+7",
+            "=AO6+7",
+            "=AO7+7"
+          ]
+        },
+        {
+          "index": 43,
+          "header": "Fecha de recepción de documentos",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 44,
+          "header": "Alerta",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 45,
+          "header": "Fecha de Armado de Expediente",
+          "nonEmpty": 173,
+          "uniqueApprox": 173,
+          "samples": [
+            "=AP3+50",
+            "=AP4+50",
+            "=AP5+50",
+            "=AP6+50",
+            "=AP7+50"
+          ]
+        },
+        {
+          "index": 46,
+          "header": "Fecha Estimada de Sometimiento",
+          "nonEmpty": 148,
+          "uniqueApprox": 147,
+          "samples": [
+            "=AS3+15",
+            "=AS4+15",
+            "=AS5+15",
+            "=AS6+15",
+            "=AS7+15"
+          ]
+        },
+        {
+          "index": 47,
+          "header": "Fecha de Sometimiento",
+          "nonEmpty": 11,
+          "uniqueApprox": 6,
+          "samples": [
+            "2024-07-30 00:00:00",
+            "2024-07-30 00:00:00",
+            "2024-10-24 00:00:00",
+            "2024-10-24 00:00:00",
+            "2024-08-06 00:00:00"
+          ]
+        },
+        {
+          "index": 48,
+          "header": "Fecha de observación",
+          "nonEmpty": 1,
+          "uniqueApprox": 1,
+          "samples": [
+            "2024-09-05 00:00:00"
+          ]
+        },
+        {
+          "index": 49,
+          "header": "Fecha estimada para la aprobación",
+          "nonEmpty": 150,
+          "uniqueApprox": 150,
+          "samples": [
+            "=AT3+30",
+            "=AT4+30",
+            "=AT5+30",
+            "=AT6+30",
+            "=AT7+30"
+          ]
+        },
+        {
+          "index": 50,
+          "header": "Fecha de la aprobación",
+          "nonEmpty": 6,
+          "uniqueApprox": 4,
+          "samples": [
+            "2024-08-29 00:00:00",
+            "2024-08-29 00:00:00",
+            "2024-09-10 00:00:00",
+            "2024-09-10 00:00:00",
+            "2024-08-19 00:00:00"
+          ]
+        },
+        {
+          "index": 51,
+          "header": "Sales / Mkt input",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 52,
+          "header": "Prioridad",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 53,
+          "header": "Oportunidad",
+          "nonEmpty": 174,
+          "uniqueApprox": 122,
+          "samples": [
+            "924.00",
+            "10,638.73",
+            "131,031.68",
+            "195,406.34",
+            "10,183.80"
+          ]
+        },
+        {
+          "index": 54,
+          "header": "Comentarios",
+          "nonEmpty": 10,
+          "uniqueApprox": 8,
+          "samples": [
+            "Se sometio a fecha tardia en espera de libre venta",
+            "SE SOMETIO PARA RENOVACION\n EL 24-10-24",
+            "Se sometio de forma tardia porque no tenia Libre venta",
+            "El catálogo no sale en la página Web.  Fabricante actualizó página pero le falta",
+            "EN PROCESO DE PREPARACION DE EXPEDIENTE\nEN ESPERA DE CATALOGO EN LA WEB "
+          ]
+        },
+        {
+          "index": 55,
+          "header": "Fecha de vencimiento",
+          "nonEmpty": 173,
+          "uniqueApprox": 120,
+          "samples": [
+            "2027-03-10 00:00:00",
+            "2027-06-07 00:00:00",
+            "2027-08-09 00:00:00",
+            "2027-03-10 00:00:00",
+            "2028-08-07 00:00:00"
+          ]
+        },
+        {
+          "index": 56,
+          "header": "Fecha de Actualización",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 57,
+          "header": "Fecha de Actualización2",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 58,
+          "header": "Fecha de Actualización3",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 59,
+          "header": "Fecha de Actualización4",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 60,
+          "header": "Fecha de Actualización5",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 61,
+          "header": "Fecha de Actualización6",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 62,
+          "header": "Fecha de Actualización7",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 63,
+          "header": "Fecha de Actualización8",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 64,
+          "header": "Fecha de Actualización9",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 65,
+          "header": "Fecha de Actualización10",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 66,
+          "header": "Fecha de Actualización11",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 67,
+          "header": "Fecha de Actualización12",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 68,
+          "header": "Fecha de Actualización13",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 69,
+          "header": "Fecha de Actualización14",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 70,
+          "header": "Fecha de Actualización15",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 71,
+          "header": "Fecha de Actualización16",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 72,
+          "header": "Fecha de Actualización17",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 73,
+          "header": "Fecha de Actualización18",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 74,
+          "header": "Fecha de Actualización19",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 75,
+          "header": "Fecha de Actualización20",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 76,
+          "header": "Fecha de Actualización21",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 77,
+          "header": "Fecha de Actualización22",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 78,
+          "header": "Fecha de Actualización23",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 79,
+          "header": "Fecha de Actualización24",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 80,
+          "header": "Fecha de Actualización25",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 81,
+          "header": "Fecha de Actualización26",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 82,
+          "header": "Fecha de Actualización27",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 83,
+          "header": "Fecha de Actualización28",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 84,
+          "header": "Fecha de Actualización29",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 85,
+          "header": "Fecha de Actualización30",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 86,
+          "header": "Fecha de Actualización31",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 87,
+          "header": "Fecha de Actualización32",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 88,
+          "header": "Linea",
+          "nonEmpty": 156,
+          "uniqueApprox": 156,
+          "samples": [
+            "304",
+            "4",
+            "3",
+            "6",
+            "5"
+          ]
+        },
+        {
+          "index": 89,
+          "header": "COL_89",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 90,
+          "header": "COL_90",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 91,
+          "header": "COL_91",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 92,
+          "header": "COL_92",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 93,
+          "header": "COL_93",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 94,
+          "header": "COL_94",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 95,
+          "header": "COL_95",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 96,
+          "header": "COL_96",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 97,
+          "header": "COL_97",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 98,
+          "header": "COL_98",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 99,
+          "header": "COL_99",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 100,
+          "header": "COL_100",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 101,
+          "header": "COL_101",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 102,
+          "header": "COL_102",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 103,
+          "header": "COL_103",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 104,
+          "header": "COL_104",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 105,
+          "header": "COL_105",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 106,
+          "header": "COL_106",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 107,
+          "header": "COL_107",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 108,
+          "header": "COL_108",
+          "nonEmpty": 4,
+          "uniqueApprox": 4,
+          "samples": [
+            "A",
+            "B",
+            "C",
+            "D"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CTT LICENCIAS OP",
+      "maxRow": 13,
+      "maxCol": 27,
+      "headerRow": 2,
+      "headerCount": 3,
+      "dataRowsFilled": 10,
+      "columns": [
+        {
+          "index": 1,
+          "header": "Fecha de Constitución",
+          "nonEmpty": 10,
+          "uniqueApprox": 8,
+          "samples": [
+            "Inicio de Operaciones",
+            "Documento",
+            "Licencia de Operaciones Dispositivos Medicos",
+            "Licencia de Operaciones Dispositivos Medicos",
+            "Certificado de Registro Nacional de Oferentes"
+          ]
+        },
+        {
+          "index": 2,
+          "header": "2003-01-17 00:00:00",
+          "nonEmpty": 10,
+          "uniqueApprox": 5,
+          "samples": [
+            "2003-01-01 00:00:00",
+            "Compañía",
+            "Multimed",
+            "4 Hospital",
+            "Multimed"
+          ]
+        },
+        {
+          "index": 3,
+          "header": "2012-01-06 00:00:00",
+          "nonEmpty": 10,
+          "uniqueApprox": 10,
+          "samples": [
+            "2013-08-01 00:00:00",
+            "Feha de Expiración",
+            "2029-11-21 00:00:00",
+            "2029-11-20 00:00:00",
+            "2027-03-13 00:00:00"
+          ]
+        },
+        {
+          "index": 4,
+          "header": "COL_4",
+          "nonEmpty": 9,
+          "uniqueApprox": 9,
+          "samples": [
+            "Fecha de Armado de Expediente",
+            "=C6-150",
+            "=C7-150",
+            "=C8-90",
+            "=C9-90"
+          ]
+        },
+        {
+          "index": 5,
+          "header": "COL_5",
+          "nonEmpty": 9,
+          "uniqueApprox": 9,
+          "samples": [
+            "Fecha Estimada de Sometimiento",
+            "=C6-75",
+            "=C7-75",
+            "=C8-30",
+            "=C9-30"
+          ]
+        },
+        {
+          "index": 6,
+          "header": "COL_6",
+          "nonEmpty": 3,
+          "uniqueApprox": 3,
+          "samples": [
+            "Fecha de Sometimiento",
+            "2024-06-28 00:00:00",
+            "2024-11-22 00:00:00"
+          ]
+        },
+        {
+          "index": 7,
+          "header": "COL_7",
+          "nonEmpty": 6,
+          "uniqueApprox": 6,
+          "samples": [
+            "Fecha Estimada de Aprobación",
+            "=E9+30",
+            "=E10+30",
+            "=E11+30",
+            "=E12+90"
+          ]
+        },
+        {
+          "index": 8,
+          "header": "COL_8",
+          "nonEmpty": 2,
+          "uniqueApprox": 2,
+          "samples": [
+            "Fecha de Aprobacón",
+            "2024-08-29 00:00:00"
+          ]
+        },
+        {
+          "index": 9,
+          "header": "COL_9",
+          "nonEmpty": 1,
+          "uniqueApprox": 1,
+          "samples": [
+            "Solicitud"
+          ]
+        },
+        {
+          "index": 10,
+          "header": "COL_10",
+          "nonEmpty": 1,
+          "uniqueApprox": 1,
+          "samples": [
+            "Cedula de Rep. Legal "
+          ]
+        },
+        {
+          "index": 11,
+          "header": "COL_11",
+          "nonEmpty": 1,
+          "uniqueApprox": 1,
+          "samples": [
+            "Cédula Regente"
+          ]
+        },
+        {
+          "index": 12,
+          "header": "COL_12",
+          "nonEmpty": 1,
+          "uniqueApprox": 1,
+          "samples": [
+            "Registro Publico"
+          ]
+        },
+        {
+          "index": 13,
+          "header": "COL_13",
+          "nonEmpty": 1,
+          "uniqueApprox": 1,
+          "samples": [
+            "Aviso de Operaciones"
+          ]
+        },
+        {
+          "index": 14,
+          "header": "COL_14",
+          "nonEmpty": 1,
+          "uniqueApprox": 1,
+          "samples": [
+            "Licencia de operaciones de Farmacias y Drogas"
+          ]
+        },
+        {
+          "index": 15,
+          "header": "COL_15",
+          "nonEmpty": 1,
+          "uniqueApprox": 1,
+          "samples": [
+            "Timbres"
+          ]
+        },
+        {
+          "index": 16,
+          "header": "COL_16",
+          "nonEmpty": 1,
+          "uniqueApprox": 1,
+          "samples": [
+            "Tasa"
+          ]
+        },
+        {
+          "index": 17,
+          "header": "COL_17",
+          "nonEmpty": 1,
+          "uniqueApprox": 1,
+          "samples": [
+            "Declaración Jurada"
+          ]
+        },
+        {
+          "index": 18,
+          "header": "COL_18",
+          "nonEmpty": 1,
+          "uniqueApprox": 1,
+          "samples": [
+            "Croquis o mapa de ubicación"
+          ]
+        },
+        {
+          "index": 19,
+          "header": "COL_19",
+          "nonEmpty": 1,
+          "uniqueApprox": 1,
+          "samples": [
+            "Lista de Dispositivos médicos que se Comercializan"
+          ]
+        },
+        {
+          "index": 20,
+          "header": "COL_20",
+          "nonEmpty": 1,
+          "uniqueApprox": 1,
+          "samples": [
+            "Contrato con el 3ero para el almacenamiento (fabrica, acondicionador, distribuid"
+          ]
+        },
+        {
+          "index": 21,
+          "header": "COL_21",
+          "nonEmpty": 1,
+          "uniqueApprox": 1,
+          "samples": [
+            "Autorización para acondicionamiento de Dispositivos Médicos"
+          ]
+        },
+        {
+          "index": 22,
+          "header": "COL_22",
+          "nonEmpty": 1,
+          "uniqueApprox": 1,
+          "samples": [
+            "Licencia de Operaciones de Dispositivos Médicos"
+          ]
+        },
+        {
+          "index": 23,
+          "header": "COL_23",
+          "nonEmpty": 1,
+          "uniqueApprox": 1,
+          "samples": [
+            "Carta de Solvencia Económica"
+          ]
+        },
+        {
+          "index": 24,
+          "header": "COL_24",
+          "nonEmpty": 1,
+          "uniqueApprox": 1,
+          "samples": [
+            "Catálogo del Minsa"
+          ]
+        },
+        {
+          "index": 25,
+          "header": "COL_25",
+          "nonEmpty": 1,
+          "uniqueApprox": 1,
+          "samples": [
+            "Certificado de Oferente"
+          ]
+        },
+        {
+          "index": 26,
+          "header": "COL_26",
+          "nonEmpty": 5,
+          "uniqueApprox": 3,
+          "samples": [
+            "Estatus ",
+            "SOLICITAR EL REGISTRO PUBLICO\n EN AGOSTO",
+            "SOLICITAR EL REGISTRO PUBLICO\n EN AGOSTO",
+            "DESDE MARZO DE 2024 LA SOLICITUD ES DIGITAL HTTP//FADDI-MINSA.PANAMADIGITAL.GOB.",
+            "DESDE MARZO DE 2024 LA SOLICITUD ES DIGITAL HTTP//FADDI-MINSA.PANAMADIGITAL.GOB."
+          ]
+        },
+        {
+          "index": 27,
+          "header": "COL_27",
+          "nonEmpty": 4,
+          "uniqueApprox": 3,
+          "samples": [
+            "COMENTARIOS",
+            "SE DEBE ACTUALIZAR EN LA PLATAFORMA PANAMA DIGITAL  EN OFERENTE\n CUANDO YA SE OB",
+            "SE DEBE ACTUALIZAR EN LA PLATAFORMA PANAMA DIGITAL  EN OFERENTE\n CUANDO YA SE OB",
+            "SE DEBE ACTUALIZAR EN LA PLATAFORMA PANAMA DIGITAL  EN OFERENTE\n CUANDO YA SE OB"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CTT REGISTROS TUBERIA",
+      "maxRow": 202,
+      "maxCol": 88,
+      "headerRow": 2,
+      "headerCount": 88,
+      "dataRowsFilled": 200,
+      "columns": [
+        {
+          "index": 1,
+          "header": "País",
+          "nonEmpty": 187,
+          "uniqueApprox": 1,
+          "samples": [
+            "PA",
+            "PA",
+            "PA",
+            "PA",
+            "PA"
+          ]
+        },
+        {
+          "index": 2,
+          "header": "Categoria",
+          "nonEmpty": 187,
+          "uniqueApprox": 2,
+          "samples": [
+            "Insumos Médicos ",
+            "Insumos Médicos ",
+            "Insumos Médicos",
+            "Insumos Médicos",
+            "Insumos Médicos "
+          ]
+        },
+        {
+          "index": 3,
+          "header": "Marca",
+          "nonEmpty": 187,
+          "uniqueApprox": 6,
+          "samples": [
+            "4HOSPITALS INSUMOS Y EQUIPOS MEDICOS ",
+            "MEDAS",
+            "MEDAS",
+            "PRIME MEDICAL",
+            "Por definir "
+          ]
+        },
+        {
+          "index": 4,
+          "header": "Nombre del Producto Como aparece en el CT",
+          "nonEmpty": 187,
+          "uniqueApprox": 184,
+          "samples": [
+            "PANTALON CORTO CON VENTANA EN LA PARTE TRASERA DESECHABLE PARA ADULTO\nXIANTAO",
+            "SISTEMA DE CATETER URETERAL DOBLE J PARA ADULTOS,\nMEDAS",
+            "CONECTOR O EQUIPO PARA INFUSIÓN DE SOLUCIÓN PARENTAL CON 2 FILTROS\nANHUI TK Y ME",
+            "FERULA DE POLIÉSTER EN ROLLO",
+            "TOALLA SANITARIA MATERNAL "
+          ]
+        },
+        {
+          "index": 5,
+          "header": "Descripción",
+          "nonEmpty": 187,
+          "uniqueApprox": 8,
+          "samples": [
+            "PANTALON CORTO CON VENTANA EN LA PARTE TRASERA DESECHABLE PARA ADULTO",
+            "SISTEMA DE CATETER URETERAL DOBLE J PARA ADULTOS",
+            "CONECTOR O EQUIPO PARA INFUSIÓN DE SOLUCIÓN PARENTAL CON 2 FILTROS",
+            "FERULA DE POLIÉSTER EN ROLLO",
+            "POR DEFINIR"
+          ]
+        },
+        {
+          "index": 6,
+          "header": "Catálogo / Código de Producto",
+          "nonEmpty": 187,
+          "uniqueApprox": 3,
+          "samples": [
+            "MSP-ZTPP-7",
+            "POR DEFINIR",
+            "POR DEFINIR",
+            "POR DEFINIR",
+            "POR DEFINIR"
+          ]
+        },
+        {
+          "index": 7,
+          "header": "Fabricante y País de Origen",
+          "nonEmpty": 187,
+          "uniqueApprox": 6,
+          "samples": [
+            "XIANTAO ZHONGTAI PROTECTIVE PRODUCTS CO, LTD\nChina",
+            "MEDAS, INC\nEstados Unidos",
+            "MEDAS, INC\nEstados Unidos",
+            "PRIME MEDICAL\nCorea del Sur",
+            "POR DEFINIR"
+          ]
+        },
+        {
+          "index": 8,
+          "header": "Distribuidor / Importador",
+          "nonEmpty": 187,
+          "uniqueApprox": 2,
+          "samples": [
+            "4 Hospital, Inc.",
+            "4 Hospital, Inc.",
+            "4 Hospital, Inc.",
+            "4 Hospital, Inc.",
+            "4 Hospital, Inc."
+          ]
+        },
+        {
+          "index": 9,
+          "header": "Iniciativa",
+          "nonEmpty": 186,
+          "uniqueApprox": 1,
+          "samples": [
+            "PLAN ESTRATEGICO - TUBERIA",
+            "PLAN ESTRATEGICO - TUBERIA",
+            "PLAN ESTRATEGICO - TUBERIA",
+            "PLAN ESTRATEGICO - TUBERIA",
+            "PLAN ESTRATEGICO - TUBERIA"
+          ]
+        },
+        {
+          "index": 10,
+          "header": "Ficha Tecnica",
+          "nonEmpty": 187,
+          "uniqueApprox": 129,
+          "samples": [
+            "52417",
+            "102153",
+            "22692",
+            "104899",
+            "22269"
+          ]
+        },
+        {
+          "index": 11,
+          "header": "Entidad Emisora",
+          "nonEmpty": 7,
+          "uniqueApprox": 1,
+          "samples": [
+            "MINSA",
+            "MINSA",
+            "MINSA",
+            "MINSA",
+            "MINSA"
+          ]
+        },
+        {
+          "index": 12,
+          "header": "Criterio Técnico/ Registro Sanitario No.",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 13,
+          "header": "Fecha Criterio  /Registro",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 14,
+          "header": "Proveedores Registrados",
+          "nonEmpty": 180,
+          "uniqueApprox": 26,
+          "samples": [
+            "6",
+            "3",
+            "22",
+            "0",
+            "7"
+          ]
+        },
+        {
+          "index": 15,
+          "header": "Clase de Riesgo",
+          "nonEmpty": 8,
+          "uniqueApprox": 2,
+          "samples": [
+            "A",
+            "B",
+            "B",
+            "A",
+            "A"
+          ]
+        },
+        {
+          "index": 16,
+          "header": "Tipo de Proceso",
+          "nonEmpty": 18,
+          "uniqueApprox": 1,
+          "samples": [
+            "NUEVO CRITERIO/REGISTRO",
+            "NUEVO CRITERIO/REGISTRO",
+            "NUEVO CRITERIO/REGISTRO",
+            "NUEVO CRITERIO/REGISTRO",
+            "NUEVO CRITERIO/REGISTRO"
+          ]
+        },
+        {
+          "index": 17,
+          "header": "Formulario",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 18,
+          "header": "Copia simple de la cedula o pasaporte del representante legal",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 19,
+          "header": "Copia simple de la Licencia de operaciones",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 20,
+          "header": "Copia Simple del certificado del registro publico",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 21,
+          "header": "Copia simple del certificado de oferente",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 22,
+          "header": "Copia de la ficha Tecnica",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 23,
+          "header": "Literatura Técnica del Dispositivo Médico",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 24,
+          "header": "Instructivo de Uso / Inserto",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 25,
+          "header": "Carta de compromiso del fabricante",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 26,
+          "header": "ISO",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 27,
+          "header": "Cert. De Libre Venta (CLV ) o FDA",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 28,
+          "header": "Fotos",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 29,
+          "header": "Etiquetas del producto",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 30,
+          "header": "Metodo de esterilización",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 31,
+          "header": "Resumen de estudios o ensayos clinicos",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 32,
+          "header": "Descripcion de manufactura y empaque",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 33,
+          "header": "Análisis de Riesgo",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 34,
+          "header": "Protocolo de trazabilidad",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 35,
+          "header": "Muestras",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 36,
+          "header": "Manual de Operación y/o Matenimiento",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 37,
+          "header": "Certificación de Soporte Técnico Local",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 38,
+          "header": "Datos de Almacenamiento y Transporte",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 39,
+          "header": "Listado de Accesorios, Repuestos y Consumibles",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 40,
+          "header": "Solicitud de documentos a Fabrica",
+          "nonEmpty": 33,
+          "uniqueApprox": 33,
+          "samples": [
+            "=BC5-150",
+            "=BC6-150",
+            "=AY80-120",
+            "=AY94-120",
+            "=BC173-150"
+          ]
+        },
+        {
+          "index": 41,
+          "header": "Fecha estimada de Recepción de Documentos",
+          "nonEmpty": 31,
+          "uniqueApprox": 31,
+          "samples": [
+            "=AN80+30",
+            "=AN94+30",
+            "=AN173+30",
+            "=AN174+30",
+            "=AN175+30"
+          ]
+        },
+        {
+          "index": 42,
+          "header": "Fecha máxima para recepción de documentos",
+          "nonEmpty": 19,
+          "uniqueApprox": 19,
+          "samples": [
+            "=AO80+10",
+            "=AO94+10",
+            "=AO173+7",
+            "=AO174+7",
+            "=AO175+7"
+          ]
+        },
+        {
+          "index": 43,
+          "header": "Fecha de recepción de documentos",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 44,
+          "header": "Alerta",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 45,
+          "header": "Fecha de Armado de Expediente",
+          "nonEmpty": 29,
+          "uniqueApprox": 29,
+          "samples": [
+            "=AP80+15",
+            "=AP94+15",
+            "=AP175+50",
+            "=AP176+50",
+            "=AP177+50"
+          ]
+        },
+        {
+          "index": 46,
+          "header": "Fecha Estimada de Sometimiento",
+          "nonEmpty": 17,
+          "uniqueApprox": 17,
+          "samples": [
+            "=AS80+15",
+            "=AS94+15",
+            "2024-09-18 00:00:00",
+            "=AS175+15",
+            "=AS176+15"
+          ]
+        },
+        {
+          "index": 47,
+          "header": "Fecha de Sometimiento",
+          "nonEmpty": 5,
+          "uniqueApprox": 5,
+          "samples": [
+            "2024-02-20 00:00:00",
+            "2024-07-18 00:00:00",
+            "2024-08-27 00:00:00",
+            "2024-09-03 00:00:00",
+            "2024-09-12 00:00:00"
+          ]
+        },
+        {
+          "index": 48,
+          "header": "Fecha de observación",
+          "nonEmpty": 5,
+          "uniqueApprox": 4,
+          "samples": [
+            "2024-06-13 00:00:00",
+            "2024-09-16 00:00:00",
+            "2024-09-26 00:00:00",
+            "2024-09-03 00:00:00",
+            "2024-09-16 00:00:00"
+          ]
+        },
+        {
+          "index": 49,
+          "header": "Fecha estimada para la aprobación",
+          "nonEmpty": 11,
+          "uniqueApprox": 11,
+          "samples": [
+            "=AU3+30",
+            "=AU4+30",
+            "=AU5+30",
+            "=AU6+30",
+            "=AT97+30"
+          ]
+        },
+        {
+          "index": 50,
+          "header": "Fecha de la aprobación",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 51,
+          "header": "Sales / Mkt input",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 52,
+          "header": "Prioridad",
+          "nonEmpty": 184,
+          "uniqueApprox": 4,
+          "samples": [
+            "2\n",
+            "1\n",
+            "1\n",
+            "1\n",
+            "1\n"
+          ]
+        },
+        {
+          "index": 53,
+          "header": "Oportunidad",
+          "nonEmpty": 132,
+          "uniqueApprox": 129,
+          "samples": [
+            "137,497,50",
+            "3433-02-13 00:00:00",
+            "2580-12-15 16:48:00",
+            "1,141,668,00",
+            "6,527,188,80"
+          ]
+        },
+        {
+          "index": 54,
+          "header": "Comentarios",
+          "nonEmpty": 5,
+          "uniqueApprox": 5,
+          "samples": [
+            "MINSA ha emitido 2 prevenciones. La 1era por que el CLV no ampara el dispositivo",
+            "El Catálogo no cumple con especificaciones y la página web no cargó. Pendiente r",
+            "Página Web no coincide con el Catálogo, se comunicó al Fabricante y estamos en e",
+            "El número de catalogo y el del Libre Venta no cuadran. Se comunicó al Fabricante",
+            "Observación: se requiere foto real del producto y corregir la marca en el formul"
+          ]
+        },
+        {
+          "index": 55,
+          "header": "Fecha de vencimiento",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 56,
+          "header": "Fecha de Actualización",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 57,
+          "header": "Fecha de Actualización2",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 58,
+          "header": "Fecha de Actualización3",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 59,
+          "header": "Fecha de Actualización4",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 60,
+          "header": "Fecha de Actualización5",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 61,
+          "header": "Fecha de Actualización6",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 62,
+          "header": "Fecha de Actualización7",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 63,
+          "header": "Fecha de Actualización8",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 64,
+          "header": "Fecha de Actualización9",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 65,
+          "header": "Fecha de Actualización10",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 66,
+          "header": "Fecha de Actualización11",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 67,
+          "header": "Fecha de Actualización12",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 68,
+          "header": "Fecha de Actualización13",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 69,
+          "header": "Fecha de Actualización14",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 70,
+          "header": "Fecha de Actualización15",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 71,
+          "header": "Fecha de Actualización16",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 72,
+          "header": "Fecha de Actualización17",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 73,
+          "header": "Fecha de Actualización18",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 74,
+          "header": "Fecha de Actualización19",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 75,
+          "header": "Fecha de Actualización20",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 76,
+          "header": "Fecha de Actualización21",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 77,
+          "header": "Fecha de Actualización22",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 78,
+          "header": "Fecha de Actualización23",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 79,
+          "header": "Fecha de Actualización24",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 80,
+          "header": "Fecha de Actualización25",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 81,
+          "header": "Fecha de Actualización26",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 82,
+          "header": "Fecha de Actualización27",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 83,
+          "header": "Fecha de Actualización28",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 84,
+          "header": "Fecha de Actualización29",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 85,
+          "header": "Fecha de Actualización30",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 86,
+          "header": "Fecha de Actualización31",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 87,
+          "header": "Fecha de Actualización32",
+          "nonEmpty": 0,
+          "uniqueApprox": 0,
+          "samples": []
+        },
+        {
+          "index": 88,
+          "header": "Linea",
+          "nonEmpty": 187,
+          "uniqueApprox": 187,
+          "samples": [
+            "47",
+            "48",
+            "49",
+            "50",
+            "52"
+          ]
+        }
+      ]
+    }
+  ]
+}

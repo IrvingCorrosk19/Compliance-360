@@ -1,0 +1,56 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: compliance360_postgres
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - compliance360_postgres_data:/var/lib/postgresql
+    # Puerto 5432 NO expuesto: solo accesible desde la red interna compliance360_net
+    networks:
+      - compliance360_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    container_name: compliance360_web
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Compliance360: Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      Jwt__SigningKey: ${JWT_SIGNING_KEY}
+    volumes:
+      - compliance360_storage:/app/storage
+      - compliance360_dataprotection_keys:/root/.aspnet/DataProtection-Keys
+    ports:
+      - "127.0.0.1:8085:8080"
+    networks:
+      - compliance360_net
+
+volumes:
+  compliance360_postgres_data:
+    name: compliance360_postgres_data
+  compliance360_storage:
+    name: compliance360_storage
+  compliance360_dataprotection_keys:
+    name: compliance360_dataprotection_keys
+
+networks:
+  compliance360_net:
+    name: compliance360_net
+    driver: bridge

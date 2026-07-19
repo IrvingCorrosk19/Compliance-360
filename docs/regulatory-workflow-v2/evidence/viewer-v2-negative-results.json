@@ -1,0 +1,38 @@
+[
+  {
+    "method": "PUT",
+    "apiPath": "/api/v2/tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/dossiers/e10df409-b314-411e-9016-23978284ca39/metadata",
+    "status": 403,
+    "text": ""
+  },
+  {
+    "method": "POST",
+    "apiPath": "/api/v2/tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/dossiers/e10df409-b314-411e-9016-23978284ca39/corrections",
+    "status": 403,
+    "text": ""
+  },
+  {
+    "method": "POST",
+    "apiPath": "/api/v2/tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/dossiers/e10df409-b314-411e-9016-23978284ca39/evidence",
+    "status": 403,
+    "text": ""
+  },
+  {
+    "method": "POST",
+    "apiPath": "/api/v2/tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/dossiers/e10df409-b314-411e-9016-23978284ca39/reopen-requests",
+    "status": 403,
+    "text": ""
+  },
+  {
+    "method": "POST",
+    "apiPath": "/api/v2/tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/dossiers/e10df409-b314-411e-9016-23978284ca39/override-requests",
+    "status": 403,
+    "text": ""
+  },
+  {
+    "method": "POST",
+    "apiPath": "/api/v2/tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/dossiers/e10df409-b314-411e-9016-23978284ca39/archive",
+    "status": 403,
+    "text": ""
+  }
+]

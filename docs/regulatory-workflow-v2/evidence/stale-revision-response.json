@@ -1,0 +1,10 @@
+{
+  "status": 409,
+  "body": {
+    "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
+    "title": "Conflict",
+    "status": 409,
+    "detail": "Revision conflict. Expected 1, current 2."
+  },
+  "text": "{\"type\":\"https://tools.ietf.org/html/rfc9110#section-15.5.10\",\"title\":\"Conflict\",\"status\":409,\"detail\":\"Revision conflict. Expected 1, current 2.\"}"
+}

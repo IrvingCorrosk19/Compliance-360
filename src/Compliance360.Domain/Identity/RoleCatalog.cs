@@ -30,6 +30,13 @@ public static class RoleCatalog
     public const string StorageAdministrator = "Storage Administrator";
     public const string NotificationAdministrator = "Notification Administrator";
     public const string Viewer = "Viewer";
+    public const string RegulatoryAdministrator = "Regulatory Administrator";
+    public const string RegulatoryManager = "Regulatory Manager";
+    public const string RegulatorySpecialist = "Regulatory Specialist";
+    public const string RegulatoryReviewer = "Regulatory Reviewer";
+    public const string RegulatoryApprover = "Regulatory Approver";
+    public const string RegulatorySubmitter = "Regulatory Submitter";
+    public const string RegulatoryViewer = "Regulatory Viewer";
 
     private static readonly RoleDefinition[] Definitions =
     [
@@ -68,11 +75,14 @@ public static class RoleCatalog
 
         // ----------------------------- Tenant -----------------------------
         new(TenantAdministrator, TenantAdministrator, RoleScope.Tenant,
-            "Administers the tenant: profile, users, roles and general settings. Does not operate business data by default.",
+            "Administers the tenant: profile, users, roles and general settings. Does not operate Regulatory Affairs dossiers by default (SoD).",
             [
                 P.TenantRead, P.TenantUpdate, P.TenantBranding, P.TenantBilling, P.TenantIntegrations,
                 P.TenantHealth, P.TenantBackup, P.TenantUsers, P.TenantRoles, P.IdentityManage, P.RbacManage,
-                P.TenantAudit, P.AuditRead,
+                P.TenantAudit, P.AuditRead, P.TemplateRead, P.TemplateManage,
+                P.RegulatoryConfigure, P.RegulatorySoDManage, P.RegulatoryProductRead, P.RegulatoryDossierRead,
+                P.RegulatoryRegistrationRead, P.RegulatoryManufacturerDocumentRead, P.RegulatoryLicenseRead,
+                P.RegulatoryReportRead,
             ]),
         new(TenantSecurityAdministrator, TenantSecurityAdministrator, RoleScope.Tenant,
             "Owns tenant security: MFA, SSO, domains, webhooks and API keys.",
@@ -87,12 +97,14 @@ public static class RoleCatalog
                 P.WorkflowRead, P.WorkflowCreate, P.WorkflowUpdate, P.AuditRead,
             ]),
         new(QualityManager, QualityManager, RoleScope.Tenant,
-            "Approver and coordinator. Approves documents, workflows, CAPAs, risks and technical sheets. Does not create business data.",
+            "Approver and coordinator. Approves documents, workflows, CAPAs, risks and technical sheets. Records external CT/RS decisions; does not prepare dossiers.",
             [
                 P.TenantRead, P.DocumentRead, P.DocumentApprove, P.WorkflowRead, P.WorkflowApprove,
                 P.TechnicalSheetRead, P.TechnicalSheetApprove, P.CapaRead, P.CapaApprove, P.CapaClose,
                 P.RiskRead, P.RiskApprove, P.RiskClose, P.IndicatorRead, P.IndicatorApprove,
                 P.AuditManagementRead, P.ReportRead, P.ReportExecute, P.AuditRead,
+                P.RegulatoryDossierRead, P.RegulatoryDossierApprove, P.RegulatoryRegistrationRead,
+                P.RegulatoryRegistrationManage, P.RegulatoryReportRead,
             ]),
         new(Auditor, Auditor, RoleScope.Tenant,
             "Plans and executes audits and records findings. Cannot manage or close the CAPAs raised from findings (SoD).",
@@ -147,6 +159,57 @@ public static class RoleCatalog
             [
                 P.TenantRead, P.DocumentRead, P.TechnicalSheetRead, P.SupplierRead, P.AuditManagementRead,
                 P.CapaRead, P.RiskRead, P.IndicatorRead, P.ReportRead, P.NotificationRead, P.AuditRead,
+                P.RegulatoryProductRead, P.RegulatoryDossierRead, P.RegulatoryRegistrationRead,
+                P.RegulatoryManufacturerDocumentRead, P.RegulatoryLicenseRead, P.RegulatoryReportRead,
+            ]),
+        new(RegulatoryAdministrator, RegulatoryAdministrator, RoleScope.Tenant,
+            "Owns Regulatory Affairs configuration (authorities, packs, import). Can create product + dossier (manual: PRODUCT.MANAGE + DOSSIER.CREATE) but does not operate, approve or submit dossiers (SoD).",
+            [
+                P.TenantRead, P.RegulatoryConfigure, P.RegulatorySoDManage, P.RegulatoryProductRead, P.RegulatoryProductManage,
+                P.RegulatoryDossierRead, P.RegulatoryDossierCreate, P.RegulatoryRegistrationRead, P.RegulatoryManufacturerDocumentRead,
+                P.RegulatoryManufacturerDocumentManage, P.RegulatoryLicenseRead, P.RegulatoryLicenseManage,
+                P.RegulatoryReportRead,
+            ]),
+        new(RegulatoryManager, RegulatoryManager, RoleScope.Tenant,
+            "Operational supervision: portfolio visibility, assignment support, external CT/RS recording, SoD emergency override.",
+            [
+                P.TenantRead, P.RegulatoryProductRead, P.RegulatoryDossierRead, P.RegulatoryDossierUpdate,
+                P.RegulatoryDossierApprove, P.RegulatoryObservationManage, P.RegulatoryRegistrationRead,
+                P.RegulatoryRegistrationManage, P.RegulatoryLicenseRead, P.RegulatoryReportRead,
+                P.RegulatorySoDManage, P.RegulatorySoDEmergencyOverride,
+            ]),
+        new(RegulatorySpecialist, RegulatorySpecialist, RoleScope.Tenant,
+            "Prepares registration dossiers and manufacturer documents. Cannot review own case, approve for submission, submit, or record CT/RS (SoD).",
+            [
+                P.TenantRead, P.RegulatoryProductRead, P.RegulatoryProductManage,
+                P.RegulatoryDossierRead, P.RegulatoryDossierCreate, P.RegulatoryDossierUpdate,
+                P.RegulatoryRequirementManage, P.RegulatoryObservationManage,
+                P.RegulatoryRegistrationRead, P.RegulatoryManufacturerDocumentRead,
+                P.RegulatoryManufacturerDocumentManage, P.RegulatoryLicenseRead, P.RegulatoryReportRead,
+            ]),
+        new(RegulatoryReviewer, RegulatoryReviewer, RoleScope.Tenant,
+            "Technically reviews requirements. Cannot prepare the same dossier when PreventSelfReview is on, approve for submission, or submit.",
+            [
+                P.TenantRead, P.RegulatoryProductRead, P.RegulatoryDossierRead, P.RegulatoryDossierReview,
+                P.RegulatoryRequirementManage, P.RegulatoryRegistrationRead, P.RegulatoryReportRead,
+            ]),
+        new(RegulatoryApprover, RegulatoryApprover, RoleScope.Tenant,
+            "Grants internal clearance for submission. Does not represent MINSA/CSS and does not submit when SeparateApproverAndSubmitter is on.",
+            [
+                P.TenantRead, P.RegulatoryProductRead, P.RegulatoryDossierRead, P.RegulatoryDossierApproveForSubmission,
+                P.RegulatoryRegistrationRead, P.RegulatoryReportRead,
+            ]),
+        new(RegulatorySubmitter, RegulatorySubmitter, RoleScope.Tenant,
+            "Records actual submission to the authority. Cannot grant internal clearance when SoD separation is required.",
+            [
+                P.TenantRead, P.RegulatoryProductRead, P.RegulatoryDossierRead, P.RegulatoryDossierSubmit,
+                P.RegulatoryRegistrationRead, P.RegulatoryReportRead,
+            ]),
+        new(RegulatoryViewer, RegulatoryViewer, RoleScope.Tenant,
+            "Read-only access to Regulatory Affairs portfolio, pipeline and registrations.",
+            [
+                P.TenantRead, P.RegulatoryProductRead, P.RegulatoryDossierRead, P.RegulatoryRegistrationRead,
+                P.RegulatoryManufacturerDocumentRead, P.RegulatoryLicenseRead, P.RegulatoryReportRead,
             ]),
     ];
 

@@ -6,6 +6,7 @@ using Compliance360.Application;
 using Compliance360.Application.Identity;
 using Compliance360.Domain.Identity;
 using Compliance360.Shared;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -90,6 +91,10 @@ public sealed class JwtTokenService : IJwtTokenService
             new("tenant_id", user.TenantId.ToString()),
             new("name", user.FullName)
         };
+        if (user.SessionId.HasValue)
+        {
+            claims.Add(new Claim("session_id", user.SessionId.Value.ToString()));
+        }
 
         claims.AddRange(user.Roles.Select(role => new Claim(ClaimTypes.Role, role)));
         claims.AddRange(user.Permissions.Select(permission => new Claim("permission", permission)));
@@ -212,6 +217,139 @@ public sealed class MfaChallengeTokenService : IMfaChallengeTokenService
 
         return Result<MfaChallengePrincipal>.Success(new MfaChallengePrincipal(tenantId, userId, (MfaMethod)methodValue, expiresAt));
     }
+
+    private byte[] Sign(string payloadSegment)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(_jwtOptions.SigningKey);
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_jwtOptions.SigningKey));
+        return hmac.ComputeHash(Encoding.UTF8.GetBytes(payloadSegment));
+    }
+
+    private static string Base64UrlEncode(byte[] bytes)
+    {
+        return Convert.ToBase64String(bytes).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+    }
+
+    private static byte[] Base64UrlDecode(string value)
+    {
+        var padded = value.Replace('-', '+').Replace('_', '/');
+        padded = padded.PadRight(padded.Length + ((4 - padded.Length % 4) % 4), '=');
+        return Convert.FromBase64String(padded);
+    }
+}
+
+public sealed class AuthResolverTokenService : IAuthResolverTokenService
+{
+    private const char TokenDelimiter = '.';
+    private const char PayloadDelimiter = '|';
+    private readonly JwtOptions _jwtOptions;
+    private readonly IClock _clock;
+    private readonly AuthResolverOptions _options;
+    private readonly IMemoryCache _cache;
+
+    public AuthResolverTokenService(IOptions<JwtOptions> jwtOptions, IOptions<AuthResolverOptions> options, IClock clock, IMemoryCache cache)
+    {
+        _jwtOptions = jwtOptions.Value;
+        _options = options.Value;
+        _clock = clock;
+        _cache = cache;
+    }
+
+    public string Create(AuthResolverPrincipal principal)
+    {
+        var expiresAt = principal.ExpiresAtUtc <= _clock.UtcNow
+            ? _clock.UtcNow.AddMinutes(_options.LifetimeMinutes)
+            : principal.ExpiresAtUtc;
+        var payload = string.Join(
+            PayloadDelimiter,
+            principal.NormalizedEmail,
+            string.Join(',', principal.AllowedTenantIds.Select(id => id.ToString("D"))),
+            principal.PreselectedTenantId?.ToString("D") ?? string.Empty,
+            expiresAt.ToUnixTimeSeconds(),
+            principal.Nonce);
+        var payloadSegment = Base64UrlEncode(Encoding.UTF8.GetBytes(payload));
+        var signatureSegment = Base64UrlEncode(Sign(payloadSegment));
+        return $"{payloadSegment}{TokenDelimiter}{signatureSegment}";
+    }
+
+    public Result<AuthResolverPrincipal> Validate(string token)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            return Result<AuthResolverPrincipal>.Failure("Tu sesion de identificacion no es valida. Vuelve a ingresar tu correo.");
+        }
+
+        var segments = token.Split(TokenDelimiter);
+        if (segments.Length != 2)
+        {
+            return Result<AuthResolverPrincipal>.Failure("Tu sesion de identificacion no es valida. Vuelve a ingresar tu correo.");
+        }
+
+        string[] payload;
+        try
+        {
+            var expectedSignature = Sign(segments[0]);
+            var actualSignature = Base64UrlDecode(segments[1]);
+            if (!CryptographicOperations.FixedTimeEquals(expectedSignature, actualSignature))
+            {
+                return Result<AuthResolverPrincipal>.Failure("Tu sesion de identificacion no es valida. Vuelve a ingresar tu correo.");
+            }
+
+            payload = Encoding.UTF8.GetString(Base64UrlDecode(segments[0])).Split(PayloadDelimiter);
+        }
+        catch (FormatException)
+        {
+            return Result<AuthResolverPrincipal>.Failure("Tu sesion de identificacion no es valida. Vuelve a ingresar tu correo.");
+        }
+
+        if (payload.Length != 5 || !long.TryParse(payload[3], out var expiresUnix))
+        {
+            return Result<AuthResolverPrincipal>.Failure("Tu sesion de identificacion no es valida. Vuelve a ingresar tu correo.");
+        }
+
+        var expiresAt = DateTimeOffset.FromUnixTimeSeconds(expiresUnix);
+        if (expiresAt <= _clock.UtcNow)
+        {
+            return Result<AuthResolverPrincipal>.Failure("Tu identificacion expiro. Vuelve a ingresar tu correo y contrasena.");
+        }
+
+        var nonce = payload[4];
+        if (string.IsNullOrWhiteSpace(nonce))
+        {
+            return Result<AuthResolverPrincipal>.Failure("Tu sesion de identificacion no es valida. Vuelve a ingresar tu correo.");
+        }
+
+        var replayKey = ReplayCacheKey(nonce);
+        if (_cache.TryGetValue(replayKey, out _))
+        {
+            return Result<AuthResolverPrincipal>.Failure("Esta identificacion ya se uso. Vuelve a ingresar tu correo para continuar.");
+        }
+
+        Guid? preselected = null;
+        if (!string.IsNullOrWhiteSpace(payload[2]) && Guid.TryParse(payload[2], out var preselectedParsed))
+        {
+            preselected = preselectedParsed;
+        }
+
+        var allowedTenants = payload[1]
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(Guid.Parse)
+            .Distinct()
+            .ToArray();
+        return Result<AuthResolverPrincipal>.Success(new AuthResolverPrincipal(payload[0], allowedTenants, preselected, expiresAt, nonce));
+    }
+
+    public void MarkUsed(AuthResolverPrincipal principal)
+    {
+        if (string.IsNullOrWhiteSpace(principal.Nonce))
+        {
+            return;
+        }
+
+        _cache.Set(ReplayCacheKey(principal.Nonce), true, principal.ExpiresAtUtc);
+    }
+
+    private static string ReplayCacheKey(string nonce) => $"auth-resolver:{nonce}";
 
     private byte[] Sign(string payloadSegment)
     {

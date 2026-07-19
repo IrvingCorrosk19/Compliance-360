@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
+
 namespace Compliance360.Web.Errors;
 
 public sealed class GlobalExceptionMiddleware
@@ -29,6 +32,28 @@ public sealed class GlobalExceptionMiddleware
         catch (ArgumentException exception)
         {
             await WriteProblemAsync(httpContext, StatusCodes.Status400BadRequest, "Validation error", exception.Message);
+        }
+        catch (OperationCanceledException) when (httpContext.RequestAborted.IsCancellationRequested)
+        {
+            // The client disconnected or canceled navigation. This is not an
+            // application failure and must not pollute production 5xx signals.
+            if (!httpContext.Response.HasStarted)
+            {
+                httpContext.Response.StatusCode = 499;
+            }
+        }
+        catch (DbUpdateException exception) when (
+            exception.InnerException is PostgresException
+            {
+                SqlState: PostgresErrorCodes.UniqueViolation
+            })
+        {
+            _logger.LogWarning(exception, "Rejected a duplicate persistence operation.");
+            await WriteProblemAsync(
+                httpContext,
+                StatusCodes.Status409Conflict,
+                "Conflict",
+                "A record with the same unique identity already exists.");
         }
         catch (Exception exception)
         {

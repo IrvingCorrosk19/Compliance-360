@@ -1,7 +1,7 @@
 # 09 · FUNCTIONAL CERTIFICATION REPORT
 
 **Product:** Compliance 360 · **Program:** Enterprise Functional Certification & Stabilization
-**Commit:** `8d6f964` · **Date:** 2026-07-03 · **Signed by:** Director of QA, Architecture & Product
+| **Commit:** `1a7593bb43782f71d74d6d089ffaeb3b80127336` · **Date:** 2026-07-09 · **Signed by:** Director of QA, Architecture & Product
 
 ## 1. Scope executed
 - 15 roles certified (13 tenant + Platform Administrator + Support Operator).

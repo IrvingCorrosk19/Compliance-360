@@ -1,0 +1,134 @@
+{
+  "role": "RA-SUB",
+  "email": "ra.sub@cert.local",
+  "when": "2026-07-19T00:23:28.552Z",
+  "pass": true,
+  "steps": [
+    {
+      "id": "LOGIN",
+      "action": "Login",
+      "expected": "Autenticación exitosa",
+      "actual": "shell visible",
+      "pass": true,
+      "ms": 3289,
+      "screenshot": "ra-sub-login.png"
+    },
+    {
+      "id": "SHELL-SIDEBAR",
+      "action": "Validar sidebar (menús visibles y ocultos)",
+      "expected": "Sidebar exacto: [dashboard, regulatory]",
+      "actual": "[dashboard, regulatory]",
+      "pass": true,
+      "ms": 18
+    },
+    {
+      "id": "SHELL-NAVBAR",
+      "action": "Validar navbar (sesión, rol, tenant, breadcrumb)",
+      "expected": "Chip de sesión con rol + tenant + breadcrumb visible",
+      "actual": "chip=\"RA Submitter Regulatory Submitter\" tenant=\"Tenant: 82af3877...\"",
+      "pass": true,
+      "ms": 34
+    },
+    {
+      "id": "DASHBOARD-KPI",
+      "action": "Validar dashboard (widgets/KPIs/cards)",
+      "expected": "Dashboard con tarjetas métricas visibles",
+      "actual": "bloques=8",
+      "pass": true,
+      "ms": 1571,
+      "screenshot": "ra-sub-dashboard-kpi.png"
+    },
+    {
+      "id": "RA-TABS",
+      "action": "Validar pestañas RA visibles/ocultas",
+      "expected": "Tabs exactos: [dashboard, pipeline, dossiers, registrations]",
+      "actual": "[dashboard, pipeline, dossiers, registrations]",
+      "pass": true,
+      "ms": 1338,
+      "screenshot": "ra-sub-ra-tabs.png"
+    },
+    {
+      "id": "FIND-APPROVED",
+      "action": "Buscar expediente aprobado internamente",
+      "expected": "Expediente en ApprovedForSubmission accesible",
+      "actual": "status=ApprovedForSubmission",
+      "pass": true,
+      "ms": 771
+    },
+    {
+      "id": "SUBMIT",
+      "action": "Someter a la autoridad (registra fecha de sometimiento)",
+      "expected": "Estado Submitted + submittedOn registrado",
+      "actual": "status=Submitted submittedOn=2026-07-19",
+      "pass": true,
+      "ms": 4162,
+      "notes": "El Submitter registra trámite, número externo, fecha y comprobante; el Manager/QM registra después la resolución CT/RS.",
+      "screenshot": "ra-sub-submit.png"
+    },
+    {
+      "id": "NO-EDIT-LOCKED",
+      "action": "Confirmar que NO puede editar información bloqueada",
+      "expected": "Requisitos/fechas/transiciones → 401/403",
+      "actual": "http=[403,403,403]",
+      "pass": true,
+      "ms": 966
+    },
+    {
+      "id": "NEG-API-APPROVE-INT",
+      "action": "POST /tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/dossiers/6bbd9406-e565-45f1-9b60-cfd1125e248d/approve-for-submission",
+      "expected": "HTTP 401/403 (política de permisos)",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 201
+    },
+    {
+      "id": "NEG-API-APPROVE-EXT",
+      "action": "POST /tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/dossiers/6bbd9406-e565-45f1-9b60-cfd1125e248d/approve",
+      "expected": "HTTP 401/403 (política de permisos)",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 200
+    },
+    {
+      "id": "NEG-API-OBSERVE",
+      "action": "POST /tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/dossiers/6bbd9406-e565-45f1-9b60-cfd1125e248d/observations",
+      "expected": "HTTP 401/403 (política de permisos)",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 285
+    },
+    {
+      "id": "NEG-API-CREATE-DOSSIER",
+      "action": "POST /tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/dossiers",
+      "expected": "HTTP 401/403 (política de permisos)",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 198
+    },
+    {
+      "id": "NEG-URL-tenant-administration",
+      "action": "Acceso por URL directa #/tenant-administration",
+      "expected": "Pantalla bloqueada (Acceso denegado) — manual no asigna esta pantalla al rol",
+      "actual": "Acceso denegado renderizado",
+      "pass": true,
+      "ms": 1273,
+      "screenshot": "ra-sub-neg-url-tenant-administration.png"
+    },
+    {
+      "id": "NEG-JS-ra-approve-internal",
+      "action": "Forzar \"Aprobar internamente\" vía JavaScript",
+      "expected": "Botón inexistente en DOM (oculto por RBAC) — no ejecutable",
+      "actual": "botón ausente del DOM",
+      "pass": true,
+      "ms": 15
+    },
+    {
+      "id": "LOGOUT",
+      "action": "Cerrar sesión",
+      "expected": "Login visible",
+      "actual": "login visible",
+      "pass": true,
+      "ms": 183
+    }
+  ]
+}

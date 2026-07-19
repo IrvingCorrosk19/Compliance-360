@@ -1,10 +1,13 @@
-const API = "/api/v1";
+﻿const API = "/api/v1";
 const DEFAULT_TENANT = "dc7c46ee-cb25-4ed5-b0b4-800788f7f626";
 const DEFAULT_EMAIL = "admin@compliance360.local";
+const LOGIN_V2_ENABLED = localStorage.getItem("c360.login.v2") !== "false";
 
 const state = {
   token: localStorage.getItem("c360.token"),
   permissions: permissionsFromToken(localStorage.getItem("c360.token")),
+  role: roleFromToken(localStorage.getItem("c360.token")) || localStorage.getItem("c360.role"),
+  displayName: displayNameFromToken(localStorage.getItem("c360.token")) || localStorage.getItem("c360.displayName"),
   tenantId: localStorage.getItem("c360.tenantId") || DEFAULT_TENANT,
   email: localStorage.getItem("c360.email") || DEFAULT_EMAIL,
   userId: localStorage.getItem("c360.userId"),
@@ -13,6 +16,14 @@ const state = {
   translations: {},
   route: location.hash.replace("#/", "") || "dashboard",
   mfaChallenge: null,
+  auth: {
+    step: "email",
+    resolverToken: null,
+    organizations: [],
+    preselectedOrganizationId: null,
+    selectedOrganizationId: null,
+    rememberMe: localStorage.getItem("c360.rememberMe") === "true"
+  },
   cache: {},
   loading: {
     active: 0,
@@ -27,111 +38,209 @@ const state = {
     reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches
   }
 };
+window.state = state;
+
+function t(key, params) {
+  return window.I18n?.t(key, params) ?? key;
+}
+window.t = t;
 
 function detectInitialLanguage() {
-  const stored = localStorage.getItem("c360.language") || sessionStorage.getItem("c360.language");
-  if (stored === "es" || stored === "en") return stored;
-  const cookie = document.cookie.split("; ").find(item => item.startsWith("c360.language="))?.split("=")[1];
-  if (cookie === "es" || cookie === "en") return cookie;
-  return navigator.language?.toLowerCase().startsWith("en") ? "en" : "es";
+  return window.I18n?.getLanguage?.() || (navigator.language?.toLowerCase().startsWith("en") ? "en" : "es");
 }
 
 async function initializeI18n() {
-  await loadLanguage(state.language);
-  applyDocumentLanguage();
+  await window.I18n.ready;
+  state.language = window.I18n.getLanguage();
+  if (state.token && state.tenantId) {
+    try {
+      const prefs = await request(`/tenants/${state.tenantId}/users/me/preferences`);
+      if (prefs?.preferredLanguage === "es" || prefs?.preferredLanguage === "en") {
+        await window.I18n.setLanguage(prefs.preferredLanguage);
+        state.language = prefs.preferredLanguage;
+      }
+    } catch {
+      /* preferences are optional on first boot */
+    }
+  }
 }
 
 async function loadLanguage(language) {
-  const normalized = language === "en" ? "en" : "es";
-  const resources = ["Common", "Menu", "Validation", "Errors", "Dashboard", "Users", "Reports"];
-  const entries = await Promise.all(resources.map(async resource => {
-    const response = await fetch(`/Resources/${normalized}/${resource}.json`, { cache: "no-cache" });
-    if (!response.ok) return [resource, {}];
-    return [resource, await response.json()];
-  }));
-  state.language = normalized;
-  state.translations = Object.fromEntries(entries);
-  localStorage.setItem("c360.language", normalized);
-  sessionStorage.setItem("c360.language", normalized);
-  document.cookie = `c360.language=${normalized}; path=/; max-age=31536000; samesite=lax`;
-  applyDocumentLanguage();
+  await window.I18n.setLanguage(language);
+  state.language = window.I18n.getLanguage();
 }
 
-function applyDocumentLanguage() {
-  document.documentElement.lang = state.language;
-}
-
-function i18nTextMap() {
-  return Object.values(state.translations).reduce((map, resource) => {
-    Object.assign(map, resource?.text || resource || {});
-    return map;
-  }, {});
-}
-
-function translateText(value) {
-  const text = String(value || "");
-  const map = i18nTextMap();
-  if (map[text]) return map[text];
-  const normalizedKey = Object.keys(map).find(key => key.toLowerCase() === text.toLowerCase());
-  return normalizedKey ? map[normalizedKey] : text;
-}
+let translateDomRunning = false;
 
 function translateDom(root = document) {
-  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
-    acceptNode(node) {
-      if (!node.nodeValue?.trim()) return NodeFilter.FILTER_REJECT;
-      if (["SCRIPT", "STYLE", "TEXTAREA"].includes(node.parentElement?.tagName)) return NodeFilter.FILTER_REJECT;
-      return NodeFilter.FILTER_ACCEPT;
-    }
-  });
-  const nodes = [];
-  while (walker.nextNode()) nodes.push(walker.currentNode);
-  nodes.forEach(node => {
-    const original = node.nodeValue;
-    const trimmed = original.trim();
-    const translated = translateText(trimmed);
-    if (translated !== trimmed) {
-      node.nodeValue = original.replace(trimmed, translated);
-    }
-  });
-  root.querySelectorAll?.("[placeholder], [title], [aria-label]").forEach(element => {
-    ["placeholder", "title", "aria-label"].forEach(attribute => {
-      const value = element.getAttribute(attribute);
-      if (value) element.setAttribute(attribute, translateText(value));
+  translateDomRunning = true;
+  try {
+    window.I18n?.applyDom(root);
+    const reverse = window.__I18N_REVERSE;
+    if (!(reverse instanceof Map)) return;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        if (!node.nodeValue?.trim()) return NodeFilter.FILTER_REJECT;
+        if (["SCRIPT", "STYLE", "TEXTAREA", "INPUT", "SELECT", "OPTION"].includes(node.parentElement?.tagName)) {
+          return NodeFilter.FILTER_REJECT;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
     });
-  });
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(node => {
+      const original = node.nodeValue;
+      const trimmed = original.trim();
+      const key = reverse.get(trimmed);
+      if (!key) return;
+      const translated = t(key);
+      if (translated && translated !== key && translated !== trimmed) {
+        node.nodeValue = original.replace(trimmed, translated);
+      }
+    });
+    root.querySelectorAll?.("option").forEach(option => {
+      const text = option.textContent.trim();
+      const key = reverse.get(text);
+      if (!key) return;
+      const translated = t(key);
+      if (translated && translated !== key && translated !== text) option.textContent = translated;
+    });
+    root.querySelectorAll?.("[placeholder], [title], [aria-label]").forEach(element => {
+      ["placeholder", "title", "aria-label"].forEach(attribute => {
+        const value = element.getAttribute(attribute);
+        if (!value) return;
+        const key = reverse.get(value.trim());
+        if (!key) return;
+        const translated = t(key);
+        if (translated && translated !== key) element.setAttribute(attribute, translated);
+      });
+    });
+  } finally {
+    // Discard mutation records produced by this pass so the observer
+    // does not re-trigger itself in a loop.
+    if (typeof translateObserver !== "undefined") translateObserver.takeRecords();
+    translateDomRunning = false;
+  }
+}
+
+// Modules like the RA console and Compliance Studio re-render themselves
+// without going through renderRoute, so translate any DOM they inject.
+let translateObserverTimer = null;
+const translateObserver = new MutationObserver(mutations => {
+  if (translateDomRunning) return;
+  const hasNewContent = mutations.some(m => m.addedNodes.length > 0);
+  if (!hasNewContent) return;
+  clearTimeout(translateObserverTimer);
+  translateObserverTimer = setTimeout(() => {
+    const content = document.querySelector("#content");
+    if (content) translateDom(content);
+  }, 80);
+});
+
+function startTranslateObserver() {
+  const app = document.querySelector("#app");
+  if (!app || app.dataset.i18nObserved) return;
+  app.dataset.i18nObserved = "true";
+  translateObserver.observe(app, { childList: true, subtree: true });
 }
 
 function languageSelectorView(compact = false) {
   return `
     <label class="${compact ? "language-switch compact" : "language-switch"}">
-      <span>${translateText("Idioma")}</span>
-      <select id="language-selector" aria-label="${translateText("Idioma")}">
-        <option value="es" ${state.language === "es" ? "selected" : ""}>Español</option>
-        <option value="en" ${state.language === "en" ? "selected" : ""}>English</option>
-      </select>
+      <span>${t("Settings.Language")}</span>
+      ${window.I18n.languageSelectorHtml(compact)}
     </label>`;
 }
 
 function bindLanguageSelector() {
-  document.querySelectorAll("#language-selector").forEach(selector => {
-    selector.addEventListener("change", async event => {
-      await loadLanguage(event.currentTarget.value);
-      render();
-      toast(translateText("Idioma actualizado."), "success");
+  window.I18n.bindLanguageSelector(async language => {
+    state.language = language;
+    if (state.token && state.tenantId) {
+      try {
+        await request(`/tenants/${state.tenantId}/users/me/preferences`, {
+          method: "PUT",
+          body: { preferredLanguage: language }
+        });
+      } catch {
+        /* local preference still applied */
+      }
+    }
+    render();
+    toast(t("Common.LanguageUpdated"), "success");
+  });
+}
+
+function decodeTokenPayload(token) {
+  if (!token) return null;
+  try {
+    return JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+  } catch {
+    return null;
+  }
+}
+
+function permissionsFromToken(token) {
+  const payload = decodeTokenPayload(token);
+  if (!payload) return [];
+  const permissions = payload.permission || [];
+  return Array.isArray(permissions) ? permissions : [permissions];
+}
+
+function roleFromToken(token) {
+  const payload = decodeTokenPayload(token);
+  if (!payload) return null;
+  const role = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]
+    || payload.role
+    || payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"];
+  if (Array.isArray(role)) return role[0] || null;
+  return role || null;
+}
+
+function displayNameFromToken(token) {
+  const payload = decodeTokenPayload(token);
+  if (!payload) return null;
+  return payload.name || payload.unique_name || payload.fullName || null;
+}
+
+function passwordFieldHtml(id, name, labelText) {
+  return `
+    <div class="field">
+      <label for="${id}">${labelText}</label>
+      <div class="password-field">
+        <input id="${id}" name="${name}" type="password" autocomplete="current-password" required>
+        <button type="button" class="password-toggle" data-password-toggle="${id}" aria-label="${t("Login.ShowPassword")}" aria-pressed="false" title="${t("Login.ShowPassword")}">
+          <svg class="eye-open" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 5c-5 0-9.27 3.11-11 7 1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
+          <svg class="eye-closed" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" hidden><path fill="currentColor" d="M2.1 3.51 3.5 2.1l18.4 18.4-1.41 1.41-3.06-3.06A11.7 11.7 0 0 1 12 19c-5 0-9.27-3.11-11-7a13.2 13.2 0 0 1 5.12-5.55L2.1 3.51zM12 7a5 5 0 0 1 4.9 6.1l-1.56-1.56A3 3 0 0 0 12.5 9.2L12 7zm0-2c5 0 9.27 3.11 11 7a13.3 13.3 0 0 1-3.48 4.55l-1.45-1.45A11.2 11.2 0 0 0 21.1 12C19.37 8.11 15.1 5 12 5c-.7 0-1.38.07-2.04.2L8.4 3.64A12.7 12.7 0 0 1 12 5z"/></svg>
+        </button>
+      </div>
+    </div>`;
+}
+
+function bindPasswordToggles(root = document) {
+  root.querySelectorAll("[data-password-toggle]").forEach(button => {
+    if (button.dataset.bound === "1") return;
+    button.dataset.bound = "1";
+    button.addEventListener("click", () => {
+      const input = document.getElementById(button.dataset.passwordToggle);
+      if (!input) return;
+      const show = input.type === "password";
+      input.type = show ? "text" : "password";
+      button.setAttribute("aria-pressed", show ? "true" : "false");
+      button.setAttribute("aria-label", show ? t("Login.HidePassword") : t("Login.ShowPassword"));
+      button.setAttribute("title", show ? t("Login.HidePassword") : t("Login.ShowPassword"));
+      const open = button.querySelector(".eye-open");
+      const closed = button.querySelector(".eye-closed");
+      if (open) open.hidden = show;
+      if (closed) closed.hidden = !show;
     });
   });
 }
 
-function permissionsFromToken(token) {
-  if (!token) return [];
-  try {
-    const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
-    const permissions = payload.permission || [];
-    return Array.isArray(permissions) ? permissions : [permissions];
-  } catch {
-    return [];
-  }
+function currentSessionLabel() {
+  const name = state.displayName || state.email || t("Session.User");
+  const role = state.role || t("Session.NoRole");
+  return { name, role, email: state.email || "" };
 }
 
 function hasPermission(code) {
@@ -142,40 +251,39 @@ function hasAnyPermission(codes) {
   return codes.some(code => hasPermission(code));
 }
 
+window.hasPermission = hasPermission;
+window.hasAnyPermission = hasAnyPermission;
+window.permissionsFromToken = permissionsFromToken;
+
 const routePermissions = {
-  dashboard: ["TENANT.READ"],
-  compliance: ["TENANT.READ"],
-  reports: ["REPORT.READ", "REPORT.EXECUTE", "REPORT.MANAGE"],
+  dashboard: ["TENANT.READ", "REGULATORY.REPORT.READ"],
   "audit-trail": ["AUDIT.READ", "TENANT.AUDIT"],
-  documents: ["DOCUMENT.READ", "DOCUMENT.CREATE", "DOCUMENT.UPDATE", "DOCUMENT.APPROVE"],
-  "technical-sheets": ["TECHNICALSHEET.READ", "TECHNICALSHEET.CREATE", "TECHNICALSHEET.UPDATE", "TECHNICALSHEET.APPROVE"],
-  suppliers: ["SUPPLIER.READ", "SUPPLIER.CREATE", "SUPPLIER.UPDATE", "SUPPLIER.APPROVE"],
-  audits: ["AUDITMANAGEMENT.READ", "AUDITMANAGEMENT.MANAGE"],
-  capa: ["CAPA.READ", "CAPA.MANAGE", "CAPA.APPROVE"],
-  risks: ["RISK.READ", "RISK.MANAGE", "RISK.APPROVE"],
-  indicators: ["INDICATOR.READ", "INDICATOR.MANAGE"],
   "superadmin-platform": ["PLATFORM.DASHBOARD.READ"],
   "tenant-administration": ["PLATFORM.TENANT.READ", "TENANT.USERS", "TENANT.ROLES", "TENANT.UPDATE"],
-  "template-builder": ["TENANT.UPDATE"],
-  regulatory: ["TENANT.READ"],
-  training: ["TENANT.READ"],
-  "supplier-portal": ["SUPPLIER.READ", "SUPPLIER.CREATE", "SUPPLIER.UPDATE", "SUPPLIER.APPROVE"],
-  "customer-portal": ["TENANT.READ"],
-  security: ["TENANT.SECURITY"],
+  regulatory: ["REGULATORY.DOSSIER.READ", "REGULATORY.PRODUCT.READ", "REGULATORY.REPORT.READ", "REGULATORY.CONFIGURE"],
+  documents: ["DOCUMENT.READ"],
+  "technical-sheets": ["TECHNICALSHEET.READ"],
+  suppliers: ["SUPPLIER.READ"],
+  "supplier-portal": ["SUPPLIER.READ"],
+  audits: ["AUDITMANAGEMENT.READ"],
+  capa: ["CAPA.READ"],
+  risks: ["RISK.READ"],
+  indicators: ["INDICATOR.READ"],
+  reports: ["REPORT.READ"],
+  // Manual: pantalla Security pertenece al Tenant Administrator (lectura "según permisos").
+  security: ["TENANT.SECURITY", "TENANT.USERS"],
   configuration: ["TENANT.STORAGE", "STORAGE.READ", "TENANT.NOTIFICATIONS", "NOTIFICATION.READ", "NOTIFICATION.ADMIN"]
 };
 
-// Permissions that unlock write/manage affordances (create & edit buttons) for
-// each operational route. A user with only READ sees a read-only experience.
 const routeManagePermissions = {
+  configuration: ["TENANT.STORAGE", "STORAGE.CREATE", "STORAGE.UPDATE", "TENANT.NOTIFICATIONS", "NOTIFICATION.ADMIN"],
   documents: ["DOCUMENT.CREATE", "DOCUMENT.UPDATE"],
   "technical-sheets": ["TECHNICALSHEET.CREATE", "TECHNICALSHEET.UPDATE"],
-  suppliers: ["SUPPLIER.CREATE", "SUPPLIER.UPDATE", "SUPPLIER.APPROVE"],
+  suppliers: ["SUPPLIER.CREATE", "SUPPLIER.UPDATE"],
   audits: ["AUDITMANAGEMENT.MANAGE"],
   capa: ["CAPA.MANAGE"],
   risks: ["RISK.MANAGE"],
-  indicators: ["INDICATOR.MANAGE"],
-  configuration: ["TENANT.STORAGE", "STORAGE.CREATE", "STORAGE.UPDATE", "TENANT.NOTIFICATIONS", "NOTIFICATION.ADMIN"]
+  indicators: ["INDICATOR.MANAGE"]
 };
 
 function canNavigate(route) {
@@ -203,42 +311,57 @@ const loadingMessages = {
   configuration: ["Aplicando configuracion...", "Consultando proveedores...", "Verificando integraciones..."],
   upload: ["Subiendo archivos...", "Calculando tiempo restante...", "Validando evidencia..."],
   export: ["Generando PDF...", "Exportando Excel...", "Preparando descarga..."],
-  save: ["Guardando cambios...", "Actualizando informacion...", "Procesando solicitud..."]
+  save: ["Guardando cambios...", "Actualizando informacion...", "Procesando solicitud..."],
+  regulatory: ["Cargando Regulatory Affairs...", "Consultando portafolio...", "Preparando consola RA..."],
+  "regutrack-import": [
+    "Leyendo archivo REGUTRACK...",
+    "Validando hojas y columnas...",
+    "Preparando filas para stage...",
+    "Enviando al servidor...",
+    "Registrando job de importación...",
+    "Esto puede tardar con archivos grandes..."
+  ]
 };
 
 const navigation = [
-  { group: "Command Center", items: [
-    ["dashboard", "Executive Dashboard"],
-    ["compliance", "Compliance Dashboard"],
-    ["reports", "Report Center"],
-    ["audit-trail", "Audit Trail"]
+  { group: "Nav.CommandCenter", items: [
+    ["dashboard", "Nav.Dashboard"],
+    ["audit-trail", "Tac.Audit"]
   ]},
-  { group: "Operations", items: [
-    ["superadmin-platform", "SuperAdmin Platform"],
-    ["documents", "Document Management"],
-    ["technical-sheets", "Technical Sheets"],
-    ["suppliers", "Supplier Management"],
-    ["audits", "Audit Management"],
-    ["capa", "CAPA"],
-    ["risks", "Risk Management"],
-    ["indicators", "Quality Indicators"]
+  { group: "Nav.Regulatory", items: [
+    ["regulatory", "Regulatory.Title"]
   ]},
-  { group: "Enterprise", items: [
-    ["superadmin-platform", "SuperAdmin Platform"],
-    ["tenant-administration", "Tenant Administration"],
-    ["template-builder", "Template Builder"],
-    ["regulatory", "Regulatory Management"],
-    ["training", "Training Management"],
-    ["supplier-portal", "Supplier Portal"],
-    ["customer-portal", "Customer Portal"],
-    ["security", "Security"],
-    ["configuration", "Configuration"]
+  { group: "Nav.Quality", items: [
+    ["documents", "Nav.Documents"],
+    ["technical-sheets", "Nav.TechnicalSheets"],
+    ["suppliers", "Nav.Suppliers"],
+    ["supplier-portal", "Nav.SupplierPortal"],
+    ["audits", "Nav.Audits"],
+    ["capa", "Nav.Capa"],
+    ["risks", "Nav.Risks"],
+    ["indicators", "Nav.Indicators"],
+    ["reports", "Nav.Reports"]
+  ]},
+  { group: "Nav.Administration", items: [
+    ["superadmin-platform", "Nav.Platform"],
+    ["tenant-administration", "Tac.Title"],
+    ["security", "Dashboard.Security2"],
+    ["configuration", "Settings.Configuration"]
   ]}
 ];
 
 const routeMetadata = Object.fromEntries(navigation.flatMap(group =>
-  group.items.map(([key, label]) => [key, { label, group: group.group, initials: initials(label) }])
+  group.items.map(([key, labelKey]) => [key, { labelKey, groupKey: group.group, initials: initials(key) }])
 ));
+
+function navLabel(key) {
+  const meta = routeMetadata[key];
+  return meta ? t(meta.labelKey) : key;
+}
+
+function navGroupLabel(groupKey) {
+  return t(groupKey);
+}
 
 const modules = {
   documents: {
@@ -301,8 +424,8 @@ const enterpriseWorkspaces = {
   },
   regulatory: {
     type: 1,
-    title: "Regulatory Management",
-    description: "Obligaciones regulatorias, evidencias, vencimientos, controles y cumplimiento normativo.",
+    title: "[LEGACY] Regulatory Workspace Tracker",
+    description: "Legacy tracker. No usar como expediente. La operación vive en RA Console (#/regulatory).",
     columns: ["title", "code", "status", "dueAtUtc"]
   },
   training: {
@@ -347,6 +470,7 @@ initializeI18n().then(render);
 
 function render() {
   ensureLoadingHost();
+  startTranslateObserver();
   const app = document.querySelector("#app");
   if (!state.token && state.mfaChallenge) {
     app.innerHTML = mfaChallengeView();
@@ -377,89 +501,136 @@ function mfaChallengeView() {
       <section class="login-panel" aria-labelledby="mfa-title">
         <div class="brand-line">
           <div class="brand-mark" aria-hidden="true">C360</div>
-          <span class="product-badge">MFA Required</span>
+          <span class="product-badge">MFA</span>
           ${languageSelectorView(true)}
         </div>
-        <h1 id="mfa-title">Verificacion de segundo factor</h1>
-        <p>El tenant o el usuario requiere MFA. Ingresa el codigo TOTP para emitir el token final de sesion.</p>
+        <h1 id="mfa-title">${t("MFA.Title")}</h1>
+        <p>${t("MFA.Hint")}</p>
         <form id="mfa-form" class="form-stack">
           <div class="field">
-            <label for="verificationCode">Codigo de 6 digitos</label>
+            <label for="verificationCode">${t("MFA.Code")}</label>
             <input id="verificationCode" name="verificationCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required>
           </div>
-          <button class="btn primary" type="submit">Completar login seguro</button>
-          <button id="cancel-mfa" class="btn subtle" type="button">Cancelar</button>
+          <button class="btn primary" type="submit">${t("MFA.Submit")}</button>
+          <button id="cancel-mfa" class="btn subtle" type="button">${t("Common.Cancel")}</button>
         </form>
       </section>
       <section class="login-hero">
         <div class="hero-card">
-          <span class="product-badge">Zero token before MFA</span>
-          <h2>JWT bloqueado hasta completar el challenge</h2>
-          <p>Compliance 360 protege el acceso productivo con challenge firmado y auditoria de MFA requerida, exitosa o fallida.</p>
+          <span class="product-badge">MFA</span>
+          <h2>${t("MFA.Title")}</h2>
+          <p>${t("MFA.Hint")}</p>
         </div>
       </section>
     </main>`;
 }
 
 function loginView() {
+  if (!LOGIN_V2_ENABLED) return legacyLoginView();
+  const step = state.auth.step;
+  const selectedOrg = state.auth.organizations.find(organization => organization.id === state.auth.selectedOrganizationId);
+  const subtitle = step === "email"
+    ? t("Login.EmailStepHint")
+    : step === "organization"
+      ? t("Login.OrganizationStepHint")
+      : t("Login.PasswordStepHint");
+  const orgHint = selectedOrg ? `<div class="org-selected-chip"><strong>${escapeHtml(selectedOrg.name)}</strong></div>` : "";
   return `
     <main class="login-page">
       <section class="login-panel" aria-labelledby="login-title">
         <div class="brand-line">
           <div class="brand-mark" aria-hidden="true">C360</div>
-          <span class="product-badge">Enterprise SaaS</span>
+          <span class="product-badge">${t("Brand.Edition")}</span>
           ${languageSelectorView(true)}
         </div>
-        <h1 id="login-title">Compliance 360 Enterprise</h1>
-        <p>Suite corporativa para cumplimiento, calidad, riesgos, auditorias, CAPA, proveedores, documentos, KPIs y reportes ejecutivos.</p>
+        <h1 id="login-title">${t("Login.Title")}</h1>
+        <p>${subtitle}</p>
+        ${orgHint}
         <form id="login-form" class="form-stack">
-          <div class="field">
-            <label for="tenantId">Tenant ID</label>
-            <input id="tenantId" name="tenantId" value="${escapeHtml(DEFAULT_TENANT)}" required>
-          </div>
-          <div class="field">
-            <label for="email">Email</label>
-            <input id="email" name="email" type="email" value="${escapeHtml(DEFAULT_EMAIL)}" required>
-          </div>
-          <div class="field">
-            <label for="password">Password</label>
-            <input id="password" name="password" type="password" autocomplete="current-password" required>
-          </div>
-          <button class="btn primary" type="submit">Iniciar sesion</button>
-          <p class="metric-label">Development: utilice las credenciales definidas en BootstrapSuperAdmin. La contrasena no se expone en JavaScript.</p>
+          ${step === "email" ? `
+            <div class="field">
+              <label for="email">${t("Login.Email")}</label>
+              <input id="email" name="email" type="email" value="${escapeHtml(state.email || DEFAULT_EMAIL)}" autocomplete="username" required>
+            </div>
+            <button class="btn primary" type="submit">${t("Login.Next")}</button>
+          ` : ""}
+          ${step === "organization" ? `
+            <div class="org-list" role="radiogroup" aria-label="${t("Login.SelectOrganization")}">
+              ${state.auth.organizations.map(organization => `
+                <label class="org-option ${organization.id === state.auth.selectedOrganizationId ? "active" : ""}">
+                  <input type="radio" name="organizationId" value="${organization.id}" ${organization.id === state.auth.selectedOrganizationId ? "checked" : ""}>
+                  <span class="org-logo">${initials(organization.name)}</span>
+                  <span><strong>${escapeHtml(organization.name)}</strong><small>${escapeHtml(organization.description || t("Brand.Name"))}</small></span>
+                </label>`).join("")}
+            </div>
+            <div class="button-row">
+              <button class="btn subtle" type="button" id="back-to-email">${t("Login.Back")}</button>
+              <button class="btn primary" type="submit">${t("Login.Continue")}</button>
+            </div>
+          ` : ""}
+          ${step === "password" ? `
+            ${passwordFieldHtml("password", "password", t("Login.Password"))}
+            <label class="remember-line"><input type="checkbox" id="rememberMe" ${state.auth.rememberMe ? "checked" : ""}> ${t("Login.RememberMe")}</label>
+            <div class="button-row">
+              <button class="btn subtle" type="button" id="back-to-org">${state.auth.organizations.length > 1 ? t("Login.ChangeOrganization") : t("Login.ChangeEmail")}</button>
+              <button class="btn primary" type="submit">${t("Login.SignIn")}</button>
+            </div>
+            <button class="btn subtle" type="button" id="forgotPasswordBtn">${t("Login.ForgotPassword")}</button>
+          ` : ""}
         </form>
       </section>
       <section class="login-hero">
         <div class="hero-card">
-          <span class="product-badge">Production Workspace</span>
-          <h2>Gobierno integral de cumplimiento en una sola plataforma</h2>
-          <p>Operacion multitenant, seguridad JWT/RBAC, auditoria append-only, dashboards vivos, reportes programables y acciones reales por modulo.</p>
+          <span class="product-badge">${t("Brand.Edition")}</span>
+          <h2>${t("Login.Title")}</h2>
+          <p>${t("Login.EmailStepHint")}</p>
           <div class="hero-actions">
-            <span class="status-pill ok">API live</span>
+            <span class="status-pill ok">API</span>
             <span class="status-pill ok">PostgreSQL</span>
-            <span class="status-pill ok">Tenant isolated</span>
+            <span class="status-pill ok">RBAC</span>
           </div>
-        </div>
-        <div class="grid cards">
-          <div class="glass-card"><span class="metric-label">Core modules</span><div class="metric-value">10</div></div>
-          <div class="glass-card"><span class="metric-label">Reports</span><div class="metric-value">24</div></div>
-          <div class="glass-card"><span class="metric-label">Security</span><div class="metric-value">JWT</div></div>
-          <div class="glass-card"><span class="metric-label">Audit</span><div class="metric-value">Append</div></div>
         </div>
       </section>
     </main>`;
 }
 
-function shellView() {
+function legacyLoginView() {
   return `
-    <div class="layout">
-      <aside class="sidebar">
-        <div class="brand">
-          <div class="brand-mark">C360</div>
-          <div>
-            <div class="brand-title">Compliance 360</div>
-            <div class="brand-subtitle">Enterprise Edition</div>
+    <main class="login-page">
+      <section class="login-panel" aria-labelledby="login-title">
+        <div class="brand-line">
+          <div class="brand-mark" aria-hidden="true">C360</div>
+          <span class="product-badge">${t("Brand.Edition")}</span>
+          ${languageSelectorView(true)}
+        </div>
+        <h1 id="login-title">${t("Login.Title")}</h1>
+        <form id="legacy-login-form" class="form-stack">
+          <div class="field"><label for="tenantId">Tenant ID</label><input id="tenantId" name="tenantId" value="${escapeHtml(DEFAULT_TENANT)}" required></div>
+          <div class="field"><label for="legacy-email">${t("Common.Email")}</label><input id="legacy-email" name="email" type="email" value="${escapeHtml(DEFAULT_EMAIL)}" required></div>
+          ${passwordFieldHtml("legacy-password", "password", t("Common.Password"))}
+          <button class="btn primary" type="submit">${t("Login.SignIn")}</button>
+        </form>
+      </section>
+    </main>`;
+}
+
+function shellView() {
+  const collapsed = localStorage.getItem("c360.sidebar") === "collapsed";
+  const session = currentSessionLabel();
+  return `
+    <div class="layout ${collapsed ? "sidebar-collapsed" : ""}">
+      <div class="sidebar-backdrop" id="sidebar-backdrop" aria-hidden="true"></div>
+      <aside class="sidebar" id="app-sidebar" aria-label="${t("Nav.CommandCenter")}">
+        <div class="sidebar-head">
+          <div class="brand">
+            <div class="brand-mark">C360</div>
+            <div>
+              <div class="brand-title">${t("Brand.Name")}</div>
+              <div class="brand-subtitle">${t("Brand.Edition")}</div>
+            </div>
           </div>
+          <button id="sidebar-collapse" class="sidebar-collapse" type="button" aria-label="${t("Common.Menu")}" title="${t("Common.Menu")}">⟨⟩</button>
+          <button id="sidebar-close" class="sidebar-close" type="button" aria-label="${t("Common.Close")}">✕</button>
         </div>
         ${languageSelectorView(true)}
         <section class="sidebar-status" aria-label="Estado de la plataforma">
@@ -467,13 +638,20 @@ function shellView() {
           <strong>Production Core 100%</strong>
           <small>Tenant activo, API segura y datos persistentes.</small>
         </section>
+        <section class="sidebar-session" aria-label="${t("Session.Title")}">
+          <span class="session-avatar" aria-hidden="true">${initials(session.name)}</span>
+          <div>
+            <strong title="${escapeHtml(session.email)}">${escapeHtml(session.name)}</strong>
+            <small>${escapeHtml(session.role)}</small>
+          </div>
+        </section>
         ${navigation.map(group => ({ ...group, items: group.items.filter(([key]) => canNavigate(key)) })).filter(group => group.items.length).map(group => `
-          <nav class="nav-group" aria-label="${group.group}">
-            <div class="nav-label">${group.group}</div>
-            ${group.items.map(([key, label]) => `
+          <nav class="nav-group" aria-label="${navGroupLabel(group.group)}">
+            <div class="nav-label">${navGroupLabel(group.group)}</div>
+            ${group.items.map(([key]) => `
               <button class="nav-button ${state.route === key ? "active" : ""}" data-route="${key}">
-                <span class="nav-icon">${initials(label)}</span>
-                <span>${label}</span>
+                <span class="nav-icon">${initials(navLabel(key))}</span>
+                <span>${navLabel(key)}</span>
                 <span aria-hidden="true">›</span>
               </button>`).join("")}
           </nav>`).join("")}
@@ -484,6 +662,7 @@ function shellView() {
       </aside>
       <main class="main">
         <header class="topbar">
+          <button id="menu-toggle" class="menu-toggle" type="button" aria-label="${t("Common.Menu")}" aria-controls="app-sidebar" aria-expanded="false">☰</button>
           <div class="topbar-context">
             <div class="breadcrumbs compact">Compliance 360 / ${escapeHtml(currentRouteGroup())}</div>
             <strong>${escapeHtml(currentRouteLabel())}</strong>
@@ -494,17 +673,21 @@ function shellView() {
               <input id="global-search" class="search-box" list="route-options" placeholder="Buscar o escribir Enter para documentos..." />
             </label>
             <select id="quick-switcher" class="quick-switcher" aria-label="Ir a modulo">
-              ${navigation.flatMap(group => group.items.map(([key, label]) => `<option value="${key}" ${state.route === key ? "selected" : ""}>${group.group} / ${label}</option>`)).join("")}
+              ${navigation.flatMap(group => group.items.filter(([key]) => canNavigate(key)).map(([key]) => `<option value="${key}" ${state.route === key ? "selected" : ""}>${navGroupLabel(group.group)} / ${navLabel(key)}</option>`)).join("")}
             </select>
             <datalist id="route-options">
-              ${navigation.flatMap(group => group.items.map(([, label]) => `<option value="${label}"></option>`)).join("")}
+              ${navigation.flatMap(group => group.items.filter(([key]) => canNavigate(key)).map(([key]) => `<option value="${navLabel(key)}"></option>`)).join("")}
             </datalist>
           </div>
           <div class="top-actions">
+            <span class="session-chip" title="${escapeHtml(session.email)} · ${escapeHtml(session.role)}">
+              <span class="session-chip-name">${escapeHtml(session.name)}</span>
+              <span class="session-chip-role">${escapeHtml(session.role)}</span>
+            </span>
             <span class="status-pill ok">Production core</span>
             <span class="tenant-chip" title="${state.tenantId}">Tenant: ${shortId(state.tenantId)}</span>
-            <button id="theme-toggle" class="btn subtle" type="button">${state.theme === "dark" ? "Light" : "Dark"}</button>
-            <button id="logout" class="btn danger" type="button">Salir</button>
+            <button id="theme-toggle" class="btn subtle" type="button">${state.theme === "dark" ? t("Common.Light") : t("Common.Dark")}</button>
+            <button id="logout" class="btn danger" type="button">${t("Common.SignOut")}</button>
           </div>
         </header>
         <section id="content" class="content" tabindex="-1"></section>
@@ -513,7 +696,103 @@ function shellView() {
 }
 
 function bindLogin() {
+  if (!LOGIN_V2_ENABLED) {
+    bindLegacyLogin();
+    return;
+  }
   document.querySelector("#login-form").addEventListener("submit", async event => {
+    event.preventDefault();
+    const button = event.currentTarget.querySelector("button[type='submit']");
+    const form = new FormData(event.currentTarget);
+    try {
+      const step = state.auth.step;
+      if (step === "email") {
+        setLoadingButton(button, true, "Identificando...");
+        const email = String(form.get("email") || "").trim();
+        const identify = await request("/auth/identify", {
+          method: "POST",
+          body: { email },
+          anonymous: true,
+          loadingContext: "login",
+          overlay: true
+        });
+        state.email = email;
+        state.auth.resolverToken = identify.resolverToken;
+        state.auth.organizations = identify.organizations || [];
+        state.auth.preselectedOrganizationId = identify.preselectedOrganizationId || null;
+        state.auth.selectedOrganizationId = identify.preselectedOrganizationId || null;
+        if (!state.auth.organizations.length) {
+          toast("No encontramos una organizacion para este correo. Verifica que el administrador te haya creado en el tenant.", "error");
+          return;
+        }
+        if (identify.requiresOrganizationSelection) {
+          state.auth.step = "organization";
+        } else {
+          state.auth.step = "password";
+        }
+        render();
+        return;
+      }
+      if (step === "organization") {
+        state.auth.selectedOrganizationId = form.get("organizationId");
+        state.auth.step = "password";
+        render();
+        return;
+      }
+      setLoadingButton(button, true, "Validando...");
+      const result = await request("/auth/login", {
+        method: "POST",
+        body: {
+          email: state.email,
+          password: form.get("password"),
+          resolverToken: state.auth.resolverToken,
+          organizationId: state.auth.selectedOrganizationId || null,
+          rememberMe: document.querySelector("#rememberMe")?.checked || false
+        },
+        anonymous: true,
+        loadingContext: "login",
+        overlay: true
+      });
+      if (result.mfaRequired) {
+        state.mfaChallenge = {
+          challengeToken: result.mfaChallengeToken,
+          method: result.mfaMethod ?? 0,
+          tenantId: result.tenantId,
+          email: result.email
+        };
+        toast("MFA requerido. Completa el segundo factor.", "info");
+        render();
+        return;
+      }
+      completeLogin(result);
+    } catch (error) {
+      const message = friendlyErrorMessage(error);
+      toast(message, "error");
+      if (/identificaci[oó]n|organizaci[oó]n para este correo|expir/i.test(message)) {
+        state.auth.step = "email";
+        state.auth.resolverToken = null;
+        render();
+      }
+    } finally {
+      setLoadingButton(button, false);
+    }
+  });
+  document.querySelector("#back-to-email")?.addEventListener("click", () => {
+    state.auth.step = "email";
+    render();
+  });
+  document.querySelector("#back-to-org")?.addEventListener("click", () => {
+    state.auth.step = state.auth.organizations.length > 1 ? "organization" : "email";
+    render();
+  });
+  document.querySelector("#forgotPasswordBtn")?.addEventListener("click", () => {
+    toast(t("Login.ForgotPasswordHint"), "info");
+  });
+  bindPasswordToggles();
+}
+
+function bindLegacyLogin() {
+  document.querySelector("#legacy-login-form").addEventListener("submit", async event => {
     event.preventDefault();
     const button = event.currentTarget.querySelector("button[type='submit']");
     const form = new FormData(event.currentTarget);
@@ -537,28 +816,44 @@ function bindLogin() {
           tenantId: result.tenantId,
           email: result.email
         };
-        toast("MFA requerido. Completa el segundo factor.", "info");
         render();
         return;
       }
-
-      state.token = result.accessToken;
-      state.permissions = permissionsFromToken(result.accessToken);
-      state.tenantId = result.tenantId;
-      state.email = result.email;
-      state.userId = result.userId;
-      localStorage.setItem("c360.token", state.token);
-      localStorage.setItem("c360.tenantId", state.tenantId);
-      localStorage.setItem("c360.email", state.email);
-      localStorage.setItem("c360.userId", state.userId);
-      toast("Sesion iniciada correctamente.", "success");
-      render();
+      completeLogin(result);
     } catch (error) {
-      toast(error.message, "error");
+      toast(friendlyErrorMessage(error), "error");
     } finally {
       setLoadingButton(button, false);
     }
   });
+  bindPasswordToggles();
+}
+
+function completeLogin(result) {
+  state.token = result.accessToken;
+  state.permissions = permissionsFromToken(result.accessToken);
+  state.role = roleFromToken(result.accessToken);
+  state.displayName = displayNameFromToken(result.accessToken) || result.email || null;
+  state.tenantId = result.tenantId;
+  state.email = result.email;
+  state.userId = result.userId;
+  state.auth.step = "email";
+  state.auth.resolverToken = null;
+  state.auth.organizations = [];
+  state.auth.preselectedOrganizationId = null;
+  state.auth.selectedOrganizationId = null;
+  state.auth.rememberMe = document.querySelector("#rememberMe")?.checked || false;
+  localStorage.setItem("c360.token", state.token);
+  localStorage.setItem("c360.tenantId", state.tenantId);
+  localStorage.setItem("c360.email", state.email);
+  localStorage.setItem("c360.userId", state.userId);
+  if (state.role) localStorage.setItem("c360.role", state.role);
+  else localStorage.removeItem("c360.role");
+  if (state.displayName) localStorage.setItem("c360.displayName", state.displayName);
+  else localStorage.removeItem("c360.displayName");
+  localStorage.setItem("c360.rememberMe", state.auth.rememberMe ? "true" : "false");
+  toast(t("Login.SignedIn"), "success");
+  render();
 }
 
 function bindMfaChallenge() {
@@ -580,19 +875,10 @@ function bindMfaChallenge() {
         overlay: true
       });
       state.mfaChallenge = null;
-      state.token = result.accessToken;
-      state.permissions = permissionsFromToken(result.accessToken);
-      state.tenantId = result.tenantId;
-      state.email = result.email;
-      state.userId = result.userId;
-      localStorage.setItem("c360.token", state.token);
-      localStorage.setItem("c360.tenantId", state.tenantId);
-      localStorage.setItem("c360.email", state.email);
-      localStorage.setItem("c360.userId", state.userId);
+      completeLogin(result);
       toast("MFA validado. Sesion segura iniciada.", "success");
-      render();
     } catch (error) {
-      toast(error.message, "error");
+      toast(friendlyErrorMessage(error), "error");
     } finally {
       setLoadingButton(button, false);
     }
@@ -605,8 +891,10 @@ function bindMfaChallenge() {
 }
 
 function bindShell() {
+  bindResponsiveShell();
   document.querySelectorAll("[data-route]").forEach(button => {
     button.addEventListener("click", () => {
+      closeSidebarDrawer();
       location.hash = `#/${button.dataset.route}`;
     });
   });
@@ -618,9 +906,21 @@ function bindShell() {
   });
   document.querySelector("#logout").addEventListener("click", () => {
     localStorage.removeItem("c360.token");
+    localStorage.removeItem("c360.tenantId");
+    localStorage.removeItem("c360.email");
+    localStorage.removeItem("c360.userId");
+    localStorage.removeItem("c360.role");
+    localStorage.removeItem("c360.displayName");
+    sessionStorage.clear();
     state.token = null;
     state.permissions = [];
-    toast("Sesion cerrada.", "success");
+    state.role = null;
+    state.displayName = null;
+    state.tenantId = null;
+    state.email = null;
+    state.userId = null;
+    toast(t("Login.SignedOut"), "success");
+    location.hash = "#/login";
     render();
   });
   document.querySelector("#global-search").addEventListener("keydown", event => {
@@ -638,6 +938,20 @@ function bindShell() {
   document.querySelector("#quick-switcher").addEventListener("change", event => {
     location.hash = `#/${event.currentTarget.value}`;
   });
+  document.querySelector("#menu-toggle")?.addEventListener("click", () => openSidebarDrawer());
+  document.querySelector("#sidebar-close")?.addEventListener("click", () => closeSidebarDrawer());
+  document.querySelector("#sidebar-backdrop")?.addEventListener("click", () => closeSidebarDrawer());
+  document.querySelector("#sidebar-collapse")?.addEventListener("click", () => {
+    const layout = document.querySelector(".layout");
+    if (!layout) return;
+    if (window.matchMedia("(max-width: 1023px)").matches) {
+      layout.classList.remove("sidebar-collapsed");
+      layout.classList.toggle("sidebar-expanded");
+      return;
+    }
+    const collapsed = layout.classList.toggle("sidebar-collapsed");
+    localStorage.setItem("c360.sidebar", collapsed ? "collapsed" : "open");
+  });
   document.querySelector("#content").addEventListener("click", event => {
     const target = event.target.closest("[data-route], [data-action]");
     if (!target) return;
@@ -652,6 +966,84 @@ function bindShell() {
   });
 }
 
+const mobileDrawerQuery = window.matchMedia("(max-width: 767px)");
+
+function bindResponsiveShell() {
+  syncDrawerMode();
+  if (!bindResponsiveShell.bound) {
+    bindResponsiveShell.bound = true;
+    mobileDrawerQuery.addEventListener("change", syncDrawerMode);
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") closeSidebarDrawer();
+    });
+    const app = document.querySelector("#app");
+    let pending = false;
+    const observer = new MutationObserver(() => {
+      if (pending) return;
+      pending = true;
+      requestAnimationFrame(() => {
+        pending = false;
+        enhanceResponsiveTables(app);
+      });
+    });
+    observer.observe(app, { childList: true, subtree: true });
+    enhanceResponsiveTables(app);
+  }
+}
+
+function enhanceResponsiveTables(root = document) {
+  root.querySelectorAll("table").forEach(table => {
+    if (table.classList.contains("skeleton-table")) return;
+    const headers = Array.from(table.querySelectorAll("thead th")).map(th => th.textContent.trim());
+    if (!headers.length) return;
+    table.querySelectorAll("tbody tr").forEach(row => {
+      Array.from(row.children).forEach((cell, index) => {
+        if (cell.tagName !== "TD" || cell.hasAttribute("data-label") || cell.hasAttribute("colspan")) return;
+        if (headers[index]) cell.setAttribute("data-label", headers[index]);
+      });
+    });
+  });
+}
+
+function syncDrawerMode() {
+  const layout = document.querySelector(".layout");
+  if (!layout) return;
+  layout.classList.toggle("drawer-mode", mobileDrawerQuery.matches);
+  if (mobileDrawerQuery.matches) {
+    layout.classList.remove("sidebar-collapsed", "sidebar-expanded");
+  } else {
+    closeSidebarDrawer();
+    layout.classList.toggle("sidebar-collapsed", localStorage.getItem("c360.sidebar") === "collapsed");
+  }
+}
+
+function openSidebarDrawer() {
+  const layout = document.querySelector(".layout");
+  if (!layout) return;
+  layout.classList.add("drawer-open");
+  document.querySelector("#menu-toggle")?.setAttribute("aria-expanded", "true");
+  document.body.style.overflow = "hidden";
+  document.querySelector("#app-sidebar .nav-button")?.focus();
+}
+
+function closeSidebarDrawer() {
+  const layout = document.querySelector(".layout");
+  if (!layout || !layout.classList.contains("drawer-open")) return;
+  layout.classList.remove("drawer-open");
+  document.querySelector("#menu-toggle")?.setAttribute("aria-expanded", "false");
+  document.body.style.overflow = "";
+}
+
+function renderAccessDenied(content) {
+  content.innerHTML = `
+    <section class="card" data-testid="access-denied">
+      <h2 class="section-title">${t("Common.AccessDenied")}</h2>
+      <p class="metric-label">${t("Common.AccessDeniedDetail")}</p>
+      <div class="button-row"><button class="btn primary" data-route="dashboard">Ir al Dashboard</button></div>
+    </section>`;
+  content.querySelector("[data-route]")?.addEventListener("click", () => location.hash = "#/dashboard");
+}
+
 async function renderRoute() {
   const content = document.querySelector("#content");
   content.innerHTML = loadingView(state.route);
@@ -659,12 +1051,18 @@ async function renderRoute() {
   const stopLoading = startGlobalLoading(state.route, { overlay: false });
 
   try {
+    // Defensa en profundidad: URL directa a pantallas fuera del contrato del
+    // manual se bloquea en cliente; el backend ya deniega los datos (401/403).
+    if (!canNavigate(state.route)) {
+      renderAccessDenied(content);
+      return;
+    }
     if (state.route === "dashboard" || state.route === "compliance") {
       await renderDashboard(content);
       return;
     }
-    if (state.route === "reports") {
-      await renderReports(content);
+    if (state.route === "security") {
+      await renderSecurityCenter(content);
       return;
     }
     if (state.route === "audit-trail") {
@@ -675,12 +1073,21 @@ async function renderRoute() {
       await renderIntegrationsAdministration(content);
       return;
     }
+    if (state.route === "reports") {
+      await renderReports(content);
+      return;
+    }
     if (state.route === "tenant-administration") {
       await renderTenantAdministrationCenter(content);
       return;
     }
     if (state.route === "superadmin-platform") {
       await renderSuperAdminPlatformCenter(content);
+      return;
+    }
+    if (state.route === "regulatory") {
+      await ensureRegulatoryAffairs();
+      await window.renderRegulatoryAffairs(content);
       return;
     }
     if (modules[state.route]) {
@@ -695,10 +1102,14 @@ async function renderRoute() {
   } catch (error) {
     if (String(error.message).includes("401")) {
       localStorage.removeItem("c360.token");
+      localStorage.removeItem("c360.role");
+      localStorage.removeItem("c360.displayName");
       state.token = null;
       state.permissions = [];
+      state.role = null;
+      state.displayName = null;
       render();
-      toast("Sesion expirada. Inicia sesion nuevamente.", "error");
+      toast(t("Login.SessionExpired"), "error");
       return;
     }
     content.innerHTML = errorView(error.message);
@@ -710,70 +1121,85 @@ async function renderRoute() {
 }
 
 async function renderDashboard(content) {
+  const canRegulatory = hasAnyPermission(["REGULATORY.REPORT.READ", "REGULATORY.DOSSIER.READ"]);
   const dashboardRequests = {
     health: fetch("/health").then(r => r.json()),
-    auditDashboard: hasAnyPermission(["AUDITMANAGEMENT.READ", "AUDITMANAGEMENT.MANAGE"]) ? request(`/tenants/${state.tenantId}/audit-management/dashboard`) : Promise.resolve({}),
-    capaDashboard: hasAnyPermission(["CAPA.READ", "CAPA.MANAGE", "CAPA.APPROVE"]) ? request(`/tenants/${state.tenantId}/capas/dashboard`) : Promise.resolve({}),
-    riskDashboard: hasAnyPermission(["RISK.READ", "RISK.MANAGE", "RISK.APPROVE"]) ? request(`/tenants/${state.tenantId}/risks/dashboard`) : Promise.resolve({}),
-    indicatorDashboard: hasAnyPermission(["INDICATOR.READ", "INDICATOR.MANAGE"]) ? request(`/tenants/${state.tenantId}/indicators/dashboard`) : Promise.resolve({}),
-    reports: hasAnyPermission(["REPORT.READ", "REPORT.EXECUTE", "REPORT.MANAGE"]) ? request(`/tenants/${state.tenantId}/reports/dashboard-datasets`) : Promise.resolve({ datasets: [] }),
-    heatMap: hasAnyPermission(["RISK.READ", "RISK.MANAGE", "RISK.APPROVE"]) ? request(`/tenants/${state.tenantId}/risks/heat-map`) : Promise.resolve([])
+    regulatory: canRegulatory ? request(`/tenants/${state.tenantId}/regulatory/dashboard`) : Promise.resolve({})
   };
   const dashboardResults = Object.fromEntries(await Promise.all(
     Object.entries(dashboardRequests).map(async ([key, promise]) => [key, await promiseSettled(promise)])
   ));
 
-  const audit = valueOf(dashboardResults.auditDashboard, {});
-  const capa = valueOf(dashboardResults.capaDashboard, {});
-  const risk = valueOf(dashboardResults.riskDashboard, {});
-  const indicators = valueOf(dashboardResults.indicatorDashboard, {});
-  const reportCatalog = valueOf(dashboardResults.reports, { datasets: [] });
-  const heat = valueOf(dashboardResults.heatMap, []);
+  const regulatory = valueOf(dashboardResults.regulatory, {});
 
   content.innerHTML = `
-    ${productionHero(audit, capa, risk, indicators, reportCatalog)}
+    <section class="hero-card compact module-hero">
+      <div>
+        <span class="product-badge">REGUTRACK Replacement</span>
+        <h2>Compliance 360 — Regulatory Affairs</h2>
+        <p>Centro operativo para portafolio, expedientes, pipeline, importación REGUTRACK y licencias.</p>
+      </div>
+      <div class="button-row">
+        ${canRegulatory ? `<button class="btn primary" data-route="regulatory">Abrir consola RA</button>` : ""}
+        ${canNavigate("audit-trail") ? `<button class="btn" data-route="audit-trail">Bitácora</button>` : ""}
+      </div>
+    </section>
     <section class="grid cards">
       ${metric("API Health", statusLabel(valueOf(dashboardResults.health, {}).status || "Healthy"), "Estado de servicio")}
-      ${metric("Audit Open", audit.openAudits ?? audit.totalOpen ?? 0, "Auditorias abiertas")}
-      ${metric("CAPA Open", capa.openCapas ?? capa.totalOpen ?? 0, "Acciones abiertas")}
-      ${metric("Risk Critical", risk.criticalRisks ?? 0, "Riesgos criticos")}
+      ${metric("Expedientes activos", regulatory.activeDossiers ?? regulatory.openDossiers ?? 0, "Casos en curso")}
+      ${metric("Productos", regulatory.totalProducts ?? regulatory.products ?? 0, "Portafolio")}
+      ${metric("Alertas", regulatory.openAlerts ?? regulatory.alerts ?? 0, "Vencimientos y bloqueos")}
     </section>
     <section class="grid two">
       <div class="card">
-        <h2 class="section-title">Compliance Performance</h2>
-        <p class="metric-label">Indicadores de cumplimiento y desviaciones desde el modulo Quality Indicators.</p>
-        <progress class="progress" value="${clamp(indicators.compliancePercent ?? 100)}" max="100" aria-label="Compliance ${indicators.compliancePercent ?? 100}%"></progress>
+        <h2 class="section-title">Operación diaria</h2>
+        <p class="metric-label">Use la consola Regulatory Affairs para reemplazar el Excel REGUTRACK en operación diaria.</p>
         <div class="button-row section-actions">
-          <span class="status-chip">Indicators: ${indicators.totalIndicators ?? 0}</span>
-          <span class="status-chip">Alerts: ${indicators.alerts ?? 0}</span>
-          <span class="status-chip">Negative trends: ${indicators.negativeTrends ?? 0}</span>
+          ${canNavigate("regulatory") ? quickRouteButton("regulatory", "Regulatory Management", "primary") : ""}
+          ${canNavigate("tenant-administration") ? quickRouteButton("tenant-administration", "Administración") : ""}
         </div>
       </div>
       <div class="card">
-        <h2 class="section-title">Dashboard Datasets</h2>
-        <div class="metric-value">${reportCatalog.datasets?.length ?? 0}</div>
-        <div class="metric-label">Datasets reutilizables disponibles para Dashboard Enterprise.</div>
+        <h2 class="section-title">Migración histórica</h2>
+        <p class="metric-label">Importe REGUTRACK 02JUN26 MG.xlsx desde la consola RA cuando necesite cargar histórico.</p>
       </div>
+    </section>`;
+  content.querySelectorAll("[data-route]").forEach(button => button.addEventListener("click", () => location.hash = `#/${button.dataset.route}`));
+}
+
+// Manual: pantalla "Security" (#/security) — configuración de seguridad del tenant,
+// MFA/SSO según permisos. Lectura para Tenant Administrator; edición vive en el
+// panel Seguridad del TAC Center para quien tenga TENANT.SECURITY.
+async function renderSecurityCenter(content) {
+  const center = await request(`/tenants/${state.tenantId}/administration-center`);
+  const settings = center.tenant?.settings || {};
+  const sso = center.ssoConfigurations || [];
+  const canEditSecurity = hasAnyPermission(["TENANT.SECURITY"]);
+  content.innerHTML = `
+    ${pageHeader("Security", "Configuración de seguridad del tenant (MFA/SSO según permisos).", "Enterprise / Administration")}
+    <section class="grid cards">
+      ${metric("Security score", `${settings.securityScore ?? "—"}/100`, "Evaluación del tenant")}
+      ${metric("MFA obligatorio", settings.requireMfa ? "Sí" : "No", "Autenticación multifactor")}
+      ${metric("Session timeout", `${settings.sessionTimeoutMinutes ?? "—"} min`, "Expiración de sesión")}
+      ${metric("Lockout", `${settings.lockoutMaxFailedAttempts ?? "—"} intentos / ${settings.lockoutMinutes ?? "—"} min`, "Bloqueo de cuenta")}
     </section>
     <section class="grid two">
       <div class="card">
-        <h2 class="section-title">Risk Heat Map</h2>
-        ${heatMapView(Array.isArray(heat) ? heat : [])}
+        <h2 class="section-title">Política de acceso</h2>
+        <ul class="list-tight">
+          <li>Password expiration: <strong>${settings.passwordExpirationDays ?? 0} días</strong></li>
+          <li>Trusted devices: <strong>${settings.trustedDevicesEnabled ? "Habilitado" : "Deshabilitado"}</strong></li>
+          <li>SSO configurado: <strong>${sso.length ? `${sso.length} proveedor(es)` : "No"}</strong></li>
+        </ul>
       </div>
       <div class="card">
-        <h2 class="section-title">Quick Actions</h2>
-        <div class="button-row">
-          ${quickRouteButton("reports", "Ejecutar reporte", "primary")}
-          ${quickRouteButton("documents", "Documentos")}
-          ${quickRouteButton("capa", "Abrir CAPA")}
-          ${quickRouteButton("risks", "Ver riesgos")}
-          ${quickRouteButton("indicators", "Ver KPIs")}
-          ${quickRouteButton("audit-trail", "Auditoria")}
-        </div>
+        <h2 class="section-title">Gestión</h2>
+        <p class="metric-label">${canEditSecurity
+          ? "Tiene permiso TENANT.SECURITY: edite la política desde Tenant Administration → Seguridad."
+          : "Vista de solo lectura. La edición de la política requiere el permiso TENANT.SECURITY."}</p>
+        ${canNavigate("tenant-administration") ? `<div class="button-row"><button class="btn" data-route="tenant-administration">Abrir Tenant Administration</button></div>` : ""}
       </div>
-    </section>
-    ${moduleTiles()}
-    ${readinessRail()}`;
+    </section>`;
   content.querySelectorAll("[data-route]").forEach(button => button.addEventListener("click", () => location.hash = `#/${button.dataset.route}`));
 }
 
@@ -781,7 +1207,10 @@ async function renderIntegrationsAdministration(content) {
   const canStorage = hasAnyPermission(["STORAGE.READ", "STORAGE.CREATE", "STORAGE.UPDATE", "TENANT.STORAGE"]);
   const canNotifications = hasAnyPermission(["NOTIFICATION.READ", "NOTIFICATION.ADMIN", "NOTIFICATION.MANAGE", "TENANT.NOTIFICATIONS"]);
   const [health, notificationDashboard, storageProviders] = await Promise.allSettled([
-    request("/health/ready"),
+    fetch("/health/ready").then(response => {
+      if (!response.ok) throw new Error(`Health ${response.status}`);
+      return response.json();
+    }),
     canNotifications ? request(`/tenants/${state.tenantId}/notifications/dashboard`) : Promise.resolve({}),
     canStorage ? request(`/tenants/${state.tenantId}/storage/providers`) : Promise.resolve([])
   ]);
@@ -1000,6 +1429,16 @@ async function renderModule(content, key) {
   const data = await request(module.endpoint(state.tenantId));
   const rows = data.items || [];
   const canManage = canManageRoute(key);
+  const canApproveDocuments = key === "documents" && hasPermission("DOCUMENT.APPROVE");
+  const displayRows = canApproveDocuments
+    ? rows.map(row => ({
+        ...row,
+        actions: `__html:${String(row.status) === "InReview"
+          ? `<button class="btn small primary" type="button" data-document-approve="${safe(row.id)}">${safe(t("Common.Approve") || "Aprobar")}</button>`
+          : `<span class="metric-label">${safe(displayLabel(row.status))}</span>`}`
+      }))
+    : rows;
+  const columns = canApproveDocuments ? [...module.columns, "actions"] : module.columns;
   content.innerHTML = `
     ${pageHeader(module.title, module.description, "Operations")}
     ${moduleExperiencePanel(key, data.totalCount ?? rows.length)}
@@ -1020,7 +1459,7 @@ async function renderModule(content, key) {
         <button class="btn subtle" type="button" data-route="reports">Exportar via reportes</button>
       </div>
     </section>
-    ${tableCard(module.title, rows, module.columns)}`;
+    ${tableCard(module.title, displayRows, columns)}`;
   document.querySelector("#module-refresh").addEventListener("click", () => {
     const search = document.querySelector("#module-search").value.trim();
     state.cache.globalSearch = search;
@@ -1040,6 +1479,24 @@ async function renderModule(content, key) {
       }
     });
   }
+  document.querySelectorAll("[data-document-approve]").forEach(button => {
+    button.addEventListener("click", async () => {
+      try {
+        setLoadingButton(button, true, t("Common.Processing") || "Procesando...");
+        await request(`/tenants/${state.tenantId}/documents/${button.dataset.documentApprove}/decision`, {
+          method: "POST",
+          loadingContext: "save",
+          body: { decision: 0, comments: "Aprobado por Quality Manager desde Document Management" }
+        });
+        toast(t("Common.Saved") || "Documento aprobado.", "success");
+        await renderRoute();
+      } catch (error) {
+        toast(friendlyErrorMessage(error), "error");
+      } finally {
+        setLoadingButton(button, false);
+      }
+    });
+  });
 }
 
 async function renderSuperAdminPlatformCenter(content) {
@@ -1082,11 +1539,11 @@ async function renderSuperAdminPlatformCenter(content) {
       ${metric("Suspendidos", metrics.suspendedTenants || 0, "Governance")}
       ${metric("Archivados", metrics.archivedTenants || 0, "Retention")}
       ${metric("Usuarios", metrics.totalUsers || 0, `Activos ${metrics.activeUsers || 0}`)}
-      ${metric("Documentos", metrics.documents || 0, "Global")}
-      ${metric("Auditorias", metrics.audits || 0, "Managed audits")}
-      ${metric("CAPA", metrics.capas || 0, "Corrective actions")}
-      ${metric("Riesgos", metrics.risks || 0, "Risk register")}
-      ${metric("Indicadores", metrics.indicators || 0, "KPIs")}
+      ${metric("Productos RA", metrics.documents || 0, "Medical devices")}
+      ${metric("Expedientes", metrics.audits || 0, "Registration dossiers")}
+      ${metric("Fabricantes", metrics.capas || 0, "Manufacturer profiles")}
+      ${metric("Imports", metrics.risks || 0, "REGUTRACK jobs")}
+      ${metric("Licencias OP", metrics.indicators || 0, "Operating licenses")}
       ${metric("Storage Used", formatBytes(metrics.storageUsedBytes || 0), `Cap ${formatBytes(metrics.storageBytes || 0)}`)}
       ${metric("SMTP Providers", metrics.smtpProviders || 0, "Notifications")}
       ${metric("Storage Providers", metrics.storageProviders || 0, "Object storage")}
@@ -1397,9 +1854,10 @@ async function renderTenantAdministrationCenter(content) {
   const timeline = center.timeline || [];
   const health = center.health || { overallStatus: "Unknown", signals: [], backups: [] };
   const alerts = [
+    ...(tenant.status === 0 || tenant.status === "Draft" ? [{ severity: "warning", title: "Tenant en Draft", message: "Complete onboarding y active el tenant para uso productivo." }] : []),
     ...(health.overallStatus && health.overallStatus !== "Healthy" && health.overallStatus !== 0 ? [{ severity: "warning", title: "Health Center requiere atencion", message: "Revisar senales operativas degradadas o faltantes." }] : []),
-    ...((center.domains || []).length ? [] : [{ severity: "warning", title: "Sin dominios configurados", message: "Agregar un dominio default o custom antes de onboarding enterprise." }]),
-    ...((center.ssoConfigurations || []).length ? [] : [{ severity: "info", title: "Sin SSO configurado", message: "Los tenants enterprise normalmente requieren OIDC, SAML, LDAP o Active Directory." }])
+    ...(hasAnyPermission(["TENANT.DOMAINS"]) && !(center.domains || []).length ? [{ severity: "warning", title: "Sin dominios configurados", message: "Agregar un dominio default o custom antes de onboarding enterprise." }] : []),
+    ...(hasAnyPermission(["TENANT.SSO"]) && !(center.ssoConfigurations || []).length ? [{ severity: "info", title: "Sin SSO configurado", message: "Los tenants enterprise normalmente requieren OIDC, SAML, LDAP o Active Directory." }] : [])
   ];
   const storageGb = ((metrics.storageBytes || 0) / 1024 / 1024 / 1024).toFixed(2);
   const usedUsers = `${metrics.users || 0}/${tenant.subscription.maxUsers}`;
@@ -1407,7 +1865,10 @@ async function renderTenantAdministrationCenter(content) {
   const statusName = tenantStatusName(tenant.status);
   const planName = subscriptionPlanName(tenant.subscription.plan);
   const subscriptionStatusName = subscriptionStateName(tenant.subscription.status);
-  const activeTenantTab = localStorage.getItem("c360.tenantTab") || "general";
+  const tabs = tenantAdminTabs();
+  const panelCtx = { tenant, center, metrics, health, timeline };
+  const savedTab = localStorage.getItem("c360.tenantTab");
+  const activeTenantTab = tabs.some(t => t.key === savedTab) ? savedTab : (tabs[0]?.key || "general");
 
   content.innerHTML = `
     ${pageHeader("Tenant Administration Center", "Centro enterprise para administrar identidad comercial, seguridad, licenciamiento, integraciones, auditoria y estado operativo del tenant.", "Enterprise / Administration")}
@@ -1445,32 +1906,26 @@ async function renderTenantAdministrationCenter(content) {
     ${tenantAlerts(alerts)}
     <section class="tenant-admin-shell">
       <aside class="tenant-tabs" aria-label="Tenant Administration tabs">
-        ${tenantAdminTabs().map((tab, index) => `<button class="tenant-tab ${index === 0 ? "active" : ""}" type="button" data-tab="${tab.key}"><span>${index + 1}</span>${tab.label}</button>`).join("")}
+        ${tabs.length
+          ? tabs.map((tab, index) => `<button class="tenant-tab ${tab.key === activeTenantTab ? "active" : ""}" type="button" data-tab="${tab.key}"><span>${index + 1}</span>${tab.label}</button>`).join("")
+          : `<p class="metric-label">No tiene pestañas habilitadas para su rol.</p>`}
       </aside>
       <div class="tenant-tab-panels">
-        ${tenantGeneralPanel(tenant)}
-        ${tenantBrandingPanel(tenant)}
-        ${tenantSecurityPanel(tenant)}
-        ${tenantUsersPanel(center.users || { users: [], roles: [] }, tenant, metrics)}
-        ${tenantRbacPanel(center.users || { users: [], roles: [] })}
-        ${tenantLicensingPanel(tenant, metrics, center.license)}
-        ${tenantDomainsPanel(center.domains || [])}
-        ${tenantSsoPanel(center.ssoConfigurations || [])}
-        ${tenantApiKeysPanel(center.apiCredentials || [])}
-        ${tenantWebhooksPanel(center.webhooks || [])}
-        ${tenantStoragePanel(metrics)}
-        ${tenantNotificationsPanel(metrics)}
-        ${tenantHealthPanel(health)}
-        ${tenantAuditPanel(timeline)}
-        ${tenantStatePanel(tenant)}
+        ${tabs.map(tab => tenantAdminPanelHtml(tab.key, panelCtx)).join("")}
       </div>
     </section>`;
 
   applyTenantActiveTab(activeTenantTab);
   bindTenantAdministrationCenter(tenant, center);
 }
-
 function tenantAdministrationNavigation(tenant) {
+  const isPlatformOperator = hasAnyPermission(["PLATFORM.DASHBOARD.READ", "PLATFORM.TENANT.READ", "PLATFORM.TENANT.CREATE"]);
+  if (!isPlatformOperator) {
+    return `
+    <section class="platform-command" aria-label="Contexto del tenant">
+      <span class="metric-label">${t("Ui.CurrentOrganization")}: ${safe(tenant.commercialName || tenant.name)}</span>
+    </section>`;
+  }
   const cameFromPlatform = localStorage.getItem("c360.tenantReturn") === "superadmin-platform";
   return `
     <section class="platform-command" aria-label="Navegacion de tenants">
@@ -1480,49 +1935,73 @@ function tenantAdministrationNavigation(tenant) {
     </section>`;
 }
 
+/** Pestañas del TAC filtradas por permiso real del rol (no mostrar lo que el usuario no puede operar). */
 function tenantAdminTabs() {
-  return [
-    { key: "general", label: "Informacion General" },
-    { key: "branding", label: "Branding" },
-    { key: "security", label: "Seguridad" },
-    { key: "users", label: "Usuarios" },
-    { key: "rbac", label: "Roles & Permisos" },
-    { key: "licensing", label: "Licenciamiento" },
-    { key: "domains", label: "Dominios" },
-    { key: "sso", label: "SSO" },
-    { key: "apikeys", label: "API Keys" },
-    { key: "webhooks", label: "Webhooks" },
-    { key: "storage", label: "Storage" },
-    { key: "notifications", label: "Notificaciones" },
-    { key: "health", label: "Health & Backups" },
-    { key: "audit", label: "Auditoria" },
-    { key: "state", label: "Estado" }
+  const all = [
+    { key: "general", label: "Informacion General", perms: ["TENANT.UPDATE"] },
+    { key: "branding", label: "Branding", perms: ["TENANT.BRANDING"] },
+    { key: "security", label: "Seguridad", perms: ["TENANT.SECURITY"] },
+    { key: "users", label: "Usuarios", perms: ["TENANT.USERS"] },
+    { key: "rbac", label: "Roles & Permisos", perms: ["RBAC.MANAGE", "TENANT.ROLES"] },
+    { key: "licensing", label: "Licenciamiento", perms: ["TENANT.BILLING"] },
+    { key: "domains", label: "Dominios", perms: ["TENANT.DOMAINS"] },
+    { key: "sso", label: "SSO", perms: ["TENANT.SSO"] },
+    { key: "apikeys", label: "API Keys", perms: ["TENANT.API_KEYS"] },
+    { key: "webhooks", label: "Webhooks", perms: ["TENANT.WEBHOOKS"] },
+    { key: "storage", label: "Storage", perms: ["TENANT.STORAGE", "STORAGE.READ", "STORAGE.CREATE"] },
+    { key: "notifications", label: "Notificaciones", perms: ["TENANT.NOTIFICATIONS", "NOTIFICATION.READ", "NOTIFICATION.ADMIN"] },
+    { key: "health", label: "Health & Backups", perms: ["TENANT.HEALTH", "TENANT.BACKUP"] },
+    { key: "audit", label: "Auditoria", perms: ["TENANT.AUDIT"] },
+    { key: "state", label: "Estado", perms: ["PLATFORM.TENANT.STATUS", "PLATFORM.TENANT.UPDATE"] }
   ];
+  return all.filter(tab => hasAnyPermission(tab.perms));
+}
+
+function tenantAdminPanelHtml(key, ctx) {
+  const { tenant, center, metrics, health, timeline } = ctx;
+  switch (key) {
+    case "general": return tenantGeneralPanel(tenant);
+    case "branding": return tenantBrandingPanel(tenant);
+    case "security": return tenantSecurityPanel(tenant);
+    case "users": return tenantUsersPanel(center.users || { users: [], roles: [] }, tenant, metrics);
+    case "rbac": return tenantRbacPanel(center.users || { users: [], roles: [] });
+    case "licensing": return tenantLicensingPanel(tenant, metrics, center.license);
+    case "domains": return tenantDomainsPanel(center.domains || []);
+    case "sso": return tenantSsoPanel(center.ssoConfigurations || []);
+    case "apikeys": return tenantApiKeysPanel(center.apiCredentials || []);
+    case "webhooks": return tenantWebhooksPanel(center.webhooks || []);
+    case "storage": return tenantStoragePanel(metrics);
+    case "notifications": return tenantNotificationsPanel(metrics);
+    case "health": return tenantHealthPanel(health);
+    case "audit": return tenantAuditPanel(timeline);
+    case "state": return tenantStatePanel(tenant);
+    default: return "";
+  }
 }
 
 function tenantGeneralPanel(tenant) {
   return `
-    <section class="tenant-panel active" data-panel="general">
+    <section class="tenant-panel" data-panel="general">
       <div class="section-heading"><div><h2 class="section-title">Informacion General</h2><p class="metric-label">Campos empresariales editables con TenantId y CreatedAt inmutables.</p></div><span class="status-pill ok">Auditable</span></div>
-      <form id="tenant-general-form" class="form-stack">
+      <form id="tenant-general-form" class="form-stack" autocomplete="off">
         <div class="grid two">
-          ${inputField("name", "Tenant Name", tenant.name, "text", false, true, { maxLength: 180, help: "Nombre interno del tenant. No puede estar vacío." })}
-          ${inputField("legalName", "Razon Social", tenant.legalName, "text", false, true, { maxLength: 220, help: "Nombre legal que aparece en contratos y facturación." })}
-          ${inputField("commercialName", "Nombre Comercial", tenant.commercialName, "text", false, true, { maxLength: 180, help: "Nombre visible para usuarios del cliente." })}
-          ${inputField("taxIdentifier", "RUC / Tax ID", tenant.taxIdentifier, "text", false, true, { maxLength: 80, pattern: "^[A-Za-z0-9][A-Za-z0-9.\\-]{2,78}[A-Za-z0-9]$", title: "Use letras, números, guiones o puntos. No use símbolos especiales.", help: "Identificación fiscal. Se normaliza a mayúsculas." })}
-          ${inputField("industry", "Industria", tenant.industry || "Compliance", "text", false, true, { maxLength: 120, help: "Sector principal del cliente." })}
+          ${inputField("name", "Tenant Name", tenant.name, "text", false, true, { id: "tenantName", maxLength: 180, autocomplete: "organization", help: "Nombre interno del tenant. No puede estar vacío." })}
+          ${inputField("legalName", "Razon Social", tenant.legalName, "text", false, true, { id: "tenantLegalName", maxLength: 220, help: "Nombre legal que aparece en contratos y facturación." })}
+          ${inputField("commercialName", "Nombre Comercial", tenant.commercialName, "text", false, true, { id: "tenantCommercialName", maxLength: 180, help: "Nombre visible para usuarios del cliente." })}
+          ${inputField("taxIdentifier", "RUC / Tax ID", tenant.taxIdentifier, "text", false, true, { id: "tenantTaxIdentifier", maxLength: 80, pattern: "^[A-Za-z0-9][A-Za-z0-9.\\-]{2,78}[A-Za-z0-9]$", title: "Use letras, números, guiones o puntos. No use símbolos especiales.", help: "Identificación fiscal. Se normaliza a mayúsculas." })}
+          ${inputField("industry", "Industria", tenant.industry || "Compliance", "text", false, true, { id: "tenantIndustry", maxLength: 120, help: "Sector principal del cliente." })}
           ${selectField("countryCode", "Pais", tenant.countryCode, countryOptions(), "Código ISO del país. Panamá = PA.")}
           ${selectField("currency", "Moneda", tenant.currency, currencyOptions(), "Moneda ISO-4217 usada para el tenant.")}
-          ${inputField("phone", "Telefono", tenant.phone || "", "tel", false, false, { placeholder: "+507 6000-0000", pattern: "^\\+?(?:\\d| |\\(|\\)|-){7,40}(?:\\s?(?:ext\\.?|x)\\s?\\d{1,8})?$", title: "Use un teléfono válido. Ejemplo: +507 6000-0000", help: "Puede incluir código de país y extensión." })}
-          ${inputField("email", "Correo", tenant.email || "", "email", false, false, { maxLength: 180, placeholder: "contacto@empresa.com", help: "Correo corporativo del tenant. Se normaliza a minúsculas." })}
-          ${inputField("website", "Sitio Web", tenant.website || "", "url", false, false, { maxLength: 250, placeholder: "https://empresa.com", help: "Debe iniciar con http:// o https://." })}
-          ${inputField("city", "Ciudad", tenant.city || "", "text", false, false, { maxLength: 120 })}
-          ${inputField("province", "Provincia", tenant.province || "", "text", false, false, { maxLength: 120 })}
-          ${inputField("postalCode", "Codigo Postal", tenant.postalCode || "", "text", false, false, { maxLength: 20, help: "Formato dependiente del país." })}
-          ${inputField("addressLine1", "Direccion", tenant.addressLine1 || "", "text", false, false, { maxLength: 220 })}
+          ${inputField("phone", "Telefono", tenant.phone || "", "tel", false, false, { id: "tenantPhone", placeholder: "+507 6000-0000", pattern: "^\\+?(?:\\d| |\\(|\\)|-){7,40}(?:\\s?(?:ext\\.?|x)\\s?\\d{1,8})?$", title: "Use un teléfono válido. Ejemplo: +507 6000-0000", help: "Puede incluir código de país y extensión." })}
+          ${inputField("email", "Correo", tenant.email || "", "email", false, false, { id: "tenantContactEmail", maxLength: 180, placeholder: "contacto@empresa.com", autocomplete: "off", help: "Correo de contacto de la empresa (no el login del usuario). En tenant nuevo puede estar vacío." })}
+          ${inputField("website", "Sitio Web", tenant.website || "", "url", false, false, { id: "tenantWebsite", maxLength: 250, placeholder: "https://empresa.com", help: "Debe iniciar con http:// o https://." })}
+          ${inputField("city", "Ciudad", tenant.city || "", "text", false, false, { id: "tenantCity", maxLength: 120 })}
+          ${inputField("province", "Provincia", tenant.province || "", "text", false, false, { id: "tenantProvince", maxLength: 120 })}
+          ${inputField("postalCode", "Codigo Postal", tenant.postalCode || "", "text", false, false, { id: "tenantPostalCode", maxLength: 20, help: "Formato dependiente del país." })}
+          ${inputField("addressLine1", "Direccion", tenant.addressLine1 || "", "text", false, false, { id: "tenantAddressLine1", maxLength: 220 })}
         </div>
-        <div class="field"><label for="description">Descripcion</label><textarea id="description" name="description" rows="3">${safe(tenant.description || "")}</textarea></div>
-        <div class="field"><label for="generalChangeReason">Motivo del cambio</label><input id="generalChangeReason" name="changeReason" placeholder="Opcional, queda en auditoria"></div>
+        <div class="field"><label for="tenantDescription">Descripcion</label><textarea id="tenantDescription" name="description" rows="3" autocomplete="off">${safe(tenant.description || "")}</textarea></div>
+        <div class="field"><label for="generalChangeReason">Motivo del cambio</label><input id="generalChangeReason" name="changeReason" placeholder="Opcional, queda en auditoria" autocomplete="off"></div>
         <div class="button-row"><button class="btn primary" type="submit">Guardar informacion general</button><span class="tag">TenantId inmutable: ${shortId(tenant.id)}</span></div>
       </form>
     </section>`;
@@ -1580,27 +2059,32 @@ function tenantUsersPanel(userState, tenant, metrics) {
   const roles = userState.roles || [];
   return `
     <section class="tenant-panel" data-panel="users">
-      <div class="section-heading"><div><h2 class="section-title">User Administration</h2><p class="metric-label">Crear, bloquear, desbloquear, reset MFA, roles y sesiones por tenant.</p></div><span class="status-pill ok">${users.length}/${metrics.users || 0}</span></div>
-      <form id="tenant-user-form" class="form-stack">
+      <div class="section-heading"><div><h2 class="section-title">User Administration</h2><p class="metric-label">Crear, bloquear, desbloquear, restablecer contraseña, reset MFA, roles y sesiones por tenant.</p></div><span class="status-pill ok">${users.length}/${metrics.users || 0}</span></div>
+      <form id="tenant-user-form" class="form-stack" autocomplete="off">
         <div class="grid two">
-          ${inputField("email", "Email", "", "email", false, true)}
-          ${inputField("fullName", "Nombre completo", "", "text", false, true)}
-          ${inputField("initialPassword", "Password inicial", "", "password", false, true, { minLength: 12, help: "Mínimo 12 caracteres con mayúscula, minúscula, número y símbolo." })}
-          <div class="field"><label for="roleId">Rol inicial</label><select id="roleId" name="roleId"><option value="">Sin rol</option>${roles.map(role => `<option value="${role.id}">${safe(role.name)}</option>`).join("")}</select></div>
-          <label class="toggle-row"><input type="checkbox" name="forcePasswordChange" checked> Forzar cambio de password</label>
-          ${inputField("changeReason", "Motivo", "Alta operativa TAC")}
+          ${inputField("email", "Email del usuario", "", "email", false, true, { id: "newUserEmail", placeholder: "usuario@empresa.com", autocomplete: "off", help: "Correo de login de la persona. No use el nombre del tenant." })}
+          ${inputField("fullName", "Nombre completo", "", "text", false, true, { id: "newUserFullName", autocomplete: "off" })}
+          ${inputField("initialPassword", "Contraseña inicial", "", "password", false, true, { id: "newUserInitialPassword", minLength: 12, autocomplete: "new-password", help: "Mínimo 12 caracteres con mayúscula, minúscula, número y símbolo." })}
+          ${inputField("confirmPassword", "Confirmar contraseña", "", "password", false, true, { id: "newUserConfirmPassword", minLength: 12, autocomplete: "new-password", help: "Debe coincidir con la contraseña inicial." })}
+          <div class="field"><label for="newUserRoleId">Rol inicial</label><select id="newUserRoleId" name="roleId"><option value="">Sin rol</option>${roles.map(role => `<option value="${role.id}" ${role.name === "Tenant Administrator" ? "selected" : ""}>${safe(role.name)}</option>`).join("")}</select><small>Para el primer usuario del tenant elija Tenant Administrator.</small></div>
+          <label class="toggle-row"><input type="checkbox" name="forcePasswordChange" checked> Forzar cambio de contraseña en el primer login</label>
+          ${inputField("changeReason", "Motivo", "Alta operativa TAC", "text", false, false, { id: "newUserChangeReason", autocomplete: "off" })}
         </div>
         <button class="btn primary" type="submit">Crear / Invitar usuario</button>
       </form>
       ${tableCard("Usuarios del tenant", users.map(user => ({
         email: user.email,
         name: user.fullName,
+        roles: `__html:${(user.roleIds || []).map(roleId => {
+          const role = roles.find(item => item.id === roleId);
+          return `<span class="status-pill">${safe(role?.name || roleId)}</span> <button class="btn small danger" type="button" data-user-role-revoke="${user.id}" data-role-id="${roleId}">Retirar</button>`;
+        }).join(" ") || "Sin rol"}`,
         status: enumName(["Invited", "Active", "Disabled", "Locked"], user.status),
         mfa: user.mfaEnabled ? "Enabled" : "Disabled",
         lastLogin: formatDate(user.lastLoginAtUtc),
         sessions: (user.sessions || []).filter(session => session.isActive).length,
-        actions: `__html:<button class="btn small" data-user-action="Active" data-user-id="${user.id}">Unlock</button> <button class="btn small" data-user-action="Disabled" data-user-id="${user.id}">Disable</button> <button class="btn small" data-user-mfa="${user.id}">Reset MFA</button> <button class="btn small" data-user-sessions="${user.id}">Close Sessions</button>`
-      })), ["email", "name", "status", "mfa", "lastLogin", "sessions", "actions"])}
+        actions: `__html:<button class="btn small" type="button" data-user-edit="${user.id}" data-user-email="${safe(user.email)}" data-user-name="${safe(user.fullName)}">Editar</button> <button class="btn small" type="button" data-user-password="${user.id}" data-user-email="${safe(user.email)}">Restablecer contraseña</button> <button class="btn small" data-user-action="Active" data-user-id="${user.id}">Reactivar</button> <button class="btn small" data-user-action="Disabled" data-user-id="${user.id}">Desactivar</button>${hasAnyPermission(["TENANT.SECURITY"]) ? ` <button class="btn small" data-user-mfa="${user.id}">Reset MFA</button>` : ""} <button class="btn small" data-user-sessions="${user.id}">Cerrar sesiones</button>`
+      })), ["email", "name", "roles", "status", "mfa", "lastLogin", "sessions", "actions"])}
     </section>`;
 }
 
@@ -1948,6 +2432,12 @@ function bindTenantAdministrationCenter(tenant, center) {
   bindTenantForm("#tenant-user-form", event => {
     const form = new FormData(event.currentTarget);
     const body = formObject(form);
+    const password = String(body.initialPassword || "");
+    const confirmPassword = String(body.confirmPassword || "");
+    if (password !== confirmPassword) {
+      throw new Error("La contraseña y su confirmación no coinciden.");
+    }
+    delete body.confirmPassword;
     body.forcePasswordChange = form.has("forcePasswordChange");
     return request(`/tenants/${state.tenantId}/users`, { method: "POST", loadingContext: "save", body });
   });
@@ -2022,12 +2512,29 @@ function bindTenantAdministrationCenter(tenant, center) {
   bindTenantAction("[data-webhook-disable]", button => request(`/tenants/${state.tenantId}/webhooks/${button.dataset.webhookDisable}?changeReason=Disabled%20from%20TAC%20UI`, { method: "DELETE", loadingContext: "save" }));
   bindTenantAction("[data-user-mfa]", button => request(`/tenants/${state.tenantId}/users/${button.dataset.userMfa}/reset-mfa`, { method: "POST", body: { changeReason: "Reset MFA from TAC UI" }, loadingContext: "save" }));
   bindTenantAction("[data-user-sessions]", button => request(`/tenants/${state.tenantId}/users/${button.dataset.userSessions}/sessions/close`, { method: "POST", body: { changeReason: "Closed sessions from TAC UI" }, loadingContext: "save" }));
-  bindTenantAction("[data-user-action]", button => request(`/tenants/${state.tenantId}/users/${button.dataset.userId}/status`, { method: "PATCH", body: { status: button.dataset.userAction === "Active" ? 1 : 2, changeReason: "Status update from TAC UI" }, loadingContext: "save" }));
+  bindTenantAction("[data-user-action]", button => request(`/tenants/${state.tenantId}/users/${button.dataset.userId}/status`, { method: "PATCH", body: { status: button.dataset.userAction === "Active" ? 1 : 3, changeReason: "Status update from TAC UI" }, loadingContext: "save" }));
+  bindTenantAction("[data-user-role-revoke]", button => request(
+    `/tenants/${state.tenantId}/users/${button.dataset.userRoleRevoke}/roles/${button.dataset.roleId}?changeReason=Revoked%20from%20TAC%20UI`,
+    { method: "DELETE", loadingContext: "save" }
+  ));
+  document.querySelectorAll("[data-user-edit]").forEach(button => {
+    button.addEventListener("click", () => openTenantUserEditDialog(
+      button.dataset.userEdit,
+      button.dataset.userEmail || "",
+      button.dataset.userName || ""
+    ));
+  });
+  document.querySelectorAll("[data-user-password]").forEach(button => {
+    button.addEventListener("click", () => openAdminPasswordResetDialog(button.dataset.userPassword, button.dataset.userEmail || ""));
+  });
   bindEnterpriseFieldValidation();
 }
 
 function applyTenantActiveTab(tabKey) {
-  const selected = tenantAdminTabs().some(tab => tab.key === tabKey) ? tabKey : "general";
+  const tabs = tenantAdminTabs();
+  const selected = tabs.some(tab => tab.key === tabKey) ? tabKey : (tabs[0]?.key || "");
+  if (!selected) return;
+  localStorage.setItem("c360.tenantTab", selected);
   document.querySelectorAll(".tenant-tab").forEach(tab => tab.classList.toggle("active", tab.dataset.tab === selected));
   document.querySelectorAll(".tenant-panel").forEach(panel => panel.classList.toggle("active", panel.dataset.panel === selected));
 }
@@ -2040,6 +2547,8 @@ function bindTenantAction(selector, action) {
         await action(event.currentTarget);
         toast("Accion ejecutada y auditada.", "success");
         await renderRoute();
+      } catch (error) {
+        toast(friendlyErrorMessage(error), "error");
       } finally {
         setLoadingButton(event.currentTarget, false);
       }
@@ -2056,6 +2565,150 @@ function bindTenantForm(selector, submit) {
       await submit(event);
       toast("Cambios guardados y auditados.", "success");
       await renderRoute();
+    } catch (error) {
+      toast(friendlyErrorMessage(error), "error");
+    } finally {
+      setLoadingButton(button, false);
+    }
+  });
+}
+
+function openTenantUserEditDialog(userId, email, fullName) {
+  document.querySelector("#tenant-user-edit-dialog")?.remove();
+  const overlay = document.createElement("div");
+  overlay.id = "tenant-user-edit-dialog";
+  overlay.className = "admin-password-dialog-overlay";
+  overlay.innerHTML = `
+    <form class="admin-password-dialog form-stack" autocomplete="off">
+      <h3>Editar usuario</h3>
+      <div class="field">
+        <label for="tenantEditUserEmail">Correo</label>
+        <input id="tenantEditUserEmail" name="email" type="email" maxlength="256" value="${safe(email)}" required>
+      </div>
+      <div class="field">
+        <label for="tenantEditUserName">Nombre completo</label>
+        <input id="tenantEditUserName" name="fullName" type="text" maxlength="180" value="${safe(fullName)}" required>
+      </div>
+      <div class="field">
+        <label for="tenantEditUserReason">Motivo</label>
+        <input id="tenantEditUserReason" name="changeReason" type="text" value="Actualización de usuario por TAC">
+      </div>
+      <div class="button-row">
+        <button class="btn subtle" type="button" data-dialog-cancel>Cancelar</button>
+        <button class="btn primary" type="submit">Guardar usuario</button>
+      </div>
+    </form>`;
+  document.body.appendChild(overlay);
+  const close = () => overlay.remove();
+  overlay.querySelector("[data-dialog-cancel]")?.addEventListener("click", close);
+  overlay.addEventListener("click", event => {
+    if (event.target === overlay) close();
+  });
+  overlay.querySelector("form")?.addEventListener("submit", async event => {
+    event.preventDefault();
+    const button = event.currentTarget.querySelector("button[type='submit']");
+    const form = new FormData(event.currentTarget);
+    try {
+      setLoadingButton(button, true, "Guardando...");
+      await request(`/tenants/${state.tenantId}/users/${userId}`, {
+        method: "PUT",
+        loadingContext: "save",
+        body: {
+          email: String(form.get("email") || "").trim(),
+          fullName: String(form.get("fullName") || "").trim(),
+          changeReason: String(form.get("changeReason") || "").trim() || null
+        }
+      });
+      close();
+      toast("Usuario actualizado y auditado.", "success");
+      await renderRoute();
+    } catch (error) {
+      toast(friendlyErrorMessage(error), "error");
+    } finally {
+      setLoadingButton(button, false);
+    }
+  });
+  overlay.querySelector("input")?.focus();
+}
+
+function openAdminPasswordResetDialog(userId, userEmail) {
+  document.querySelector("#admin-password-dialog")?.remove();
+  const overlay = document.createElement("div");
+  overlay.id = "admin-password-dialog";
+  overlay.className = "admin-password-dialog-overlay";
+  overlay.innerHTML = `
+    <form class="admin-password-dialog form-stack" autocomplete="off">
+      <h3>Restablecer contraseña</h3>
+      <p class="metric-label">Usuario: <strong>${safe(userEmail || userId)}</strong>. Entregue la nueva contraseña de forma segura. Se cerrarán las sesiones activas.</p>
+      <div class="field">
+        <label for="adminResetPassword">Nueva contraseña</label>
+        <input id="adminResetPassword" name="newPassword" type="password" minlength="12" required autocomplete="new-password">
+        <small>Mínimo 12 caracteres con mayúscula, minúscula, número y símbolo.</small>
+      </div>
+      <div class="field">
+        <label for="adminResetConfirmPassword">Confirmar contraseña</label>
+        <input id="adminResetConfirmPassword" name="confirmPassword" type="password" minlength="12" required autocomplete="new-password">
+      </div>
+      <label class="toggle-row"><input type="checkbox" name="forcePasswordChange" checked> Forzar cambio en el próximo login</label>
+      <div class="field">
+        <label for="adminResetReason">Motivo</label>
+        <input id="adminResetReason" name="changeReason" type="text" value="Restablecimiento por administrador TAC" autocomplete="off">
+      </div>
+      <div class="button-row">
+        <button class="btn subtle" type="button" data-dialog-cancel>Cancelar</button>
+        <button class="btn primary" type="submit">Restablecer</button>
+      </div>
+    </form>`;
+  document.body.appendChild(overlay);
+
+  const form = overlay.querySelector("form");
+  const passwordInput = overlay.querySelector("#adminResetPassword");
+  const confirmInput = overlay.querySelector("#adminResetConfirmPassword");
+
+  const syncValidity = () => {
+    const password = passwordInput.value || "";
+    const confirm = confirmInput.value || "";
+    passwordInput.setCustomValidity(
+      password && !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{12,}$/.test(password)
+        ? "Debe tener 12 caracteres, mayúscula, minúscula, número y símbolo."
+        : ""
+    );
+    confirmInput.setCustomValidity(confirm && confirm !== password ? "Las contraseñas no coinciden." : "");
+  };
+  passwordInput.addEventListener("input", syncValidity);
+  confirmInput.addEventListener("input", syncValidity);
+
+  overlay.querySelector("[data-dialog-cancel]")?.addEventListener("click", () => overlay.remove());
+  overlay.addEventListener("click", event => {
+    if (event.target === overlay) {
+      overlay.remove();
+    }
+  });
+
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+    syncValidity();
+    if (!form.reportValidity()) {
+      return;
+    }
+    const data = new FormData(form);
+    const button = form.querySelector("button[type='submit']");
+    try {
+      setLoadingButton(button, true, "Restableciendo...");
+      await request(`/tenants/${state.tenantId}/users/${userId}/reset-password`, {
+        method: "POST",
+        loadingContext: "save",
+        body: {
+          newPassword: String(data.get("newPassword") || ""),
+          forcePasswordChange: data.has("forcePasswordChange"),
+          changeReason: String(data.get("changeReason") || "Restablecimiento por administrador TAC")
+        }
+      });
+      overlay.remove();
+      toast("Contraseña restablecida. Sesiones cerradas.", "success");
+      await renderRoute();
+    } catch (error) {
+      toast(friendlyErrorMessage(error), "error");
     } finally {
       setLoadingButton(button, false);
     }
@@ -2063,7 +2716,8 @@ function bindTenantForm(selector, submit) {
 }
 
 function inputField(name, label, value, type = "text", disabled = false, required = false, options = {}) {
-  const helpId = `${name}-help`;
+  const fieldId = options.id || name;
+  const helpId = `${fieldId}-help`;
   const min = options.min !== undefined ? ` min="${safe(options.min)}"` : type === "number" ? " min=\"0\"" : "";
   const max = options.max !== undefined ? ` max="${safe(options.max)}"` : "";
   const maxLength = options.maxLength !== undefined ? ` maxlength="${safe(options.maxLength)}"` : "";
@@ -2071,9 +2725,10 @@ function inputField(name, label, value, type = "text", disabled = false, require
   const pattern = options.pattern ? ` pattern="${safe(options.pattern)}"` : name.toLowerCase().includes("color") && type !== "color" ? " pattern=\"^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$\"" : "";
   const title = options.title ? ` title="${safe(options.title)}"` : "";
   const placeholder = options.placeholder ? ` placeholder="${safe(options.placeholder)}"` : "";
+  const autocomplete = options.autocomplete ? ` autocomplete="${safe(options.autocomplete)}"` : type === "password" ? " autocomplete=\"new-password\"" : " autocomplete=\"off\"";
   const describedBy = options.help ? ` aria-describedby="${helpId}"` : "";
   const help = options.help ? `<small id="${helpId}">${safe(options.help)}</small>` : "";
-  return `<div class="field"><label for="${name}">${safe(label)}</label><input id="${name}" name="${name}" type="${type}" value="${safe(value ?? "")}" ${disabled ? "disabled" : ""} ${required ? "required" : ""}${min}${max}${maxLength}${minLength}${pattern}${title}${placeholder}${describedBy}>${help}</div>`;
+  return `<div class="field"><label for="${fieldId}">${safe(label)}</label><input id="${fieldId}" name="${name}" type="${type}" value="${safe(value ?? "")}" ${disabled ? "disabled" : ""} ${required ? "required" : ""}${min}${max}${maxLength}${minLength}${pattern}${title}${placeholder}${autocomplete}${describedBy}>${help}</div>`;
 }
 
 function selectField(name, label, selected, options, help = "") {
@@ -2157,6 +2812,11 @@ function validateEnterpriseField(field) {
     }
   } else if (field.name === "initialPassword" && value && !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{12,}$/.test(value)) {
     message = "Debe tener 12 caracteres, mayúscula, minúscula, número y símbolo.";
+  } else if (field.name === "confirmPassword") {
+    const passwordField = field.form?.querySelector('[name="initialPassword"], [name="newPassword"]');
+    if (value && passwordField && value !== passwordField.value) {
+      message = "Las contraseñas no coinciden.";
+    }
   }
 
   field.setCustomValidity(message);
@@ -2172,13 +2832,13 @@ function tenantAlerts(alerts) {
 
 function formatDate(value) {
   if (!value) return "n/a";
-  return new Intl.DateTimeFormat(state.language === "en" ? "en-US" : "es-PA", {
+  return window.I18n.formatDate(value, {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit"
-  }).format(new Date(value));
+  });
 }
 
 function formatBytes(value) {
@@ -2437,7 +3097,7 @@ function moduleActionForm(key) {
 }
 
 function readOnlyNotice(key) {
-  const label = routeMetadata[key]?.label || modules[key]?.title || key;
+  const label = navLabel(key) || modules[key]?.title || key;
   return `
     <div class="empty-state">
       <h3>Modo solo lectura</h3>
@@ -2639,7 +3299,7 @@ function defaultCodeFor(key) {
 
 function defaultEnterpriseTitle(key) {
   const names = {
-    "template-builder": "Plantilla Enterprise",
+    "template-builder": "Compliance Studio",
     regulatory: "Obligacion Regulatoria",
     training: "Plan de Capacitacion",
     "supplier-portal": "Solicitud Proveedor",
@@ -2707,7 +3367,7 @@ function moduleTiles() {
     ["risks", "Risk Matrix", "Controles, tratamientos y heat map"],
     ["indicators", "Quality KPIs", "Metas, umbrales y tendencias"],
     ["reports", "Report Center", "Ejecucion, export y schedules"],
-    ["template-builder", "Template Builder", "Plantillas y formularios"],
+    ["template-builder", "Compliance Studio", "Form Engine visual"],
     ["regulatory", "Regulatory", "Obligaciones y evidencias"],
     ["training", "Training", "Cursos y vencimientos"],
     ["supplier-portal", "Supplier Portal", "Colaboracion proveedor"],
@@ -2818,7 +3478,7 @@ async function request(path, options = {}) {
     });
     if (!response.ok) {
       const text = await response.text();
-      throw new Error(`${response.status} ${response.statusText}: ${text || "Request failed"}`);
+      throw new Error(parseApiErrorDetail(text, response.status));
     }
     if (response.status === 204) {
       return {};
@@ -2827,6 +3487,36 @@ async function request(path, options = {}) {
   } finally {
     stopLoading();
   }
+}
+
+function parseApiErrorDetail(text, status) {
+  if (!text) {
+    return status === 401
+      ? "Sesion expirada. Inicia sesion nuevamente."
+      : "No se pudo completar la solicitud. Intenta de nuevo.";
+  }
+  const raw = String(text).trim();
+  const jsonStart = raw.indexOf("{");
+  const candidate = jsonStart >= 0 ? raw.slice(jsonStart) : raw;
+  try {
+    const payload = JSON.parse(candidate);
+    const detail = payload.detail || payload.title || payload.error || payload.message;
+    if (detail && typeof detail === "string") {
+      return detail;
+    }
+  } catch {
+    // plain text body
+  }
+  if (raw.length < 220 && !raw.startsWith("{") && !raw.startsWith("<") && !/^\d{3}\s/.test(raw)) {
+    return raw;
+  }
+  return status === 400
+    ? "No se pudo validar la solicitud. Revisa los datos e intenta de nuevo."
+    : `Error ${status}. Intenta de nuevo o contacta al administrador.`;
+}
+
+function friendlyErrorMessage(error) {
+  return parseApiErrorDetail(String(error?.message || error || "Error inesperado"), 400);
 }
 
 async function downloadProtectedText(path, fileName) {
@@ -2912,6 +3602,7 @@ function startGlobalLoading(context = "default", options = {}) {
     document.body.removeAttribute("aria-busy");
   };
 }
+window.startGlobalLoading = startGlobalLoading;
 
 function updateLoadingMessage(node, messages) {
   if (!node) return;
@@ -3200,9 +3891,62 @@ function toast(message, type = "info") {
   const region = document.querySelector("#toast-region");
   const node = document.createElement("div");
   node.className = `toast ${type}`;
-  node.textContent = translateText(message);
+  const raw = String(message || "");
+  const key = window.I18n?.resolveKeyFromText?.(raw);
+  node.textContent = key ? t(key) : raw;
   region.appendChild(node);
   setTimeout(() => node.remove(), 4200);
+}
+window.toast = toast;
+
+async function ensureFormTemplateBuilder() {
+  if (typeof window.renderFormTemplateBuilder === "function") {
+    return;
+  }
+
+  await new Promise((resolve, reject) => {
+    const existing = document.querySelector('script[data-cs-builder="1"]');
+    if (existing) {
+      existing.addEventListener("load", () => resolve(), { once: true });
+      existing.addEventListener("error", () => reject(new Error("No se pudo cargar form-template-builder.js")), { once: true });
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "/form-template-builder.js?v=i18n-2";
+    script.async = false;
+    script.dataset.csBuilder = "1";
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("No se pudo cargar /form-template-builder.js (404 o bloqueo)."));
+    document.head.appendChild(script);
+  });
+
+  if (typeof window.renderFormTemplateBuilder !== "function") {
+    throw new Error("Compliance Studio no inicializó renderFormTemplateBuilder. Recarga forzada (Ctrl+F5).");
+  }
+}
+
+async function ensureRegulatoryAffairs() {
+  if (typeof window.renderRegulatoryAffairs === "function") {
+    return;
+  }
+  await new Promise((resolve, reject) => {
+    const existing = document.querySelector('script[data-ra-console="1"]');
+    if (existing) {
+      existing.addEventListener("load", () => resolve(), { once: true });
+      existing.addEventListener("error", () => reject(new Error("No se pudo cargar regulatory-affairs.js")), { once: true });
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "/regulatory-affairs.js?v=cert-1";
+    script.async = false;
+    script.dataset.raConsole = "1";
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("No se pudo cargar /regulatory-affairs.js"));
+    document.head.appendChild(script);
+  });
+  if (typeof window.renderRegulatoryAffairs !== "function") {
+    throw new Error("RA Console no inicializó renderRegulatoryAffairs.");
+  }
 }
 
 function errorView(message) {
@@ -3218,19 +3962,19 @@ function errorView(message) {
 }
 
 function currentRouteLabel() {
-  return routeMetadata[state.route]?.label || enterpriseWorkspaces[state.route]?.title || "Workspace";
+  return navLabel(state.route) || enterpriseWorkspaces[state.route]?.title || "Workspace";
 }
 
 function currentRouteGroup() {
-  return routeMetadata[state.route]?.group || (enterpriseWorkspaces[state.route] ? "Enterprise" : "Workspace");
+  return routeMetadata[state.route] ? navGroupLabel(routeMetadata[state.route].groupKey) : (enterpriseWorkspaces[state.route] ? "Enterprise" : "Workspace");
 }
 
 function routeFromLabel(value) {
   if (!value) return null;
   const normalized = value.toLowerCase();
-  const match = Object.entries(routeMetadata).find(([, metadata]) => metadata.label.toLowerCase() === normalized);
+  const match = Object.entries(routeMetadata).find(([key]) => navLabel(key).toLowerCase() === normalized);
   if (match) return match[0];
-  const partial = Object.entries(routeMetadata).find(([, metadata]) => metadata.label.toLowerCase().includes(normalized));
+  const partial = Object.entries(routeMetadata).find(([key]) => navLabel(key).toLowerCase().includes(normalized));
   return partial?.[0] || null;
 }
 

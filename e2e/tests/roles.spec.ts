@@ -1,6 +1,7 @@
 import { test, expect, Page } from "@playwright/test";
 import * as fs from "fs";
 import * as path from "path";
+import { login } from "./helpers";
 
 const dataPath = path.join(__dirname, "..", "testdata.json");
 const raw = fs.readFileSync(dataPath, "utf-8").replace(/^\uFEFF/, "");
@@ -40,8 +41,8 @@ const roles: RoleExpectation[] = [
     landingRoute: "superadmin-platform",
   },
   tenantUser("Tenant Administrator",
-    ["dashboard", "tenant-administration", "audit-trail"],
-    ["superadmin-platform", "documents", "suppliers", "capa", "risks", "indicators", "security", "configuration"],
+    ["dashboard", "tenant-administration", "security", "audit-trail"],
+    ["superadmin-platform", "documents", "suppliers", "capa", "risks", "indicators", "configuration"],
     undefined, "tenant-administration"),
   tenantUser("Tenant Security Administrator",
     ["dashboard", "security", "audit-trail"],
@@ -92,21 +93,6 @@ const roles: RoleExpectation[] = [
     ["superadmin-platform", "security", "tenant-administration"],
     { documents: false, suppliers: false, capa: false, risks: false, indicators: false, audits: false }, "documents"),
 ];
-
-async function login(page: Page, tenantId: string, email: string, password: string) {
-  await page.goto("/");
-  await page.waitForSelector("#login-form", { timeout: 20000 });
-  await page.fill("#tenantId", tenantId);
-  await page.fill("#email", email);
-  await page.fill("#password", password);
-  await page.click("#login-form button[type=submit]");
-  try {
-    await page.waitForSelector("aside.sidebar", { timeout: 45000 });
-  } catch {
-    const err = await page.locator(".toast.error").last().textContent().catch(() => null);
-    throw new Error(`Login failed for ${email}: ${err ?? "shell not visible after 45s"}`);
-  }
-}
 
 async function jwtPermissions(page: Page): Promise<string[]> {
   return await page.evaluate(() => {

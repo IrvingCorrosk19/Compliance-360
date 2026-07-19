@@ -56,6 +56,26 @@ public static class PermissionPolicies
     public const string TenantApiKeys = "Tenant.ApiKeys";
     public const string TenantHealth = "Tenant.Health";
     public const string TenantBackup = "Tenant.Backup";
+    public const string TemplateRead = "Template.Read";
+    public const string TemplateManage = "Template.Manage";
+    public const string RegulatoryRead = "Regulatory.Read";
+    public const string RegulatoryManage = "Regulatory.Manage";
+    public const string RegulatoryPrepare = "Regulatory.Prepare";
+    public const string RegulatoryDossierUpdate = "Regulatory.Dossier.Update";
+    public const string RegulatoryRequirementUpdate = "Regulatory.Requirement.Update";
+    public const string RegulatoryObservationManage = "Regulatory.Observation.Manage";
+    public const string RegulatoryManufacturerManage = "Regulatory.Manufacturer.Manage";
+    public const string RegulatoryLicenseManage = "Regulatory.License.Manage";
+    public const string RegulatoryDossierCreate = "Regulatory.Dossier.Create";
+    public const string RegulatoryRegistrationManage = "Regulatory.Registration.Manage";
+    public const string RegulatoryEvidenceUpload = "Regulatory.Evidence.Upload";
+    public const string RegulatorySubmit = "Regulatory.Submit";
+    public const string RegulatoryApprove = "Regulatory.Approve";
+    public const string RegulatoryApproveForSubmission = "Regulatory.ApproveForSubmission";
+    public const string RegulatoryReview = "Regulatory.Review";
+    public const string RegulatoryConfigure = "Regulatory.Configure";
+    public const string RegulatorySoDManage = "Regulatory.SoD.Manage";
+    public const string RegulatorySoDOverride = "Regulatory.SoD.Override";
     public const string IdentityManage = "Identity.Manage";
     public const string RbacManage = "Rbac.Manage";
     public const string AuditRead = "Audit.Read";
@@ -192,6 +212,49 @@ public static class PermissionPolicies
         AddAny(options, ObservabilityRead, PermissionCatalog.ObservabilityRead, PermissionCatalog.ObservabilityManage, PermissionCatalog.ObservabilityAdmin);
         AddAny(options, ObservabilityManage, PermissionCatalog.ObservabilityManage, PermissionCatalog.ObservabilityAdmin);
         AddAny(options, ObservabilityAdmin, PermissionCatalog.ObservabilityAdmin);
+
+        AddAny(options, TemplateRead, PermissionCatalog.TemplateRead, PermissionCatalog.TemplateManage);
+        AddAny(options, TemplateManage, PermissionCatalog.TemplateManage);
+        AddAny(options, RegulatoryRead,
+            PermissionCatalog.RegulatoryProductRead, PermissionCatalog.RegulatoryDossierRead,
+            PermissionCatalog.RegulatoryRegistrationRead, PermissionCatalog.RegulatoryManufacturerDocumentRead,
+            PermissionCatalog.RegulatoryLicenseRead, PermissionCatalog.RegulatoryReportRead,
+            PermissionCatalog.RegulatoryProductManage, PermissionCatalog.RegulatoryDossierCreate,
+            PermissionCatalog.RegulatoryDossierUpdate, PermissionCatalog.RegulatoryDossierSubmit,
+            PermissionCatalog.RegulatoryDossierApprove, PermissionCatalog.RegulatoryDossierReview,
+            PermissionCatalog.RegulatoryDossierApproveForSubmission, PermissionCatalog.RegulatoryConfigure);
+        // Registration.Manage must NOT unlock write ops on products/dossiers (Reviewer SoD).
+        AddAny(options, RegulatoryManage,
+            PermissionCatalog.RegulatoryProductManage, PermissionCatalog.RegulatoryDossierCreate,
+            PermissionCatalog.RegulatoryDossierUpdate, PermissionCatalog.RegulatoryRequirementManage,
+            PermissionCatalog.RegulatoryObservationManage,
+            PermissionCatalog.RegulatoryManufacturerDocumentManage, PermissionCatalog.RegulatoryLicenseManage,
+            PermissionCatalog.RegulatoryConfigure);
+        // Granular action policies (manual: each button maps to exactly one permission).
+        options.AddPolicy(RegulatoryPrepare, policy => policy.RequireAssertion(context =>
+            HasPermission(context, PermissionCatalog.RegulatoryProductManage)
+            && HasPermission(context, PermissionCatalog.RegulatoryDossierUpdate)));
+        AddAny(options, RegulatoryDossierUpdate, PermissionCatalog.RegulatoryDossierUpdate);
+        AddAny(options, RegulatoryRequirementUpdate,
+            PermissionCatalog.RegulatoryRequirementManage, PermissionCatalog.RegulatoryDossierReview);
+        AddAny(options, RegulatoryObservationManage, PermissionCatalog.RegulatoryObservationManage);
+        AddAny(options, RegulatoryManufacturerManage, PermissionCatalog.RegulatoryManufacturerDocumentManage);
+        AddAny(options, RegulatoryLicenseManage, PermissionCatalog.RegulatoryLicenseManage);
+        AddAny(options, RegulatoryDossierCreate, PermissionCatalog.RegulatoryDossierCreate);
+        AddAny(options, RegulatoryRegistrationManage, PermissionCatalog.RegulatoryRegistrationManage);
+        AddAny(options, RegulatoryEvidenceUpload,
+            PermissionCatalog.RegulatoryRequirementManage,
+            PermissionCatalog.RegulatoryObservationManage,
+            PermissionCatalog.RegulatoryDossierSubmit,
+            PermissionCatalog.RegulatoryDossierApprove);
+        // Submit must NOT be implied by Approve (SoD — Approver ≠ Submitter).
+        AddAny(options, RegulatorySubmit, PermissionCatalog.RegulatoryDossierSubmit);
+        AddAny(options, RegulatoryApproveForSubmission, PermissionCatalog.RegulatoryDossierApproveForSubmission);
+        AddAny(options, RegulatoryReview, PermissionCatalog.RegulatoryDossierReview);
+        AddAny(options, RegulatoryApprove, PermissionCatalog.RegulatoryDossierApprove, PermissionCatalog.RegulatoryRegistrationManage);
+        AddAny(options, RegulatoryConfigure, PermissionCatalog.RegulatoryConfigure);
+        AddAny(options, RegulatorySoDManage, PermissionCatalog.RegulatorySoDManage, PermissionCatalog.RegulatoryConfigure);
+        AddAny(options, RegulatorySoDOverride, PermissionCatalog.RegulatorySoDEmergencyOverride);
 
         // Platform
         AddAny(options, SuperAdminDashboard, PermissionCatalog.PlatformDashboardRead);

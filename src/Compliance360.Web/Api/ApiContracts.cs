@@ -4,6 +4,8 @@ using Compliance360.Domain.AuditManagement;
 using Compliance360.Domain.CapaManagement;
 using Compliance360.Domain.Documents;
 using Compliance360.Domain.Enterprise;
+using Compliance360.Domain.FormTemplates;
+using Compliance360.Domain.RegulatoryAffairs;
 using Compliance360.Domain.Identity;
 using Compliance360.Domain.Notifications;
 using Compliance360.Domain.QualityIndicators;
@@ -17,7 +19,23 @@ using Compliance360.Domain.Workflows;
 
 namespace Compliance360.Web.Api;
 
-public sealed record LoginRequest(Guid TenantId, string Email, string Password);
+public sealed record IdentifyRequest(string Email);
+
+public sealed record IdentifyOrganizationSummary(Guid Id, string Name, string? LogoUri, string? PrimaryColor, string? Description);
+
+public sealed record IdentifyResponse(
+    string ResolverToken,
+    bool RequiresOrganizationSelection,
+    Guid? PreselectedOrganizationId,
+    IReadOnlyCollection<IdentifyOrganizationSummary> Organizations);
+
+public sealed record LoginRequest(
+    Guid? TenantId,
+    string Email,
+    string Password,
+    string? ResolverToken,
+    Guid? OrganizationId,
+    bool? RememberMe);
 
 public sealed record CompleteMfaChallengeRequest(string ChallengeToken, MfaMethod Method, string VerificationCode);
 
@@ -26,6 +44,8 @@ public sealed record RefreshTokenRequest(string RefreshToken);
 public sealed record LogoutRequest(Guid TenantId, Guid UserId, string RefreshTokenHash);
 
 public sealed record ChangePasswordRequest(Guid TenantId, string CurrentPassword, string NewPassword);
+
+public sealed record UpdateUserPreferredLanguageRequest(string? PreferredLanguage);
 
 public sealed record CreateTenantRequest(
     string Name,
@@ -134,6 +154,10 @@ public sealed record RecordTenantBackupRequest(string BackupKind, string Result,
 
 public sealed record CreateTenantUserRequest(string Email, string FullName, string InitialPassword, bool ForcePasswordChange, Guid? RoleId, string? ChangeReason);
 
+public sealed record UpdateTenantUserRequest(string Email, string FullName, string? ChangeReason);
+
+public sealed record ResetTenantUserPasswordRequest(string NewPassword, bool ForcePasswordChange, string? ChangeReason);
+
 public sealed record ChangeTenantUserStatusRequest(UserStatus Status, string? ChangeReason);
 
 public sealed record AssignTenantUserRoleRequest(Guid RoleId, string? ChangeReason);
@@ -177,6 +201,89 @@ public sealed record CreateEnterpriseWorkspaceItemRequest(
     Guid? OwnerUserId,
     DateTimeOffset? DueAtUtc,
     string? MetadataJson);
+
+public sealed record CreateFormTemplateRequest(
+    string Name,
+    string Code,
+    string Category,
+    FormTemplateKind Kind,
+    string Description,
+    string? InitialSchemaJson);
+
+public sealed record UpdateFormTemplateHeaderRequest(
+    string Name,
+    string Category,
+    FormTemplateKind Kind,
+    string Description);
+
+public sealed record SaveFormTemplateDraftRequest(
+    Guid? VersionId,
+    string SchemaJson,
+    string ChangeLog);
+
+public sealed record FormTemplatePublishRequest(Guid? VersionId);
+
+public sealed record DuplicateFormTemplateRequest(string NewName, string NewCode);
+
+public sealed record UpsertManufacturerRequest(Guid? ManufacturerId, string LegalName, string CountryCode, string? CommercialName, Guid? SupplierId, string? ContactEmail, string? ContactPhone);
+public sealed record AddManufacturerCertificateRequest(Guid ManufacturerId, ManufacturerCertificateType Type, string Number, string IssuedBy, DateTimeOffset? IssuedOn, DateTimeOffset? ExpiresOn, string? Country, CertificateLegalFormat LegalFormat, bool Apostilled, bool Notarized, Guid? StoredFileId, string? Notes);
+public sealed record CreateMedicalDeviceProductRequest(string CountryCode, string Category, string Brand, string RegulatoryName, string? CommercialName, string? Description, string CatalogCode, string? InternalCode, string? ProductType, DeviceRiskClass RiskClass, Guid? ManufacturerId, Guid? DistributorCompanyId, string? DistributorName, string? Initiative, string? Priority, string? SalesMarketingInput, decimal? OpportunityAmount, string? Currency, int? RegisteredSuppliersCount, string? TechnicalSheetReference, string? FormReference, int? SourceLineNumber);
+public sealed record CreateRegistrationDossierRequest(Guid ProductId, Guid AuthorityId, RegistrationProcessType ProcessType, Guid? ExistingRegistrationId, string? Priority, Guid? OwnerUserId, string? SalesMarketingInput, decimal? OpportunityAmount, string? Currency, string? Comments, Guid? RequirementPackId, bool SaveAsDraft = false);
+public sealed record TransitionDossierRequest(RegistrationDossierStatus TargetStatus, string? WaiverReason, string? EmergencyOverrideReason = null);
+public sealed record ReturnForCorrectionV2Request(long ExpectedRevision, string Reason, DossierCorrectionSeverity Severity, IReadOnlyCollection<Guid> RequirementIds, IReadOnlyCollection<string>? FieldPaths, IReadOnlyCollection<Guid>? DocumentIds);
+public sealed record SubmitCorrectionV2Request(long ExpectedRevision, Guid CorrectionRequestId, string Reason, IReadOnlyCollection<Guid> RequirementIds, IReadOnlyCollection<string>? FieldPaths, IReadOnlyCollection<Guid>? DocumentIds);
+public sealed record StartTechnicalReviewV2Request(long ExpectedRevision, string Reason);
+public sealed record CompleteTechnicalReviewV2Request(long ExpectedRevision, Guid? CorrectionRequestId, string Reason);
+public sealed record EvidenceRevisionV2Request(long ExpectedRevision, Guid RequirementId, Guid? CorrectionRequestId, Guid? DocumentId, Guid StoredFileId, string Sha256, string FileName, string Reason);
+public sealed record GovernanceV2Request(long ExpectedRevision, string Reason);
+public sealed record GovernanceDecisionV2Request(long ExpectedRevision, string? Reason);
+public sealed record OverrideV2Request(long ExpectedRevision, string Action, string Reason);
+public sealed record ConsumeOverrideV2Request(long ExpectedRevision, string Action);
+public sealed record UpdateDossierMetadataV2Request(long ExpectedRevision, string Reason, string? Priority, Guid? OwnerUserId, string? SalesMarketingInput, decimal? OpportunityAmount, string? Currency, string? Comments, DateTimeOffset? RequestedFromFactoryOn, DateTimeOffset? EstimatedReceptionOn, DateTimeOffset? MaximumReceptionOn, DateTimeOffset? EstimatedSubmissionOn, DateTimeOffset? EstimatedApprovalOn, DateTimeOffset? TargetExpirationOn, Guid? CorrectionRequestId = null);
+public sealed record UpdateDossierDatesRequest(DateTimeOffset? RequestedFromFactoryOn, DateTimeOffset? EstimatedReceptionOn, DateTimeOffset? MaximumReceptionOn, DateTimeOffset? EstimatedSubmissionOn, DateTimeOffset? EstimatedApprovalOn, DateTimeOffset? TargetExpirationOn);
+public sealed record UpdateDossierRequirementRequest(DossierRequirementStatus Status, Guid? DocumentId, Guid? StoredFileId, string? Notes, string? EmergencyOverrideReason = null);
+public sealed record OpenObservationRequest(string Description, DateTimeOffset ReceivedOn, DateTimeOffset? DueOn, Guid? ResponsibleUserId, IReadOnlyList<Guid>? RequirementIds);
+public sealed record RespondObservationRequest(string Notes, bool Close);
+public sealed record ApproveDossierRequest(
+    string RegistrationNumber,
+    DateTimeOffset IssuedOn,
+    DateTimeOffset? ExpiresOn,
+    string? Notes,
+    Guid ResolutionStoredFileId,
+    string? EmergencyOverrideReason = null);
+public sealed record ApproveForSubmissionRequest(string? Notes = null, string? EmergencyOverrideReason = null);
+public sealed record SubmitDossierRequest(
+    string? ProcedureNumber,
+    string? ExternalNumber,
+    DateTimeOffset? SubmittedOn,
+    Guid? ProofStoredFileId,
+    string? EmergencyOverrideReason = null);
+public sealed record RejectDossierRequest(
+    string Reason,
+    string ResolutionNumber,
+    DateTimeOffset DecidedOn,
+    Guid? ResolutionStoredFileId,
+    string? EmergencyOverrideReason = null);
+public sealed record UpdateSoDSettingsRequest(
+    bool PreventSelfReview,
+    bool PreventSelfApproval,
+    bool SeparateApproverAndSubmitter,
+    bool SeparateDocumentUploaderAndReviewer,
+    bool RequireSecondApprovalForCriticalWaiver,
+    bool RequireApprovalForCriticalityChange,
+    bool RequireApprovalForExternalDecisionRecording,
+    bool AllowEmergencyOverride,
+    bool EmergencyOverrideRequiresReason,
+    bool EmergencyOverrideRequiresSecondaryReview,
+    bool RequireInternalApprovalBeforeSubmission);
+public sealed record StartRenewalRequest(Guid ProductId, Guid AuthorityId, Guid? RequirementPackId);
+public sealed record CreateOperatingLicenseRequest(string CompanyName, Guid? CompanyId, string LicenseType, Guid? AuthorityId, string? LicenseNumber, DateTimeOffset? IssuedOn, DateTimeOffset? ExpiresOn, string? Comments, DateOnly? CompanyConstitutedOn = null, DateOnly? OperationsStartedOn = null);
+public sealed record UpdateOperatingLicenseCompanyDatesRequest(DateOnly? CompanyConstitutedOn, DateOnly? OperationsStartedOn, bool ClearConstitution = false, bool ClearOperationsStart = false);
+public sealed record AttachProductArtifactRequest(string ArtifactKind, string? Reference, Guid? DocumentId, Guid? StoredFileId, string Status);
+public sealed record StartLicenseRenewalRequest(string? Comments);
+public sealed record StageRegutrackImportRequest(string SourceFileName, string RowsJson);
+public sealed record RollbackImportRequest(string? Reason);
+public sealed record UpdateRegulatoryAlertSettingsRequest(string ThresholdsCsv);
 
 public sealed record CreateNotificationTemplateRequest(string Code, NotificationChannel Channel, string Subject, string Body, string? TextBody, string? Locale, string? BrandingJson);
 

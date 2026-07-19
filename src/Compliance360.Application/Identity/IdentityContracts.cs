@@ -6,7 +6,11 @@ namespace Compliance360.Application.Identity;
 
 public interface IIdentityService
 {
+    Task<Result<AuthIdentifyResult>> IdentifyAsync(AuthIdentifyCommand command, CancellationToken cancellationToken = default);
+
     Task<Result<AuthenticationResult>> LoginAsync(LoginCommand command, CancellationToken cancellationToken = default);
+
+    Task<Result<AuthenticationResult>> LoginResolvedAsync(LoginResolvedCommand command, CancellationToken cancellationToken = default);
 
     Task<Result<AuthenticationResult>> CompleteMfaChallengeAsync(CompleteMfaChallengeCommand command, CancellationToken cancellationToken = default);
 
@@ -37,6 +41,12 @@ public interface IIdentityRepository
 
     Task<RefreshToken?> GetRefreshTokenByHashAsync(string tokenHash, CancellationToken cancellationToken = default);
 
+    Task<UserSession?> GetSessionByIdAsync(Guid tenantId, Guid sessionId, CancellationToken cancellationToken = default) =>
+        Task.FromResult<UserSession?>(null);
+
+    Task<bool> IsTenantActiveAsync(Guid tenantId, CancellationToken cancellationToken = default) =>
+        Task.FromResult(true);
+
     Task<bool> IsTenantMfaRequiredAsync(Guid tenantId, CancellationToken cancellationToken = default);
 
     Task<MfaConfiguration?> GetEnabledMfaConfigurationAsync(Guid tenantId, Guid userId, MfaMethod method, CancellationToken cancellationToken = default);
@@ -52,6 +62,10 @@ public interface IIdentityRepository
     Task<IReadOnlyCollection<string>> GetRoleNamesAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyCollection<string>> GetPermissionCodesAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<UserTenantMembership>> GetUserTenantMembershipsByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default);
+
+    Task<Guid?> ResolveTenantByHostAsync(string hostName, CancellationToken cancellationToken = default);
 }
 
 public interface IPasswordPolicyValidator
@@ -70,6 +84,21 @@ public sealed record LoginCommand(
     Guid TenantId,
     string Email,
     string Password,
+    string? IpAddress,
+    string? UserAgent);
+
+public sealed record LoginResolvedCommand(
+    string Email,
+    string Password,
+    string ResolverToken,
+    Guid? OrganizationId,
+    bool RememberMe,
+    string? IpAddress,
+    string? UserAgent);
+
+public sealed record AuthIdentifyCommand(
+    string Email,
+    string? HostName,
     string? IpAddress,
     string? UserAgent);
 
@@ -162,9 +191,50 @@ public sealed record MfaChallengePrincipal(
     MfaMethod Method,
     DateTimeOffset ExpiresAtUtc);
 
+public sealed record UserTenantMembership(
+    Guid TenantId,
+    Guid UserId,
+    string TenantName,
+    string? LogoUri,
+    string? PrimaryColor,
+    string? Description);
+
+public sealed record AuthIdentifyResult(
+    string ResolverToken,
+    bool RequiresOrganizationSelection,
+    Guid? PreselectedOrganizationId,
+    IReadOnlyCollection<UserTenantMembership> Organizations);
+
 public sealed class MfaChallengeOptions
 {
     public const string SectionName = "MfaChallenge";
+
+    public int LifetimeMinutes { get; set; } = 5;
+}
+
+public interface IAuthResolverTokenService
+{
+    string Create(AuthResolverPrincipal principal);
+
+    Result<AuthResolverPrincipal> Validate(string token);
+
+    /// <summary>
+    /// Marks a validated resolver token as used after a successful login so it cannot be replayed.
+    /// Failed password attempts must not consume the token.
+    /// </summary>
+    void MarkUsed(AuthResolverPrincipal principal);
+}
+
+public sealed record AuthResolverPrincipal(
+    string NormalizedEmail,
+    IReadOnlyCollection<Guid> AllowedTenantIds,
+    Guid? PreselectedTenantId,
+    DateTimeOffset ExpiresAtUtc,
+    string Nonce);
+
+public sealed class AuthResolverOptions
+{
+    public const string SectionName = "AuthResolver";
 
     public int LifetimeMinutes { get; set; } = 5;
 }

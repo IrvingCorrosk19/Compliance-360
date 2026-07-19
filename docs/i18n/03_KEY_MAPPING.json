@@ -1,0 +1,7402 @@
+[
+  {
+    "finalKey": "Auth.Authority",
+    "es": "autoridad",
+    "en": "authority",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Auth.AuthorityIssuer",
+    "es": "Autoridad / Emisor",
+    "en": "Authority / Issuer",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Auth.ClosedSessionsFromTACUI",
+    "es": "Sesiones cerradas desde TAC UI",
+    "en": "Closed sessions from TAC UI",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Auth.Credentials",
+    "es": "Credenciales",
+    "en": "Credentials",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Auth.SessionTimeoutMin",
+    "es": "Tiempo de espera de sesión (min)",
+    "en": "Session Timeout (min)",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Auth.Sessions",
+    "es": "sesiones",
+    "en": "sessions",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Auth.ValidatingCredentials",
+    "es": "Validando credenciales...",
+    "en": "Validating credentials...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Brand.Compliance",
+    "es": "cumplimiento",
+    "en": "compliance",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Brand.Compliance360",
+    "es": "Compliance 360",
+    "en": "Compliance 360",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Brand.ConsoleGlobalParaAdministrarYObservarTodaLaPlatformCompliance360",
+    "es": "Consola global para administrar y observar toda la plataforma Compliance 360.",
+    "en": "Global console to manage and observe the entire Compliance 360 ​​platform.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Brand.OrganizationCompliance360",
+    "es": "Organización Cumplimiento 360",
+    "en": "Compliance 360 Organization",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Brand.Viewport",
+    "es": "ventana gráfica",
+    "en": "viewport",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/index.html"
+    ]
+  },
+  {
+    "finalKey": "Brand.WidthDeviceWidthInitialScale1",
+    "es": "ancho = ancho del dispositivo, escala inicial = 1",
+    "en": "width=device-width, initial-scale=1",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/index.html"
+    ]
+  },
+  {
+    "finalKey": "Common.Actions",
+    "es": "Acciones",
+    "en": "Actions",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Common.AutosaveComplianceStudio",
+    "es": "Estudio de cumplimiento de guardado automático",
+    "en": "Autosave Compliance Studio",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Common.AutosaveListo",
+    "es": "Lista de guardado automático",
+    "en": "Autosave listo",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Back",
+    "es": "Volver",
+    "en": "Back",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.BlockSave",
+    "es": "BloquearGuardar",
+    "en": "BlockSave",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Common.BuscarGlobalmenteTenantSupplierLicenciaAuditoriaModulo",
+    "es": "Buscar globalmente: tenant, proveedor, licencia, auditoria, modulo...",
+    "en": "Search globally: tenant, provider, license, audit, module...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.BuscarTemplates",
+    "es": "Buscar plantillas",
+    "en": "Search templates",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Cancel",
+    "es": "Cancelar",
+    "en": "Cancel",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Cancelado",
+    "es": "cancelado",
+    "en": "Cancelled",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Cancelled",
+    "es": "Cancelado",
+    "en": "Cancelled",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.ChangesSinGuardar",
+    "es": "Cambios sin guardar",
+    "en": "Unsaved changes",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Close",
+    "es": "Cerrar",
+    "en": "Close",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Confirm",
+    "es": "Confirmar",
+    "en": "Confirm",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Continue",
+    "es": "Continuar",
+    "en": "Continue",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.CoreModulesSupportRealCreateSearchReportAndDashboardFlows",
+    "es": "Los módulos principales admiten flujos reales de creación, búsqueda, informes y paneles.",
+    "en": "Core modules support real create, search, report and dashboard flows.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Create",
+    "es": "Crear",
+    "en": "Create",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Dark",
+    "es": "Oscuro",
+    "en": "Dark",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Delete",
+    "es": "Eliminar",
+    "en": "Delete",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Edit",
+    "es": "Editar",
+    "en": "Edit",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Email",
+    "es": "Correo electr?nico",
+    "en": "Email",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Export",
+    "es": "Exportar",
+    "en": "Export",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Language",
+    "es": "Idioma",
+    "en": "Language",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Light",
+    "es": "Claro",
+    "en": "Light",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Live",
+    "es": "En vivo",
+    "en": "Live",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Loading",
+    "es": "Cargando",
+    "en": "Loading",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Name",
+    "es": "Nombre",
+    "en": "Name",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Next",
+    "es": "Siguiente",
+    "en": "Next",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.No",
+    "es": "No",
+    "en": "No",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Optional",
+    "es": "Opcional",
+    "en": "Optional",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Password",
+    "es": "Contrase?a",
+    "en": "Password",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Reload",
+    "es": "Recargar",
+    "en": "Reload",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Remove",
+    "es": "Quitar",
+    "en": "Remove",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Required",
+    "es": "Obligatorio",
+    "en": "Required",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Retry",
+    "es": "Reintentar",
+    "en": "Retry",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Save",
+    "es": "Guardar",
+    "en": "Save",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Search",
+    "es": "Buscar",
+    "en": "Search",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.SignOut",
+    "es": "Cerrar sesi?n",
+    "en": "Sign out",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Status",
+    "es": "Estado",
+    "en": "Status",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Theme",
+    "es": "Tema",
+    "en": "Theme",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Update",
+    "es": "Actualizar",
+    "en": "Update",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Common.Yes",
+    "es": "S?",
+    "en": "Yes",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.APIHealth",
+    "es": "Estado de la API",
+    "en": "API Health",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.APIKeys",
+    "es": "Claves API",
+    "en": "API Keys",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.APIReal",
+    "es": "API reales",
+    "en": "API real",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.APIRequests",
+    "es": "Solicitudes de API",
+    "en": "API Requests",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.AbrirReportCenter",
+    "es": "Abrir Centro de informes",
+    "en": "Abrir Report Center",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ActionsCausaRaizYEfectividad",
+    "es": "Acciones, causa raiz y efectividad",
+    "en": "Actions, root cause and effectiveness",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ActionsCorrectivePreventiveFollowUpApprovalsYEfectividad",
+    "es": "Acciones correctivas/preventivas, seguimiento, aprobaciones y efectividad.",
+    "en": "Corrective/preventive actions, monitoring, approvals and effectiveness.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ActionsOpenCerradas",
+    "es": "Acciones abiertas/cerradas",
+    "en": "Acciones abiertas/cerradas",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Activate",
+    "es": "activar",
+    "en": "activate",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ActiveDirectory",
+    "es": "Directorio Activo",
+    "en": "ActiveDirectory",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ActividadReciente",
+    "es": "actividad reciente",
+    "en": "Actividad reciente",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Administration",
+    "es": "Administración",
+    "en": "Administración",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.AdministrationGlobalDePlatformPDivSpanClass",
+    "es": ">Administracion global de plataforma.</p></div><span class=",
+    "en": ">Global platform administration.</p></div><span class=",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Administrator",
+    "es": "Administrador",
+    "en": "Administrator",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Advertencia",
+    "es": "advertencia",
+    "en": "Advertencia",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.AgregarUnDominioDefaultOCustomAntesDeOnboardingEnterprise",
+    "es": "Agregar un dominio default o custom antes de onboarding enterprise.",
+    "en": "Add a default or custom domain before onboarding enterprise.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.AllowedOrigins",
+    "es": "Orígenes permitidos",
+    "en": "AllowedOrigins",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.AltaAPIKey",
+    "es": "Clave API alta",
+    "en": "Alta API key",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.AltaDeDominioEnterprise",
+    "es": "Alta de dominio enterprise",
+    "en": "Enterprise domain registration",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.AltaOperativaTAC",
+    "es": "TAC alta operativa",
+    "en": "Alta operativa TAC",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.AltaWebhook",
+    "es": "Alta webhook",
+    "en": "Alta webhook",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.AnalyzingActionsOpen",
+    "es": "Analizando acciones abiertas...",
+    "en": "Analizando acciones abiertas...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.AnalyzingData",
+    "es": "Analizando datos...",
+    "en": "Analyzing data...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.AplicadoPorBackend",
+    "es": "Aplicado por backend",
+    "en": "Applied by backend",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ApplicationJson",
+    "es": "aplicación/json",
+    "en": "application/json",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ApplyingConfiguration",
+    "es": "Aplicando configuración...",
+    "en": "Applying configuration...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ApplyingFormat",
+    "es": "Aplicando formato...",
+    "en": "Applying formatting...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Approved",
+    "es": "Aprobado",
+    "en": "Approved",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Aprobado",
+    "es": "aprobado",
+    "en": "Aprobado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Archivado",
+    "es": "Archivado",
+    "en": "Archivado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Archivados",
+    "es": "Archivados",
+    "en": "Archivados",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Archived",
+    "es": "Archivado",
+    "en": "Archived",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ArchivoExportadoCorrectamente",
+    "es": "Archivo exportado correctamente.",
+    "en": "Archivo exportado correctamente.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Autocomplete",
+    "es": ", autocompletar:",
+    "en": ", autocomplete:",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Autocomplete2",
+    "es": "autocompletar=",
+    "en": "autocomplete=",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.AutocompleteOff",
+    "es": "autocompletar = \"desactivado\"",
+    "en": "autocomplete=\"off\"",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.AzureBlob",
+    "es": "Mancha azur",
+    "en": "Azure Blob",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.BackgroundJobs",
+    "es": "Trabajos en segundo plano",
+    "en": "Background Jobs",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.BackupVerificationRecorded",
+    "es": "Verificación de respaldo registrada",
+    "en": "Backup verification recorded",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.BackupsRegistrados",
+    "es": "Copias de seguridad registradas",
+    "en": "Backups registrados",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.BaseDeData",
+    "es": "Base de Datos",
+    "en": "Database",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Bloqueado",
+    "es": "Bloqueado",
+    "en": "Bloqueado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Borrador",
+    "es": "borrador",
+    "en": "Borrador",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Branding",
+    "es": "herrada",
+    "en": "branding",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.BrandingGlobal",
+    "es": "Marca global",
+    "en": "Branding global",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Breadcrumbs",
+    "es": "pan rallado",
+    "en": "breadcrumbs",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.BreadcrumbsCompact",
+    "es": "pan rallado compacto",
+    "en": "breadcrumbs compact",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.BtnDanger",
+    "es": "peligro",
+    "en": "btn danger",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.BtnPrimary",
+    "es": "btn primaria",
+    "en": "btn primary",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.BtnSmall",
+    "es": "por cierto pequeño",
+    "en": "btn small",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.BtnSubtle",
+    "es": "btn sutil",
+    "en": "btn subtle",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.BuilderEnterpriseParaTemplatesFormsFlujosYReportsOperational",
+    "es": "Constructor enterprise para plantillas, formularios, flujos y reportes operativos.",
+    "en": "Enterprise builder for templates, forms, flows and operational reports.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.BuscaEjecutaProgramaYExportaReportsEmpresariales",
+    "es": "Busca, ejecuta, programa y exporta reportes empresariales.",
+    "en": "Search, run, schedule and export business reports.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.BusquedaGlobalDePlatform",
+    "es": "Busqueda global de plataforma",
+    "en": "Global Platform Search",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ButtonRowSectionActions",
+    "es": "acciones de sección de fila de botones",
+    "en": "button-row section-actions",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.BuzonMuerto",
+    "es": "buzón muerto",
+    "en": "Buzon muerto",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.C360Enterprise",
+    "es": "Empresa C360",
+    "en": "C360 Enterprise",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CICDExterno",
+    "es": "CI/CD externo",
+    "en": "CI/CD externo",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.COPPesoColombiano",
+    "es": "COP - Peso colombiano",
+    "en": "COP - Peso colombiano",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CRCColonCostarricense",
+    "es": "CRC - Colón costarricense",
+    "en": "CRC - Colón costarricense",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CalculatingHealthDelTenant",
+    "es": "Calculando salud del tenant...",
+    "en": "Calculating tenant health...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CalculatingHealthGlobal",
+    "es": "Calculando salud global...",
+    "en": "Calculando salud global...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CalculatingIndicators",
+    "es": "Calculando indicadores...",
+    "en": "Calculating indicators...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CalculatingTimeRemaining",
+    "es": "Calculando el tiempo restante...",
+    "en": "Calculando tiempo restante...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CambiarOrganization",
+    "es": "cambiar organización",
+    "en": "Change organization",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CardLoadingReport",
+    "es": "informe de carga de tarjeta",
+    "en": "card loading-report",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CardMetricCard",
+    "es": "tarjeta-tarjeta-métrica",
+    "en": "card metric-card",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CardModuleCardElevated",
+    "es": "tarjeta modulo-tarjeta elevada",
+    "en": "card module-card elevated",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CardReadinessCard",
+    "es": "tarjeta-tarjeta-de-preparación",
+    "en": "card readiness-card",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CardSkeletonChart",
+    "es": "carta-esqueleto-gráfico",
+    "en": "card skeleton-chart",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CasosEnCurso",
+    "es": "Casos en curso",
+    "en": "Ongoing cases",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CatalogoEnterpriseObligatorio",
+    "es": "catalogo empresarial obligatorio",
+    "en": "Catalogo enterprise obligatorio",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CatalogoObligatorio",
+    "es": "catalogo obligatorio",
+    "en": "Catalogo obligatorio",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Category",
+    "es": "categoría",
+    "en": "category",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CentroEnterpriseIncluidoEnLaNavegacionPrincipalParaCompletarLaOperacionCorporativa",
+    "es": "Centro enterprise incluido en la navegacion principal para completar la operacion corporativa.",
+    "en": "Enterprise center included in the main navigation to complete the corporate operation.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Cerrados",
+    "es": "Cerrados",
+    "en": "Cerrados",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CertificadoFallido",
+    "es": "Certificado fallido",
+    "en": "Certificado fallido",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CertificateThumbprint",
+    "es": "Huella digital del certificado",
+    "en": "Certificate thumbprint",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Certification",
+    "es": "Proceso de dar un título",
+    "en": "Certification",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Checkbox",
+    "es": "caja",
+    "en": "checkbox",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Classify",
+    "es": "Clasificar",
+    "en": "Classify",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ClientID",
+    "es": "ID de cliente",
+    "en": "Client ID",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ClienteDemo",
+    "es": "Demostración del cliente",
+    "en": "Cliente Demo",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ClienteDemoCompliance",
+    "es": "Cumplimiento de la demostración del cliente",
+    "en": "Cliente Demo Compliance",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ClienteDemoComplianceSA",
+    "es": "Cliente Demo Cumplimiento S.A.",
+    "en": "Cliente Demo Compliance S.A.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CodigoISODelPais",
+    "es": "Codigo ISO del pais.",
+    "en": "ISO country code.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CodigoISODelPaisPanamaPA",
+    "es": "Código ISO del país. Panamá = PA.",
+    "en": "ISO country code. Panama = PA.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CodigoPostal",
+    "es": "Código Postal",
+    "en": "Codigo Postal",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Colombia",
+    "es": "Colombia",
+    "en": "Colombia",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ColorPrimario",
+    "es": "Color primario",
+    "en": "Color primario",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ColorSecundario",
+    "es": "color secundario",
+    "en": "Color secundario",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CommandCenter",
+    "es": "Centro de control",
+    "en": "control center",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Completado",
+    "es": "Completado",
+    "en": "Completado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Completando",
+    "es": "Completando...",
+    "en": "Completando...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Completed",
+    "es": "terminado",
+    "en": "completed",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Compliance360UI",
+    "es": "Cumplimiento de la interfaz de usuario 360",
+    "en": "Compliance360 UI",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Compliance360Web",
+    "es": "Cumplimiento web 360",
+    "en": "Compliance360 Web",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ComplianceDashboard",
+    "es": "Panel de cumplimiento",
+    "en": "Compliance Dashboard",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CompliancePerformance",
+    "es": "Desempeño de cumplimiento",
+    "en": "Compliance performance",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ComplianceStudio",
+    "es": "Estudio de cumplimiento",
+    "en": "Compliance Studio",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ComplianceStudioNoInicializoRenderFormTemplateBuilderRecargaForzadaCtrlF5",
+    "es": "Compliance Studio no inicializó renderFormTemplateBuilder. Recarga forzada (Ctrl+F5).",
+    "en": "Compliance Studio no inicializó renderFormTemplateBuilder. Recarga forzada (Ctrl+F5).",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Component",
+    "es": "componente",
+    "en": "component",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Configurado",
+    "es": "Configurado",
+    "en": "Configurado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Configuration",
+    "es": "Configuración",
+    "en": "Configuration",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ConfigurationGlobal",
+    "es": "Configuración Global",
+    "en": "Global Settings",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ConfigurationSSOEnterprise",
+    "es": "Configuración SSO empresarial",
+    "en": "Enterprise SSO Configuration",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Configured",
+    "es": "Configurado",
+    "en": "Configured",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ConnectionTestFromTACUI",
+    "es": "Prueba de conexión desde TAC UI",
+    "en": "Connection test from TAC UI",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ContextoDelTenant",
+    "es": "Contexto del tenant",
+    "en": "Tenant context",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CorporateSSO",
+    "es": "SSO corporativo",
+    "en": "Corporate SSO",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CostaRica",
+    "es": "Costa Rica",
+    "en": "Costa Rica",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CoursesYExpirations",
+    "es": "Cursos y vencimientos",
+    "en": "Courses and expirations",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.CrearEvidence",
+    "es": "Crear evidencia",
+    "en": "Create evidence",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Currency",
+    "es": "divisa",
+    "en": "currency",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.DNSFallido",
+    "es": "DNS fallido",
+    "en": "DNS fallido",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.DOPPesoDominicano",
+    "es": "DOP - Peso dominicano",
+    "en": "DOP - Peso dominicano",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Dashboard",
+    "es": "Panel",
+    "en": "Dashboard",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.DashboardDatasets",
+    "es": "Conjuntos de datos del panel",
+    "en": "Dashboard datasets",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Database",
+    "es": "base de datos",
+    "en": "database",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Datasets",
+    "es": "Conjuntos de datos",
+    "en": "Datasets",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.DeadLetter",
+    "es": "letra muerta",
+    "en": "DeadLetter",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.DebeSerJSONValido",
+    "es": "Debe ser JSON válido.",
+    "en": "Debe ser JSON válido.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.DebeTener12CaracteresMayusculaMinusculaNumeroYSimbolo",
+    "es": "Debe tener 12 caracteres, mayúscula, minúscula, número y símbolo.",
+    "en": "It must have 12 characters, uppercase, lowercase, number and symbol.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Dedicated",
+    "es": "Dedicado",
+    "en": "Dedicated",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Degradado",
+    "es": "degradado",
+    "en": "Degradado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Degraded",
+    "es": "Degradado",
+    "en": "Degraded",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Desconocido",
+    "es": "Desconocido",
+    "en": "Desconocido",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Descripcion",
+    "es": "descripción",
+    "en": "Descripcion",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Description",
+    "es": "descripción",
+    "en": "description",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.DevOpsReadModel",
+    "es": "Modelo de lectura de DevOps",
+    "en": "DevOps read model",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Direccion",
+    "es": "Dirección",
+    "en": "Direccion",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Disabled",
+    "es": "Desactivado",
+    "en": "Disabled",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Disponible",
+    "es": "Disponible",
+    "en": "Disponible",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.DivClass",
+    "es": "><div clase=",
+    "en": "><div class=",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Dominios",
+    "es": "Dominios",
+    "en": "Dominios",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.DominiosConfigurados",
+    "es": "Dominios configurados",
+    "en": "Dominios configurados",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Duration",
+    "es": "duración",
+    "en": "duration",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Effectiveness",
+    "es": "Eficacia",
+    "en": "Effectiveness",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.EjecucionExportYSchedules",
+    "es": "Ejecucion, export y schedules",
+    "en": "Execution, export and schedules",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ElReadModelDePlatformNoDetectoProblemasCriticos",
+    "es": "El read model de plataforma no detecto problemas criticos.",
+    "en": "The platform read model did not detect critical problems.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.EmpresaPropietaria",
+    "es": "Empresa propietaria",
+    "en": "Empresa propietaria",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.EndpointHTTPS",
+    "es": "HTTPS de punto final",
+    "en": "Endpoint HTTPS",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Endpoints",
+    "es": "Puntos finales",
+    "en": "Endpoints",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Enterprise",
+    "es": "Empresa",
+    "en": "Enterprise",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.EnterpriseTotal",
+    "es": "Total de la empresa",
+    "en": "Enterprise Total",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.EnterpriseWorkspace",
+    "es": "Espacio de trabajo empresarial",
+    "en": "Enterprise Workspace",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Espana",
+    "es": "España",
+    "en": "España",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.EstadoComercial",
+    "es": "Estado comercial",
+    "en": "Trading status",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.EstadoDeLaPlatform",
+    "es": "Estado de la plataforma",
+    "en": "Platform status",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.EstadoDeServicio",
+    "es": "Estado de servicio",
+    "en": "Service status",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.EstadoOperativo",
+    "es": "Estado operativo",
+    "en": "Operational status",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.EstadosUnidos",
+    "es": "Estados Unidos",
+    "en": "Estados Unidos",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Evaluate",
+    "es": "Evaluar",
+    "en": "Evaluate",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Evidence",
+    "es": "evidencia",
+    "en": "evidence",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Executive",
+    "es": "ejecutivo",
+    "en": "executive",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ExecutiveDashboard",
+    "es": "panel ejecutivo",
+    "en": "Executive Dashboard",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Expirado",
+    "es": "caducado",
+    "en": "Expirado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ExpirationsYBloqueos",
+    "es": "Vencimientos y bloqueos",
+    "en": "Expirations and blocks",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ExportingExcel",
+    "es": "Exportando Excel...",
+    "en": "Exportando Excel...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Externalizado",
+    "es": "externalizado",
+    "en": "Externalizado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Fabricantes",
+    "es": "Fabricantes",
+    "en": "Fabricantes",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Fallback",
+    "es": "Retroceder",
+    "en": "Fallback",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.FechaExpiracion",
+    "es": "Fecha expiracion",
+    "en": "Expiration date",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.FiltroAvanzadoPorTexto",
+    "es": "Filtro avanzado por texto",
+    "en": "Advanced filter by text",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Finalizing",
+    "es": "Finalizando...",
+    "en": "Finalizing...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.FormEngineVisual",
+    "es": "Objeto visual del motor de formularios",
+    "en": "Form Engine visual",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.FormStackCard",
+    "es": "tarjeta de pila de formularios",
+    "en": "form-stack card",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Fulfilled",
+    "es": "cumplido",
+    "en": "fulfilled",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Function",
+    "es": "función",
+    "en": "function",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Generating",
+    "es": "Generando...",
+    "en": "Generando...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.GeneratingPDF",
+    "es": "Generando PDF...",
+    "en": "Generando PDF...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.GestionadoPorTenant",
+    "es": "Gestionado por tenant",
+    "en": "Managed by tenant",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.GlobalSecurityPolicies",
+    "es": "Políticas de seguridad globales",
+    "en": "Global Security Policies",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Gobernado",
+    "es": "gobernador",
+    "en": "Gobernado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Governance",
+    "es": "Gobernancia",
+    "en": "Governance",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.GridCards",
+    "es": "tarjetas de cuadricula",
+    "en": "grid cards",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.GridCardsTenantDashboardGrid",
+    "es": "tarjetas de cuadrículacuadrícula-panel-inquilino",
+    "en": "grid cards tenant-dashboard-grid",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.GridThree",
+    "es": "cuadrícula tres",
+    "en": "grid three",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.GridTwo",
+    "es": "cuadrícula dos",
+    "en": "grid two",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Habilitado",
+    "es": "habilitado",
+    "en": "Habilitado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.HealthBackups",
+    "es": "Salud y copias de seguridad",
+    "en": "Health & Backups",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.HealthCenterRequiereAtencion",
+    "es": "Centro de Salud requiere atencion",
+    "en": "Health Center requiere atencion",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.HealthChecks",
+    "es": "Controles de salud",
+    "en": "Health checks",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.HealthTrazasYServiciosDeFondo",
+    "es": "Health, trazas y servicios de fondo",
+    "en": "Health, traces and background services",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.HeroCardCompact",
+    "es": "compacto de tarjeta de héroe",
+    "en": "hero-card compact",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.HeroCardCompactModuleHero",
+    "es": "héroe-tarjeta compacto módulo-héroe",
+    "en": "hero-card compact module-hero",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.HeroCardDashboardHero",
+    "es": "héroe-tarjeta tablero-héroe",
+    "en": "hero-card dashboard-hero",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Homologate",
+    "es": "Homologar",
+    "en": "Homologate",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.IdentificacionFiscalSeNormalizaAMayusculas",
+    "es": "Identificación fiscal. Se normaliza a mayúsculas.",
+    "en": "Identificación fiscal. Se normaliza a mayúsculas.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.IdentificadorInmutable",
+    "es": "identificador inmutable",
+    "en": "Identificador inmutable",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.IdentificadorURLFriendlyDebeSerUnico",
+    "es": "Identificador compatible con URL. Debe ser único.",
+    "en": "Identificador URL-friendly. Debe ser unico.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Identificando",
+    "es": "Identificando...",
+    "en": "Identificando...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Inactivo",
+    "es": "Inactivo",
+    "en": "Inactivo",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Indicators",
+    "es": "Indicadores",
+    "en": "Indicadores",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Indicators2",
+    "es": "indicadores",
+    "en": "indicators",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Industria",
+    "es": "industria",
+    "en": "Industria",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Industry",
+    "es": "industria",
+    "en": "industry",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.InformationGeneral",
+    "es": "Información General",
+    "en": "General Information",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Ingredients",
+    "es": "Ingredientes",
+    "en": "Ingredients",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.InicioUTC",
+    "es": "InicioUTC",
+    "en": "Inicio UTC",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Integrations",
+    "es": "Integraciones",
+    "en": "Integrations",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Invitado",
+    "es": "invitado",
+    "en": "Invitado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.IrAModulo",
+    "es": "Ir un módulo",
+    "en": "Go to module",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.JwtOptions",
+    "es": "JwtOptions",
+    "en": "JwtOptions",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.KPIEnterprise",
+    "es": "KPI empresarial",
+    "en": "KPI Enterprise",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.KPIsTrendsMetasSemaforizacionYDeviations",
+    "es": "KPIs, tendencias, metas, semaforizacion y desviaciones.",
+    "en": "KPIs, trends, goals, traffic lights and deviations.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Licencia",
+    "es": "licencia",
+    "en": "License",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Licenciamiento",
+    "es": "licenciamiento",
+    "en": "Licenciamiento",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Licencias",
+    "es": "Licencias",
+    "en": "Licencias",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.LicenciasOP",
+    "es": "Licencias OP",
+    "en": "Licencias OP",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.LicenciasYConsumo",
+    "es": "Licencias y consumo",
+    "en": "Licenses and consumption",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Licenses",
+    "es": "licencias",
+    "en": "licenses",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Licensing",
+    "es": "licencia",
+    "en": "licensing",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.LifecycleSaaS",
+    "es": "SaaS de ciclo de vida",
+    "en": "Lifecycle SaaS",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.LoadingInformation",
+    "es": "Cargando información...",
+    "en": "Loading information...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.LoadingInformationTechnical",
+    "es": "Cargando información técnica...",
+    "en": "Loading technical information...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.LoadingLogoCompact",
+    "es": "logotipo de carga compacto",
+    "en": "loading-logo compact",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.LoadingPanelModern",
+    "es": "panel de carga moderno",
+    "en": "loading-panel modern",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.LoadingPerfil",
+    "es": "Cargando perfil...",
+    "en": "Loading profile...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.LoadingTarjeta",
+    "es": "cargando tarjeta",
+    "en": "Cargando tarjeta",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.LocalPrimary",
+    "es": "Primaria local",
+    "en": "Local Primary",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.LockoutIntentos",
+    "es": "Intentos de bloqueo",
+    "en": "Lockout intentos",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.LockoutMinutos",
+    "es": "Minutos de bloqueo",
+    "en": "Lockout minutos",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.LosTenantsEnterpriseNormalmenteRequierenOIDCSAMLLDAPOActiveDirectory",
+    "es": "Los tenants enterprise normalmente requieren OIDC, SAML, LDAP o Active Directory.",
+    "en": "Enterprise tenants typically require OIDC, SAML, LDAP, or Active Directory.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.MXNPesoMexicano",
+    "es": "MXN - Peso mexicano",
+    "en": "MXN - Peso mexicano",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ManufacturerProfiles",
+    "es": "Perfiles de fabricantes",
+    "en": "Manufacturer profiles",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.MatrixDeModulosPorTenant",
+    "es": "Matriz de modulos por tenant",
+    "en": "Matrix of modules per tenant",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.MaxLength180Placeholder",
+    "es": ", longitud máxima: 180, marcador de posición:",
+    "en": ", maxLength: 180, placeholder:",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.MaxLength20Help",
+    "es": ", longitud máxima: 20, ayuda:",
+    "en": ", maxLength: 20, help:",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.MaxLength250Placeholder",
+    "es": ", longitud máxima: 250, marcador de posición:",
+    "en": ", maxLength: 250, placeholder:",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.MedicalDevices",
+    "es": "Dispositivos médicos",
+    "en": "Medical devices",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.MensajesTenant",
+    "es": "Mensajes inquilino",
+    "en": "Mensajes tenant",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.MetadataURL",
+    "es": "URL de metadatos",
+    "en": "Metadata URL",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.MetasUmbralesYTrends",
+    "es": "Metas, umbrales y tendencias",
+    "en": "Goals, thresholds and trends",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Mexico",
+    "es": "México",
+    "en": "México",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Microsoft365",
+    "es": "microsoft 365",
+    "en": "Microsoft 365",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.MiddlewareDeSecurityOpciones",
+    "es": "Middleware de seguridad + opciones",
+    "en": "Security middleware + options",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Migraciones",
+    "es": "Migraciones",
+    "en": "Migraciones",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.MinLength12Autocomplete",
+    "es": ", minLength: 12, autocompletar:",
+    "en": ", minLength: 12, autocomplete:",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.MonedaISO4217",
+    "es": "Moneda ISO-4217.",
+    "en": "Moneda ISO-4217.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.MonedaISO4217UsadaParaElTenant",
+    "es": "Moneda ISO-4217 usada para el tenant.",
+    "en": "ISO-4217 currency used for the tenant.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.MonitoreoPostgreSQL",
+    "es": "Monitoreo PostgreSQL",
+    "en": "Monitoreo PostgreSQL",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.NavegacionDeTenants",
+    "es": "Navegacion de tenants",
+    "en": "Tenant navigation",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.NoExisteRegistroDePrompts",
+    "es": "No existe registro de prompts",
+    "en": "There is no prompt record",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.NoExistenRegistrosDeConsumoIA",
+    "es": "No existen registros de consumo IA",
+    "en": "There are no IA consumption records",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.NoExistenReglasDeFallbackIA",
+    "es": "No existen reglas de fallback IA",
+    "en": "There are no AI fallback rules",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.NoPuedeEstarVacio",
+    "es": "No puede estar vacío.",
+    "en": "No puede estar vacío.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.NoSaludable",
+    "es": "nada saludable",
+    "en": "No saludable",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.NoSolicitado",
+    "es": "No solicitado",
+    "en": "No solicitado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.NoTimelineDataYet",
+    "es": "Aún no hay datos de línea de tiempo",
+    "en": "No timeline data yet",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.NombreComercial",
+    "es": "Nombre Comercial",
+    "en": "Nombre Comercial",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.NombreCompleto",
+    "es": "nombre completo",
+    "en": "Nombre completo",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.NombreInternoDelTenant",
+    "es": "Nombre interno del tenant.",
+    "en": "Internal name of the tenant.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.NombreInternoDelTenantNoPuedeEstarVacio",
+    "es": "Nombre interno del tenant. No puede estar vacío.",
+    "en": "Internal name of the tenant. It cannot be empty.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.NombreLegalQueApareceEnContratosYFacturacion",
+    "es": "Nombre legal que aparece en contratos y facturación.",
+    "en": "Legal name that appears in contracts and billing.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.NombreMostrado",
+    "es": "nombre mostrar",
+    "en": "Nombre mostrado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Noreferrer",
+    "es": "noreferrer",
+    "en": "noreferrer",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.NotRequested",
+    "es": "No solicitado",
+    "en": "NotRequested",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Notificaciones",
+    "es": "notificaciones",
+    "en": "Notificaciones",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.NotificationProviders",
+    "es": "Proveedores de notificaciones",
+    "en": "Notification providers",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Notifications",
+    "es": "Notificaciones",
+    "en": "Notifications",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ObjectStorage",
+    "es": "Almacenamiento de objetos",
+    "en": "Object storage",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ObligacionRegulatoria",
+    "es": "Obligación Regulatoria",
+    "en": "Obligacion Regulatoria",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ObligacionesYEvidence",
+    "es": "Obligaciones y evidencias",
+    "en": "Obligations and evidence",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Observability",
+    "es": "observabilidad",
+    "en": "observability",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Onboarding",
+    "es": "Incorporación",
+    "en": "Onboarding",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.OpcionesDeInfraestructura",
+    "es": "Opciones de infraestructura",
+    "en": "Infrastructure options",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.OperatingLicenses",
+    "es": "Licencias de funcionamiento",
+    "en": "Operating licenses",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Operations",
+    "es": "Operaciones",
+    "en": "Operations",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.PABBalboaPanameno",
+    "es": "PAB - Balboa panameño",
+    "en": "PAB - Balboa panameño",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.PageSize",
+    "es": "Tamaño de página",
+    "en": "Page Size",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.PaginaActual",
+    "es": "Página actual",
+    "en": "Pagina actual",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Panama",
+    "es": "Panamá",
+    "en": "Panamá",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ParametroTenant",
+    "es": "Inquilino de Parametro",
+    "en": "Parametro Tenant",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Pattern",
+    "es": ", patrón:",
+    "en": ", pattern:",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Pendiente",
+    "es": "pendiente",
+    "en": "Pendiente",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Pendientes",
+    "es": "Pendientes",
+    "en": "Pendientes",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.PendingVerification",
+    "es": "Pendiente de verificación",
+    "en": "PendingVerification",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.PersonalizadoPrincipal",
+    "es": "Principal personalizado",
+    "en": "Personalizado principal",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.PersonalizadoSecundario",
+    "es": "Secundaria personalizada",
+    "en": "Personalizado secundario",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.PieDePagina",
+    "es": "Pie de pagina",
+    "en": "Footer",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Placeholder",
+    "es": ", marcador de posición:",
+    "en": ", placeholder:",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Placeholder2",
+    "es": "marcador de posición =",
+    "en": "placeholder=",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Platform",
+    "es": "Plataforma",
+    "en": "Plataforma",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.PoliticaAPI",
+    "es": "API política",
+    "en": "Politica API",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.PoliticasGlobales",
+    "es": "Políticas globales",
+    "en": "Politicas globales",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Portafolio",
+    "es": "Portafolio",
+    "en": "Portafolio",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.PostgreSQLPersistenceWithEFCoreMigrationsAndTenantScopedQueries",
+    "es": "Persistencia de PostgreSQL con migraciones de EF Core y consultas con ámbito de inquilino.",
+    "en": "PostgreSQL persistence with EF Core migrations and tenant-scoped queries.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.PreparingConsoleDePlatform",
+    "es": "Preparando consola de plataforma...",
+    "en": "Preparing platform console...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.PreparingConsoleEnterprise",
+    "es": "Preparando consola Enterprise...",
+    "en": "Preparando consola Enterprise...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.PreparingDashboard",
+    "es": "Preparando el tablero...",
+    "en": "Preparing dashboard...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.PreparingData",
+    "es": "Preparando datos...",
+    "en": "Preparing data...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.PreparingDownload",
+    "es": "Preparando descarga...",
+    "en": "Preparando descarga...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.PreparingEvidence",
+    "es": "Preparando evidencias...",
+    "en": "Preparing evidence...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.PreparingFichaTechnical",
+    "es": "Preparando ficha tecnica...",
+    "en": "Preparing technical sheet...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.PreparingMetrics",
+    "es": "Preparando métricas...",
+    "en": "Preparando metricas...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.PreparingWorkspace",
+    "es": "Preparando el entorno...",
+    "en": "Preparing workspace...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.PrimaryCustom",
+    "es": "PrimarioPersonalizado",
+    "en": "PrimaryCustom",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Principal",
+    "es": "Principal",
+    "en": "Principal",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Priority",
+    "es": "prioridad",
+    "en": "priority",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Probando",
+    "es": "Probando...",
+    "en": "Probando...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ProcedimientoEnterprise",
+    "es": "Empresa de procedimientos",
+    "en": "Procedimiento Enterprise",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Processing",
+    "es": "Procesando...",
+    "en": "Procesando...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ProcessingRequest",
+    "es": "Procesando solicitud...",
+    "en": "Processing request...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Professional",
+    "es": "Profesional",
+    "en": "Professional",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Programando",
+    "es": "Programando...",
+    "en": "Programando...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ProgramasPlanesYFindings",
+    "es": "Programas, planes y hallazgos",
+    "en": "Programs, plans and findings",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ProgressBarDynamic",
+    "es": "barra de progreso dinámica",
+    "en": "progress-bar dynamic",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Provider",
+    "es": "proveedor",
+    "en": "provider",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Providers",
+    "es": "proveedores",
+    "en": "providers",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ProvidersGlobalesTenantScoped",
+    "es": "Proveedores globales con alcance de inquilino",
+    "en": "Providers globales tenant-scoped",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Province",
+    "es": "provincia",
+    "en": "province",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Provincia",
+    "es": "Provincia",
+    "en": "Provincia",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.QualificationYAssessments",
+    "es": "Homologacion y evaluaciones",
+    "en": "Homologation and evaluations",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.QualityIndicators",
+    "es": "Indicadores de calidad",
+    "en": "Quality indicators",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.QualityKPIs",
+    "es": "KPI de calidad",
+    "en": "Quality KPIs",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.QualityManager",
+    "es": "Gerente de Calidad",
+    "en": "Quality Manager",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.REGUTRACKJobs",
+    "es": "Empleos de REGUTRACK",
+    "en": "REGUTRACK jobs",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.RPOMinutos",
+    "es": "RPO minutos",
+    "en": "RPO minutos",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.RTOMinutos",
+    "es": "RTO minutos",
+    "en": "RTO minutos",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.RangoPermitido5A1440Minutos",
+    "es": "Rango permitido: 5 a 1440 minutos.",
+    "en": "Rango permitido: 5 a 1440 minutos.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.RateLimiting",
+    "es": "Limitación de tasa",
+    "en": "Rate Limiting",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.RazonSocial",
+    "es": "Razón social",
+    "en": "Razon Social",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ReadyEndpointDegradado",
+    "es": "Punto final listo degradado",
+    "en": "Ready endpoint degradado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ReadyEndpointDisponible",
+    "es": "Punto final listo disponible",
+    "en": "Ready endpoint disponible",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.RedireccionaA",
+    "es": "Redirecciona a",
+    "en": "Redirecciona a",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.RefreshTokens",
+    "es": "Actualizar fichas",
+    "en": "Refresh Tokens",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Register",
+    "es": "Registro",
+    "en": "Register",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.RegistrosDelModulo",
+    "es": "Registros del modulo",
+    "en": "Module records",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Reintentando",
+    "es": "Reintentando",
+    "en": "Reintentando",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Rejected",
+    "es": "rechazado",
+    "en": "rejected",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ReportCenter",
+    "es": "Centro de informes",
+    "en": "Report Center",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ReporteAEjecutar",
+    "es": "Reportar una ejecución",
+    "en": "Reporte a ejecutar",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ReporteEjecutadoCompletadoYExportado",
+    "es": "Reporte ejecutado, completado y exportado.",
+    "en": "Report executed, completed and exported.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ReporteProgramadoCorrectamente",
+    "es": "Informe programado correctamente.",
+    "en": "Reporte programado correctamente.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ReportsActivosConfigurados",
+    "es": "Informes activos/configurados",
+    "en": "Reportes activos/configurados",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ReportsConfigurados",
+    "es": "Informes configurados",
+    "en": "Reportes configurados",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ReportsEstandarCreadosOVerificados",
+    "es": "Informes estándar creados o verificados.",
+    "en": "Reportes estandar creados o verificados.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.RepublicaDominicana",
+    "es": "republica dominicana",
+    "en": "República Dominicana",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.RequestCliente",
+    "es": "Solicitud Cliente",
+    "en": "Customer Request",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.RequiereAtencion",
+    "es": "Requiere atencion",
+    "en": "Requiere atencion",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.RequiereConfiguration",
+    "es": "Requiere configuración",
+    "en": "Requires configuration",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Restableciendo",
+    "es": "Restableciendo...",
+    "en": "Restableciendo...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.RestablecimientoPorAdministradorTAC",
+    "es": "Restablecimiento por administrador TAC",
+    "en": "Reset by TAC administrator",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Resultado",
+    "es": "resultado",
+    "en": "Resultado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ResultadosTenantScoped",
+    "es": "Resultados al alcance del inquilino",
+    "en": "Resultados tenant-scoped",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ResumenDeHealthDePlatform",
+    "es": "Resumen de salud de plataforma",
+    "en": "Platform Health Summary",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Retention",
+    "es": "Retención",
+    "en": "Retention",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.RetrievingAssessments",
+    "es": "Consultando evaluaciones...",
+    "en": "Retrieving assessments...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.RetrievingBaseDeData",
+    "es": "Consultando base de datos...",
+    "en": "Consulting database...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.RetrievingFindings",
+    "es": "Consultando encuentra...",
+    "en": "Retrieving findings...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.RetrievingTrends",
+    "es": "Consultando tendencias...",
+    "en": "Consultando tendencias...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.RetryBacklog",
+    "es": "Reintentar el trabajo pendiente",
+    "en": "Retry backlog",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Retrying",
+    "es": "Reintentando",
+    "en": "Retrying",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.RevisarSenalesOperativasDegradadasOFaltantes",
+    "es": "Revisar señales operativas degradadas o faltantes.",
+    "en": "Revisar senales operativas degradadas o faltantes.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.RevisionSecurity",
+    "es": "Revisión Seguridad",
+    "en": "Revision Seguridad",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Revocado",
+    "es": "revocado",
+    "en": "Revocado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.RootCause",
+    "es": "Causa principal",
+    "en": "Root cause",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.RotatedFromTACUI",
+    "es": "Girado desde la interfaz de usuario de TAC",
+    "en": "Rotated from TAC UI",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SMTPGlobal",
+    "es": "SMTP mundial",
+    "en": "SMTP global",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SMTPPrimary",
+    "es": "SMTP primario",
+    "en": "SMTP Primary",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SMTPProviders",
+    "es": "Proveedores SMTP",
+    "en": "SMTP Providers",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SSOConfigurado",
+    "es": "SSO configurado",
+    "en": "SSO configurado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Saludable",
+    "es": "saludable",
+    "en": "Saludable",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Saving",
+    "es": "Guardando...",
+    "en": "Guardando...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SavingChanges",
+    "es": "Guardando cambios...",
+    "en": "Saving changes...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SchedulingChecklistsFindingsEvidenceYFollowUp",
+    "es": "Programacion, checklists, hallazgos, evidencias y seguimiento.",
+    "en": "Programming, checklists, findings, evidence and monitoring.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SecondaryCustom",
+    "es": "SecundarioPersonalizado",
+    "en": "SecondaryCustom",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SecretInicial",
+    "es": "inicial secreto",
+    "en": "Secret inicial",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SecretReference",
+    "es": "Referencia secreta",
+    "en": "Secret reference",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SectorPrincipalDelCliente",
+    "es": "Sector principal del cliente.",
+    "en": "Main customer sector.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Security",
+    "es": "seguridad",
+    "en": "security",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Security2",
+    "es": "Seguridad",
+    "en": "Security",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SecurityGlobal",
+    "es": "Seguridad Global",
+    "en": "Seguridad Global",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SecurityHeadersMiddleware",
+    "es": "SeguridadEncabezadosMiddleware",
+    "en": "SecurityHeadersMiddleware",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SecurityScore",
+    "es": "Puntuación de seguridad",
+    "en": "Security Score",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SeleccioneUnColorSeGuardaComoHEX",
+    "es": "Seleccione un color. Se guarda como HEX.",
+    "en": "Select a color. It is saved as HEX.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SeleccioneUnColorSecundarioSeGuardaComoHEX",
+    "es": "Seleccione un color secundario. Se guarda como HEX.",
+    "en": "Select a secondary color. It is saved as HEX.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SelectLaOrganizationParaContinue",
+    "es": "Selecciona la organizacion para continuar.",
+    "en": "Select the organization to continue.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SelectTuOrganization",
+    "es": "Selecciona tu organizacion",
+    "en": "Select your organization",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SendGrid",
+    "es": "EnviarGrid",
+    "en": "SendGrid",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ServiceAccount",
+    "es": "cuenta de servicio",
+    "en": "Service account",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SessionCerrada",
+    "es": "Sesion cerrada.",
+    "en": "Session closed.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SessionExpiradaIniciaSessionNuevamente",
+    "es": "Sesion expirada. Inicia sesion nuevamente.",
+    "en": "Session expired. Log in again.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SessionIniciadaCorrectamente",
+    "es": "Sesion iniciada correctamente.",
+    "en": "Session started correctly.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SheetsTecnicasIngredientsNutrientsCertificationsYApprovals",
+    "es": "Fichas tecnicas, ingredientes, nutrientes, certificaciones y aprobaciones.",
+    "en": "Technical sheets, ingredients, nutrients, certifications and approvals.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ShellFrontend",
+    "es": "Interfaz de Shell",
+    "en": "Shell frontend",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SigningSecret",
+    "es": "Secreto de firma",
+    "en": "Signing secret",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SinAlertsCriticasGlobales",
+    "es": "Sin alertas criticas globales",
+    "en": "No global critical alerts",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SinDominiosConfigurados",
+    "es": "Sin dominios configurados",
+    "en": "No domains configured",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SinRegistros",
+    "es": "Sin registros",
+    "en": "No records",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SinSSOConfigurado",
+    "es": "Sin SSO configurado",
+    "en": "No SSO configured",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SitioWeb",
+    "es": "Sitio Web",
+    "en": "Sitio Web",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SolicitudesYEntregables",
+    "es": "Solicitudes y entregables",
+    "en": "Requests and deliverables",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SoloLectura",
+    "es": "lectura en solitario",
+    "en": "Solo lectura",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SoloReferenciasASecretos",
+    "es": "Solo referencias a secretos",
+    "en": "Solo referencias a secretos",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SpanClassMetricLabelNASpan",
+    "es": "<span class=\"metric-label\">n/d</span>",
+    "en": "<span class=\"metric-label\">n/a</span>",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.StandardReports",
+    "es": "Informes estándar",
+    "en": "Standard Reports",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.StatusPillWarn",
+    "es": "advertencia de píldora de estado",
+    "en": "status-pill warn",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.StatusUpdateFromTACUI",
+    "es": "Actualización de estado desde TAC UI",
+    "en": "Status update from TAC UI",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.StorageContratadoGB",
+    "es": "Almacenamiento contratado (GB)",
+    "en": "Storage contratado (GB)",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.StorageGlobal",
+    "es": "Almacenamiento global",
+    "en": "Storage global",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.StorageProviderCreado",
+    "es": "Proveedor de almacenamiento creado",
+    "en": "Storage provider creado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.StorageProviderTestEjecutado",
+    "es": "Prueba del proveedor de almacenamiento ejecutada",
+    "en": "Storage provider test ejecutado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.StorageProviders",
+    "es": "Proveedores de almacenamiento",
+    "en": "Storage Providers",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.StorageUsadoBytes",
+    "es": "Almacenamiento usado (bytes)",
+    "en": "Storage usado (bytes)",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.StorageUsed",
+    "es": "Almacenamiento utilizado",
+    "en": "Storage Used",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Subdomain",
+    "es": "Subdominio",
+    "en": "Subdomain",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Subdominio",
+    "es": "Subdominio",
+    "en": "Subdominio",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Succeeded",
+    "es": "Tuvo éxito",
+    "en": "Succeeded",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Supported",
+    "es": "Apoyado",
+    "en": "Supported",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Suscripcion",
+    "es": "Suscripcion",
+    "en": "Suscripcion",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Suspended",
+    "es": "Suspendido",
+    "en": "Suspended",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Suspendido",
+    "es": "suspendido",
+    "en": "Suspendido",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Suspendidos",
+    "es": "Suspendidos",
+    "en": "Suspendidos",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.SynchronizingInformation",
+    "es": "Sincronizando información...",
+    "en": "Synchronizing information...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.TablaLoading",
+    "es": "Tabla cargando",
+    "en": "Tabla cargando",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.TablaRefreshTokens",
+    "es": "Tabla RefreshTokens",
+    "en": "Tabla RefreshTokens",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.TamanoBytes",
+    "es": "Tamaño de bytes",
+    "en": "Tamaño bytes",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.TamanoDePagina",
+    "es": "Tamano de pagina",
+    "en": "page size",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.TechnicalSheets",
+    "es": "Fichas t?cnicas",
+    "en": "Technical sheets",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Telefono",
+    "es": "Teléfono",
+    "en": "Telefono",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.TemplateBuilder",
+    "es": "Constructor de plantillas",
+    "en": "Template Builder",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.TenantAdminShellPlatformShell",
+    "es": "shell-de-administración-inquilino",
+    "en": "tenant-admin-shell platform-shell",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.TenantAlertOk",
+    "es": "alerta de inquilino ok",
+    "en": "tenant-alert ok",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.TenantChanged",
+    "es": "InquilinoCambiado",
+    "en": "TenantChanged",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.TenantHeroPlatformHero",
+    "es": "héroe-inquilino héroe-de-plataforma",
+    "en": "tenant-hero platform-hero",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.TotalEnterprise",
+    "es": "empresa total",
+    "en": "Total enterprise",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Training",
+    "es": "capacitación",
+    "en": "training",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.TrainingManagement",
+    "es": "Gesti?n de capacitaci?n",
+    "en": "Training management",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.TrazabilidadAppendOnlyDeEventosDeSecurityEjecucionesYChanges",
+    "es": "Trazabilidad append-only de eventos de seguridad, ejecuciones y cambios.",
+    "en": "Append-only traceability of security events, executions and changes.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.USDDolarEstadounidense",
+    "es": "USD - Dólar estadounidense",
+    "en": "USD - Dólar estadounidense",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.UltimoBackup",
+    "es": "Última copia de seguridad",
+    "en": "Ultimo Backup",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.UltimosEventos",
+    "es": "Últimos eventos",
+    "en": "Ultimos eventos",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Unhealthy",
+    "es": "Malsano",
+    "en": "Unhealthy",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Updating",
+    "es": "Actualizando...",
+    "en": "Actualizando...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.UpdatingInformation",
+    "es": "Actualizando información...",
+    "en": "Updating information...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.UploadingFiles",
+    "es": "Subiendo archivos...",
+    "en": "Subiendo archivos...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.UseLetrasNumerosGuionesOPuntos",
+    "es": "Utilice letras, números, guiones o puntos.",
+    "en": "Use letras, numeros, guiones o puntos.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.UseLetrasNumerosGuionesOPuntosNoUseSimbolosEspeciales",
+    "es": "Utilice letras, números, guiones o puntos. No utilizar símbolos especiales.",
+    "en": "Use letras, números, guiones o puntos. No use símbolos especiales.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.UseMinusculasNumerosYGuiones",
+    "es": "Use minusculas, numeros y guiones.",
+    "en": "Use lowercase, numbers and hyphens.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.UseRangosCIDRValidosSeparadosPorComasEjemplo1921681024",
+    "es": "Use rangos CIDR válidos separados por comas. Ejemplo: 192.168.1.0/24.",
+    "en": "Use valid CIDR ranges separated by commas. Example: 192.168.1.0/24.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.UsoRealDelTenant",
+    "es": "Uso real del tenant",
+    "en": "Actual tenant usage",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ValidadoPorDotnetBuild",
+    "es": "Validado por dotnet build",
+    "en": "Validated by dotnet build",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Validate",
+    "es": "Validar",
+    "en": "Validate",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Validating",
+    "es": "Validando...",
+    "en": "Validando...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.ValidatingEvidence",
+    "es": "Validando evidencia...",
+    "en": "Validando evidencia...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.VerTodosLosTenants",
+    "es": "Ver todos los tenants",
+    "en": "See all tenants",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.VerificacionPendiente",
+    "es": "Verificación pendiente",
+    "en": "Verificacion pendiente",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Verificado",
+    "es": "Verificado",
+    "en": "Verificado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Verified",
+    "es": "Verificado",
+    "en": "Verified",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Verifying",
+    "es": "Verificando...",
+    "en": "Verificando...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.VerifyingIntegrations",
+    "es": "Verificando integraciones...",
+    "en": "Verificando integraciones...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.VersionsValidityYApprovals",
+    "es": "Versiones, vigencias y aprobaciones",
+    "en": "Versions, validity and approvals",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.VolverATenants",
+    "es": "Volver a Inquilinos",
+    "en": "Volver a Tenants",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.WebhookTestFromTACUI",
+    "es": "Prueba de webhook desde TAC UI",
+    "en": "Webhook test from TAC UI",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Webhooks",
+    "es": "ganchos web",
+    "en": "webhooks",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.Workspace",
+    "es": "Espacio de trabajo",
+    "en": "Workspace",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Dashboard.WorkspaceItems",
+    "es": "Elementos del espacio de trabajo",
+    "en": "Workspace Items",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Errors.CertificateFailed",
+    "es": "Certificado fallido",
+    "en": "CertificateFailed",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Errors.DnsFailed",
+    "es": "Dns falló",
+    "en": "DnsFailed",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Errors.Error",
+    "es": "error",
+    "en": "error",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Errors.ErrorInesperado",
+    "es": "Error inesperado",
+    "en": "Error inesperado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Errors.ErrorStateRich",
+    "es": "rico en estado de error",
+    "en": "error-state rich",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Errors.NoSePudoCompletarLaRequestIntentaDeNuevo",
+    "es": "No se pudo completar la solicitud. Intenta de nuevo.",
+    "en": "The request could not be completed. Try again.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Errors.NoSePudoLoadFormTemplateBuilderJs",
+    "es": "No se pudo cargar form-template-builder.js",
+    "en": "Could not load form-template-builder.js",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Errors.NoSePudoLoadFormTemplateBuilderJs404OBloqueo",
+    "es": "No se pudo cargar /form-template-builder.js (404 o bloqueo).",
+    "en": "Could not load /form-template-builder.js (404 or crash).",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Errors.NoSePudoLoadRegulatoryAffairsJs",
+    "es": "No se pudo cargar regulatory-affairs.js",
+    "en": "regulatory-affairs.js could not be loaded",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Errors.NoSePudoLoadRegulatoryAffairsJs2",
+    "es": "No se pudo cargar /regulatory-affairs.js",
+    "en": "Could not load /regulatory-affairs.js",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Errors.NoSePudoValidarLaRequestRevisaLosDataEIntentaDeNuevo",
+    "es": "No se pudo validar la solicitud. Revisa los datos e intenta de nuevo.",
+    "en": "The request could not be validated. Check the data and try again.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Login.AdminPasswordDialogFormStack",
+    "es": "pila de formulario de diálogo de contraseña de administrador",
+    "en": "admin-password-dialog form-stack",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Login.AutocompleteNewPassword",
+    "es": "autocompletar=\"nueva-contraseña\"",
+    "en": "autocomplete=\"new-password\"",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Login.ConfirmarContrasena",
+    "es": "Confirmar contraseña",
+    "en": "Confirmar contraseña",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Login.ContrasenaInicial",
+    "es": "Contraseña inicial",
+    "en": "Contraseña inicial",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Login.ContrasenaRestablecidaSesionesCerradas",
+    "es": "Contrase?a restablecida. Sesiones cerradas.",
+    "en": "Password reset; sessions signed out.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Login.LaContrasenaYSuConfirmacionNoCoinciden",
+    "es": "La contraseña y su confirmación no coinciden.",
+    "en": "The password and its confirmation do not match.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Login.LasContrasenasNoCoinciden",
+    "es": "Las contraseñas no coinciden.",
+    "en": "Passwords do not match.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Login.Login",
+    "es": "acceso",
+    "en": "login",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Login.Organization",
+    "es": "organización",
+    "en": "organization",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Login.PantallaLogin",
+    "es": "Iniciar sesión",
+    "en": "Pantalla Login",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Login.Password",
+    "es": "Ingresa tu contrasena para continuar.",
+    "en": "Enter your password to continue.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Login.PasswordExpirationDias",
+    "es": "Caducidad de la contraseña (dias)",
+    "en": "Password Expiration (dias)",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Login.PoliticasDePassword",
+    "es": "Politicas de password",
+    "en": "Password policies",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Login.SiOlvidoSuContrasenaPidaAUnAdministradorDelTenantQueLaRestablezcaEnAdministrationDelTenantUsuarios",
+    "es": "Si olvidó su contraseña, pida a un administrador del tenant que la restablezca en Administración del tenant → Usuarios.",
+    "en": "If you forget your password, ask a tenant administrator to reset it in Tenant Administration → Users.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Login.UltimoLogin",
+    "es": "Último inicio de sesión",
+    "en": "Ultimo Login",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Login.Use0ParaNoExpirarContrasenas",
+    "es": "Use 0 para no expirar contraseñas.",
+    "en": "Use 0 to not expire passwords.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "MFA.MFARequeridoCompletaElSegundoFactor",
+    "es": "MFA requerido. Completa el segundo factor.",
+    "en": "MFA required. Complete the second factor.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "MFA.MFAValidadoSessionSeguraIniciada",
+    "es": "MFA validado. Sesion segura iniciada.",
+    "en": "Validated MFA. Secure session started.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "MFA.ResetMFAFromTACUI",
+    "es": "Restablecer MFA desde la interfaz de usuario de TAC",
+    "en": "Reset MFA from TAC UI",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "MFA.ServiciosIdentityMFA",
+    "es": "Servicios Identidad + MFA",
+    "en": "Servicios Identity + MFA",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Nav.AIAdministrationReadModel",
+    "es": "Modelo de lectura de administración de IA",
+    "en": "AI Administration Read Model",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Nav.Administration",
+    "es": "Administraci?n",
+    "en": "Administration",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Nav.CustomerPortal",
+    "es": "Portal de clientes",
+    "en": "Customer Portal",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Nav.EnterpriseAdministration",
+    "es": "Empresa / Administración",
+    "en": "Enterprise / Administration",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Nav.PlatformGlobalAdministration",
+    "es": "Plataforma / Administración Global",
+    "en": "Platform / Global Administration",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Accepted",
+    "es": "Aceptado",
+    "en": "Accepted",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.AccionEjecutadaYAuditada",
+    "es": "Accion ejecutada y auditada.",
+    "en": "Action executed and audited.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Apostilled",
+    "es": "apostillado",
+    "en": "Apostilled",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Approvals",
+    "es": "Aprobaciones",
+    "en": "Approvals",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.ApprovedForSubmission",
+    "es": "Aprobado para el envío",
+    "en": "ApprovedForSubmission",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Approver",
+    "es": "aprobador",
+    "en": "approver",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.AprobacionMINSACSSRegistradaCTRSActivo",
+    "es": "Aprobación MINSA/CSS registrada · CT/RS activo",
+    "en": "Aprobación MINSA/CSS registrada · CT/RS activo",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.AprobacionRegistradaDeMINSACSSExterna",
+    "es": "Aprobación registrada de MINSA/CSS (externa)",
+    "en": "Registered MINSA/CSS approval (external)",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.AprobadoInternamenteParaSometimiento",
+    "es": "Aprobado internamente para sometimiento",
+    "en": "Internally approved for submission",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.ArmandoRecord",
+    "es": "armando expediente",
+    "en": "Armando expediente",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Assembling",
+    "es": "Montaje",
+    "en": "Assembling",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.AuditManagement",
+    "es": "Gesti?n de auditor?as",
+    "en": "Audit management",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.AuditNotifications",
+    "es": "Auditoría/notificaciones",
+    "en": "Audit/notifications",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.AuditObserved",
+    "es": "Observado por auditoría",
+    "en": "Audit-observed",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.AuditTrail",
+    "es": "Registro de auditor?a",
+    "en": "Audit log",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Auditability",
+    "es": "Auditabilidad",
+    "en": "Auditability",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Auditoria",
+    "es": "auditorios",
+    "en": "Audit",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.AuditoriaEnterprise",
+    "es": "Empresa Auditoria",
+    "en": "Enterprise Audit",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.AuditoriaGlobal",
+    "es": "Auditoría Global",
+    "en": "Global Audit",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Audits",
+    "es": "auditorios",
+    "en": "Auditorias",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.AutorizacionInternaSoD",
+    "es": "Autorización interna SoD",
+    "en": "Autorización interna SoD",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.BootstrapOK",
+    "es": "Arranque OK",
+    "en": "Bootstrap OK",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.CAPACreadaDesdeLaUIEnterprise",
+    "es": "CAPA creada desde la UI Enterprise",
+    "en": "LAYER created from the Enterprise UI",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.CAPAEnterprise",
+    "es": "Empresa CAPA",
+    "en": "CAPA Enterprise",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.CTActivos",
+    "es": "CT activos",
+    "en": "CT activos",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.CalculatingMatrixDeRisks",
+    "es": "Calculando matriz de riesgos...",
+    "en": "Calculating risk matrix...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.CambioAuditado",
+    "es": "cambio auditado",
+    "en": "Cambio auditado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Capability",
+    "es": "capacidad",
+    "en": "capability",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.CentroEnterpriseParaAdministrarIdentidadComercialSecurityLicenciamientoIntegrationsAuditoriaYEstadoOperativoDe",
+    "es": "Centro enterprise para administrar identidad comercial, seguridad, licenciamiento, integraciones, auditoria y estado operativo del tenant.",
+    "en": "Enterprise center to manage commercial identity, security, licensing, integrations, auditing and tenant operational status.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.ChangesGuardadosYAuditados",
+    "es": "Cambios guardados y auditados.",
+    "en": "Changes saved and audited.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.CodigoCatalogo",
+    "es": "Código catálogo",
+    "en": "Código catálogo",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.ColaboracionSupplier",
+    "es": "Colaboracion proveedor",
+    "en": "Supplier collaboration",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Compliance360ProductionUI",
+    "es": "Interfaz de usuario de producción de Compliance360",
+    "en": "Compliance360 Production UI",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.ConfiguradoEnIdentidadDeProducto",
+    "es": "Configurado en identidad de producto",
+    "en": "Configured in product identity",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Configuration",
+    "es": "configuración",
+    "en": "Configuración",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.ConfigurationOperationalDelTenantParametersYReadinessProductivo",
+    "es": "Configuracion operacional del tenant, parametros y readiness productivo.",
+    "en": "Tenant operational configuration, parameters and productive readiness.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.CorrectingObservation",
+    "es": "CorrecciónObservación",
+    "en": "CorrectingObservation",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.CorrigiendoObservacion",
+    "es": "corrigiendo observación",
+    "en": "Corrigiendo observación",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.CreadoDesdePortafolio",
+    "es": "Creado desde Portafolio",
+    "en": "Created from Portfolio",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Critico",
+    "es": "· crítico",
+    "en": "· crítico",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.DOCUMENT",
+    "es": "DOCUMENTO",
+    "en": "DOCUMENT",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.DecisionExternaRegistrada",
+    "es": "Decisión externa registrada",
+    "en": "Decisión externa registrada",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.DescripcionDeLaObservacionDeLaAutoridad",
+    "es": "Descripción de la observación de la autoridad",
+    "en": "Description of the authority observation",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.DesdeRAConsole",
+    "es": "Desde RA Console",
+    "en": "From RA Console",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Detenidos14d",
+    "es": "Detenidos >14d",
+    "en": "Detenidos >14d",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.DivClassRaCardSinPermisoDeConfigurationDiv",
+    "es": "<div class=\"ra-card\">Sin permiso de configuración</div>",
+    "en": "<div class=\"ra-card\">No configuration permission</div>",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.DivClassRaCardSinPermisoREGULATORYCONFIGUREDiv",
+    "es": "<div class=\"ra-card\">Sin permiso REGULATORY.CONFIGURE</div>",
+    "en": "<div class=\"ra-card\">Without REGULATORY.CONFIGURE permission</div>",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.DivClassRaCardSinREGULATORYSODMANAGEDiv",
+    "es": "<div class=\"ra-card\">Sin REGULATORY.SOD.MANAGE</div>",
+    "en": "<div class=\"ra-card\">Without REGULATORY.SOD.MANAGE</div>",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.DocsRecibidos",
+    "es": "Docs recibidos",
+    "en": "Docs recibidos",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.DocumentCreadoDesdeLaUIEnterprise",
+    "es": "Documento creado desde la UI Enterprise",
+    "en": "Document created from the Enterprise UI",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.DocumentManagement",
+    "es": "Gesti?n documental",
+    "en": "Document management",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.DocumentProcedimientoPdf",
+    "es": "Documento_Procedimiento.pdf",
+    "en": "Documento_Procedimiento.pdf",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Documents",
+    "es": "Documentos",
+    "en": "Documentos",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Documents2",
+    "es": "documentos",
+    "en": "documents",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.DocumentsReceived",
+    "es": "DocumentosRecibidos",
+    "en": "DocumentsReceived",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Dossiers",
+    "es": "expedientes",
+    "en": "dossiers",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.EnEspera",
+    "es": "En espera",
+    "en": "waiting",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.EnRevisionDeLaAutoridad",
+    "es": "En revisión de la autoridad",
+    "en": "In authority review",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.EnTramite",
+    "es": "En trámite",
+    "en": "In process",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.EsperaDocsFabrica",
+    "es": "Espera docs fábrica",
+    "en": "Espera docs fábrica",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.EventoDeAuditoriaGlobal",
+    "es": "Evento de auditoria global",
+    "en": "Global audit event",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.EvidencePreparada",
+    "es": "Pruebas preparadas",
+    "en": "Evidencia preparada",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Expedientes",
+    "es": "expedientes",
+    "en": "Expedientes",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.ExpedientesActivos",
+    "es": "Expedientes activos",
+    "en": "Expedientes activos",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.FabricanteCreado",
+    "es": "fabricante creado",
+    "en": "Fabricante creado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.FaltaActualizacionDeLiteraturaTechnical",
+    "es": "Falta actualización de literatura técnica",
+    "en": "Lack of updating of technical literature",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.GeneratingDocument",
+    "es": "Generando documento...",
+    "en": "Generating document...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Importacion",
+    "es": "importacion",
+    "en": "Importación",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.InsumosMedicos",
+    "es": "Insumos Médicos",
+    "en": "Insumos Médicos",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.LegacyTrackerNoUseComoRecordLaOperacionViveEnRAConsoleRegulatory",
+    "es": "Legacy tracker. No usar como expediente. La operación vive en RA Console (#/regulatory).",
+    "en": "Legacy tracker. Do not use as a file. The operation lives in the RA Console (#/regulatory).",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.LicenciaCreada",
+    "es": "Licencia creada",
+    "en": "License created",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.LicenciaDeOperacionesDispositivosMedicos",
+    "es": "Licencia de Operaciones Dispositivos Medicos",
+    "en": "Medical Device Operations License",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.ListDocumentalValidityVersionsWorkflowYApprovals",
+    "es": "Listado documental, vigencias, versiones, workflow y aprobaciones.",
+    "en": "Documentary list, validity periods, versions, workflow and approvals.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.LoadingAudits",
+    "es": "Cargando auditorios...",
+    "en": "Loading audits...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.LoadingCAPA",
+    "es": "Cargando CAPA...",
+    "en": "Loading CAPA...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.LoadingSuppliers",
+    "es": "Cargando proveedores...",
+    "en": "Loading suppliers...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Manufacturers",
+    "es": "fabricantes",
+    "en": "manufacturers",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.ModeloDeSupplierPorTenant",
+    "es": "Modelo de proveedor por tenant",
+    "en": "Provider per tenant model",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Multimed",
+    "es": "Multimed",
+    "en": "Multimed",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.NEGOCIOBASE",
+    "es": "BASE DE NEGOCIO",
+    "en": "NEGOCIO BASE",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.NewRegistration",
+    "es": "NuevoRegistro",
+    "en": "NewRegistration",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.NoExistenRegistrosDeSuppliersIA",
+    "es": "No existen registros de proveedores IA",
+    "en": "There are no IA supplier records",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.NombreLegalFabricante",
+    "es": "Nombre legal fabricante",
+    "en": "Nombre legal fabricante",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.NombreRegulatorio",
+    "es": "Nombre regulatorio",
+    "en": "Nombre regulatorio",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.NumeroCTRSObligatorio",
+    "es": "Número CT/RS (obligatorio)",
+    "en": "Número CT/RS (obligatorio)",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.ObservacionRegistrada",
+    "es": "Observación registrada",
+    "en": "Observación registrada",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.ObservadoPorAutoridad",
+    "es": "Observado por autoridad",
+    "en": "Observed by authority",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Observed",
+    "es": "Observado",
+    "en": "Observed",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.OpcionalQuedaEnAuditoria",
+    "es": "Opcional, queda en auditoria",
+    "en": "Optional, remains in audit",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.PRODUCTODEMO",
+    "es": "PRODUCTO DEMO",
+    "en": "DEMO PRODUCT",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Pais",
+    "es": "País",
+    "en": "País",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.PendienteSupplierBackup",
+    "es": "Pendiente proveedor backup",
+    "en": "Pending backup provider",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Pipeline",
+    "es": "tubería",
+    "en": "pipeline",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.PlanDeTraining",
+    "es": "Plan de Capacitacion",
+    "en": "Training Plan",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.PlanesDeTrainingCoursesAssignmentsExpirationsYEvidenceDeEntrenamiento",
+    "es": "Planes de capacitacion, cursos, asignaciones, vencimientos y evidencias de entrenamiento.",
+    "en": "Training plans, courses, assignments, due dates and evidence of training.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.PlanificacionPreparacion",
+    "es": "Planificación/Preparación",
+    "en": "Planificación / Preparación",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Planning",
+    "es": "Planificación",
+    "en": "Planning",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.PorVencer",
+    "es": "Por vencer",
+    "en": "to win",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.PortalColaborativoParaSuppliersDocumentsQualificationYRespuestas",
+    "es": "Portal colaborativo para proveedores, documentos, homologacion y respuestas.",
+    "en": "Collaborative portal for suppliers, documents, approval and responses.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.PortalDeCustomersParaSolicitudesDocumentacionReportsYTrazabilidad",
+    "es": "Portal de clientes para solicitudes, documentacion, reportes y trazabilidad.",
+    "en": "Customer portal for requests, documentation, reports and traceability.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Portfolio",
+    "es": "cartera",
+    "en": "portfolio",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.PreparingListDocumental",
+    "es": "Preparando listado documental...",
+    "en": "Preparando listado documental...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.ProductoCreadoDesdeLaUIEnterprise",
+    "es": "Producto creado desde la UI Enterprise",
+    "en": "Product created from the Enterprise UI",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.ProductoEnterprise",
+    "es": "Producto Enterprise",
+    "en": "Enterprise Product",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.ProductoYRecordCreados",
+    "es": "Producto y expediente creados",
+    "en": "Product and file created",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Products",
+    "es": "Productos",
+    "en": "Productos",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.ProductsRA",
+    "es": "Productos RA",
+    "en": "Productos RA",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.RAConsoleNoInicializoRenderRegulatoryAffairs",
+    "es": "RA Console no inicializó renderRegulatoryAffairs.",
+    "en": "RA Console no inicializó renderRegulatoryAffairs.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.ReadyForSubmission",
+    "es": "Listo para el envío",
+    "en": "ReadyForSubmission",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Received",
+    "es": "Recibió",
+    "en": "Received",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.RecepcionDocumentadaEnLaboratorioSoD",
+    "es": "Recepcion documentada en laboratorio SoD",
+    "en": "Documented reception in SoD laboratory",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.RechazoExternoDeLaAutoridad",
+    "es": "Rechazo externo de la autoridad",
+    "en": "External rejection of authority",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.RecordSupplierDocumentsAssessmentsQualificationYAlerts",
+    "es": "Expediente proveedor, documentos, evaluaciones, homologacion y alertas.",
+    "en": "Supplier file, documents, evaluations, approval and alerts.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.RegistrationDossiers",
+    "es": "Expedientes de registro",
+    "en": "Registration dossiers",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Registrations",
+    "es": "inscripciones",
+    "en": "registrations",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.RegistrosCTRS",
+    "es": "Registros CT/RS",
+    "en": "Registros CT/RS",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Regulatory",
+    "es": "regulador",
+    "en": "regulatory",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.RegulatoryAffairs",
+    "es": "Asuntos regulatorios",
+    "en": "Regulatory Affairs",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.RegulatoryManagement",
+    "es": "Gesti?n regulatoria",
+    "en": "Regulatory management",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Renovacion",
+    "es": "Renovación",
+    "en": "Renovacion",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.ReqCriticosPend",
+    "es": "Requerido Los críticos están pendientes.",
+    "en": "Req. críticos pend.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.RequestSupplier",
+    "es": "Solicitud Proveedor",
+    "en": "Supplier Request",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.RequiereCorreccionDelPreparador",
+    "es": "Requiere corrección del preparador",
+    "en": "Requires correction from the trainer",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Resometido",
+    "es": "Resometido",
+    "en": "Resometido",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.RespuestaPreparadaConEvidence",
+    "es": "Respuesta preparada con evidencia",
+    "en": "Prepared response with evidence",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.RespuestaRegistrada",
+    "es": "Respuesta registrada",
+    "en": "Respuesta registrada",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Resubmitted",
+    "es": "Reenviado",
+    "en": "Resubmitted",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.RetrievingDocuments",
+    "es": "Consultando documentos...",
+    "en": "Retrieving documents...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.RetrievingProducts",
+    "es": "Consultando productos...",
+    "en": "Retrieving products...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.RetrievingSuppliers",
+    "es": "Consultando proveedores...",
+    "en": "Consultando proveedores...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Reviewer",
+    "es": "crítico",
+    "en": "reviewer",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.RevisarMatrixDeRiesgo",
+    "es": "Revisar matriz de riesgo",
+    "en": "Review risk matrix",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.RevisionTechnicalAceptada",
+    "es": "Revisión técnica aceptada",
+    "en": "Revisión técnica aceptada",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.RiesgoEnterprise",
+    "es": "Riesgo Empresarial",
+    "en": "Riesgo Enterprise",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.RiskHeatMap",
+    "es": "Mapa de calor de riesgo",
+    "en": "Risk heat map",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.RiskManagement",
+    "es": "Gesti?n de riesgos",
+    "en": "Risk management",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.RiskMatrix",
+    "es": "Matriz de Riesgos",
+    "en": "Risk Matrix",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.SecurityAudit",
+    "es": "Seguridad / Auditoría",
+    "en": "Security / Audit",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.SeleccioneExcel",
+    "es": "Seleccione Excel",
+    "en": "Seleccione Excel",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.SheetsProductsYCertificados",
+    "es": "Fichas, productos y certificados",
+    "en": "Files, products and certificates",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.SoDSettings",
+    "es": "Configuración de SoD",
+    "en": "SoD Settings",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.SometidoAnteAutoridad",
+    "es": "Sometido ante autoridad",
+    "en": "Sometido ante autoridad",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.SometimientoRegistrado",
+    "es": "algún momento registrado",
+    "en": "Sometimiento registrado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.SpanStyleOpacity4Span",
+    "es": "<span style=\"opacidad:.4\">→</span>",
+    "en": "<span style=\"opacity:.4\">→</span>",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Specialist",
+    "es": "especialista",
+    "en": "specialist",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.StageOK",
+    "es": "Etapa OK",
+    "en": "Stage OK",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Stylesheet",
+    "es": "hoja de estilo",
+    "en": "stylesheet",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Submitted",
+    "es": "Enviado",
+    "en": "Submitted",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Submitter",
+    "es": "remitente",
+    "en": "submitter",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.SupplierEnterprise",
+    "es": "Proveedor Enterprise",
+    "en": "Enterprise Provider",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.SupplierManagement",
+    "es": "Gesti?n de proveedores",
+    "en": "Supplier management",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.SupplierPortal",
+    "es": "Portal de proveedores",
+    "en": "Supplier Portal",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Suppliers",
+    "es": "Proveedores",
+    "en": "Proveedores",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.Suppliers2",
+    "es": "proveedores",
+    "en": "suppliers",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.SuppliersIA",
+    "es": "Proveedores IA",
+    "en": "Proveedores IA",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.TecnicamenteCompletoListoParaAprobacionInterna",
+    "es": "Técnicamente completo / Listo para aprobación interna",
+    "en": "Technically complete / Ready for internal approval",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.TenantAuditTimelineCsv",
+    "es": "cronograma-auditoría-inquilino.csv",
+    "en": "tenant-audit-timeline.csv",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.TenantNoIdentificado",
+    "es": "Inquilino no identificado",
+    "en": "Tenant no identificado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.TenantReadTenantAudit",
+    "es": "inquilino.leer inquilino.auditoría",
+    "en": "tenant.read tenant.audit",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.TransicionOK",
+    "es": "Transición OK",
+    "en": "Transición OK",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.UnderAuthorityReview",
+    "es": "Revisión bajo autoridad",
+    "en": "UnderAuthorityReview",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.UseLetrasNumerosOGuionBajoEjemploDOCUMENT",
+    "es": "Utilice letras, números o guion bajo. Ejemplo: DOCUMENTO.",
+    "en": "Use letras, numeros o guion bajo. Ejemplo: DOCUMENT.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.VencimientoISOYYYYMMDD",
+    "es": "Vencimiento ISO (AAAA-MM-DD)",
+    "en": "Vencimiento ISO (YYYY-MM-DD)",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Regulatory.WaitingManufacturerDocuments",
+    "es": "EsperandoFabricanteDocumentos",
+    "en": "WaitingManufacturerDocuments",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/regulatory-affairs.js"
+    ]
+  },
+  {
+    "finalKey": "Roles.ControlDocumental",
+    "es": "Control documental",
+    "en": "Control documental",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Roles.ControladoFueraDeLaUI",
+    "es": "Controlado fuera de la UI",
+    "en": "Controlled outside of the UI",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Roles.ControlsDeSecurityReviewsDeAccessHardeningYEvidence",
+    "es": "Controles de seguridad, revisiones de acceso, hardening y evidencias.",
+    "en": "Security controls, access reviews, hardening and evidence.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Roles.ControlsTratamientosYHeatMap",
+    "es": "Controles, tratamientos y heat map",
+    "en": "Controls, treatments and heat map",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Roles.DocumentControl",
+    "es": "Control de documentos",
+    "en": "Document Control",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Roles.Matrix5x5MapaDeCalorTratamientosControlsYMitigaciones",
+    "es": "Matriz 5x5, mapa de calor, tratamientos, controles y mitigaciones.",
+    "en": "5x5 matrix, heat map, treatments, controls and mitigations.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Roles.NombreDelRol",
+    "es": "Nombre del rol",
+    "en": "Role name",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Roles.PClassMetricLabelNoTienePestanasHabilitadasParaSuRolP",
+    "es": "<p class=\"metric-label\">No tiene pestañas habilitadas para su rol.</p>",
+    "en": "<p class=\"metric-label\">You do not have tabs enabled for your role.</p>",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Roles.PermisoCreadoDesdeTACRBAC",
+    "es": "Permiso creado desde TAC RBAC",
+    "en": "Permission created from TAC RBAC",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Roles.PreparingControls",
+    "es": "Preparando controles...",
+    "en": "Preparando controles...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Roles.RolesDelTenant",
+    "es": "Roles del tenant",
+    "en": "Tenant roles",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Roles.RolesPermisos",
+    "es": "Roles y Permisos",
+    "en": "Roles & Permisos",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Roles.Rollback",
+    "es": "Revertir",
+    "en": "Rollback",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Settings.Configuration",
+    "es": "configuración",
+    "en": "configuration",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Settings.Guatemala",
+    "es": "Guatemala",
+    "en": "Guatemala",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Settings.SistemaDeGestion",
+    "es": "Sistema de gestion",
+    "en": "management system",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Settings.SistemaDeGestionDeQuality",
+    "es": "Sistema de gestion de calidad",
+    "en": "quality management system",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Settings.StorageProviderConfigurations",
+    "es": "Configuraciones del proveedor de almacenamiento",
+    "en": "Storage provider configurations",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Settings.TemaVisualPermitido",
+    "es": "Tema visual permitido.",
+    "en": "Tema visual permitido.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.AccionCAPA",
+    "es": "Acción CAPA",
+    "en": "Acción CAPA",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Accordion",
+    "es": "acordeón",
+    "en": "accordion",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.ActionPlan",
+    "es": "Plan de acción",
+    "en": "ActionPlan",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.AdjuntoPDF",
+    "es": "PDF adjunto",
+    "en": "Adjunto PDF",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Application",
+    "es": "solicitud",
+    "en": "application",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Approval",
+    "es": "aprobación",
+    "en": "approval",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Aprobacion",
+    "es": "aprobación",
+    "en": "Aprobación",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Archivada",
+    "es": "Archivada.",
+    "en": "Archivada.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.ArchivarEstaPlantilla",
+    "es": "?Archivar esta plantilla?",
+    "en": "Archive this template?",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Area",
+    "es": "Área",
+    "en": "Área",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.AuditoriaISO",
+    "es": "Auditoría ISO",
+    "en": "Auditoría ISO",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Backspace",
+    "es": "Retroceso",
+    "en": "Backspace",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Biblioteca",
+    "es": "Biblioteca",
+    "en": "Biblioteca",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.BibliotecaDeComponentes",
+    "es": "Biblioteca de componentes",
+    "en": "Component Library",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.BorradorGuardado",
+    "es": "Borrador guardado.",
+    "en": "Borrador guardado.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Boton",
+    "es": "Botón",
+    "en": "Botón",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.CabeceraActualizada",
+    "es": "Cabecera actualizada.",
+    "en": "Cabecera actualizada.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Calculado",
+    "es": "calculado",
+    "en": "Calculado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Calculated",
+    "es": "calculado",
+    "en": "calculated",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Campo",
+    "es": "Campo",
+    "en": "Field",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.CampoAvanzado",
+    "es": "Campo avanzado",
+    "en": "advanced field",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.CamposNormativosYDocuments",
+    "es": "Campos normativos y documentos.",
+    "en": "Regulatory fields and documents.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.CanvasVacioListoParaDisenar",
+    "es": "Canvas vacío listo para diseñar.",
+    "en": "Empty canvas ready to design.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.CausaRaiz",
+    "es": "causa raíz",
+    "en": "Causa raíz",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.CausaRaizActionsYVerificacion",
+    "es": "Causa raíz, acciones y verificación.",
+    "en": "Root cause, actions and verification.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Checklist",
+    "es": "Lista de verificación",
+    "en": "Checklist",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Clasificacion",
+    "es": "Clasificación",
+    "en": "Clasificación",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.ClasificacionImpactoYTimeline",
+    "es": "Clasificación, impacto y timeline.",
+    "en": "Classification, impact and timeline.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.CodigoNuevo",
+    "es": "Código nuevo",
+    "en": "New code",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.CodigoUnico",
+    "es": "Código único",
+    "en": "Código único",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Comfortable",
+    "es": "cómodo",
+    "en": "comfortable",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.ComplianceStudioFailedToInitialize",
+    "es": "Compliance Studio no pudo inicializarse",
+    "en": "Compliance Studio failed to initialize",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.ComplianceStudioOpenFailed",
+    "es": "Error al abrir Compliance Studio",
+    "en": "Compliance Studio open failed",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Conforme",
+    "es": "conforme",
+    "en": "Conforme",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Container",
+    "es": "recipiente",
+    "en": "container",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Contains",
+    "es": "Contiene",
+    "en": "Contains",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Contenedor",
+    "es": "contenedor",
+    "en": "Contenedor",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Controls",
+    "es": "Controles",
+    "en": "Controles",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Correctiva",
+    "es": "correctiva",
+    "en": "Correctiva",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.CriteriosRatingYSemaforo",
+    "es": "Criterios, rating y semáforo.",
+    "en": "Criteria, rating and traffic light.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Critica",
+    "es": "crítica",
+    "en": "Crítica",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Critico",
+    "es": "Crítico",
+    "en": "Crítico",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.CriticoExigeEvidence",
+    "es": "Crítico exige evidencia",
+    "en": "Crítico exige evidencia",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.CsBtnPrimary",
+    "es": "cs-btn primaria",
+    "en": "cs-btn primary",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.CsBtnSuccess",
+    "es": "éxito cs-btn",
+    "en": "cs-btn success",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Datetime",
+    "es": "fecha y hora",
+    "en": "datetime",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Decoracion",
+    "es": "Decoración",
+    "en": "Decoración",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Descripcion",
+    "es": "Descripción",
+    "en": "Descripción",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.DisenadorComplianceStudio",
+    "es": "Diseñador Compliance Studio",
+    "en": "Diseñador Compliance Studio",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.DivClassCardPClassMetricLabelAbriendoComplianceStudioPDiv",
+    "es": "<div class=\"card\"><p class=\"metric-label\">Abriendo Compliance Studio…</p></div>",
+    "en": "<div class=\"card\"><p class=\"metric-label\">Abriendo Compliance Studio…</p></div>",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.DivClassCardPClassMetricLabelComplianceStudioActivoSiNoVeElDisenadorPulseF5PDiv",
+    "es": "<div class=\"card\"><p class=\"metric-label\">Compliance Studio activo. Si no ve el diseñador, pulse F5.</p></div>",
+    "en": "<div class=\"card\"><p class=\"metric-label\">Compliance Studio active. If you don't see the designer, press F5.</p></div>",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.DivClassCsDropHintIdCsDropZoneArrastreComponentesAquiOPulseEnLaBibliotecaBrSmallGridDe12ColumnasGuiasInteligen",
+    "es": "<div class=\"cs-drop-hint\" id=\"cs-drop-zone\">Arrastre componentes aquí o pulse en la biblioteca.<br><small>Grid de 12 columnas · guías inteligentes · DnD</small>",
+    "en": "<div class=\"cs-drop-hint\" id=\"cs-drop-zone\">Drag components here or click in the library.<br><small>12 column grid · smart guides · DnD</small>",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.DivStyleBorder1pxDashed94a3b8Padding14remTextAlignCenterBorderRadius8pxAreaDeFirmaDiv",
+    "es": "<div style=\"border:1px dashed #94a3b8;padding:1.4rem;text-align:center;border-radius:8px\">Área de firma</div>",
+    "en": "<div style=\"border:1px dashed #94a3b8;padding:1.4rem;text-align:center;border-radius:8px\">Signature area</div>",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Documentacion",
+    "es": "Documentación",
+    "en": "Documentación",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Draggable",
+    "es": "arrastrable=",
+    "en": "draggable=",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Dragging",
+    "es": "arrastrando",
+    "en": "dragging",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Dragover",
+    "es": "dragover",
+    "en": "dragover",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Dragstart",
+    "es": "Arrastrar inicio",
+    "en": "dragstart",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.EnBlanco",
+    "es": "En blanco",
+    "en": "Blank",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.EndsWith",
+    "es": "termina con",
+    "en": "EndsWith",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.EstadoGeneral",
+    "es": "Estado general",
+    "en": "General condition",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Etiqueta",
+    "es": "etiqueta",
+    "en": "Etiqueta",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Evaluacion",
+    "es": "Evaluación",
+    "en": "Evaluación",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.EvaluacionDeRiesgo",
+    "es": "Evaluación de riesgo",
+    "en": "Risk assessment",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Evaluation",
+    "es": "Evaluación",
+    "en": "Evaluation",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Evidence",
+    "es": "Evidencias",
+    "en": "Evidencias",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Evidence2",
+    "es": "evidencia",
+    "en": "Evidencia",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Expresion",
+    "es": "expresión",
+    "en": "Expresión",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Expresiones",
+    "es": "Expresiones",
+    "en": "Expresiones",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.FechaVerificacion",
+    "es": "Fecha verificación",
+    "en": "Verification date",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.FindingsEvidenceYFirmas",
+    "es": "Hallazgos, evidencias y firmas.",
+    "en": "Findings, evidence and signatures.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.FirmaAuditor",
+    "es": "Auditor de Empresa",
+    "en": "Firma Auditor",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.FirmaCierre",
+    "es": "cierre firme",
+    "en": "Firma cierre",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.FirmaCumplimiento",
+    "es": "Firma cumplimiento",
+    "en": "Firma cumplimiento",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.FirmaResponsable",
+    "es": "Responsable de la empresa",
+    "en": "Firma Responsable",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.FormularioRegulatorio",
+    "es": "Formulario regulatorio",
+    "en": "Regulatory form",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Galeria",
+    "es": "galeria",
+    "en": "Galería",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.GuardadoManualComplianceStudio",
+    "es": "Guardado manual Compliance Studio",
+    "en": "Guardado manual Compliance Studio",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Hallazgo",
+    "es": "Hallazgo",
+    "en": "Hallazgo",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Hipervinculo",
+    "es": "Hipervínculo",
+    "en": "Hipervínculo",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Hyperlink",
+    "es": "hiperenlace",
+    "en": "hyperlink",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Incident",
+    "es": "incidente",
+    "en": "incident",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Incidente",
+    "es": "incidente",
+    "en": "Incidente",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Incidentes",
+    "es": "Incidentes",
+    "en": "Incidentes",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.InputTypeFile",
+    "es": "<tipo de entrada=\"archivo\">",
+    "en": "<input type=\"file\">",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Inspeccion",
+    "es": "inspección",
+    "en": "Inspección",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Inspection",
+    "es": "Inspección",
+    "en": "Inspection",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Inspector",
+    "es": "Inspector",
+    "en": "Inspector",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.InternalProcess",
+    "es": "Proceso interno",
+    "en": "InternalProcess",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Investigacion",
+    "es": "Investigación",
+    "en": "Investigación",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Investigation",
+    "es": "Investigación",
+    "en": "Investigation",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.IsNotEmpty",
+    "es": "No está vacío",
+    "en": "IsNotEmpty",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Items",
+    "es": "Elementos",
+    "en": "Ítems",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.ItemsConformesNoConformes",
+    "es": "Artículos conformes/no conformes.",
+    "en": "Ítems conformes / no conformes.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Landscape",
+    "es": "paisaje",
+    "en": "landscape",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.LineaDeTime",
+    "es": "Línea de tiempo",
+    "en": "Timeline",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Location",
+    "es": "ubicación",
+    "en": "location",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.MarcaTemporal",
+    "es": "Marca temporal",
+    "en": "Marca temporal",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Markdown",
+    "es": "reducción",
+    "en": "markdown",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.MasterDetail",
+    "es": "Detalle maestro",
+    "en": "Master Detail",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.MetadatosDocumentales",
+    "es": "Metadatos documentales",
+    "en": "Metadatos documentales",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.MetadatosYAdjuntos",
+    "es": "Metadatos y adjuntos.",
+    "en": "Metadata and attachments.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.MultiLista",
+    "es": "Lista múltiple",
+    "en": "MultiLista",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Multiselect",
+    "es": "selección múltiple",
+    "en": "multiselect",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.NombreDeLaCopia",
+    "es": "Nombre de la copia",
+    "en": "Copy name",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.NombreDeLaPlantilla",
+    "es": "Nombre de la plantilla",
+    "en": "Template name",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.NotEquals",
+    "es": "No es igual",
+    "en": "NotEquals",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Numero",
+    "es": "Número",
+    "en": "Número",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Observacion",
+    "es": "Observación",
+    "en": "Observación",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Observaciones",
+    "es": "Observaciones",
+    "en": "Observaciones",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Ocurrencia",
+    "es": "Ocurrencia",
+    "en": "Ocurrencia",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.OpcionA",
+    "es": "Opción A",
+    "en": "Opción A",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.OpcionB",
+    "es": "Opción B",
+    "en": "Opción B",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.OpcionC",
+    "es": "Opción C",
+    "en": "Opción C",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Operaciones",
+    "es": "Operaciones",
+    "en": "Operaciones",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.PStyleColorVarCsMutedSeleccioneUnComponenteEnElCanvasP",
+    "es": "<p style=\"color:var(--cs-muted)\">Seleccione un componente en el canvas.</p>",
+    "en": "<p style=\"color:var(--cs-muted)\">Select a component on the canvas.</p>",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Plantilla",
+    "es": "Plantilla",
+    "en": "Template",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.PlantillaCreadaEnComplianceStudio",
+    "es": "Plantilla creada en Compliance Studio.",
+    "en": "Template created in Compliance Studio.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.PlantillaDuplicada",
+    "es": "Plantilla duplicada.",
+    "en": "Duplicate template.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Preventiva",
+    "es": "preventiva",
+    "en": "Preventiva",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Probabilidad",
+    "es": "Probabilidad",
+    "en": "Probabilidad",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.ProbabilidadImpacto",
+    "es": "Probabilidad * Impacto",
+    "en": "Probabilidad * Impacto",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.ProbabilidadImpactoYControls",
+    "es": "Probabilidad, impacto y controles.",
+    "en": "Probability, impact and controls.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Progreso",
+    "es": "progreso",
+    "en": "Progreso",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Progress",
+    "es": "progreso",
+    "en": "progress",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Propiedades",
+    "es": "Propiedades",
+    "en": "Propiedades",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Publicada",
+    "es": "Publicado",
+    "en": "Publicada",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.PublicadaDisponibleViaFormEngineParaAuditsCAPARiskEInspection",
+    "es": "Publicada. Disponible vía Form Engine para Audits, CAPA, Risk e Inspection.",
+    "en": "Published. Available via Form Engine for Audits, CAPA, Risk and Inspection.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.RecorridoFotosYUbicacion",
+    "es": "Recorrido, fotos y ubicación.",
+    "en": "Tour, photos and location.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.ReglaCondicional",
+    "es": "Regla condicional",
+    "en": "Regla condicional",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Regulatorio",
+    "es": "Regulador",
+    "en": "Regulatorio",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Repeater",
+    "es": "reloj de repetición",
+    "en": "repeater",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Repetidor",
+    "es": "repetidor",
+    "en": "Repetidor",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.RequestEvidence",
+    "es": "SolicitarEvidencia",
+    "en": "RequestEvidence",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.RequestSignature",
+    "es": "SolicitudFirma",
+    "en": "RequestSignature",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.RestaurarEstaVersionComoNuevoBorradorDeTrabajo",
+    "es": "?Restaurar esta versi?n como nuevo borrador de trabajo?",
+    "en": "Restore this version as a new working draft?",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Revision",
+    "es": "Revisión",
+    "en": "Revisión",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.RichText",
+    "es": "Texto enriquecido",
+    "en": "Rich Text",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Richtext",
+    "es": "texto enriquecido",
+    "en": "richtext",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Semaforo",
+    "es": "Semáforo",
+    "en": "Semáforo",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Semaphore",
+    "es": "semáforo",
+    "en": "semaphore",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Separador",
+    "es": "Separador",
+    "en": "Separador",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Separator",
+    "es": "separador",
+    "en": "separator",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.SetValue",
+    "es": "Establecer valor",
+    "en": "SetValue",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Severidad",
+    "es": "Severidad",
+    "en": "Severidad",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Signature",
+    "es": "firma",
+    "en": "signature",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.SinPermisoTEMPLATEREADTEMPLATEMANAGE",
+    "es": "Sin permiso TEMPLATE.READ / TEMPLATE.MANAGE.",
+    "en": "Without TEMPLATE.READ / TEMPLATE.MANAGE permission.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Sincronizado",
+    "es": "Sincronizado",
+    "en": "Sincronizado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.SplitView",
+    "es": "Vista dividida",
+    "en": "Split View",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.StartsWith",
+    "es": "comienza con",
+    "en": "StartsWith",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Subheading",
+    "es": "subtítulo",
+    "en": "subheading",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Subtitulo",
+    "es": "Subtítulo",
+    "en": "Subtítulo",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Subtotal116",
+    "es": "Subtotal * 1,16",
+    "en": "Subtotal * 1.16",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Telefono",
+    "es": "Teléfono",
+    "en": "Teléfono",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Timeline",
+    "es": "línea de tiempo",
+    "en": "timeline",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Titulo",
+    "es": "título",
+    "en": "Título",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Ubicacion",
+    "es": "Ubicación",
+    "en": "Ubicación",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.UseStrict",
+    "es": "usar estricto",
+    "en": "use strict",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.VersionRestaurada",
+    "es": "Versión restaurada.",
+    "en": "Versión restaurada.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Vigencia",
+    "es": "Vigencia",
+    "en": "Vigencia",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.Workflow",
+    "es": "Flujo de trabajo",
+    "en": "Workflow",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "Studio.WorkflowActualizadoEnSchema",
+    "es": "Workflow actualizado en schema.",
+    "en": "Updated workflow in schema.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/form-template-builder.js"
+    ]
+  },
+  {
+    "finalKey": "SuperAdmin.LoadingSuperAdminPlatformCenter",
+    "es": "Cargando Centro de plataforma SuperAdmin...",
+    "en": "Cargando SuperAdmin Platform Center...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "SuperAdmin.SuperAdminPlatform",
+    "es": "Plataforma SuperAdmin",
+    "en": "SuperAdmin Platform",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "SuperAdmin.SuperAdminPlatformCenter",
+    "es": "Centro de plataforma SuperAdmin",
+    "en": "SuperAdmin Platform Center",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "SuperAdmin.SuperAdminPlatformTabs",
+    "es": "Pestañas de la plataforma SuperAdmin",
+    "en": "SuperAdmin Platform tabs",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "SuperAdmin.SuperadminGlobalAuditCsv",
+    "es": "superadmin-auditoría-global.csv",
+    "en": "superadmin-global-audit.csv",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Tac.CompleteOnboardingYActiveElTenantParaUsoProductivo",
+    "es": "Complete onboarding y active el tenant para uso productivo.",
+    "en": "Complete onboarding and activate the tenant for productive use.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Tac.EstadoDelTenantActualizado",
+    "es": "Estado del tenant actualizado.",
+    "en": "Tenant status updated.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Tac.JWTRBACTenantEnforcementAndAuditContextEnabled",
+    "es": "JWT, RBAC, cumplimiento de inquilinos y contexto de auditoría habilitados.",
+    "en": "JWT, RBAC, tenant enforcement and audit context enabled.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Tac.LoadingTenantAdministrationCenter",
+    "es": "Cargando Centro de administración de inquilinos...",
+    "en": "Cargando Tenant Administration Center...",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Tac.TenantAdministration",
+    "es": "Administraci?n de tenant",
+    "en": "Tenant administration",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Tac.TenantAdministrationCenter",
+    "es": "Centro de administración de inquilinos",
+    "en": "Tenant Administration Center",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Tac.TenantAdministrationTabs",
+    "es": "Pestañas de administración de inquilinos",
+    "en": "Tenant Administration tabs",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Tac.TenantEnDraft",
+    "es": "Tenant en Draft",
+    "en": "Tenant in Draft",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Tac.TenantFleet",
+    "es": "Flota de inquilinos",
+    "en": "Tenant fleet",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Tac.TenantLicenses",
+    "es": "licencias de inquilino",
+    "en": "Tenant licenses",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Tac.TenantName",
+    "es": "Nombre del inquilino",
+    "en": "Tenant Name",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Users.AplicadoPorTenantUsuario",
+    "es": "Aplicado por tenant/usuario",
+    "en": "Applied by tenant/user",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Users.CambiarEmail",
+    "es": "cambiar correo",
+    "en": "Cambiar correo",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Users.Email",
+    "es": "Ingresa tu correo corporativo para identificar tus organizaciones.",
+    "en": "Enter your corporate email to identify your organizations.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Users.EmailCorporate",
+    "es": "correo corporativo",
+    "en": "Correo corporativo",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Users.EmailDelUsuario",
+    "es": "Email del usuario",
+    "en": "User Email",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Users.EmailProviderCreado",
+    "es": "Proveedor de correo electrónico creado",
+    "en": "Email provider creado",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Users.EmailProviderHealth",
+    "es": "Estado del proveedor de correo electrónico",
+    "en": "Email provider health",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Users.NoEncontramosUnaOrganizationParaEsteEmailVerificaQueElAdministradorTeHayaCreadoEnElTenant",
+    "es": "No encontramos una organizacion para este correo. Verifica que el administrador te haya creado en el tenant.",
+    "en": "We did not find an organization for this email. Verify that the administrator has created you in the tenant.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Users.NoEsUnEmailElectronicoValido",
+    "es": "No es un correo electrónico válido.",
+    "en": "It is not a valid email.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Users.NombreVisibleParaUsuariosDelCliente",
+    "es": "Nombre visible para usuarios del cliente.",
+    "en": "Visible name for client users.",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Users.Usuarios",
+    "es": "Usuarios",
+    "en": "Users",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Users.UsuariosContratados",
+    "es": "Usuarios contratados",
+    "en": "Licensed users",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Users.UsuariosDelTenant",
+    "es": "Usuarios del tenant",
+    "en": "Tenant users",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Users.UsuariosUsados",
+    "es": "Usuarios usados",
+    "en": "Users in use",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  },
+  {
+    "finalKey": "Validation.Validation",
+    "es": "Validación",
+    "en": "Validation",
+    "sourceFiles": [
+      "src/Compliance360.Web/wwwroot/app.js"
+    ]
+  }
+]

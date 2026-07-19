@@ -8,6 +8,7 @@ using Compliance360.Infrastructure.Identity;
 using Compliance360.Infrastructure.Persistence;
 using Compliance360.Infrastructure.Security;
 using Compliance360.Shared;
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -105,7 +106,7 @@ public sealed class IdentityServiceTests
         var result = await fixture.Service.LoginAsync(new LoginCommand(Guid.NewGuid(), fixture.User.Email, "Password1!", null, null));
 
         Assert.True(result.IsFailure);
-        Assert.Equal("Invalid credentials.", result.Error);
+        Assert.Equal("Correo o contrasena incorrectos. Verifica e intenta de nuevo.", result.Error);
         Assert.Contains(fixture.Repository.AuditLogs, audit => audit.Action == AuditAction.LoginFailed);
     }
 
@@ -137,6 +138,7 @@ public sealed class IdentityServiceTests
         Assert.NotEqual(login.Value.RefreshTokenHash, refresh.Value!.RefreshTokenHash);
         Assert.NotNull(oldToken.RevokedAtUtc);
         Assert.Equal(refresh.Value.RefreshTokenHash, oldToken.ReplacedByTokenHash);
+        Assert.False(fixture.Repository.UserSessions.Single(session => session.Id == login.Value.SessionId).IsActive(fixture.Clock.UtcNow));
         Assert.Contains(fixture.Repository.AuditLogs, audit => audit.Action == AuditAction.TokenRefreshed);
     }
 
@@ -150,6 +152,7 @@ public sealed class IdentityServiceTests
 
         Assert.True(logout.IsSuccess);
         Assert.False(fixture.Repository.RefreshTokens.Single(token => token.TokenHash == login.Value.RefreshTokenHash).IsActive(fixture.Clock.UtcNow));
+        Assert.False(fixture.Repository.UserSessions.Single(session => session.Id == login.Value.SessionId).IsActive(fixture.Clock.UtcNow));
         Assert.Contains(fixture.Repository.AuditLogs, audit => audit.Action == AuditAction.Logout);
     }
 
@@ -190,6 +193,21 @@ public sealed class IdentityServiceTests
         Assert.True(invalidCurrent.IsFailure);
         Assert.True(weakPassword.IsFailure);
         Assert.Contains(fixture.Repository.AuditLogs, audit => audit.Action == AuditAction.LoginFailed);
+    }
+
+    [Fact]
+    public async Task ChangePasswordAsync_Revokes_All_Active_Sessions_And_Refresh_Tokens()
+    {
+        var fixture = IdentityFixture.Create();
+        var login = await fixture.Service.LoginAsync(new LoginCommand(fixture.TenantId, fixture.User.Email, "Password1!", null, null));
+
+        var changed = await fixture.Service.ChangePasswordAsync(new ChangePasswordCommand(
+            fixture.TenantId, fixture.User.Id, "Password1!", "Password2!", null, null));
+
+        Assert.True(changed.IsSuccess);
+        Assert.All(fixture.Repository.UserSessions, session => Assert.False(session.IsActive(fixture.Clock.UtcNow)));
+        Assert.All(fixture.Repository.RefreshTokens, token => Assert.False(token.IsActive(fixture.Clock.UtcNow)));
+        Assert.NotNull(login.Value);
     }
 
     [Fact]
@@ -290,10 +308,13 @@ public sealed class IdentityServiceTests
             }),
             new FixedClock());
 
-        var token = service.CreateAccessToken(new AuthenticatedUser(Guid.NewGuid(), Guid.NewGuid(), "qa@example.com", "QA", ["Admin"], ["TENANTS.READ"]));
+        var sessionId = Guid.NewGuid();
+        var token = service.CreateAccessToken(new AuthenticatedUser(Guid.NewGuid(), Guid.NewGuid(), "qa@example.com", "QA", ["Admin"], ["TENANTS.READ"], sessionId));
+        var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token.AccessToken);
 
         Assert.False(string.IsNullOrWhiteSpace(token.AccessToken));
         Assert.Equal(new FixedClock().UtcNow.AddMinutes(15), token.ExpiresAtUtc);
+        Assert.Equal(sessionId.ToString(), jwt.Claims.Single(claim => claim.Type == "session_id").Value);
     }
 
     [Fact]
@@ -500,6 +521,7 @@ public sealed class IdentityServiceTests
                 new TestJwtTokenService(Clock),
                 new TestRefreshTokenGenerator(Clock),
                 new TestMfaChallengeTokenService(Clock),
+                new TestAuthResolverTokenService(Clock),
                 new TestMfaSecretProtector(),
                 new TestTotpService(),
                 Clock,
@@ -584,6 +606,11 @@ public sealed class IdentityServiceTests
             return Task.FromResult(RefreshTokens.SingleOrDefault(token => token.TokenHash == tokenHash));
         }
 
+        public Task<UserSession?> GetSessionByIdAsync(Guid tenantId, Guid sessionId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(UserSessions.SingleOrDefault(session => session.TenantId == tenantId && session.Id == sessionId));
+        }
+
         public Task<bool> IsTenantMfaRequiredAsync(Guid tenantId, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(TenantRequiresMfa);
@@ -640,6 +667,20 @@ public sealed class IdentityServiceTests
                 .ToHashSet();
             var permissions = Permissions.Where(permission => permissionIds.Contains(permission.Id)).Select(permission => permission.Code).ToList();
             return Task.FromResult<IReadOnlyCollection<string>>(permissions);
+        }
+
+        public Task<IReadOnlyCollection<UserTenantMembership>> GetUserTenantMembershipsByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default)
+        {
+            var memberships = Users
+                .Where(user => user.NormalizedEmail == normalizedEmail)
+                .Select(user => new UserTenantMembership(user.TenantId, user.Id, "Tenant", null, null, null))
+                .ToList();
+            return Task.FromResult<IReadOnlyCollection<UserTenantMembership>>(memberships);
+        }
+
+        public Task<Guid?> ResolveTenantByHostAsync(string hostName, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<Guid?>(null);
         }
     }
 
@@ -722,6 +763,46 @@ public sealed class IdentityServiceTests
             return expiresAt <= _clock.UtcNow
                 ? Result<MfaChallengePrincipal>.Failure("MFA challenge expired.")
                 : Result<MfaChallengePrincipal>.Success(new MfaChallengePrincipal(tenantId, userId, (MfaMethod)method, expiresAt));
+        }
+    }
+
+    private sealed class TestAuthResolverTokenService : IAuthResolverTokenService
+    {
+        private readonly IClock _clock;
+
+        public TestAuthResolverTokenService(IClock clock)
+        {
+            _clock = clock;
+        }
+
+        public string Create(AuthResolverPrincipal principal)
+        {
+            return $"{principal.NormalizedEmail}|{string.Join(",", principal.AllowedTenantIds)}|{principal.PreselectedTenantId}|{principal.ExpiresAtUtc.ToUnixTimeSeconds()}|{principal.Nonce}";
+        }
+
+        public Result<AuthResolverPrincipal> Validate(string token)
+        {
+            var parts = token.Split('|');
+            if (parts.Length != 5 || !long.TryParse(parts[3], out var expiresUnix))
+            {
+                return Result<AuthResolverPrincipal>.Failure("Invalid resolver token.");
+            }
+
+            var expiresAt = DateTimeOffset.FromUnixTimeSeconds(expiresUnix);
+            if (expiresAt <= _clock.UtcNow)
+            {
+                return Result<AuthResolverPrincipal>.Failure("Resolver token expired.");
+            }
+
+            var allowed = string.IsNullOrWhiteSpace(parts[1])
+                ? []
+                : parts[1].Split(',', StringSplitOptions.RemoveEmptyEntries).Select(Guid.Parse).ToArray();
+            Guid? preselected = Guid.TryParse(parts[2], out var parsed) ? parsed : null;
+            return Result<AuthResolverPrincipal>.Success(new AuthResolverPrincipal(parts[0], allowed, preselected, expiresAt, parts[4]));
+        }
+
+        public void MarkUsed(AuthResolverPrincipal principal)
+        {
         }
     }
 

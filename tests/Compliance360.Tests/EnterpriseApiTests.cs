@@ -163,16 +163,18 @@ public sealed class EnterpriseApiTests
     }
 
     [Fact]
-    public async Task Health_Live_And_Ready_Endpoints_Are_Available()
+    public async Task Health_Live_Ready_And_Notification_Endpoints_Are_Available()
     {
         await using var factory = CreateFactory();
         using var client = factory.CreateClient();
 
         var live = await client.GetAsync("/health/live");
         var ready = await client.GetAsync("/health/ready");
+        var notifications = await client.GetAsync("/health/notifications");
 
         Assert.Equal(HttpStatusCode.OK, live.StatusCode);
         Assert.True(ready.StatusCode is HttpStatusCode.OK or HttpStatusCode.ServiceUnavailable);
+        Assert.True(notifications.StatusCode is HttpStatusCode.OK or HttpStatusCode.ServiceUnavailable);
     }
 
     [Fact]
@@ -229,8 +231,7 @@ public sealed class EnterpriseApiTests
         {
             new(ClaimTypes.NameIdentifier, TestUserId.ToString()),
             new("sub", TestUserId.ToString()),
-            new("tenant_id", TestTenantId.ToString()),
-            new("session_id", Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc").ToString())
+            new("tenant_id", TestTenantId.ToString())
         };
         claims.AddRange(permissions.Select(permission => new Claim("permission", permission)));
 

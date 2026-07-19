@@ -15,7 +15,7 @@ export default defineConfig({
   ],
   outputDir: "../artifacts/e2e/test-output",
   use: {
-    baseURL: "http://localhost:5272",
+    baseURL: process.env.E2E_BASE_URL || "http://localhost:5272",
     headless: false,
     screenshot: "on",
     video: "on",

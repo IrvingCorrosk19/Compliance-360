@@ -20,6 +20,11 @@ public static class ObservabilityEndpoints
             Predicate = check => check.Tags.Contains("ready")
         });
 
+        endpoints.MapHealthChecks("/health/notifications", new HealthCheckOptions
+        {
+            Predicate = check => check.Tags.Contains("notification")
+        });
+
         endpoints.MapGet("/telemetry", (HttpContext httpContext, IObservabilityTelemetry telemetry) =>
         {
             var activity = System.Diagnostics.Activity.Current;

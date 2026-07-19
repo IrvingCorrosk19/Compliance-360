@@ -37,6 +37,11 @@ public sealed class EfSuperAdminPlatformRepository : ISuperAdminPlatformReposito
                     ? "Unknown"
                     : "Healthy";
 
+        var productCount = await _dbContext.MedicalDeviceProducts.AsNoTracking().CountAsync(cancellationToken);
+        var dossierCount = await _dbContext.RegistrationDossiers.AsNoTracking().CountAsync(cancellationToken);
+        var manufacturerCount = await _dbContext.ManufacturerProfiles.AsNoTracking().CountAsync(cancellationToken);
+        var importJobCount = await _dbContext.RegutrackImportJobs.AsNoTracking().CountAsync(cancellationToken);
+
         return new SuperAdminDashboardMetrics(
             tenants,
             activeTenants,
@@ -45,11 +50,11 @@ public sealed class EfSuperAdminPlatformRepository : ISuperAdminPlatformReposito
             archivedTenants,
             totalUsers,
             activeUsers,
-            await _dbContext.Documents.AsNoTracking().CountAsync(cancellationToken),
-            await _dbContext.ManagedAudits.AsNoTracking().CountAsync(cancellationToken),
-            await _dbContext.Capas.AsNoTracking().CountAsync(cancellationToken),
-            await _dbContext.Risks.AsNoTracking().CountAsync(cancellationToken),
-            await _dbContext.QualityIndicators.AsNoTracking().CountAsync(cancellationToken),
+            productCount,
+            dossierCount,
+            manufacturerCount,
+            importJobCount,
+            0,
             storageLimitGb * 1024L * 1024L * 1024L,
             storageBytes,
             await _dbContext.StorageProviderConfigurations.AsNoTracking().CountAsync(cancellationToken),
@@ -140,7 +145,7 @@ public sealed class EfSuperAdminPlatformRepository : ISuperAdminPlatformReposito
     public async Task<IReadOnlyCollection<SuperAdminModuleSummary>> GetModulesAsync(CancellationToken cancellationToken = default)
     {
         var tenants = await _dbContext.Tenants.AsNoTracking().Select(tenant => new { tenant.Id, tenant.Name }).ToArrayAsync(cancellationToken);
-        var modules = new[] { "Documents", "Workflow", "Technical Sheets", "Supplier", "Audit", "CAPA", "Risk", "Indicators", "Reporting", "Training", "Regulatory", "Customer Portal", "Supplier Portal", "API", "Notifications", "Storage", "Observability", "AI" };
+        var modules = new[] { "Regulatory Affairs", "Tenant Administration", "Identity", "RBAC", "Audit Trail", "Notifications", "Storage", "Observability" };
         return tenants.SelectMany(tenant => modules.Select(module => new SuperAdminModuleSummary(tenant.Id, tenant.Name, module, Enabled: true, Source: "Platform module registry", Health: "Available"))).ToArray();
     }
 

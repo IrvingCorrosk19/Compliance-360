@@ -1,0 +1,341 @@
+[
+  {
+    "id": "tenant-administrator",
+    "name": "Tenant Administrator",
+    "short": "TAC",
+    "color": "#6366f1",
+    "icon": "shield",
+    "purpose": "Administra el tenant: usuarios, roles y configuración general. No opera expedientes regulatorios por defecto (SoD).",
+    "can": [
+      "Crear y desactivar usuarios (TENANT.USERS)",
+      "Asignar roles (TENANT.ROLES / RBAC.MANAGE)",
+      "Configurar branding y perfil del tenant",
+      "Ejecutar Bootstrap regulatorio / CONFIGURE (REGULATORY.CONFIGURE)",
+      "Ver SoD Settings (REGULATORY.SOD.MANAGE)",
+      "Consultar lecturas RA (productos, expedientes, CT/RS, licencias, dashboard)",
+      "Ver Audit Trail (AUDIT.READ / TENANT.AUDIT)"
+    ],
+    "cannot": [
+      "Crear expedientes (sin REGULATORY.DOSSIER.CREATE)",
+      "Aprobar internamente para sometimiento",
+      "Registrar sometimiento",
+      "Registrar aprobación externa MINSA/CSS + CT/RS",
+      "Sustituir al Specialist, Reviewer, Approver o Submitter en el flujo operativo"
+    ],
+    "flowStage": "IAM · configuración · sin operación de expediente",
+    "receives": "Solicitudes de acceso y asignación de roles del equipo regulatorio.",
+    "delivers": "Usuarios con el rol correcto y SoD habilitado para que el flujo Prep→Review→Approve→Submit funcione.",
+    "screens": [
+      "login",
+      "tenant-administration",
+      "security",
+      "regulatory-config",
+      "regulatory-sod",
+      "regulatory-dashboard",
+      "audit-trail"
+    ],
+    "tutorials": [
+      "tac-login",
+      "tac-users",
+      "tac-roles",
+      "tac-configure-ra",
+      "tac-sod",
+      "tac-no-operate",
+      "tac-logout"
+    ],
+    "file": "tenant-administrator.html"
+  },
+  {
+    "id": "regulatory-administrator",
+    "name": "Regulatory Administrator",
+    "short": "RA-ADM",
+    "color": "#0ea5e9",
+    "icon": "sliders",
+    "purpose": "Configura el módulo Regulatory Affairs: autoridades, packs, alertas e importación REGUTRACK.",
+    "can": [
+      "Bootstrap regulatorio (autoridades MINSA/CSS + pack de requisitos)",
+      "Importación Stage XLSX REGUTRACK (REGULATORY.CONFIGURE)",
+      "Gestionar productos y fabricantes (MANAGE)",
+      "Gestionar licencias operativas",
+      "Ver SoD Settings y lecturas del módulo"
+    ],
+    "cannot": [
+      "Aprobar internamente (APPROVE_FOR_SUBMISSION)",
+      "Registrar sometimiento (SUBMIT)",
+      "Registrar decisión externa / CT/RS (APPROVE)",
+      "Operar el expediente como Specialist por defecto"
+    ],
+    "flowStage": "Configuración previa al flujo del expediente",
+    "receives": "Archivo REGUTRACK y reglas SoD del Tenant Administrator.",
+    "delivers": "Catálogos, autoridades, packs publicados e importaciones listas para el equipo operativo.",
+    "screens": [
+      "login",
+      "regulatory-config",
+      "regulatory-import",
+      "regulatory-sod",
+      "regulatory-manufacturers",
+      "regulatory-licenses",
+      "regulatory-alerts",
+      "regulatory-dashboard"
+    ],
+    "tutorials": [
+      "adm-bootstrap",
+      "adm-authority",
+      "adm-import",
+      "adm-alerts",
+      "adm-sod-view"
+    ],
+    "file": "regulatory-administrator.html"
+  },
+  {
+    "id": "regulatory-manager",
+    "name": "Regulatory Manager",
+    "short": "RA-MGR",
+    "color": "#f59e0b",
+    "icon": "briefcase",
+    "purpose": "Supervisa el pipeline, registra observaciones de autoridad y la decisión externa que crea el CT/RS.",
+    "can": [
+      "Ver dashboard, pipeline, portafolio y aging",
+      "Actualizar expedientes (DOSSIER.UPDATE)",
+      "Registrar observación de autoridad (OBSERVATION.MANAGE)",
+      "Registrar aprobación externa MINSA/CSS + CT/RS (DOSSIER.APPROVE)",
+      "Gestionar registros y renovaciones (REGISTRATION.MANAGE)",
+      "SoD manage y emergency override auditado"
+    ],
+    "cannot": [
+      "Sustituir Specialist + Approver + Submitter a la vez sin override",
+      "Representar que la aprobación interna es la de MINSA/CSS"
+    ],
+    "flowStage": "Observación → Respuesta → Decisión externa → CT/RS → Renovación",
+    "receives": "Expedientes sometidos por el Submitter; respuestas del Specialist a observaciones.",
+    "delivers": "CT/RS activo y renovaciones iniciadas; excepciones SoD auditadas.",
+    "screens": [
+      "login",
+      "regulatory-dashboard",
+      "regulatory-pipeline",
+      "regulatory-dossiers",
+      "regulatory-registrations",
+      "regulatory-alerts",
+      "regulatory-sod"
+    ],
+    "tutorials": [
+      "mgr-dashboard",
+      "mgr-observe",
+      "mgr-external-approve",
+      "mgr-renewal",
+      "mgr-breakglass"
+    ],
+    "file": "regulatory-manager.html"
+  },
+  {
+    "id": "regulatory-specialist",
+    "name": "Regulatory Specialist",
+    "short": "RA-SPEC",
+    "color": "#22c55e",
+    "icon": "file-plus",
+    "purpose": "Prepara productos y expedientes, solicita documentos, completa requisitos y responde observaciones.",
+    "can": [
+      "Crear producto + expediente (PRODUCT.MANAGE + DOSSIER.CREATE)",
+      "Transiciones de preparación: Pedir docs, Docs recibidos, Armar, Declarar técnicamente completo",
+      "Marcar requisito recibido",
+      "Alta fabricante y certificados",
+      "Responder observación de autoridad",
+      "Ver CT/RS y dashboard en lectura"
+    ],
+    "cannot": [
+      "Revisar su propio expediente (PreventSelfReview / SoD)",
+      "Aprobar internamente para sometimiento",
+      "Registrar sometimiento",
+      "Registrar aprobación externa / crear CT/RS"
+    ],
+    "flowStage": "Preparación (Planning → ReadyForSubmission) y respuesta a observaciones",
+    "receives": "Packs/autoridades del Administrator; devoluciones del Reviewer; observaciones del Manager.",
+    "delivers": "Expediente técnicamente completo listo para el Reviewer.",
+    "screens": [
+      "login",
+      "regulatory-portfolio",
+      "regulatory-dossiers",
+      "regulatory-manufacturers",
+      "regulatory-pipeline",
+      "regulatory-dashboard"
+    ],
+    "tutorials": [
+      "spec-product",
+      "spec-mfr",
+      "spec-dossier",
+      "spec-checklist",
+      "spec-ready",
+      "spec-respond-obs",
+      "spec-fix-return"
+    ],
+    "file": "regulatory-specialist.html"
+  },
+  {
+    "id": "regulatory-reviewer",
+    "name": "Regulatory Reviewer",
+    "short": "RA-REV",
+    "color": "#a855f7",
+    "icon": "search-check",
+    "purpose": "Revisa técnicamente cada requisito: Aceptar o Rechazar. No prepara ni aprueba internamente.",
+    "can": [
+      "Abrir expedientes en revisión (DOSSIER.READ + REVIEW)",
+      "Aceptar requisito",
+      "Rechazar requisito (con comentario)",
+      "Consultar dashboard y CT/RS en lectura"
+    ],
+    "cannot": [
+      "Crear productos/expedientes",
+      "Aprobar internamente para sometimiento",
+      "Registrar sometimiento",
+      "Preparar el mismo caso si PreventSelfReview está activo"
+    ],
+    "flowStage": "Revisión técnica (antes de ReadyForSubmission / hacia Approver)",
+    "receives": "Expedientes armados por el Specialist.",
+    "delivers": "Requisitos aceptados; expediente listo para Declarar técnicamente completo / Approver.",
+    "screens": [
+      "login",
+      "regulatory-dossiers",
+      "regulatory-pipeline",
+      "regulatory-dashboard"
+    ],
+    "tutorials": [
+      "rev-queue",
+      "rev-accept",
+      "rev-reject",
+      "rev-return"
+    ],
+    "file": "regulatory-reviewer.html"
+  },
+  {
+    "id": "regulatory-approver",
+    "name": "Regulatory Approver",
+    "short": "RA-APPR",
+    "color": "#eab308",
+    "icon": "badge-check",
+    "purpose": "Autoriza internamente que el expediente pueda ser sometido. No representa a MINSA/CSS.",
+    "can": [
+      "Ver expedientes en estado Técnicamente completo",
+      "Presionar «Aprobar internamente para sometimiento» (APPROVE_FOR_SUBMISSION)",
+      "Consultar lecturas RA"
+    ],
+    "cannot": [
+      "Preparar el expediente",
+      "Registrar sometimiento (SeparateApproverAndSubmitter)",
+      "Registrar aprobación externa / CT/RS"
+    ],
+    "flowStage": "Aprobación interna (ReadyForSubmission → ApprovedForSubmission)",
+    "receives": "Expedientes declarados técnicamente completos.",
+    "delivers": "Expediente con estado «Aprobado internamente para sometimiento» para el Submitter.",
+    "screens": [
+      "login",
+      "regulatory-dossiers",
+      "regulatory-pipeline",
+      "regulatory-dashboard"
+    ],
+    "tutorials": [
+      "appr-queue",
+      "appr-approve",
+      "appr-why-no-submit"
+    ],
+    "file": "regulatory-approver.html"
+  },
+  {
+    "id": "regulatory-submitter",
+    "name": "Regulatory Submitter",
+    "short": "RA-SUB",
+    "color": "#ef4444",
+    "icon": "send",
+    "purpose": "Registra el sometimiento real ante la autoridad. No otorga la aprobación interna.",
+    "can": [
+      "Ver expedientes «Aprobado internamente para sometimiento»",
+      "Presionar «Registrar sometimiento» (DOSSIER.SUBMIT)",
+      "Consultar lecturas RA"
+    ],
+    "cannot": [
+      "Aprobar internamente",
+      "Registrar decisión externa / CT/RS",
+      "Preparar o revisar requisitos"
+    ],
+    "flowStage": "Sometimiento (ApprovedForSubmission → Submitted)",
+    "receives": "Expedientes con aprobación interna del Approver.",
+    "delivers": "Expediente «Sometido ante autoridad» para seguimiento del Manager.",
+    "screens": [
+      "login",
+      "regulatory-dossiers",
+      "regulatory-pipeline",
+      "regulatory-dashboard"
+    ],
+    "tutorials": [
+      "sub-queue",
+      "sub-submit",
+      "sub-why-no-approve"
+    ],
+    "file": "regulatory-submitter.html"
+  },
+  {
+    "id": "regulatory-viewer",
+    "name": "Regulatory Viewer",
+    "short": "RA-VIEW",
+    "color": "#64748b",
+    "icon": "eye",
+    "purpose": "Solo lectura del portafolio regulatorio, pipeline y CT/RS.",
+    "can": [
+      "Ver Dashboard, Portafolio, Pipeline, Expedientes, CT/RS, Alertas",
+      "Consultar sin modificar"
+    ],
+    "cannot": [
+      "Cualquier botón de mutación (Nuevo, Aprobar, Someter, Stage, Bootstrap, etc.)"
+    ],
+    "flowStage": "Consulta transversal (sin etapa de escritura)",
+    "receives": "Visibilidad del estado del flujo después de cada rol operativo.",
+    "delivers": "Información; no entrega cambios al siguiente rol.",
+    "screens": [
+      "login",
+      "regulatory-dashboard",
+      "regulatory-portfolio",
+      "regulatory-pipeline",
+      "regulatory-dossiers",
+      "regulatory-registrations",
+      "regulatory-alerts"
+    ],
+    "tutorials": [
+      "view-read",
+      "view-no-edit"
+    ],
+    "file": "regulatory-viewer.html"
+  },
+  {
+    "id": "quality-manager",
+    "name": "Quality Manager",
+    "short": "QM",
+    "color": "#14b8a6",
+    "icon": "award",
+    "purpose": "Coordinación QMS transversal. Puede registrar la decisión externa CT/RS; no prepara expedientes.",
+    "can": [
+      "Registrar aprobación externa / CT/RS (DOSSIER.APPROVE + REGISTRATION.MANAGE)",
+      "Leer expedientes y reportes RA",
+      "Aprobar documentos, CAPA, riesgos y fichas técnicas (módulos QMS)",
+      "Ver Audit Trail"
+    ],
+    "cannot": [
+      "Preparar expedientes (sin CREATE/UPDATE de preparación por defecto)",
+      "Sustituir al Regulatory Manager en supervisión diaria salvo su permiso de APPROVE"
+    ],
+    "flowStage": "Decisión externa / CT/RS (junto o en apoyo al Manager)",
+    "receives": "Expedientes sometidos listos para decisión de autoridad.",
+    "delivers": "Registro de aprobación externa y CT/RS; trazabilidad QMS.",
+    "screens": [
+      "login",
+      "regulatory-dossiers",
+      "regulatory-registrations",
+      "regulatory-dashboard",
+      "audit-trail"
+    ],
+    "tutorials": [
+      "qm-external",
+      "qm-limits",
+      "qm-audit"
+    ],
+    "file": "quality-manager.html"
+  }
+]

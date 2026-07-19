@@ -1,0 +1,326 @@
+﻿[
+    {
+        "Id":  "ENV-LIVE",
+        "Pass":  true,
+        "Detail":  "health",
+        "At":  "2026-07-14T20:07:56.5871684-05:00"
+    },
+    {
+        "Id":  "ADMIN-LOGIN",
+        "Pass":  true,
+        "Detail":  "tenant admin login",
+        "At":  "2026-07-14T20:07:56.7181307-05:00"
+    },
+    {
+        "Id":  "SOD-SETTINGS-GET",
+        "Pass":  true,
+        "Detail":  "preventSelfReview=True",
+        "At":  "2026-07-14T20:07:56.8311903-05:00"
+    },
+    {
+        "Id":  "ROLES-PRESENT",
+        "Pass":  true,
+        "Detail":  "roles=20",
+        "At":  "2026-07-14T20:07:57.2628179-05:00"
+    },
+    {
+        "Id":  "USER-Regulatory Administrator",
+        "Pass":  true,
+        "Detail":  "login ra.admin@cert.local",
+        "At":  "2026-07-14T20:07:57.3478993-05:00"
+    },
+    {
+        "Id":  "JWT-Regulatory Administrator",
+        "Pass":  true,
+        "Detail":  "claims=13",
+        "At":  "2026-07-14T20:07:57.3812248-05:00"
+    },
+    {
+        "Id":  "USER-Regulatory Manager",
+        "Pass":  true,
+        "Detail":  "login ra.mgr@cert.local",
+        "At":  "2026-07-14T20:07:57.4588378-05:00"
+    },
+    {
+        "Id":  "JWT-Regulatory Manager",
+        "Pass":  true,
+        "Detail":  "claims=13",
+        "At":  "2026-07-14T20:07:57.4608285-05:00"
+    },
+    {
+        "Id":  "USER-Regulatory Specialist",
+        "Pass":  true,
+        "Detail":  "login ra.spec@cert.local",
+        "At":  "2026-07-14T20:07:57.5260921-05:00"
+    },
+    {
+        "Id":  "JWT-Regulatory Specialist",
+        "Pass":  true,
+        "Detail":  "claims=14",
+        "At":  "2026-07-14T20:07:57.5280905-05:00"
+    },
+    {
+        "Id":  "USER-Regulatory Reviewer",
+        "Pass":  true,
+        "Detail":  "login ra.rev@cert.local",
+        "At":  "2026-07-14T20:07:57.6048947-05:00"
+    },
+    {
+        "Id":  "JWT-Regulatory Reviewer",
+        "Pass":  true,
+        "Detail":  "claims=8",
+        "At":  "2026-07-14T20:07:57.6068799-05:00"
+    },
+    {
+        "Id":  "USER-Regulatory Approver",
+        "Pass":  true,
+        "Detail":  "login ra.appr@cert.local",
+        "At":  "2026-07-14T20:07:57.6889277-05:00"
+    },
+    {
+        "Id":  "JWT-Regulatory Approver",
+        "Pass":  true,
+        "Detail":  "claims=7",
+        "At":  "2026-07-14T20:07:57.6916806-05:00"
+    },
+    {
+        "Id":  "USER-Regulatory Submitter",
+        "Pass":  true,
+        "Detail":  "login ra.sub@cert.local",
+        "At":  "2026-07-14T20:07:57.7511835-05:00"
+    },
+    {
+        "Id":  "JWT-Regulatory Submitter",
+        "Pass":  true,
+        "Detail":  "claims=7",
+        "At":  "2026-07-14T20:07:57.7534366-05:00"
+    },
+    {
+        "Id":  "USER-Regulatory Viewer",
+        "Pass":  true,
+        "Detail":  "login ra.view@cert.local",
+        "At":  "2026-07-14T20:07:57.8051350-05:00"
+    },
+    {
+        "Id":  "JWT-Regulatory Viewer",
+        "Pass":  true,
+        "Detail":  "claims=8",
+        "At":  "2026-07-14T20:07:57.8051350-05:00"
+    },
+    {
+        "Id":  "USER-Quality Manager",
+        "Pass":  true,
+        "Detail":  "login ra.qm@cert.local",
+        "At":  "2026-07-14T20:07:57.8938093-05:00"
+    },
+    {
+        "Id":  "JWT-Quality Manager",
+        "Pass":  true,
+        "Detail":  "claims=24",
+        "At":  "2026-07-14T20:07:57.8938093-05:00"
+    },
+    {
+        "Id":  "CLAIM-SPEC-NO-SUBMIT",
+        "Pass":  true,
+        "Detail":  "specialist no submit",
+        "At":  "2026-07-14T20:07:57.9057256-05:00"
+    },
+    {
+        "Id":  "CLAIM-SPEC-NO-APPR",
+        "Pass":  true,
+        "Detail":  "specialist no internal approve",
+        "At":  "2026-07-14T20:07:57.9087268-05:00"
+    },
+    {
+        "Id":  "CLAIM-SPEC-NO-EXT",
+        "Pass":  true,
+        "Detail":  "specialist no external",
+        "At":  "2026-07-14T20:07:57.9112451-05:00"
+    },
+    {
+        "Id":  "CLAIM-REV-HAS-REVIEW",
+        "Pass":  true,
+        "Detail":  "reviewer review",
+        "At":  "2026-07-14T20:07:57.9112451-05:00"
+    },
+    {
+        "Id":  "CLAIM-REV-NO-SUBMIT",
+        "Pass":  true,
+        "Detail":  "reviewer no submit",
+        "At":  "2026-07-14T20:07:57.9112451-05:00"
+    },
+    {
+        "Id":  "CLAIM-APPR-HAS",
+        "Pass":  true,
+        "Detail":  "approver internal",
+        "At":  "2026-07-14T20:07:57.9203147-05:00"
+    },
+    {
+        "Id":  "CLAIM-APPR-NO-SUB",
+        "Pass":  true,
+        "Detail":  "approver no submit",
+        "At":  "2026-07-14T20:07:57.9233233-05:00"
+    },
+    {
+        "Id":  "CLAIM-SUB-HAS",
+        "Pass":  true,
+        "Detail":  "submitter submit",
+        "At":  "2026-07-14T20:07:57.9263181-05:00"
+    },
+    {
+        "Id":  "CLAIM-SUB-NO-APPR",
+        "Pass":  true,
+        "Detail":  "submitter no internal",
+        "At":  "2026-07-14T20:07:57.9277385-05:00"
+    },
+    {
+        "Id":  "CLAIM-TAC-NO-OP",
+        "Pass":  true,
+        "Detail":  "tac jwt without operational RA approve/submit",
+        "At":  "2026-07-14T20:07:57.9370590-05:00"
+    },
+    {
+        "Id":  "SPEC-CREATE-PRODUCT",
+        "Pass":  true,
+        "Detail":  "http=200",
+        "At":  "2026-07-14T20:07:58.1754343-05:00"
+    },
+    {
+        "Id":  "SPEC-CREATE-DOSSIER",
+        "Pass":  true,
+        "Detail":  "id=529e2d1f-fb6f-4e19-b9f0-3233c47cd3c1 status=Planning",
+        "At":  "2026-07-14T20:07:58.6060445-05:00"
+    },
+    {
+        "Id":  "SOD-001",
+        "Pass":  true,
+        "Detail":  "self-accept http=400 body={\"type\":\"https://tools.ietf.org/html/rfc9110#section-15.5.1\",\"title\":\"Bad Request\",\"status\":400,\"detail\":\"Requirement re",
+        "At":  "2026-07-14T20:07:58.7563576-05:00"
+    },
+    {
+        "Id":  "SOD-002",
+        "Pass":  true,
+        "Detail":  "http=403",
+        "At":  "2026-07-14T20:07:58.7905565-05:00"
+    },
+    {
+        "Id":  "SOD-013-SPEC",
+        "Pass":  true,
+        "Detail":  "http=403",
+        "At":  "2026-07-14T20:07:58.7910321-05:00"
+    },
+    {
+        "Id":  "REV-ACCEPT",
+        "Pass":  true,
+        "Detail":  "criticals accepted by reviewer",
+        "At":  "2026-07-14T20:08:00.1888244-05:00"
+    },
+    {
+        "Id":  "SOD-003",
+        "Pass":  true,
+        "Detail":  "http=403 ",
+        "At":  "2026-07-14T20:08:00.1888244-05:00"
+    },
+    {
+        "Id":  "SOD-017",
+        "Pass":  true,
+        "Detail":  "http=403",
+        "At":  "2026-07-14T20:08:00.2035514-05:00"
+    },
+    {
+        "Id":  "APPR-INTERNAL",
+        "Pass":  true,
+        "Detail":  "status=ApprovedForSubmission http=200",
+        "At":  "2026-07-14T20:08:00.4580580-05:00"
+    },
+    {
+        "Id":  "SOD-004",
+        "Pass":  true,
+        "Detail":  "http=403",
+        "At":  "2026-07-14T20:08:00.4610620-05:00"
+    },
+    {
+        "Id":  "SUB-SUBMIT",
+        "Pass":  true,
+        "Detail":  "status=Submitted",
+        "At":  "2026-07-14T20:08:00.5654255-05:00"
+    },
+    {
+        "Id":  "SOD-012-SUB-NO-APPR",
+        "Pass":  true,
+        "Detail":  "http=403",
+        "At":  "2026-07-14T20:08:00.5684272-05:00"
+    },
+    {
+        "Id":  "MGR-OBS",
+        "Pass":  true,
+        "Detail":  "http=200 status=Observed",
+        "At":  "2026-07-14T20:08:00.8572865-05:00"
+    },
+    {
+        "Id":  "SPEC-OBS-RESP",
+        "Pass":  true,
+        "Detail":  "http=200",
+        "At":  "2026-07-14T20:08:00.9736160-05:00"
+    },
+    {
+        "Id":  "SOD-014",
+        "Pass":  true,
+        "Detail":  "http=400",
+        "At":  "2026-07-14T20:08:01.6070113-05:00"
+    },
+    {
+        "Id":  "EXT-APPROVE",
+        "Pass":  true,
+        "Detail":  "http=200 reg=MQ-SOD-e82189",
+        "At":  "2026-07-14T20:08:01.7889942-05:00"
+    },
+    {
+        "Id":  "SOD-008",
+        "Pass":  true,
+        "Detail":  "http=403",
+        "At":  "2026-07-14T20:08:01.7889942-05:00"
+    },
+    {
+        "Id":  "SOD-009",
+        "Pass":  true,
+        "Detail":  "http=403",
+        "At":  "2026-07-14T20:08:01.8045735-05:00"
+    },
+    {
+        "Id":  "SOD-011",
+        "Pass":  true,
+        "Detail":  "http=403",
+        "At":  "2026-07-14T20:08:01.8069356-05:00"
+    },
+    {
+        "Id":  "SOD-016",
+        "Pass":  true,
+        "Detail":  "http=400",
+        "At":  "2026-07-14T20:08:01.9404116-05:00"
+    },
+    {
+        "Id":  "SOD-016b-SUBMIT",
+        "Pass":  true,
+        "Detail":  "http=400",
+        "At":  "2026-07-14T20:08:01.9703177-05:00"
+    },
+    {
+        "Id":  "SOD-016c-INTERNAL",
+        "Pass":  true,
+        "Detail":  "http=400",
+        "At":  "2026-07-14T20:08:01.9899758-05:00"
+    },
+    {
+        "Id":  "SOD-015-SHORT",
+        "Pass":  true,
+        "Detail":  "short override http=400",
+        "At":  "2026-07-14T20:08:02.0063123-05:00"
+    },
+    {
+        "Id":  "SOD-015",
+        "Pass":  true,
+        "Detail":  "break-glass requires SOD.EMERGENCY_OVERRIDE; unprivileged override rejected (015-SHORT)",
+        "At":  "2026-07-14T20:08:02.0063123-05:00"
+    }
+]

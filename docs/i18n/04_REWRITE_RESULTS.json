@@ -1,0 +1,17 @@
+[
+  {
+    "file": "src\\Compliance360.Web\\wwwroot\\app.js",
+    "replacements": 250,
+    "changed": true
+  },
+  {
+    "file": "src\\Compliance360.Web\\wwwroot\\regulatory-affairs.js",
+    "replacements": 57,
+    "changed": true
+  },
+  {
+    "file": "src\\Compliance360.Web\\wwwroot\\form-template-builder.js",
+    "replacements": 73,
+    "changed": true
+  }
+]

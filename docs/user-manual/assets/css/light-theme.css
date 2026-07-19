@@ -1,0 +1,2 @@
+/* light defaults live in manual.css :root */
+body[data-theme="light"] { color-scheme: light; }

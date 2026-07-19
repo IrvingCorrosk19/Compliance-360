@@ -1,0 +1,14 @@
+{
+  "name": "TC-RA-0302-submit-block",
+  "when": "2026-07-19T00:16:46.916Z",
+  "failed": 0,
+  "passed": 1,
+  "steps": [
+    {
+      "step": "TC-RA-0302",
+      "expected": "submit rejected",
+      "actual": "403 \"\"",
+      "pass": true
+    }
+  ]
+}

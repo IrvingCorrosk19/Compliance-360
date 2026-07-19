@@ -17,7 +17,7 @@ public sealed class FoundationDomainTests
         Assert.Equal(tenant.Id, tenant.Settings.TenantId);
         Assert.Equal(tenant.Id, tenant.Branding.TenantId);
         Assert.Equal(tenant.Id, tenant.Subscription.TenantId);
-        Assert.True(tenant.Settings.RequireMfa);
+        Assert.False(tenant.Settings.RequireMfa);
     }
 
     [Fact]

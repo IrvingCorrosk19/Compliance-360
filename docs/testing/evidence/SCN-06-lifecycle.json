@@ -1,0 +1,104 @@
+{
+  "name": "SCN-06-lifecycle",
+  "when": "2026-07-14T23:20:21.638Z",
+  "failed": 0,
+  "passed": 16,
+  "steps": [
+    {
+      "step": "TC-AUTH-0100",
+      "expected": "sidebar",
+      "actual": "OK",
+      "pass": true
+    },
+    {
+      "step": "TC-LEGACY-0100",
+      "expected": "RA console",
+      "actual": "OK",
+      "pass": true
+    },
+    {
+      "step": "TC-RA-0001",
+      "expected": "2xx",
+      "actual": "200",
+      "pass": true
+    },
+    {
+      "step": "TC-RA-0003",
+      "expected": "22",
+      "actual": "22",
+      "pass": true
+    },
+    {
+      "step": "TC-RA-0103",
+      "expected": "distributor Multimed",
+      "actual": "200 Multimed",
+      "pass": true
+    },
+    {
+      "step": "TC-RA-0300",
+      "expected": "22 reqs",
+      "actual": "22",
+      "pass": true
+    },
+    {
+      "step": "TC-RA-0600",
+      "expected": ">=1 history",
+      "actual": "2",
+      "pass": true
+    },
+    {
+      "step": "TC-RA-0301",
+      "expected": "criticals accepted",
+      "actual": "OK",
+      "pass": true
+    },
+    {
+      "step": "TC-RA-0303",
+      "expected": "Submitted",
+      "actual": "200 Submitted",
+      "pass": true
+    },
+    {
+      "step": "TC-RA-0500",
+      "expected": "2xx approve",
+      "actual": "200",
+      "pass": true
+    },
+    {
+      "step": "TC-RA-0400",
+      "expected": "obs opened",
+      "actual": "200",
+      "pass": true
+    },
+    {
+      "step": "TC-RA-0402",
+      "expected": "resubmitted after obs",
+      "actual": "OK",
+      "pass": true
+    },
+    {
+      "step": "TC-RA-0603",
+      "expected": "productsTotal number",
+      "actual": "148",
+      "pass": true
+    },
+    {
+      "step": "UI-dashboard",
+      "expected": "visible",
+      "actual": "OK",
+      "pass": true
+    },
+    {
+      "step": "UI-pipeline",
+      "expected": "visible",
+      "actual": "OK",
+      "pass": true
+    },
+    {
+      "step": "UI-import",
+      "expected": "visible",
+      "actual": "OK",
+      "pass": true
+    }
+  ]
+}

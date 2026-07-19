@@ -29,7 +29,7 @@ public sealed class TenantManagementServiceTests
         Assert.Equal(TenantStatus.Draft, result.Value.Status);
         Assert.Equal("es-PA", result.Value.Culture);
         Assert.Equal("America/Panama", result.Value.TimeZone);
-        Assert.True(result.Value.RequireMfa);
+        Assert.False(result.Value.RequireMfa);
         Assert.Equal("Acme Quality", result.Value.BrandingDisplayName);
         Assert.Equal(SubscriptionPlan.Starter, result.Value.Plan);
         Assert.Equal(SubscriptionStatus.Trial, result.Value.SubscriptionStatus);
@@ -331,6 +331,16 @@ public sealed class TenantManagementServiceTests
         Assert.Contains(center.Value.Health.Signals, signal => signal.Component == "Backups");
         Assert.Contains(center.Value.Users.Users, item => item.Email == "admin@acme.test");
         Assert.True(repository.AuditLogs.Count >= 8);
+
+        var reset = await service.ResetUserPasswordAsync(new ResetTenantUserPasswordCommand(
+            tenantId,
+            user.Value!.Id,
+            "RecoveredPass1!",
+            true,
+            "Lost password recovery",
+            actorId));
+        Assert.True(reset.IsSuccess);
+        Assert.True(repository.Users.Single(item => item.Id == user.Value.Id).ForcePasswordChangeRequired);
     }
 
     [Fact]
@@ -673,6 +683,18 @@ public sealed class TenantManagementServiceTests
         public Task<User?> GetUserAsync(Guid tenantId, Guid userId, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(Users.SingleOrDefault(user => user.TenantId == tenantId && user.Id == userId));
+        }
+
+        public Task<bool> UserEmailExistsAsync(
+            Guid tenantId,
+            string normalizedEmail,
+            Guid? excludeUserId,
+            CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(Users.Any(user =>
+                user.TenantId == tenantId
+                && user.NormalizedEmail == normalizedEmail
+                && (!excludeUserId.HasValue || user.Id != excludeUserId.Value)));
         }
 
         public Task<Role?> GetRoleAsync(Guid tenantId, Guid roleId, CancellationToken cancellationToken = default)

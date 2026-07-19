@@ -1,0 +1,221 @@
+[
+  {
+    "id": "login-submit",
+    "screen": "login",
+    "label": "Iniciar sesion / Completar login seguro",
+    "action": "POST /api/v1/auth/login",
+    "roles": [
+      "*"
+    ],
+    "pre": "Credenciales válidas",
+    "result": "Token + redirección al dashboard"
+  },
+  {
+    "id": "new-product",
+    "screen": "regulatory-portfolio",
+    "label": "Nuevo producto + expediente",
+    "action": "POST product + POST dossier",
+    "roles": [
+      "regulatory-specialist",
+      "regulatory-administrator"
+    ],
+    "perm": "PRODUCT.MANAGE + DOSSIER.CREATE",
+    "pre": "Bootstrap/autoridad disponible",
+    "result": "Producto en portafolio y expediente en Planning"
+  },
+  {
+    "id": "ask-docs",
+    "screen": "regulatory-dossier-detail",
+    "label": "Pedir docs fábrica",
+    "action": "POST …/transition → WaitingManufacturerDocuments",
+    "roles": [
+      "regulatory-specialist"
+    ],
+    "perm": "DOSSIER.UPDATE",
+    "pre": "Estado Planning (u permitido)",
+    "result": "Estado Espera docs fábrica"
+  },
+  {
+    "id": "docs-received",
+    "screen": "regulatory-dossier-detail",
+    "label": "Docs recibidos",
+    "action": "POST …/transition → DocumentsReceived",
+    "roles": [
+      "regulatory-specialist"
+    ],
+    "perm": "DOSSIER.UPDATE",
+    "result": "Estado Docs recibidos"
+  },
+  {
+    "id": "assemble",
+    "screen": "regulatory-dossier-detail",
+    "label": "Armar",
+    "action": "POST …/transition → Assembling",
+    "roles": [
+      "regulatory-specialist"
+    ],
+    "perm": "DOSSIER.UPDATE",
+    "result": "Estado Armando expediente"
+  },
+  {
+    "id": "declare-ready",
+    "screen": "regulatory-dossier-detail",
+    "label": "Declarar técnicamente completo",
+    "action": "POST …/transition → ReadyForSubmission",
+    "roles": [
+      "regulatory-specialist"
+    ],
+    "perm": "DOSSIER.UPDATE",
+    "result": "Listo para aprobación interna"
+  },
+  {
+    "id": "mark-received",
+    "screen": "regulatory-dossier-detail",
+    "label": "Marcar recibido",
+    "action": "PUT requirement status Received",
+    "roles": [
+      "regulatory-specialist"
+    ],
+    "perm": "REQUIREMENT.MANAGE / UPDATE",
+    "result": "Requisito marcado recibido"
+  },
+  {
+    "id": "accept-req",
+    "screen": "regulatory-dossier-detail",
+    "label": "Aceptar",
+    "action": "PUT requirement status Accepted",
+    "roles": [
+      "regulatory-reviewer"
+    ],
+    "perm": "DOSSIER.REVIEW",
+    "result": "Requisito aceptado"
+  },
+  {
+    "id": "reject-req",
+    "screen": "regulatory-dossier-detail",
+    "label": "Rechazar",
+    "action": "PUT requirement status Rejected",
+    "roles": [
+      "regulatory-reviewer"
+    ],
+    "perm": "DOSSIER.REVIEW",
+    "result": "Requisito rechazado; Specialist corrige"
+  },
+  {
+    "id": "approve-internal",
+    "screen": "regulatory-dossier-detail",
+    "label": "Aprobar internamente para sometimiento",
+    "action": "POST …/approve-for-submission",
+    "roles": [
+      "regulatory-approver"
+    ],
+    "perm": "APPROVE_FOR_SUBMISSION",
+    "pre": "ReadyForSubmission",
+    "result": "ApprovedForSubmission — NO es aprobación MINSA/CSS"
+  },
+  {
+    "id": "submit",
+    "screen": "regulatory-dossier-detail",
+    "label": "Registrar sometimiento",
+    "action": "POST …/submit",
+    "roles": [
+      "regulatory-submitter"
+    ],
+    "perm": "DOSSIER.SUBMIT",
+    "pre": "ApprovedForSubmission (SoD ON)",
+    "result": "Submitted — sometimiento registrado"
+  },
+  {
+    "id": "observe",
+    "screen": "regulatory-dossier-detail",
+    "label": "Registrar observación autoridad",
+    "action": "POST …/observations",
+    "roles": [
+      "regulatory-manager"
+    ],
+    "perm": "OBSERVATION.MANAGE",
+    "pre": "Submitted / UnderAuthorityReview",
+    "result": "Observed — observación recibida de la autoridad"
+  },
+  {
+    "id": "respond-obs",
+    "screen": "regulatory-dossier-detail",
+    "label": "Responder",
+    "action": "POST …/observations/{id}/respond",
+    "roles": [
+      "regulatory-specialist"
+    ],
+    "perm": "OBSERVATION.MANAGE",
+    "pre": "Observación abierta",
+    "result": "CorrectingObservation / respuesta registrada"
+  },
+  {
+    "id": "approve-ext",
+    "screen": "regulatory-dossier-detail",
+    "label": "Registrar aprobación MINSA/CSS + CT/RS",
+    "action": "POST …/approve",
+    "roles": [
+      "regulatory-manager",
+      "quality-manager"
+    ],
+    "perm": "DOSSIER.APPROVE",
+    "pre": "Número CT/RS + vencimiento",
+    "result": "Approved + CT/RS activo"
+  },
+  {
+    "id": "add-mfr",
+    "screen": "regulatory-manufacturers",
+    "label": "Alta fabricante",
+    "action": "POST manufacturer",
+    "roles": [
+      "regulatory-specialist",
+      "regulatory-administrator"
+    ],
+    "perm": "MANUFACTURER_DOCUMENT.MANAGE",
+    "result": "Fabricante listado (+ cert ISO13485 en flujo demo)"
+  },
+  {
+    "id": "add-lic",
+    "screen": "regulatory-licenses",
+    "label": "Nueva licencia",
+    "action": "POST license",
+    "roles": [
+      "regulatory-administrator"
+    ],
+    "perm": "LICENSE.MANAGE",
+    "result": "Licencia en listado"
+  },
+  {
+    "id": "stage-xlsx",
+    "screen": "regulatory-import",
+    "label": "Stage XLSX",
+    "action": "POST import stage",
+    "roles": [
+      "regulatory-administrator"
+    ],
+    "perm": "CONFIGURE",
+    "result": "Job de importación en staging"
+  },
+  {
+    "id": "bootstrap",
+    "screen": "regulatory-config",
+    "label": "Bootstrap regulatorio",
+    "action": "Seed authorities + pack",
+    "roles": [
+      "regulatory-administrator",
+      "tenant-administrator"
+    ],
+    "perm": "CONFIGURE",
+    "result": "MINSA/CSS + pack de requisitos"
+  },
+  {
+    "id": "back-dossiers",
+    "screen": "regulatory-dossier-detail",
+    "label": "← Expedientes",
+    "action": "Volver al listado",
+    "roles": [
+      "*"
+    ],
+    "result": "Vista Expedientes"
+  }
+]

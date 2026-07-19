@@ -1,0 +1,283 @@
+{
+  "role": "RA-VIEW",
+  "email": "ra.view@cert.local",
+  "when": "2026-07-19T00:24:14.306Z",
+  "pass": true,
+  "steps": [
+    {
+      "id": "LOGIN",
+      "action": "Login",
+      "expected": "Autenticación exitosa",
+      "actual": "shell visible",
+      "pass": true,
+      "ms": 4959,
+      "screenshot": "ra-view-login.png"
+    },
+    {
+      "id": "SHELL-SIDEBAR",
+      "action": "Validar sidebar (menús visibles y ocultos)",
+      "expected": "Sidebar exacto: [dashboard, regulatory]",
+      "actual": "[dashboard, regulatory]",
+      "pass": true,
+      "ms": 15
+    },
+    {
+      "id": "SHELL-NAVBAR",
+      "action": "Validar navbar (sesión, rol, tenant, breadcrumb)",
+      "expected": "Chip de sesión con rol + tenant + breadcrumb visible",
+      "actual": "chip=\"RA Viewer Regulatory Viewer\" tenant=\"Tenant: 82af3877...\"",
+      "pass": true,
+      "ms": 37
+    },
+    {
+      "id": "DASHBOARD-KPI",
+      "action": "Validar dashboard (widgets/KPIs/cards)",
+      "expected": "Dashboard con tarjetas métricas visibles",
+      "actual": "bloques=8",
+      "pass": true,
+      "ms": 1581,
+      "screenshot": "ra-view-dashboard-kpi.png"
+    },
+    {
+      "id": "RA-TABS",
+      "action": "Validar pestañas RA visibles/ocultas",
+      "expected": "Tabs exactos: [dashboard, portfolio, pipeline, dossiers, registrations, alerts]",
+      "actual": "[dashboard, portfolio, pipeline, dossiers, registrations, alerts]",
+      "pass": true,
+      "ms": 1373,
+      "screenshot": "ra-view-ra-tabs.png"
+    },
+    {
+      "id": "BROWSE-ALL",
+      "action": "Navegar por todos los módulos permitidos",
+      "expected": "Cada pestaña permitida renderiza sin error",
+      "actual": "dashboard=OK portfolio=OK pipeline=OK dossiers=OK registrations=OK alerts=OK",
+      "pass": true,
+      "ms": 6106,
+      "screenshot": "ra-view-browse-all.png"
+    },
+    {
+      "id": "OPEN-RECORD",
+      "action": "Abrir registro (expediente en lectura)",
+      "expected": "Detalle visible sin acciones de mutación",
+      "actual": "botones mutación=0 aviso sin acciones=true",
+      "pass": true,
+      "ms": 1381,
+      "screenshot": "ra-view-open-record.png"
+    },
+    {
+      "id": "SEARCH-FILTER",
+      "action": "Buscar y filtrar registros (API de lectura)",
+      "expected": "Búsqueda por texto retorna 200",
+      "actual": "http=[200,200,200]",
+      "pass": true,
+      "ms": 740
+    },
+    {
+      "id": "NO-EXPORT",
+      "action": "Exportar",
+      "expected": "Manual no concede exportación al Viewer → no debe existir control de exportación",
+      "actual": "botones export=0",
+      "pass": true,
+      "ms": 19,
+      "notes": "roles.json (regulatory-viewer) no incluye exportar en 'Qué puedo hacer'."
+    },
+    {
+      "id": "NEG-API-CREATE",
+      "action": "POST /tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/products",
+      "expected": "HTTP 401/403 (política de permisos)",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 211
+    },
+    {
+      "id": "NEG-API-CREATE-DOSSIER",
+      "action": "POST /tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/dossiers",
+      "expected": "HTTP 401/403 (política de permisos)",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 221
+    },
+    {
+      "id": "NEG-API-EDIT",
+      "action": "PUT /tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/dossiers/6bbd9406-e565-45f1-9b60-cfd1125e248d/dates",
+      "expected": "HTTP 401/403 (política de permisos)",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 218
+    },
+    {
+      "id": "NEG-API-REVIEW",
+      "action": "PUT /tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/dossiers/6bbd9406-e565-45f1-9b60-cfd1125e248d/requirements/00000000-0000-0000-0000-000000000001",
+      "expected": "HTTP 401/403 (política de permisos)",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 251
+    },
+    {
+      "id": "NEG-API-APPROVE-INT",
+      "action": "POST /tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/dossiers/6bbd9406-e565-45f1-9b60-cfd1125e248d/approve-for-submission",
+      "expected": "HTTP 401/403 (política de permisos)",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 230
+    },
+    {
+      "id": "NEG-API-SUBMIT",
+      "action": "POST /tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/dossiers/6bbd9406-e565-45f1-9b60-cfd1125e248d/submit",
+      "expected": "HTTP 401/403 (política de permisos)",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 248
+    },
+    {
+      "id": "NEG-API-APPROVE-EXT",
+      "action": "POST /tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/dossiers/6bbd9406-e565-45f1-9b60-cfd1125e248d/approve",
+      "expected": "HTTP 401/403 (política de permisos)",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 207
+    },
+    {
+      "id": "NEG-API-STATE",
+      "action": "POST /tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/dossiers/6bbd9406-e565-45f1-9b60-cfd1125e248d/transition",
+      "expected": "HTTP 401/403 (política de permisos)",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 230
+    },
+    {
+      "id": "NEG-API-IMPORT",
+      "action": "POST /tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/imports/stage",
+      "expected": "HTTP 401/403 (política de permisos)",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 231
+    },
+    {
+      "id": "NEG-API-OBSERVE",
+      "action": "POST /tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/dossiers/6bbd9406-e565-45f1-9b60-cfd1125e248d/observations",
+      "expected": "HTTP 401/403 (política de permisos)",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 209
+    },
+    {
+      "id": "NEG-API-SOD",
+      "action": "PUT /tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/sod-settings",
+      "expected": "HTTP 401/403 (política de permisos)",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 208
+    },
+    {
+      "id": "NEG-API-MFR",
+      "action": "POST /tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/manufacturers",
+      "expected": "HTTP 401/403 (política de permisos)",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 214
+    },
+    {
+      "id": "NEG-API-LICENSE",
+      "action": "POST /tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/operating-licenses",
+      "expected": "HTTP 401/403 (política de permisos)",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 199
+    },
+    {
+      "id": "NEG-API-TAMPER-ID",
+      "action": "PUT /tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/dossiers/00000000-0000-0000-0000-000000000001/dates",
+      "expected": "HTTP 401/403 (política de permisos)",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 195
+    },
+    {
+      "id": "NEG-URL-tenant-administration",
+      "action": "Acceso por URL directa #/tenant-administration",
+      "expected": "Pantalla bloqueada (Acceso denegado) — manual no asigna esta pantalla al rol",
+      "actual": "Acceso denegado renderizado",
+      "pass": true,
+      "ms": 1270,
+      "screenshot": "ra-view-neg-url-tenant-administration.png"
+    },
+    {
+      "id": "NEG-URL-security",
+      "action": "Acceso por URL directa #/security",
+      "expected": "Pantalla bloqueada (Acceso denegado) — manual no asigna esta pantalla al rol",
+      "actual": "Acceso denegado renderizado",
+      "pass": true,
+      "ms": 1283,
+      "screenshot": "ra-view-neg-url-security.png"
+    },
+    {
+      "id": "NEG-URL-audit-trail",
+      "action": "Acceso por URL directa #/audit-trail",
+      "expected": "Pantalla bloqueada (Acceso denegado) — manual no asigna esta pantalla al rol",
+      "actual": "Acceso denegado renderizado",
+      "pass": true,
+      "ms": 1261,
+      "screenshot": "ra-view-neg-url-audit-trail.png"
+    },
+    {
+      "id": "NEG-URL-superadmin-platform",
+      "action": "Acceso por URL directa #/superadmin-platform",
+      "expected": "Pantalla bloqueada (Acceso denegado) — manual no asigna esta pantalla al rol",
+      "actual": "Acceso denegado renderizado",
+      "pass": true,
+      "ms": 1255,
+      "screenshot": "ra-view-neg-url-superadmin-platform.png"
+    },
+    {
+      "id": "NEG-URL-configuration",
+      "action": "Acceso por URL directa #/configuration",
+      "expected": "Pantalla bloqueada (Acceso denegado) — manual no asigna esta pantalla al rol",
+      "actual": "Acceso denegado renderizado",
+      "pass": true,
+      "ms": 1265,
+      "screenshot": "ra-view-neg-url-configuration.png"
+    },
+    {
+      "id": "NEG-JS-ra-new-product",
+      "action": "Forzar \"Nuevo producto\" vía JavaScript",
+      "expected": "Botón inexistente en DOM (oculto por RBAC) — no ejecutable",
+      "actual": "botón ausente del DOM",
+      "pass": true,
+      "ms": 13
+    },
+    {
+      "id": "NEG-JS-ra-add-mfr",
+      "action": "Forzar \"Alta fabricante\" vía JavaScript",
+      "expected": "Botón inexistente en DOM (oculto por RBAC) — no ejecutable",
+      "actual": "botón ausente del DOM",
+      "pass": true,
+      "ms": 9
+    },
+    {
+      "id": "NEG-JS-ra-add-lic",
+      "action": "Forzar \"Nueva licencia\" vía JavaScript",
+      "expected": "Botón inexistente en DOM (oculto por RBAC) — no ejecutable",
+      "actual": "botón ausente del DOM",
+      "pass": true,
+      "ms": 9
+    },
+    {
+      "id": "NEG-JS-FETCH",
+      "action": "Forzar mutación vía JavaScript (fetch manipulado con IDs alterados)",
+      "expected": "Backend deniega 401/403 aunque el request se construya manualmente",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 190
+    },
+    {
+      "id": "LOGOUT",
+      "action": "Cerrar sesión",
+      "expected": "Login visible",
+      "actual": "login visible",
+      "pass": true,
+      "ms": 98
+    }
+  ]
+}

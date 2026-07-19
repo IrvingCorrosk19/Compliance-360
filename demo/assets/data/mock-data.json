@@ -1,0 +1,106 @@
+{
+  "modules": [
+    "Dashboard",
+    "Document Management",
+    "Technical Sheets",
+    "Suppliers",
+    "CAPA",
+    "Risks",
+    "Audits",
+    "Reports",
+    "Notifications",
+    "Storage",
+    "Users",
+    "Roles",
+    "Permissions",
+    "Settings",
+    "Tenant Administration",
+    "Platform Administration",
+    "Indicators",
+    "Approval Workflows",
+    "Profile"
+  ],
+  "roles": [
+    { "name": "Platform Admin", "level": "Estratégico", "summary": "Gobierno de plataforma y tenants" },
+    { "name": "Tenant Admin", "level": "Administrativo", "summary": "Administra configuración y usuarios tenant" },
+    { "name": "Quality Manager", "level": "Operativo", "summary": "Conduce calidad y aprobaciones" },
+    { "name": "Document Controller", "level": "Operativo", "summary": "Gestiona ciclo documental" },
+    { "name": "Auditor", "level": "Control", "summary": "Ejecuta auditorías y hallazgos" },
+    { "name": "Risk Manager", "level": "Control", "summary": "Gestiona riesgos y tratamiento" },
+    { "name": "Supplier Manager", "level": "Operativo", "summary": "Evalúa y homologa proveedores" },
+    { "name": "CAPA Manager", "level": "Operativo", "summary": "Gestiona acciones correctivas" },
+    { "name": "Reporting Manager", "level": "Analítico", "summary": "Publica reportes ejecutivos" },
+    { "name": "Storage Admin", "level": "Infraestructura", "summary": "Controla proveedores de storage" },
+    { "name": "Notification Admin", "level": "Infraestructura", "summary": "Configura canales y plantillas" },
+    { "name": "Indicators Manager", "level": "Analítico", "summary": "Define y monitorea KPIs" },
+    { "name": "Viewer", "level": "Lectura", "summary": "Consulta transversal sin edición" }
+  ],
+  "kpis": [
+    { "label": "Usuarios activos", "value": "148" },
+    { "label": "Documentos controlados", "value": "1,284" },
+    { "label": "CAPA abiertas", "value": "12" },
+    { "label": "Riesgos críticos", "value": "3" }
+  ],
+  "dashboard": {
+    "auditOpen": 4,
+    "capaOpen": 12,
+    "criticalRisk": 3,
+    "indicators": 18,
+    "datasets": 9,
+    "compliancePercent": 94
+  },
+  "records": {
+    "Document Management": [
+      { "code": "BPM-LIM-001", "title": "Limpieza de línea de empaque", "status": "Published", "expiresAtUtc": "2027-03-15" },
+      { "code": "POE-CCP-014", "title": "Control CCP temperatura", "status": "InReview", "expiresAtUtc": "2026-11-20" },
+      { "code": "INS-HIG-008", "title": "Higiene de operarios", "status": "Published", "expiresAtUtc": "2027-01-10" },
+      { "code": "FMT-NC-003", "title": "Formato no conformidad", "status": "Draft", "expiresAtUtc": "2026-09-01" }
+    ],
+    "CAPA": [
+      { "code": "CAPA-2026-014", "title": "Desviación temperatura CCP", "status": "Open", "dueDate": "2026-08-15" },
+      { "code": "CAPA-2026-011", "title": "Registro incompleto limpieza", "status": "InProgress", "dueDate": "2026-07-28" },
+      { "code": "CAPA-2026-009", "title": "Calibración sensor vencida", "status": "PendingEffectiveness", "dueDate": "2026-07-20" }
+    ],
+    "Risks": [
+      { "code": "RSK-CC-001", "title": "Contaminación cruzada", "probability": "Medium", "impact": "High", "status": "Active" },
+      { "code": "RSK-PR-004", "title": "Proveedor no homologado", "probability": "Low", "impact": "High", "status": "Mitigated" },
+      { "code": "RSK-DO-002", "title": "Documento obsoleto en planta", "probability": "Medium", "impact": "Medium", "status": "Active" }
+    ],
+    "Audits": [
+      { "code": "AUD-INT-2026-01", "title": "Auditoría interna ISO 9001", "status": "InProgress", "findings": 2 },
+      { "code": "AUD-CLI-2026-03", "title": "Auditoría cliente retail", "status": "Planned", "findings": 0 },
+      { "code": "AUD-CER-2025-12", "title": "Auditoría certificación", "status": "Closed", "findings": 5 }
+    ],
+    "Reports": [
+      { "code": "RPT-CAPA-OPEN", "title": "CAPA abiertas por área", "status": "Active", "format": "PDF" },
+      { "code": "RPT-RISK-HEAT", "title": "Matriz de riesgos", "status": "Active", "format": "Excel" },
+      { "code": "RPT-DOC-EXP", "title": "Documentos por vencer", "status": "Scheduled", "format": "PDF" }
+    ],
+    "Indicators": [
+      { "code": "KPI-NC-RATE", "title": "Tasa de no conformidades", "target": "<= 1.0%", "current": "1.2%", "status": "Alert" },
+      { "code": "KPI-AUD-CLOSE", "title": "Cierre de auditorías", "target": ">= 95%", "current": "87%", "status": "Watch" },
+      { "code": "KPI-CAPA-OTD", "title": "CAPA a tiempo", "target": ">= 90%", "current": "92%", "status": "OK" }
+    ],
+    "Technical Sheets": [
+      { "code": "TS-MFT-001", "title": "Ficha Tecnica Yogurt Natural", "status": "Approved", "productName": "Yogurt Natural 1L" },
+      { "code": "TS-MFT-002", "title": "Ficha Tecnica Queso Fresco", "status": "InReview", "productName": "Queso Fresco 500g" }
+    ],
+    "Suppliers": [
+      { "code": "155612345-2-2020", "title": "Lacteos del Valle S.A.", "status": "Homologated", "score": "92" },
+      { "code": "155698765-2-2019", "title": "Envases Industriales Corp.", "status": "InEvaluation", "score": "78" }
+    ],
+    "Security": [
+      { "code": "SEC-001", "title": "MFA obligatorio", "status": "Active", "dueDate": "2026-12-31" },
+      { "code": "SEC-014", "title": "Revision accesos trimestral", "status": "Scheduled", "dueDate": "2026-09-30" }
+    ],
+    "Configuration": [
+      { "code": "STG-LOCAL", "title": "Local Storage Provider", "status": "Active", "provider": "Storage" },
+      { "code": "NTF-SMTP", "title": "SMTP Demo Provider", "status": "Active", "provider": "Email" }
+    ],
+    "Tenant Administration": [
+      { "code": "USR-001", "title": "quality@empresa.com", "status": "Active", "role": "Quality Manager" },
+      { "code": "USR-014", "title": "docs@empresa.com", "status": "Active", "role": "Document Controller" },
+      { "code": "USR-028", "title": "auditor@empresa.com", "status": "Active", "role": "Auditor" }
+    ]
+  }
+}

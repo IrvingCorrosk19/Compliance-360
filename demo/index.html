@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compliance 360 - Enterprise Demo Experience Platform</title>
+  <link rel="stylesheet" href="./assets/css/demo.css" />
+</head>
+<body>
+  <div id="app" class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">C360</div>
+        <div>
+          <div class="brand-title">Compliance 360</div>
+          <div class="brand-subtitle">Enterprise Edition</div>
+        </div>
+      </div>
+      <section class="sidebar-status">
+        <span class="status-pill ok">Demo Live</span>
+        <strong id="sidebarRole">Rol no seleccionado</strong>
+        <small>Simulación visual alineada al producto real.</small>
+      </section>
+      <div class="search-wrap">
+        <input id="globalSearch" placeholder="Buscar módulo, rol, proceso..." />
+      </div>
+      <div id="mainNav" aria-label="Navegación principal"></div>
+      <footer class="sidebar-footer">
+        <span>ISO aligned</span>
+        <strong>9001 / 37301 / 31000</strong>
+        <button id="btnWizardStart" class="btn secondary full">Comenzar recorrido</button>
+      </footer>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-context">
+          <div class="breadcrumbs compact" id="topbarContext">Command Center / Dashboard</div>
+          <strong id="topbarTitle">Compliance 360 Enterprise</strong>
+        </div>
+        <div class="topbar-command">
+          <input id="quickSearch" class="search-box" placeholder="Buscar o ir a módulo..." />
+          <select id="quickSwitcher" class="quick-switcher" aria-label="Ir a pantalla"></select>
+        </div>
+        <div class="topbar-actions">
+          <span class="tenant-chip" id="tenantChip">Tenant Demo · Enterprise</span>
+          <button id="btnWhat" class="btn subtle" title="Ayuda contextual">?</button>
+          <button id="btnTheme" class="btn ghost" title="Cambiar tema">🌙</button>
+          <button id="btnTour" class="btn ghost" title="Tour">🧭</button>
+          <button id="btnPresent" class="btn primary" title="Presentación">▶ Presentar</button>
+        </div>
+      </header>
+
+      <div class="content" id="content">
+        <section id="breadcrumb" class="breadcrumbs"></section>
+        <section id="wizardBanner" class="wizard-banner hidden"></section>
+        <section id="dashboardKpis" class="grid cards kpi-grid"></section>
+        <section id="viewHost" class="view-host"></section>
+      </div>
+    </main>
+
+    <aside class="copilot" id="copilotPanel">
+      <h2>Asistente Demo</h2>
+      <p id="copilotText">Haz clic en una pantalla para ver explicación funcional.</p>
+    </aside>
+  </div>
+
+  <dialog id="modal" class="modal"></dialog>
+  <div id="toast-region" aria-live="polite"></div>
+  <script src="./assets/js/main.js"></script>
+</body>
+</html>

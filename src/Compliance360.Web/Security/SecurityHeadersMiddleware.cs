@@ -18,7 +18,9 @@ public sealed class SecurityHeadersMiddleware
             headers.TryAdd("X-Frame-Options", "DENY");
             headers.TryAdd("Referrer-Policy", "no-referrer");
             headers.TryAdd("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
-            headers.TryAdd("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'");
+            // style-src allows 'unsafe-inline' because the vanilla SPA applies dynamic widths/layout
+            // via element.style and template attributes. Scripts remain locked to 'self' only.
+            headers.TryAdd("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'");
             if (httpContext.Request.IsHttps)
             {
                 headers.TryAdd("Strict-Transport-Security", "max-age=31536000; includeSubDomains");

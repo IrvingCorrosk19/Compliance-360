@@ -154,6 +154,33 @@ public static class PermissionCatalog
     public const string ObservabilityManage = "OBSERVABILITY.MANAGE";
     public const string ObservabilityAdmin = "OBSERVABILITY.ADMIN";
 
+    // ---- Form templates (visual builder) ------------------------------------
+    public const string TemplateRead = "TEMPLATE.READ";
+    public const string TemplateManage = "TEMPLATE.MANAGE";
+
+    // ---- Regulatory Affairs (Sanitary Registration Case Management) ---------
+    public const string RegulatoryProductRead = "REGULATORY.PRODUCT.READ";
+    public const string RegulatoryProductManage = "REGULATORY.PRODUCT.MANAGE";
+    public const string RegulatoryDossierRead = "REGULATORY.DOSSIER.READ";
+    public const string RegulatoryDossierCreate = "REGULATORY.DOSSIER.CREATE";
+    public const string RegulatoryDossierUpdate = "REGULATORY.DOSSIER.UPDATE";
+    public const string RegulatoryDossierSubmit = "REGULATORY.DOSSIER.SUBMIT";
+    public const string RegulatoryDossierApprove = "REGULATORY.DOSSIER.APPROVE";
+    public const string RegulatoryDossierReview = "REGULATORY.DOSSIER.REVIEW";
+    public const string RegulatoryDossierApproveForSubmission = "REGULATORY.DOSSIER.APPROVE_FOR_SUBMISSION";
+    public const string RegulatoryRequirementManage = "REGULATORY.REQUIREMENT.MANAGE";
+    public const string RegulatoryObservationManage = "REGULATORY.OBSERVATION.MANAGE";
+    public const string RegulatoryRegistrationRead = "REGULATORY.REGISTRATION.READ";
+    public const string RegulatoryRegistrationManage = "REGULATORY.REGISTRATION.MANAGE";
+    public const string RegulatoryManufacturerDocumentRead = "REGULATORY.MANUFACTURER_DOCUMENT.READ";
+    public const string RegulatoryManufacturerDocumentManage = "REGULATORY.MANUFACTURER_DOCUMENT.MANAGE";
+    public const string RegulatoryLicenseRead = "REGULATORY.LICENSE.READ";
+    public const string RegulatoryLicenseManage = "REGULATORY.LICENSE.MANAGE";
+    public const string RegulatoryReportRead = "REGULATORY.REPORT.READ";
+    public const string RegulatoryConfigure = "REGULATORY.CONFIGURE";
+    public const string RegulatorySoDManage = "REGULATORY.SOD.MANAGE";
+    public const string RegulatorySoDEmergencyOverride = "REGULATORY.SOD.EMERGENCY_OVERRIDE";
+
     private static readonly PermissionDefinition[] Definitions =
     [
         // Platform
@@ -272,6 +299,30 @@ public static class PermissionCatalog
         new(ObservabilityRead, PermissionAction.Read, "Read observability signals."),
         new(ObservabilityManage, PermissionAction.Manage, "Manage observability configuration."),
         new(ObservabilityAdmin, PermissionAction.Manage, "Administer observability."),
+
+        new(TemplateRead, PermissionAction.Read, "Read form templates and published schemas."),
+        new(TemplateManage, PermissionAction.Manage, "Create, design, version, publish and archive form templates."),
+        new(RegulatoryProductRead, PermissionAction.Read, "Read medical device products in Regulatory Affairs."),
+        new(RegulatoryProductManage, PermissionAction.Manage, "Create and update medical device products."),
+        new(RegulatoryDossierRead, PermissionAction.Read, "Read registration dossiers and pipelines."),
+        new(RegulatoryDossierCreate, PermissionAction.Create, "Create regulatory dossiers."),
+        new(RegulatoryDossierUpdate, PermissionAction.Update, "Update dossiers, dates and checklist items."),
+        new(RegulatoryDossierSubmit, PermissionAction.Update, "Record dossier submission to the sanitary authority (not internal clearance)."),
+        new(RegulatoryDossierApprove, PermissionAction.Approve, "Record external authority approval and activate CT/RS (MINSA/CSS decision — not internal clearance)."),
+        new(RegulatoryDossierReview, PermissionAction.Approve, "Technically review dossier requirements (accept/reject)."),
+        new(RegulatoryDossierApproveForSubmission, PermissionAction.Approve, "Grant internal clearance authorizing submission (not MINSA/CSS approval)."),
+        new(RegulatoryRequirementManage, PermissionAction.Manage, "Manage dossier requirements and packs."),
+        new(RegulatoryObservationManage, PermissionAction.Manage, "Record and close authority observations."),
+        new(RegulatoryRegistrationRead, PermissionAction.Read, "Read sanitary registrations."),
+        new(RegulatoryRegistrationManage, PermissionAction.Manage, "Manage sanitary registrations and renewals."),
+        new(RegulatoryManufacturerDocumentRead, PermissionAction.Read, "Read manufacturer profiles and certificates."),
+        new(RegulatoryManufacturerDocumentManage, PermissionAction.Manage, "Manage manufacturer certificates."),
+        new(RegulatoryLicenseRead, PermissionAction.Read, "Read corporate operating licenses."),
+        new(RegulatoryLicenseManage, PermissionAction.Manage, "Manage operating licenses and renewals."),
+        new(RegulatoryReportRead, PermissionAction.Read, "Read Regulatory Affairs dashboards and reports."),
+        new(RegulatoryConfigure, PermissionAction.Manage, "Configure authorities, packs and regulatory settings."),
+        new(RegulatorySoDManage, PermissionAction.Manage, "Configure Regulatory Affairs segregation-of-duties policy."),
+        new(RegulatorySoDEmergencyOverride, PermissionAction.Manage, "Audited break-glass override of SoD controls."),
     ];
 
     public static IReadOnlyList<PermissionDefinition> All => Definitions;

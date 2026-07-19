@@ -1,0 +1,34 @@
+{
+  "role": "RA-MGR",
+  "email": "ra.mgr@cert.local",
+  "when": "2026-07-19T00:23:42.707Z",
+  "pass": true,
+  "steps": [
+    {
+      "id": "LOGIN",
+      "action": "Login",
+      "expected": "Autenticación exitosa",
+      "actual": "shell visible",
+      "pass": true,
+      "ms": 3144,
+      "screenshot": "ra-mgr-login.png"
+    },
+    {
+      "id": "EXTERNAL-DECISION",
+      "action": "Registrar número CT/RS, resolución y fechas (modal)",
+      "expected": "Estado Approved/Closed + CT/RS persistido",
+      "actual": "status=Closed ctrs=MQ-E2E-18765",
+      "pass": true,
+      "ms": 5563,
+      "screenshot": "ra-mgr-external-decision.png"
+    },
+    {
+      "id": "LOGOUT",
+      "action": "Cerrar sesión",
+      "expected": "Login visible",
+      "actual": "login visible",
+      "pass": true,
+      "ms": 210
+    }
+  ]
+}

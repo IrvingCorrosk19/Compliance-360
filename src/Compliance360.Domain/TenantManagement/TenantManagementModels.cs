@@ -374,7 +374,7 @@ public sealed class TenantSettings : TenantEntity
         Culture = "es-PA";
         Language = "es";
         TimeZone = "America/Panama";
-        RequireMfa = true;
+        RequireMfa = false;
         DocumentRetentionDays = 2_555;
         SessionTimeoutMinutes = 30;
         PasswordExpirationDays = 90;

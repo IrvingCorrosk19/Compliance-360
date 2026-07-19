@@ -1,0 +1,38 @@
+[
+  {
+    "role": "TAC",
+    "action": "review",
+    "status": 403,
+    "text": ""
+  },
+  {
+    "role": "TAC",
+    "action": "approve",
+    "status": 403,
+    "text": ""
+  },
+  {
+    "role": "TAC",
+    "action": "override",
+    "status": 403,
+    "text": ""
+  },
+  {
+    "role": "RA-ADM",
+    "action": "review",
+    "status": 403,
+    "text": ""
+  },
+  {
+    "role": "RA-ADM",
+    "action": "approve",
+    "status": 403,
+    "text": ""
+  },
+  {
+    "role": "RA-ADM",
+    "action": "override",
+    "status": 403,
+    "text": ""
+  }
+]

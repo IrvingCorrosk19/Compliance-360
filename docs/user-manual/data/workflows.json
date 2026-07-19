@@ -1,0 +1,123 @@
+{
+  "title": "Flujo certificado del expediente",
+  "steps": [
+    {
+      "id": "prep",
+      "status": "Planning…ReadyForSubmission",
+      "label": "Preparación",
+      "role": "Regulatory Specialist",
+      "ui": [
+        "Pedir docs fábrica",
+        "Docs recibidos",
+        "Armar",
+        "Marcar recibido",
+        "Declarar técnicamente completo"
+      ]
+    },
+    {
+      "id": "review",
+      "status": "Assembling / ReadyForSubmission",
+      "label": "Revisión técnica",
+      "role": "Regulatory Reviewer",
+      "ui": [
+        "Aceptar",
+        "Rechazar"
+      ]
+    },
+    {
+      "id": "internal",
+      "status": "ReadyForSubmission → ApprovedForSubmission",
+      "label": "Aprobación interna para sometimiento",
+      "role": "Regulatory Approver",
+      "ui": [
+        "Aprobar internamente para sometimiento"
+      ]
+    },
+    {
+      "id": "submit",
+      "status": "ApprovedForSubmission → Submitted",
+      "label": "Sometimiento",
+      "role": "Regulatory Submitter",
+      "ui": [
+        "Registrar sometimiento"
+      ]
+    },
+    {
+      "id": "authority",
+      "status": "Submitted → UnderAuthorityReview",
+      "label": "Revisión de autoridad",
+      "role": "Regulatory Manager (seguimiento)",
+      "ui": []
+    },
+    {
+      "id": "obs",
+      "status": "Observed",
+      "label": "Observación",
+      "role": "Regulatory Manager",
+      "ui": [
+        "Registrar observación autoridad"
+      ]
+    },
+    {
+      "id": "response",
+      "status": "CorrectingObservation",
+      "label": "Respuesta",
+      "role": "Regulatory Specialist",
+      "ui": [
+        "Responder"
+      ]
+    },
+    {
+      "id": "resubmit",
+      "status": "Resubmitted",
+      "label": "Resometimiento",
+      "role": "Regulatory Submitter / transición",
+      "ui": [
+        "Registrar sometimiento / transition Resubmitted"
+      ]
+    },
+    {
+      "id": "external",
+      "status": "Approved",
+      "label": "Decisión externa",
+      "role": "Regulatory Manager / Quality Manager",
+      "ui": [
+        "Registrar aprobación MINSA/CSS + CT/RS"
+      ]
+    },
+    {
+      "id": "ctrs",
+      "status": "SanitaryRegistration",
+      "label": "CT/RS activo",
+      "role": "Manager / QM",
+      "ui": [
+        "Registros CT/RS"
+      ]
+    },
+    {
+      "id": "renewal",
+      "status": "Renovacion (pipeline)",
+      "label": "Renovación",
+      "role": "Regulatory Manager",
+      "ui": [
+        "Pipeline Renovacion / StartRenewal"
+      ]
+    }
+  ],
+  "statusLabels": {
+    "Draft": "Borrador",
+    "Planning": "Planificación / Preparación",
+    "WaitingManufacturerDocuments": "Espera docs fábrica",
+    "DocumentsReceived": "Docs recibidos",
+    "Assembling": "Armando expediente",
+    "ReadyForSubmission": "Técnicamente completo / Listo para aprobación interna",
+    "ApprovedForSubmission": "Aprobado internamente para sometimiento",
+    "Submitted": "Sometido ante autoridad",
+    "UnderAuthorityReview": "En revisión de la autoridad",
+    "Observed": "Observado por autoridad",
+    "CorrectingObservation": "Corrigiendo observación",
+    "Resubmitted": "Resometido",
+    "Approved": "Aprobación registrada de MINSA/CSS (externa)",
+    "Rejected": "Rechazo externo de la autoridad"
+  }
+}

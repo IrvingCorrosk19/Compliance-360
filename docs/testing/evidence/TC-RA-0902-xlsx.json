@@ -1,0 +1,14 @@
+{
+  "name": "TC-RA-0902-xlsx",
+  "when": "2026-07-19T00:16:40.227Z",
+  "failed": 0,
+  "passed": 1,
+  "steps": [
+    {
+      "step": "TC-RA-0902",
+      "expected": "staged job visible",
+      "actual": "\n      \n        REGUTRACK Importer\n        Select the contractual Excel and press Stage. The process may take time depending on file size.\n        \n          \n          Stage XLSX\n",
+      "pass": true
+    }
+  ]
+}

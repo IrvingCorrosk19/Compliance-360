@@ -1,0 +1,65 @@
+{
+  "tenantId": "82af3877-2786-4d39-bce8-c981101c771d",
+  "pass": true,
+  "checks": [
+    {
+      "kpi": "productsTotal",
+      "api": 485,
+      "db": 485,
+      "match": true
+    },
+    {
+      "kpi": "registrationsActive",
+      "api": 362,
+      "db": 362,
+      "match": true
+    },
+    {
+      "kpi": "registrationsExpiring",
+      "api": 0,
+      "db": 0,
+      "match": true
+    },
+    {
+      "kpi": "registrationsExpired",
+      "api": 0,
+      "db": 0,
+      "match": true
+    }
+  ],
+  "apiDashboardScalars": {
+    "productsTotal": 485,
+    "registrationsActive": 362,
+    "registrationsExpiring": 0,
+    "registrationsExpired": 0,
+    "registrationsExpiringThisMonth": 0,
+    "dossiersInProgress": 55,
+    "dossiersOverdue": 0,
+    "dossiersStuckOver14Days": 0,
+    "pendingCriticalRequirements": 470,
+    "manufacturerCertificatesExpiring": 7,
+    "licensesExpiring": 6,
+    "opportunityAmountTotal": 5382683357.28,
+    "bottleneckStatus": "Closed",
+    "bottleneckCount": 29
+  },
+  "dbStatusDistRegistrations": {
+    "Active": 362
+  },
+  "dbDossierStatus": {
+    "UnderAuthorityReview": 2,
+    "Planning": 22,
+    "ReadyForSubmission": 5,
+    "Assembling": 1,
+    "DocumentsReceived": 3,
+    "Submitted": 6,
+    "OnHold": 5,
+    "Closed": 29,
+    "Resubmitted": 7,
+    "Observed": 1,
+    "WaitingManufacturerDocuments": 8,
+    "ApprovedForSubmission": 1,
+    "Cancelled": 6
+  },
+  "dbDossiersTotal": 96
+}

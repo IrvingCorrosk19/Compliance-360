@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compliance 360 — Guía Admin: Login, Tenant y Configuración</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#eef3f9;--surface:#fff;--surface-muted:#eef3f8;--text:#172033;--muted:#64748b;
+  --border:#d9e2ec;--accent:#1769aa;--accent-strong:#0f4c81;--success:#0f766e;--warning:#b45309;
+  --danger:#b91c1c;--focus:#2563eb;--shadow:0 18px 45px rgba(15,23,42,.08);
+  --gradient:linear-gradient(135deg,#0f4c81 0%,#1769aa 48%,#0f766e 100%);
+  --radius:14px;--coach-w:420px;--guide-accent:#d4af37;
+  font-family:"Segoe UI",system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(circle at top left,rgba(23,105,170,.12),transparent 28rem),radial-gradient(circle at bottom right,rgba(15,118,110,.1),transparent 24rem),var(--bg);color:var(--text);min-height:100vh;overflow:hidden}
+.guide-shell{display:grid;grid-template-rows:auto auto 1fr;height:100vh}
+.guide-header{display:flex;align-items:center;gap:.65rem;padding:.55rem 1rem;background:rgba(255,255,255,.92);border-bottom:1px solid var(--border);backdrop-filter:blur(16px);flex-wrap:wrap;z-index:20}
+.guide-brand{display:flex;align-items:center;gap:.55rem;font-weight:800;font-size:.88rem;color:var(--accent-strong)}
+.guide-brand-mark{width:34px;height:34px;border-radius:10px;background:var(--gradient);color:#fff;display:grid;place-items:center;font-size:.68rem}
+.chip{display:inline-flex;align-items:center;padding:.28rem .6rem;border-radius:999px;border:1px solid var(--border);background:var(--surface);font-size:.72rem;font-weight:600}
+.chip.route{font-family:Consolas,monospace;color:var(--accent-strong);background:#eff6ff;border-color:#93c5fd}
+.chip.gold{background:linear-gradient(135deg,#d4af37,#c9a020);color:#061e47;border:none}
+.guide-nav{display:flex;gap:.35rem;margin-left:auto}
+.gbtn{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:10px;padding:.42rem .85rem;font-size:.78rem;font-weight:650;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.gbtn.primary{background:var(--gradient);border-color:var(--accent);color:#fff}
+.gbtn:hover{transform:translateY(-1px)}
+.gbtn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.step-rail{display:flex;gap:.25rem;padding:.4rem 1rem;overflow-x:auto;border-bottom:1px solid var(--border);background:rgba(255,255,255,.88);scrollbar-width:thin}
+.step-dot{min-width:32px;height:32px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);font-size:.62rem;font-weight:800;cursor:pointer;flex-shrink:0;display:grid;place-items:center;transition:all .2s}
+.step-dot.active{background:var(--accent);border-color:var(--accent);color:#fff;transform:scale(1.08)}
+.step-dot.done{background:var(--success);border-color:var(--success);color:#fff}
+.guide-body{display:grid;grid-template-columns:1fr var(--coach-w);min-height:0}
+.mock-frame{position:relative;overflow:auto;background:var(--bg);border-right:1px solid var(--border)}
+.mock-inner{min-height:100%;animation:screenIn .45s ease}
+@keyframes screenIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.route-badge{position:absolute;top:.55rem;left:.65rem;z-index:9;pointer-events:none;font-size:.62rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:rgba(6,30,71,.88);color:#fff;padding:.25rem .55rem;border-radius:999px}
+.demo-tag{position:absolute;top:.55rem;right:.65rem;z-index:9;pointer-events:none;background:rgba(212,175,55,.92);color:#061e47;padding:.22rem .55rem;border-radius:999px;font-size:.58rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.hotspot-ring{position:relative;z-index:2}
+.hotspot-ring::before{content:"";position:absolute;inset:-4px;border:3px solid var(--guide-accent);border-radius:10px;animation:ringPulse 1.8s ease infinite;pointer-events:none}
+@keyframes ringPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(1.02)}}
+.coach{background:linear-gradient(180deg,#fff 0%,#f8fafc 100%);display:flex;flex-direction:column;min-height:0;box-shadow:-8px 0 32px rgba(15,23,42,.06)}
+.coach-head{padding:1rem 1rem .75rem;border-bottom:1px solid var(--border)}
+.coach-phase{font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.coach-head h2{font-size:1.05rem;color:var(--accent-strong);line-height:1.35;margin:.35rem 0}
+.coach-scroll{flex:1;overflow-y:auto;padding:1rem;display:grid;gap:.85rem}
+.script-card{background:linear-gradient(135deg,#f8faff,#eef3ff);border:1px solid #c7d7f5;border-left:4px solid var(--accent);border-radius:0 12px 12px 0;padding:1rem;line-height:1.65;font-size:.88rem}
+.role-card{background:var(--surface-muted);border:1px solid var(--border);border-radius:12px;padding:.85rem;font-size:.82rem;line-height:1.55}
+.role-card h4{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--accent-strong);margin-bottom:.35rem}
+.action-step{display:flex;gap:.55rem;padding:.55rem .65rem;border-radius:10px;border:1px solid var(--border);font-size:.82rem;background:var(--surface);align-items:flex-start}
+.action-step.active{background:#eff6ff;border-color:#93c5fd;box-shadow:inset 3px 0 0 var(--accent)}
+.action-num{width:22px;height:22px;border-radius:6px;background:var(--accent);color:#fff;font-size:.65rem;font-weight:800;display:grid;place-items:center;flex-shrink:0;margin-top:1px}
+.flow-arrow{display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;font-size:.72rem;margin:.5rem 0}
+.flow-arrow span{padding:.3rem .55rem;border-radius:8px;border:1px solid var(--border);background:var(--surface)}
+.flow-arrow .arr{color:var(--muted);font-weight:700}
+.warn-box{background:#fff7ed;border:1px solid #fdba74;border-radius:10px;padding:.65rem .75rem;font-size:.78rem;color:#9a3412;line-height:1.5}
+.coach-foot{padding:.75rem 1rem;border-top:1px solid var(--border);display:flex;gap:.45rem;align-items:center}
+.progress-text{font-size:.72rem;color:var(--muted);margin-right:auto}
+
+/* ——— Réplica UI Compliance 360 (styles.css) ——— */
+.login-page{min-height:calc(100vh - 80px);display:grid;grid-template-columns:minmax(300px,420px) 1fr}
+.login-panel{background:rgba(255,255,255,.92);padding:42px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--border);box-shadow:var(--shadow)}
+.login-hero{padding:48px;display:flex;flex-direction:column;justify-content:center;gap:22px;background:linear-gradient(135deg,rgba(15,76,129,.92),rgba(15,118,110,.78)),linear-gradient(45deg,rgba(255,255,255,.08) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.08) 75%,transparent 75%);background-size:auto,42px 42px}
+.brand-line{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.brand-mark{width:44px;height:44px;border-radius:12px;background:var(--gradient);color:#fff;display:grid;place-items:center;font-weight:800;font-size:.82rem}
+.product-badge{display:inline-flex;border:1px solid rgba(23,105,170,.24);border-radius:999px;padding:5px 10px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--accent-strong);background:rgba(23,105,170,.1)}
+.language-switch{margin-left:auto;font-size:12px;color:var(--muted)}
+.language-switch select{border:1px solid var(--border);border-radius:999px;padding:6px 10px;background:var(--surface)}
+.login-panel h1{font-size:26px;margin:0 0 8px;letter-spacing:-.02em}
+.login-panel>p{color:var(--muted);line-height:1.5;font-size:14px;margin-bottom:8px}
+.form-stack{display:grid;gap:14px;margin-top:14px}
+.field{display:grid;gap:6px}
+.field label{font-weight:650;font-size:13px}
+.field input,.field select,.field textarea,.search-box{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:10px 12px;width:100%;font-size:14px;color:var(--text)}
+.field small{color:var(--muted);font-size:11px}
+.org-list{display:grid;gap:10px}
+.org-option{display:grid;grid-template-columns:auto 34px 1fr;align-items:center;gap:10px;border:1px solid var(--border);border-radius:12px;padding:10px 12px;background:var(--surface)}
+.org-option.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(37,99,235,.18)}
+.org-logo{width:34px;height:34px;border-radius:10px;background:var(--gradient);color:#fff;display:grid;place-items:center;font-weight:700;font-size:12px}
+.org-option strong{display:block;font-size:14px}
+.org-option small{color:var(--muted);font-size:12px}
+.org-selected-chip{padding:8px 12px;border-radius:10px;background:var(--surface-muted);border:1px solid var(--border);margin-bottom:8px;font-size:13px}
+.remember-line{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.button-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:10px;padding:10px 14px;font-weight:600;font-size:13px;min-height:40px;display:inline-flex;align-items:center;justify-content:center}
+.btn.primary{background:var(--gradient);border-color:var(--accent);color:#fff}
+.btn.subtle{background:var(--surface-muted)}
+.btn.danger{border-color:var(--danger);color:var(--danger)}
+.btn.small{padding:6px 10px;font-size:12px;min-height:32px}
+.hero-card h2{color:#fff;font-size:1.55rem;margin:.5rem 0}
+.hero-card p{color:rgba(255,255,255,.88);line-height:1.55;font-size:14px}
+.hero-card .product-badge{border-color:rgba(255,255,255,.3);color:#fff;background:rgba(255,255,255,.12)}
+.hero-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.status-pill{display:inline-flex;border:1px solid var(--border);border-radius:999px;padding:5px 10px;font-size:12px;background:var(--surface)}
+.status-pill.ok{color:var(--success);border-color:rgba(15,118,110,.25);background:rgba(15,118,110,.1)}
+.status-pill.warn{color:var(--warning);border-color:rgba(180,83,9,.25);background:rgba(180,83,9,.1)}
+.grid.cards{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:12px}
+.glass-card{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:14px;padding:14px;color:#fff}
+.metric-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;opacity:.85}
+.metric-value{font-size:1.35rem;font-weight:800;margin-top:4px}
+.layout{min-height:calc(100vh - 80px);display:grid;grid-template-columns:258px 1fr}
+.sidebar{background:rgba(255,255,255,.92);border-right:1px solid var(--border);padding:14px;overflow-y:auto}
+.brand{display:flex;align-items:center;gap:10px;padding:6px 6px 14px;border-bottom:1px solid var(--border)}
+.brand-title{font-weight:800;font-size:14px}
+.brand-subtitle{color:var(--muted);font-size:11px}
+.sidebar-status{display:grid;gap:6px;margin:12px 0;padding:12px;border:1px solid var(--border);border-radius:14px;background:var(--surface)}
+.sidebar-status small{color:var(--muted);font-size:11px}
+.nav-label{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em;padding:8px 6px 4px}
+.nav-button{width:100%;border:0;background:transparent;text-align:left;padding:8px 10px;border-radius:10px;display:grid;grid-template-columns:30px 1fr auto;gap:8px;align-items:center;font-size:13px;color:var(--text)}
+.nav-button.active{background:var(--surface-muted);box-shadow:inset 4px 0 0 var(--accent);font-weight:700;color:var(--accent-strong)}
+.nav-icon{width:26px;height:26px;border-radius:9px;background:rgba(23,105,170,.1);color:var(--accent-strong);display:grid;place-items:center;font-size:10px;font-weight:800}
+.sidebar-footer{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)}
+.main{min-width:0;display:flex;flex-direction:column}
+.topbar{min-height:60px;display:grid;grid-template-columns:1fr 1.1fr auto;gap:12px;align-items:center;padding:0 18px;background:rgba(255,255,255,.84);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
+.breadcrumbs.compact{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.top-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tenant-chip{font-size:12px;border:1px solid var(--border);border-radius:999px;padding:5px 9px;color:var(--muted);background:var(--surface)}
+.content{padding:20px;display:grid;gap:18px;max-width:1680px}
+.page-header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+.page-title h1{font-size:1.35rem;margin:0;letter-spacing:-.03em}
+.page-title p{color:var(--muted);font-size:13px;margin-top:4px}
+.breadcrumbs{color:var(--muted);font-size:13px}
+.tenant-hero,.platform-hero{display:flex;justify-content:space-between;gap:16px;padding:18px;border-radius:var(--radius);background:linear-gradient(135deg,rgba(23,105,170,.08),rgba(15,118,110,.06));border:1px solid var(--border);align-items:flex-start;flex-wrap:wrap}
+.tenant-health{display:grid;gap:6px;text-align:right}
+.platform-command{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+.platform-command input{flex:1;min-width:200px;border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+.section-heading{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:14px;flex-wrap:wrap}
+.section-title{font-size:1.05rem;margin:0}
+.grid.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;position:relative;overflow:hidden}
+.metric-card span{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
+.metric-card strong{font-size:1.15rem}
+.tenant-admin-shell{display:grid;grid-template-columns:260px minmax(0,1fr);gap:18px;align-items:start}
+.tenant-tabs{display:grid;gap:8px;padding:12px;border:1px solid var(--border);border-radius:calc(var(--radius) + 6px);background:rgba(255,255,255,.78);box-shadow:var(--shadow)}
+.tenant-tab{width:100%;display:grid;grid-template-columns:32px 1fr;gap:10px;align-items:center;border:1px solid transparent;border-radius:12px;padding:10px;text-align:left;font-size:13px;background:transparent;color:var(--text)}
+.tenant-tab span{width:28px;height:28px;display:grid;place-items:center;border-radius:999px;background:var(--surface-muted);color:var(--accent);font-weight:700;font-size:12px}
+.tenant-tab.active{border-color:rgba(23,105,170,.28);background:linear-gradient(135deg,rgba(23,105,170,.13),rgba(15,118,110,.08));font-weight:700}
+.tenant-panel{padding:20px;border:1px solid var(--border);border-radius:calc(var(--radius) + 6px);background:var(--surface);box-shadow:var(--shadow)}
+.data-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
+.data-table th{background:var(--surface-muted);text-align:left;padding:8px;border:1px solid var(--border);font-size:10px;text-transform:uppercase;color:var(--muted)}
+.data-table td{padding:8px;border:1px solid var(--border)}
+.tag{display:inline-block;padding:4px 8px;border-radius:8px;background:var(--surface-muted);font-size:11px;color:var(--muted)}
+.tenant-state-flow{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;font-size:12px}
+.tenant-state-flow span{padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:var(--surface-muted)}
+.toast-mock{position:absolute;bottom:1rem;right:1rem;background:#ecfdf5;border:1px solid #86efac;color:var(--success);padding:.65rem 1rem;border-radius:12px;font-size:.82rem;font-weight:600;animation:toastIn .5s ease;box-shadow:var(--shadow);z-index:10}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.intro-full{min-height:calc(100vh - 80px);display:grid;place-items:center;padding:2rem}
+.intro-card{max-width:760px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow)}
+.intro-card h1{font-size:1.75rem;color:var(--accent-strong);margin-bottom:.75rem}
+.intro-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}
+@media(max-width:1100px){.guide-body{grid-template-columns:1fr}.coach{position:fixed;right:0;bottom:0;left:0;height:44vh;z-index:30;border-top:1px solid var(--border)}.mock-frame{padding-bottom:44vh}.login-page,.layout{grid-template-columns:1fr}.login-hero{display:none}.grid.cards,.grid.two,.intro-grid{grid-template-columns:1fr}.tenant-admin-shell{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="guide-shell">
+  <header class="guide-header">
+    <div class="guide-brand"><div class="guide-brand-mark">C360</div>Guía Administrador</div>
+    <span class="chip gold">HTML autocontenido · abrir con doble clic</span>
+    <span class="chip route" id="routeChip">#/intro</span>
+    <nav class="guide-nav">
+      <button type="button" class="gbtn" id="btnPrev">← Anterior</button>
+      <button type="button" class="gbtn primary" id="btnNext">Siguiente →</button>
+    </nav>
+  </header>
+  <div class="step-rail" id="stepRail" aria-label="Pasos del flujo"></div>
+  <div class="guide-body">
+    <div class="mock-frame" id="mockFrame">
+      <span class="route-badge" id="routeBadge">Pantalla ilustrada</span>
+      <span class="demo-tag">Réplica visual · no conectada a API</span>
+      <div class="mock-inner" id="mockApp"></div>
+    </div>
+    <aside class="coach">
+      <div class="coach-head">
+        <div class="coach-phase" id="coachPhase">Fase 0</div>
+        <h2 id="coachTitle">Cargando…</h2>
+      </div>
+      <div class="coach-scroll" id="coachBody"></div>
+      <footer class="coach-foot">
+        <span class="progress-text" id="progressText">Paso 1 de 18</span>
+        <button type="button" class="gbtn" id="btnAuto">▶ Auto</button>
+      </footer>
+    </aside>
+  </div>
+</div>
+<script>
+(function(){
+  const DEMO = {
+    platformEmail: "admin@compliance360.local",
+    platformOrg: "Compliance 360 Platform",
+    platformOrgDesc: "Tenant plataforma · gobierno global",
+    tenantExample: {
+      name: "Alimentos Premium Panama",
+      slug: "alimentos-premium-pa",
+      legalName: "Alimentos Premium Panama, S.A.",
+      commercialName: "Alimentos Premium",
+      taxId: "RUC-155999999-2-2026",
+      country: "PA",
+      currency: "USD",
+      industry: "Manufactura de alimentos",
+      phone: "+507 6000-0000",
+      email: "contacto@alimentos-premium.test",
+      website: "https://alimentos-premium.test"
+    },
+    appUrl: "http://localhost:5272"
+  };
+
+  const STEPS = [
+    {
+      id:"intro", phase:"Introducción", route:"#/guia-admin",
+      title:"Rol del Administrador en Compliance 360",
+      coach:`
+        <div class="script-card">Esta guía explica <strong>cómo iniciar sesión</strong>, qué verás como administrador y el <strong>flujo completo para crear y configurar un tenant</strong>. Las pantallas replican la UI real de <code>app.js</code> y <code>styles.css</code>.</div>
+        <div class="role-card"><h4>Platform Administrator</h4>Gobierna toda la plataforma. Accede a <strong>SuperAdmin Platform Center</strong> (<code>#/superadmin-platform</code>). Crea tenants, observa métricas globales, licencias y auditoría.</div>
+        <div class="role-card"><h4>Tenant Administrator</h4>Administra un tenant concreto en el <strong>Tenant Administration Center</strong> (<code>#/tenant-administration</code>): datos empresa, branding, seguridad, usuarios, RBAC y activación.</div>
+        <div class="warn-box">Las contraseñas <strong>no</strong> están en este HTML. Tras ejecutar <code>e2e_provision.ps1</code>, use las credenciales de su entorno (p. ej. <code>e2e/testdata.json</code>).</div>
+      `,
+      render: ()=>`
+        <div class="intro-full">
+          <article class="intro-card">
+            <span class="product-badge">Manual visual · Administrador</span>
+            <h1>Compliance 360 — Login, Tenant y Configuración</h1>
+            <p style="color:var(--muted);line-height:1.6;margin-top:.5rem">Recorrido paso a paso con pantallas idénticas a la aplicación. Sin servidor local: abra este archivo con doble clic.</p>
+            <div class="intro-grid">
+              <div class="card"><strong>18 pasos</strong><p style="font-size:.85rem;color:var(--muted);margin-top:.35rem">Login v2 → SuperAdmin → Crear tenant → TAC → Activar</p></div>
+              <div class="card"><strong>2 roles admin</strong><p style="font-size:.85rem;color:var(--muted);margin-top:.35rem">Platform Administrator y Tenant Administrator</p></div>
+              <div class="card"><strong>Rutas reales</strong><p style="font-size:.85rem;color:var(--muted);margin-top:.35rem"><code>#/superadmin-platform</code><br><code>#/tenant-administration</code></p></div>
+              <div class="card"><strong>Animaciones</strong><p style="font-size:.85rem;color:var(--muted);margin-top:.35rem">Hotspots, transiciones y flujo guiado</p></div>
+            </div>
+            <p style="margin-top:1.25rem;font-size:.85rem;color:var(--muted)">Pulse <strong>Siguiente →</strong> o use las teclas ← →</p>
+          </article>
+        </div>`
+    },
+    {
+      id:"login-email", phase:"Login v2 · Paso 1", route:"#/login",
+      title:"Correo corporativo — botón Siguiente",
+      coach:`
+        <div class="script-card">El login v2 <strong>no pide Tenant GUID</strong>. Primero identifica al usuario por correo.</div>
+        <div class="action-step active"><span class="action-num">1</span><span>Escriba el correo del <strong>Platform Administrator</strong>: <code>${DEMO.platformEmail}</code></span></div>
+        <div class="action-step"><span class="action-num">2</span><span>Pulse <strong>Siguiente</strong> (en la app real: llama <code>POST /auth/identify</code>)</span></div>
+        <div class="flow-arrow"><span>Correo</span><span class="arr">→</span><span>Siguiente</span><span class="arr">→</span><span>Organizaciones</span></div>
+      `,
+      render: ()=>loginMock("email")
+    },
+    {
+      id:"login-org", phase:"Login v2 · Paso 2", route:"#/login",
+      title:"Seleccionar organización — Continuar",
+      coach:`
+        <div class="script-card">Si el correo pertenece a varias organizaciones, el sistema muestra una lista tipo radio. Para Platform Admin suele aparecer el tenant plataforma.</div>
+        <div class="action-step active"><span class="action-num">1</span><span>Seleccione <strong>${DEMO.platformOrg}</strong></span></div>
+        <div class="action-step"><span class="action-num">2</span><span>Pulse <strong>Continuar</strong> (o <strong>Atras</strong> para cambiar correo)</span></div>
+      `,
+      render: ()=>loginMock("organization")
+    },
+    {
+      id:"login-password", phase:"Login v2 · Paso 3", route:"#/login",
+      title:"Contraseña — Iniciar sesion",
+      coach:`
+        <div class="script-card">Paso final: contraseña + opción <strong>Recordarme en este dispositivo</strong>.</div>
+        <div class="action-step active"><span class="action-num">1</span><span>Ingrese la contraseña del entorno (provisión E2E / seed)</span></div>
+        <div class="action-step"><span class="action-num">2</span><span>Pulse <strong>Iniciar sesion</strong> → toast <em>Sesion iniciada correctamente.</em></span></div>
+        <div class="warn-box">Si MFA está activo verá pantalla <strong>Verificacion de segundo factor</strong> con código de 6 dígitos.</div>
+      `,
+      render: ()=>loginMock("password")
+    },
+    {
+      id:"shell", phase:"Post-login", route:"#/dashboard",
+      title:"Qué verás al entrar — shell de la aplicación",
+      coach:`
+        <div class="script-card">Tras login aparece el <strong>layout enterprise</strong>: sidebar izquierda, topbar y área de contenido.</div>
+        <ul style="font-size:.85rem;line-height:1.65;padding-left:1.1rem;color:var(--muted)">
+          <li><strong>Sidebar:</strong> Command Center, Operations, Enterprise</li>
+          <li><strong>Topbar:</strong> breadcrumb, búsqueda global, chip Tenant, tema, <strong>Salir</strong></li>
+          <li><strong>Status:</strong> pill <em>Live</em> + Production Core</li>
+        </ul>
+        <div class="action-step active"><span class="action-num">→</span><span>Como Platform Admin, vaya a <strong>Enterprise → SuperAdmin Platform</strong></span></div>
+      `,
+      render: ()=>shellMock("dashboard", null)
+    },
+    {
+      id:"superadmin-exec", phase:"Platform Admin", route:"#/superadmin-platform",
+      title:"SuperAdmin Platform Center — vista Executive",
+      coach:`
+        <div class="script-card">Consola global: métricas de todos los tenants, alertas, acciones rápidas y 13 pestañas de gobierno.</div>
+        <div class="role-card"><h4>Su responsabilidad</h4>Crear tenants, observar salud global, exportar auditoría CSV, gestionar licencias y proveedores.</div>
+        <div class="action-step active"><span class="action-num">1</span><span>Revise KPIs: Tenants, Usuarios, Storage, Alertas</span></div>
+        <div class="action-step"><span class="action-num">2</span><span>Acción rápida <strong>Crear Tenant</strong> o pestaña <strong>Tenants</strong></span></div>
+      `,
+      render: ()=>superAdminMock("executive")
+    },
+    {
+      id:"superadmin-tenants", phase:"Crear tenant", route:"#/superadmin-platform · tab Tenants",
+      title:"Pestaña Tenants — formulario Crear Tenant",
+      coach:`
+        <div class="script-card">En la pestaña <strong>Tenants</strong> aparece el panel <em>Crear Tenant</em> y la tabla <em>Tenant fleet</em>.</div>
+        <div class="action-step active"><span class="action-num">1</span><span>Complete los 7 campos obligatorios del formulario</span></div>
+        <div class="action-step"><span class="action-num">2</span><span>El <strong>Slug</strong> se auto-genera al escribir Tenant Name (salvo que lo edite manualmente)</span></div>
+        <div class="action-step"><span class="action-num">3</span><span>Pulse <strong>Crear tenant</strong> → redirección automática al TAC del nuevo tenant</span></div>
+      `,
+      render: ()=>superAdminMock("tenants", false)
+    },
+    {
+      id:"tenant-form-fill", phase:"Crear tenant", route:"#/superadmin-platform · Crear Tenant",
+      title:"Ejemplo completado — Alimentos Premium Panamá",
+      coach:`
+        <div class="script-card">Ejemplo alineado con la empresa demo del manual MFT y <code>e2e_provision.ps1</code>.</div>
+        <div class="role-card"><h4>Campos del formulario (UI real)</h4>
+          Tenant Name · Slug · Razon Social · Nombre Comercial · RUC/Tax ID · Pais · Moneda
+        </div>
+        <div class="warn-box">La API acepta también AdminEmail/AdminPassword para auto-provisionar Tenant Admin, pero <strong>la UI actual no expone esos campos</strong>. Tras crear el tenant, invite usuarios en TAC → Usuarios.</div>
+      `,
+      render: ()=>superAdminMock("tenants", true)
+    },
+    {
+      id:"tenant-created", phase:"Post-creación", route:"#/tenant-administration",
+      title:"Tenant creado — redirección al TAC",
+      coach:`
+        <div class="script-card">Tras <strong>Crear tenant</strong>, la app guarda el <code>tenantId</code> y navega a <code>#/tenant-administration</code> con toast de éxito.</div>
+        <div class="flow-arrow"><span>Crear tenant</span><span class="arr">→</span><span>TAC automático</span><span class="arr">→</span><span>Configurar</span></div>
+        <div class="action-step active"><span class="action-num">✓</span><span>Barra superior muestra <em>Tenant actual: Alimentos Premium · ddcaf211…</em></span></div>
+      `,
+      render: ()=>{ const html = shellMock("tenant-administration", "general"); return html + '<div class="toast-mock">Tenant Alimentos Premium Panama creado correctamente.</div>'; }
+    },
+    {
+      id:"tac-general", phase:"Tenant Admin · TAC", route:"#/tenant-administration · Informacion General",
+      title:"Información General — datos de la empresa",
+      coach:`
+        <div class="script-card">Primera configuración obligatoria: identidad comercial del tenant. Todos los cambios quedan en auditoría.</div>
+        <div class="action-step active"><span class="action-num">1</span><span>Revise Tenant Name, Razon Social, Nombre Comercial, RUC</span></div>
+        <div class="action-step"><span class="action-num">2</span><span>Complete Industria, Pais, Moneda, Telefono, Correo, Direccion</span></div>
+        <div class="action-step"><span class="action-num">3</span><span>Pulse <strong>Guardar informacion general</strong></span></div>
+      `,
+      render: ()=>tacMock("general")
+    },
+    {
+      id:"tac-branding", phase:"Tenant Admin · TAC", route:"#/tenant-administration · Branding",
+      title:"Branding — identidad visual del tenant",
+      coach:`
+        <div class="script-card">Personalice logo, colores, tema y pantalla de login del cliente. Vista previa en tiempo real.</div>
+        <div class="action-step active"><span class="action-num">1</span><span>Nombre mostrado, Logo URL, Favicon, colores primario/secundario</span></div>
+        <div class="action-step"><span class="action-num">2</span><span>Tema: Sistema / Claro / Oscuro</span></div>
+        <div class="action-step"><span class="action-num">3</span><span><strong>Guardar branding</strong></span></div>
+      `,
+      render: ()=>tacMock("branding")
+    },
+    {
+      id:"tac-security", phase:"Tenant Admin · TAC", route:"#/tenant-administration · Seguridad",
+      title:"Seguridad — políticas del tenant",
+      coach:`
+        <div class="script-card">Configure MFA obligatorio, timeout de sesión, expiración de contraseña, lockout y trusted devices.</div>
+        <div class="action-step active"><span class="action-num">1</span><span>Revise <strong>Require MFA</strong> según política enterprise</span></div>
+        <div class="action-step"><span class="action-num">2</span><span>Ajuste session timeout y lockout</span></div>
+        <div class="action-step"><span class="action-num">3</span><span><strong>Guardar seguridad</strong></span></div>
+      `,
+      render: ()=>tacMock("security")
+    },
+    {
+      id:"tac-users", phase:"Tenant Admin · TAC", route:"#/tenant-administration · Usuarios",
+      title:"Usuarios — invitar especialistas operativos",
+      coach:`
+        <div class="script-card">Cree usuarios para cada rol operativo antes de las pruebas funcionales.</div>
+        <div class="role-card"><h4>Usuarios demo típicos</h4>
+          <code>tenantadmin@</code> · <code>security@</code> · <code>doccontrol@</code> · <code>storage@</code> · <code>notifications@</code> … dominio <code>@alimentos-premium.test</code>
+        </div>
+        <div class="action-step active"><span class="action-num">1</span><span>Email + Nombre completo + Password inicial + Rol inicial</span></div>
+        <div class="action-step"><span class="action-num">2</span><span><strong>Crear / Invitar usuario</strong></span></div>
+      `,
+      render: ()=>tacMock("users")
+    },
+    {
+      id:"tac-rbac", phase:"Tenant Admin · TAC", route:"#/tenant-administration · Roles & Permisos",
+      title:"RBAC — permisos y roles",
+      coach:`
+        <div class="script-card">Otorgue permisos granulares. Ejemplo crítico: <code>TECHNICALSHEET.CREATE</code> para fichas técnicas.</div>
+        <div class="action-step active"><span class="action-num">1</span><span><strong>Crear permiso y otorgarlo</strong> — módulo + acción</span></div>
+        <div class="action-step"><span class="action-num">2</span><span><strong>Asignar rol a usuario</strong></span></div>
+        <div class="warn-box">Sin este grant, el módulo Technical Sheets mostrará error de permiso aunque el usuario exista.</div>
+      `,
+      render: ()=>tacMock("rbac")
+    },
+    {
+      id:"tac-state", phase:"Activación", route:"#/tenant-administration · Estado",
+      title:"Estado — activar el tenant (lifecycle)",
+      coach:`
+        <div class="script-card">Lifecycle SaaS: <strong>Draft → Trial → Active → Suspended → Archived → Restore</strong>.</div>
+        <div class="action-step active"><span class="action-num">1</span><span>Tras configurar, pulse <strong>Activar</strong> (o <strong>Mover a Trial</strong> en onboarding)</span></div>
+        <div class="action-step"><span class="action-num">2</span><span>Verifique pill de estado <em>Activo</em> en hero del TAC</span></div>
+        <div class="flow-arrow"><span>Draft</span><span class="arr">→</span><span>Trial</span><span class="arr">→</span><span style="border-color:var(--success);background:#ecfdf5;font-weight:700">Active</span></div>
+      `,
+      render: ()=>tacMock("state")
+    },
+    {
+      id:"config-next", phase:"Post-configuración", route:"#/configuration",
+      title:"Qué configurar después — Storage y Notificaciones",
+      coach:`
+        <div class="script-card">Con el tenant activo, los administradores especialistas configuran proveedores en <code>#/configuration</code>.</div>
+        <div class="action-step active"><span class="action-num">1</span><span><strong>Storage Administrator</strong> → Crear Storage Local → Probar primer Storage Provider</span></div>
+        <div class="action-step"><span class="action-num">2</span><span><strong>Notification Administrator</strong> → Crear Email SMTP (real = dependencia third-party)</span></div>
+        <div class="action-step"><span class="action-num">3</span><span><strong>Document Controller</strong> → <code>#/documents</code> → Crear registro real</span></div>
+      `,
+      render: ()=>shellMock("configuration", null)
+    },
+    {
+      id:"checklist", phase:"Cierre", route:"#/audit-trail",
+      title:"Checklist del administrador — cierre del flujo",
+      coach:`
+        <div class="script-card">Resumen del recorrido completo. Use el <strong>Manual Interactivo por Roles</strong> para pruebas PASS/FAIL por rol.</div>
+        <div class="action-step done"><span class="action-num">✓</span><span>Login v2: Siguiente → Continuar → Iniciar sesion</span></div>
+        <div class="action-step done"><span class="action-num">✓</span><span>SuperAdmin Platform → Crear tenant</span></div>
+        <div class="action-step done"><span class="action-num">✓</span><span>TAC: General, Branding, Seguridad, Usuarios, RBAC</span></div>
+        <div class="action-step done"><span class="action-num">✓</span><span>Activar tenant + Configuration operativa</span></div>
+        <div class="action-step active"><span class="action-num">→</span><span>Exporte resultados en <code>#/audit-trail</code> y manual interactivo JSON</span></div>
+      `,
+      render: ()=>`
+        <div class="intro-full">
+          <article class="intro-card">
+            <span class="product-badge ok" style="color:var(--success)">Flujo completado</span>
+            <h1>Checklist Administrador</h1>
+            <div style="display:grid;gap:.55rem;margin-top:1rem;font-size:.88rem">
+              <label><input type="checkbox" checked disabled> Login Platform Administrator</label>
+              <label><input type="checkbox" checked disabled> SuperAdmin Platform Center revisado</label>
+              <label><input type="checkbox" checked disabled> Tenant creado con slug único</label>
+              <label><input type="checkbox" checked disabled> Información general guardada</label>
+              <label><input type="checkbox" checked disabled> Branding y seguridad configurados</label>
+              <label><input type="checkbox" checked disabled> Usuarios especialistas invitados</label>
+              <label><input type="checkbox" checked disabled> RBAC TECHNICALSHEET.CREATE (si aplica)</label>
+              <label><input type="checkbox" checked disabled> Tenant activado (Active)</label>
+              <label><input type="checkbox" disabled> Storage + SMTP operativos</label>
+            </div>
+            <p style="margin-top:1.25rem;color:var(--muted);font-size:.85rem">Abra la app real en <code>${DEMO.appUrl}</code> y siga este mismo orden.</p>
+          </article>
+        </div>`
+    }
+  ];
+
+  let idx = 0, autoTimer = null;
+
+  function esc(s){ const d=document.createElement("div"); d.textContent=s??""; return d.innerHTML; }
+
+  function loginMock(step){
+    const t = DEMO.tenantExample;
+    const emailBlock = step==="email" ? `
+      <div class="field hotspot-ring"><label for="email">Correo electronico</label>
+        <input id="email" type="email" value="${esc(DEMO.platformEmail)}" readonly></div>
+      <button class="btn primary hotspot-ring" type="button">Siguiente</button>` : "";
+    const orgBlock = step==="organization" ? `
+      <div class="org-list" role="radiogroup">
+        <label class="org-option active hotspot-ring"><input type="radio" checked>
+          <span class="org-logo">C3</span>
+          <span><strong>${esc(DEMO.platformOrg)}</strong><small>${esc(DEMO.platformOrgDesc)}</small></span></label>
+        <label class="org-option"><input type="radio">
+          <span class="org-logo">AP</span>
+          <span><strong>${esc(t.commercialName)}</strong><small>Tenant operaciones · ${esc(t.slug)}</small></span></label>
+      </div>
+      <div class="button-row">
+        <button class="btn subtle" type="button">Atras</button>
+        <button class="btn primary hotspot-ring" type="button">Continuar</button>
+      </div>` : "";
+    const passBlock = step==="password" ? `
+      <div class="org-selected-chip"><strong>${esc(DEMO.platformOrg)}</strong></div>
+      <div class="field hotspot-ring"><label for="password">Contrasena</label>
+        <input id="password" type="password" value="••••••••••••" readonly></div>
+      <label class="remember-line"><input type="checkbox" checked> Recordarme en este dispositivo</label>
+      <div class="button-row">
+        <button class="btn subtle" type="button">Cambiar organizacion</button>
+        <button class="btn primary hotspot-ring" type="button">Iniciar sesion</button>
+      </div>
+      <button class="btn subtle" type="button">Olvide mi contrasena</button>` : "";
+    const subtitles = {email:"Ingresa tu correo corporativo para identificar tus organizaciones.", organization:"Selecciona la organizacion para continuar.", password:"Ingresa tu contrasena para continuar."};
+    return `
+      <main class="login-page">
+        <section class="login-panel">
+          <div class="brand-line">
+            <div class="brand-mark">C360</div>
+            <span class="product-badge">Enterprise Login</span>
+            <div class="language-switch">Idioma <select><option>Español</option></select></div>
+          </div>
+          <h1>Compliance 360 Enterprise</h1>
+          <p>${subtitles[step]}</p>
+          <form class="form-stack">${emailBlock}${orgBlock}${passBlock}</form>
+        </section>
+        <section class="login-hero">
+          <div class="hero-card">
+            <span class="product-badge">Tenant transparente</span>
+            <h2>Login Enterprise sin GUIDs tecnicos</h2>
+            <p>La organizacion se resuelve automaticamente. El aislamiento multi-tenant, RBAC y auditoria se mantienen internamente.</p>
+            <div class="hero-actions">
+              <span class="status-pill ok">API live</span>
+              <span class="status-pill ok">PostgreSQL</span>
+              <span class="status-pill ok">AA Ready</span>
+            </div>
+          </div>
+          <div class="grid cards">
+            <div class="glass-card"><span class="metric-label">Modo</span><div class="metric-value">${step.toUpperCase()}</div></div>
+            <div class="glass-card"><span class="metric-label">Tenant</span><div class="metric-value">Auto</div></div>
+            <div class="glass-card"><span class="metric-label">Security</span><div class="metric-value">JWT + MFA</div></div>
+            <div class="glass-card"><span class="metric-label">RBAC</span><div class="metric-value">Enforced</div></div>
+          </div>
+        </section>
+      </main>`;
+  }
+
+  function sidebar(activeRoute){
+    const groups = [
+      {g:"Command Center", items:[["dashboard","Executive Dashboard"],["compliance","Compliance Dashboard"],["reports","Report Center"],["audit-trail","Audit Trail"]]},
+      {g:"Operations", items:[["documents","Document Management"],["technical-sheets","Technical Sheets"],["suppliers","Supplier Management"]]},
+      {g:"Enterprise", items:[["superadmin-platform","SuperAdmin Platform"],["tenant-administration","Tenant Administration"],["configuration","Configuration"],["security","Security"]]}
+    ];
+    return groups.map(gr=>`
+      <nav class="nav-group"><div class="nav-label">${gr.g}</div>
+      ${gr.items.map(([k,l])=>`
+        <button class="nav-button ${activeRoute===k?"active":""}" type="button">
+          <span class="nav-icon">${l.split(" ").map(w=>w[0]).join("").slice(0,2)}</span><span>${l}</span><span>›</span>
+        </button>`).join("")}
+      </nav>`).join("");
+  }
+
+  function shellMock(route, tacTab){
+    const labels = {"dashboard":"Executive Dashboard","superadmin-platform":"SuperAdmin Platform","tenant-administration":"Tenant Administration","configuration":"Configuration"};
+    const groups = {"dashboard":"Command Center","superadmin-platform":"Enterprise","tenant-administration":"Enterprise","configuration":"Enterprise"};
+    let body = "";
+    if(route==="dashboard"){
+      body = `<div class="page-header"><div class="page-title"><div class="breadcrumbs">Compliance 360 / Command Center</div><h1>Executive Dashboard</h1><p>Visión ejecutiva del tenant activo.</p></div></div>
+        <section class="grid cards" style="grid-template-columns:repeat(4,1fr)">
+          ${["Documentos","Auditorias","CAPA","Riesgos"].map(m=>`<article class="metric-card"><span>${m}</span><strong>—</strong></article>`).join("")}
+        </section>`;
+    } else if(route==="configuration"){
+      body = `<div class="page-header"><div class="page-title"><div class="breadcrumbs">Compliance 360 / Enterprise</div><h1>Configuration</h1><p>Storage providers, SMTP y integraciones.</p></div></div>
+        <section class="grid two">
+          <article class="card hotspot-ring"><h3 class="section-title">Storage Providers</h3><p style="font-size:.85rem;color:var(--muted)">Crear Storage Local · Probar primer Storage Provider</p><button class="btn primary small" style="margin-top:.65rem">Crear Storage Local</button></article>
+          <article class="card hotspot-ring"><h3 class="section-title">Notification Providers</h3><p style="font-size:.85rem;color:var(--muted)">Crear Email SMTP</p><button class="btn primary small" style="margin-top:.65rem">Crear Email SMTP</button></article>
+        </section>`;
+    } else if(route==="tenant-administration"){
+      body = tacContent("general");
+    }
+    return `
+      <div class="layout">
+        <aside class="sidebar">
+          <div class="brand"><div class="brand-mark">C360</div><div><div class="brand-title">Compliance 360</div><div class="brand-subtitle">Enterprise Edition</div></div></div>
+          <section class="sidebar-status"><span class="status-pill ok">Live</span><strong>Production Core 100%</strong><small>Tenant activo, API segura y datos persistentes.</small></section>
+          ${sidebar(route)}
+          <footer class="sidebar-footer"><span>ISO aligned</span><strong>9001 / 37301 / 31000</strong></footer>
+        </aside>
+        <main class="main">
+          <header class="topbar">
+            <div><div class="breadcrumbs compact">Compliance 360 / ${groups[route]||"Enterprise"}</div><strong>${labels[route]||route}</strong></div>
+            <input class="search-box" placeholder="Buscar o escribir Enter para documentos..." readonly>
+            <div class="top-actions">
+              <span class="status-pill ok">Production core</span>
+              <span class="tenant-chip">Tenant: ddcaf211</span>
+              <button class="btn subtle" type="button">Light</button>
+              <button class="btn danger" type="button">Salir</button>
+            </div>
+          </header>
+          <section class="content">${route==="tenant-administration" ? tacPageWrap(tacTab||"general") : body}</section>
+        </main>
+      </div>`;
+  }
+
+  function superAdminMock(tab, filled){
+    const t = DEMO.tenantExample;
+    const tabs = ["executive","tenants","licenses","modules","providers","security","observability","audit"];
+    const tabLabels = {executive:"Executive",tenants:"Tenants",licenses:"Licencias",modules:"Modulos",providers:"Providers",security:"Seguridad",observability:"Observability",audit:"Auditoria"};
+    const tabNav = tabs.map((k,i)=>`<button class="tenant-tab ${k===tab?"active":""}" type="button"><span>${i+1}</span>${tabLabels[k]}</button>`).join("");
+    let panel = "";
+    if(tab==="executive"){
+      panel = `<div class="grid cards" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
+        ${[["Tenants","3","Activos 2"],["Usuarios","14","Activos 13"],["Alertas","1","Global"],["Storage Used","1.2 GB","Cap 50 GB"]].map(([a,b,c])=>`<article class="metric-card"><span>${a}</span><strong>${b}</strong><small style="color:var(--muted)">${c}</small></article>`).join("")}
+      </div>
+      <div class="grid two">
+        <article class="card hotspot-ring"><span class="product-badge">PLATFORM.TENANT.CREATE</span><h3>Crear Tenant</h3><p style="font-size:.85rem;color:var(--muted)">Alta enterprise de tenant.</p><button class="btn small primary">Ejecutar</button></article>
+        <article class="card"><span class="product-badge">AUDIT.EXPORT</span><h3>Exportar Auditoria Global</h3><p style="font-size:.85rem;color:var(--muted)">CSV timeline global.</p><button class="btn small">Ejecutar</button></article>
+      </div>`;
+    } else {
+      panel = `
+        <section class="card" style="margin-bottom:14px">
+          <div class="section-heading"><div><h2 class="section-title">Crear Tenant</h2><p class="metric-label">Alta enterprise de tenant. Al guardar se abrira automaticamente el Tenant Administration Center del nuevo tenant.</p></div><span class="status-pill ok">PLATFORM.TENANT.CREATE</span></div>
+          <form class="form-stack">
+            <div class="grid two">
+              ${field("newTenantName","Tenant Name", filled?t.name:"Cliente Demo Compliance", "Nombre interno del tenant.", filled)}
+              ${field("newTenantSlug","Slug", filled?t.slug:"cliente-demo-compliance", "Identificador URL-friendly. Debe ser unico.", filled)}
+              ${field("newTenantLegalName","Razon Social", filled?t.legalName:"Cliente Demo Compliance S.A.", "", filled)}
+              ${field("newTenantCommercialName","Nombre Comercial", filled?t.commercialName:"Cliente Demo", "", filled)}
+              ${field("newTenantTaxIdentifier","RUC / Tax ID", filled?t.taxId:"DEMO-123456", "", filled)}
+              ${selectField("newTenantCountryCode","Pais", filled?t.country:"PA")}
+              ${selectField("newTenantCurrency","Moneda", filled?t.currency:"USD")}
+            </div>
+            <div class="button-row">
+              <button class="btn primary hotspot-ring" type="button">Crear tenant</button>
+              <button class="btn" type="button">Cancelar</button>
+            </div>
+          </form>
+        </section>
+        <section class="card">
+          <h3 class="section-title">Tenant fleet</h3>
+          <table class="data-table"><thead><tr><th>name</th><th>slug</th><th>status</th><th>plan</th><th>actions</th></tr></thead>
+          <tbody>
+            <tr><td>Compliance 360 Platform</td><td>platform</td><td>Active</td><td>Enterprise</td><td><button class="btn small">Abrir TAC</button></td></tr>
+            ${filled?`<tr style="background:#eff6ff"><td>${esc(t.name)}</td><td>${esc(t.slug)}</td><td>Draft</td><td>Trial</td><td><button class="btn small hotspot-ring">Abrir TAC</button></td></tr>`:""}
+          </tbody></table>
+        </section>`;
+    }
+    return shellWrapSuperAdmin(tabNav, panel, tab);
+  }
+
+  function shellWrapSuperAdmin(tabNav, panel, tab){
+    return `
+      <div class="layout">
+        <aside class="sidebar">
+          <div class="brand"><div class="brand-mark">C360</div><div><div class="brand-title">Compliance 360</div><div class="brand-subtitle">Enterprise Edition</div></div></div>
+          <section class="sidebar-status"><span class="status-pill ok">Live</span><strong>Production Core 100%</strong><small>Tenant activo, API segura.</small></section>
+          ${sidebar("superadmin-platform")}
+        </aside>
+        <main class="main">
+          <header class="topbar">
+            <div><div class="breadcrumbs compact">Compliance 360 / Enterprise</div><strong>SuperAdmin Platform</strong></div>
+            <input class="search-box" placeholder="Buscar globalmente: tenant, proveedor..." readonly>
+            <div class="top-actions"><span class="status-pill ok">Production core</span><span class="tenant-chip">Tenant: dc7c46ee</span><button class="btn danger" type="button">Salir</button></div>
+          </header>
+          <section class="content">
+            <div class="page-header"><div class="page-title"><div class="breadcrumbs">Platform / Global Administration</div><h1>SuperAdmin Platform Center</h1><p>Consola global para administrar y observar toda la plataforma Compliance 360.</p></div></div>
+            <section class="tenant-hero platform-hero">
+              <div><span class="product-badge">Global SuperAdmin</span><h2 style="margin:.35rem 0">Centro de Gobierno Global Compliance 360</h2><p style="color:var(--muted);font-size:.9rem">Tenants, licencias, proveedores, seguridad, observabilidad y auditoria.</p></div>
+              <div class="tenant-health"><span class="status-pill ok">Healthy</span><strong>3 tenants</strong></div>
+            </section>
+            <section class="platform-command"><input placeholder="Buscar globalmente: tenant, proveedor, licencia..." readonly><button class="btn" type="button">Exportar auditoria global CSV</button></section>
+            <section class="tenant-admin-shell platform-shell">
+              <aside class="tenant-tabs">${tabNav}</aside>
+              <div>${panel}</div>
+            </section>
+          </section>
+        </main>
+      </div>`;
+  }
+
+  function field(name, label, val, help, hl){
+    return `<div class="field ${hl?"hotspot-ring":""}"><label>${esc(label)}</label><input value="${esc(val)}" readonly>${help?`<small>${esc(help)}</small>`:""}</div>`;
+  }
+  function selectField(name, label, val){
+    return `<div class="field"><label>${esc(label)}</label><select disabled><option selected>${esc(val)}</option></select></div>`;
+  }
+
+  function tacTabs(active){
+    const tabs = [["general","Informacion General"],["branding","Branding"],["security","Seguridad"],["users","Usuarios"],["rbac","Roles & Permisos"],["licensing","Licenciamiento"],["domains","Dominios"],["state","Estado"]];
+    return tabs.map(([k,l],i)=>`<button class="tenant-tab ${k===active?"active":""}" type="button"><span>${i+1}</span>${l}</button>`).join("");
+  }
+
+  function tacPageWrap(activeTab){
+    const t = DEMO.tenantExample;
+    return `
+      <div class="page-header"><div class="page-title"><div class="breadcrumbs">Enterprise / Administration</div><h1>Tenant Administration Center</h1><p>Centro enterprise para administrar identidad comercial, seguridad, licenciamiento, integraciones, auditoria y estado operativo del tenant.</p></div></div>
+      <section class="platform-command">
+        <button class="btn" type="button">Volver a Tenants</button>
+        <button class="btn" type="button">SuperAdmin Platform</button>
+        <span class="tag">Tenant actual: ${esc(t.commercialName)} · ddcaf211</span>
+      </section>
+      <section class="tenant-hero">
+        <div><span class="product-badge">Tenant Core</span><h2 style="margin:.35rem 0">${esc(t.commercialName)}</h2><p style="color:var(--muted);font-size:.9rem">${esc(t.legalName)} · ${esc(t.taxId)} · PA · USD</p></div>
+        <div class="tenant-health"><span class="status-pill warn">Draft</span><strong>Requiere atencion</strong><small>Security score 72/100</small></div>
+      </section>
+      <section class="grid cards" style="grid-template-columns:repeat(4,1fr)">
+        ${[["Estado","Draft"],["Plan","Trial"],["Usuarios","1/25"],["Storage","0.00/10 GB"]].map(([a,b])=>`<article class="metric-card"><span>${a}</span><strong>${b}</strong></article>`).join("")}
+      </section>
+      <section class="tenant-admin-shell">
+        <aside class="tenant-tabs">${tacTabs(activeTab)}</aside>
+        <div class="tenant-panel active">${tacContent(activeTab)}</div>
+      </section>`;
+  }
+
+  function tacMock(tab){ return shellMock("tenant-administration", tab); }
+
+  function tacContent(tab){
+    const t = DEMO.tenantExample;
+    if(tab==="general") return `
+      <div class="section-heading"><div><h2 class="section-title">Informacion General</h2><p class="metric-label">Campos empresariales editables con TenantId y CreatedAt inmutables.</p></div><span class="status-pill ok">Auditable</span></div>
+      <form class="form-stack"><div class="grid two">
+        ${field("name","Tenant Name",t.name,"Nombre interno del tenant.",true)}
+        ${field("legalName","Razon Social",t.legalName,"",false)}
+        ${field("commercialName","Nombre Comercial",t.commercialName,"",false)}
+        ${field("taxIdentifier","RUC / Tax ID",t.taxId,"",false)}
+        ${field("industry","Industria",t.industry,"",false)}
+        ${selectField("countryCode","Pais","PA")}
+        ${selectField("currency","Moneda","USD")}
+        ${field("phone","Telefono",t.phone,"",false)}
+        ${field("email","Correo",t.email,"",false)}
+        ${field("website","Sitio Web",t.website,"",false)}
+        ${field("city","Ciudad","Ciudad de Panama","",false)}
+        ${field("addressLine1","Direccion","Zona industrial, Panama","",false)}
+      </div>
+      <div class="field"><label>Descripcion</label><textarea rows="2" readonly>Manufactura de alimentos · ISO 22000 / HACCP</textarea></div>
+      <div class="button-row"><button class="btn primary hotspot-ring" type="button">Guardar informacion general</button><span class="tag">TenantId inmutable: ddcaf211</span></div></form>`;
+    if(tab==="branding") return `
+      <div class="section-heading"><div><h2 class="section-title">Branding</h2><p class="metric-label">Identidad visual del tenant, sin estilos inline y con soporte dark mode.</p></div><span class="status-pill ok">Premium UI</span></div>
+      <div class="grid two">
+        ${field("displayName","Nombre mostrado",t.commercialName,"",true)}
+        ${field("logoUri","Logo","https://alimentos-premium.test/logo.png","URL absoluta del logo.",false)}
+        ${field("primaryColor","Color primario","#1769aa","",false)}
+        ${field("secondaryColor","Color secundario","#0f766e","",false)}
+        ${selectField("theme","Tema","Sistema")}
+      </div>
+      <button class="btn primary hotspot-ring" type="button" style="margin-top:12px">Guardar branding</button>`;
+    if(tab==="security") return `
+      <div class="section-heading"><div><h2 class="section-title">Seguridad</h2><p class="metric-label">Politicas MFA, sesion, lockout y trusted devices.</p></div><span class="status-pill ok">TENANT.SECURITY</span></div>
+      <div class="grid two">
+        <label class="remember-line hotspot-ring"><input type="checkbox"> Require MFA</label>
+        ${field("sessionTimeoutMinutes","Session timeout (min)","60","",false)}
+        ${field("lockoutMaxFailedAttempts","Lockout intentos","5","",false)}
+        ${field("passwordExpirationDays","Expiracion password (dias)","90","",false)}
+      </div>
+      <button class="btn primary hotspot-ring" type="button" style="margin-top:12px">Guardar seguridad</button>`;
+    if(tab==="users") return `
+      <div class="section-heading"><div><h2 class="section-title">Usuarios</h2><p class="metric-label">Alta e invitacion de usuarios del tenant.</p></div></div>
+      <form class="form-stack"><div class="grid two">
+        ${field("email","Email","security@alimentos-premium.test","",true)}
+        ${field("fullName","Nombre completo","Security Administrator","",false)}
+        ${field("initialPassword","Password inicial","(generado)","",false)}
+        ${selectField("roleId","Rol inicial","Tenant Security Administrator")}
+      </div>
+      <label class="remember-line"><input type="checkbox" checked> Forzar cambio de password</label>
+      <button class="btn primary hotspot-ring" type="button">Crear / Invitar usuario</button></form>
+      <table class="data-table"><thead><tr><th>Email</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody><tr><td>tenantadmin@alimentos-premium.test</td><td>Tenant Administrator</td><td>Active</td><td><button class="btn small">Disable</button></td></tr></tbody></table>`;
+    if(tab==="rbac") return `
+      <div class="section-heading"><div><h2 class="section-title">Roles & Permisos</h2><p class="metric-label">RBAC granular por modulo y accion.</p></div></div>
+      <article class="card" style="margin-bottom:12px">
+        <h3 class="section-title">Crear permiso y otorgarlo</h3>
+        <div class="grid two">
+          ${selectField("roleId","Rol","Quality Manager")}
+          ${field("module","Modulo","TechnicalSheets","",true)}
+          ${field("action","Accion","CREATE","",true)}
+          ${field("description","Descripcion","Permite crear fichas tecnicas","",false)}
+        </div>
+        <button class="btn primary small hotspot-ring" type="button" style="margin-top:8px">Otorgar permiso</button>
+      </article>
+      <article class="card"><h3 class="section-title">Asignar rol a usuario</h3>
+        <div class="grid two">${selectField("userId","Usuario","quality@alimentos-premium.test")}${selectField("roleId2","Rol","Quality Manager")}</div>
+        <button class="btn primary small" type="button" style="margin-top:8px">Asignar rol</button></article>`;
+    if(tab==="state") return `
+      <div class="section-heading"><div><h2 class="section-title">Estado</h2><p class="metric-label">Lifecycle Draft, Trial, Active, Suspended, Archived y Restore.</p></div><span class="status-pill warn">TENANT.STATUS</span></div>
+      <div class="tenant-state-flow"><span>Draft</span><span>Trial</span><span style="border-color:var(--success);font-weight:700">Active</span><span>Suspended</span><span>Archived</span><span>Restore</span></div>
+      <div class="button-row">
+        <button class="btn" type="button">Mover a Trial</button>
+        <button class="btn primary hotspot-ring" type="button">Activar</button>
+        <button class="btn" type="button">Suspender</button>
+        <button class="btn danger" type="button">Archivar</button>
+      </div>
+      <p style="font-size:.85rem;color:var(--muted);margin-top:12px">Estado actual: <strong>Draft</strong>. Pulse <strong>Activar</strong> cuando la configuracion base este lista.</p>`;
+    return "";
+  }
+
+  function renderStep(i){
+    idx = Math.max(0, Math.min(STEPS.length-1, i));
+    const s = STEPS[idx];
+    document.getElementById("mockApp").innerHTML = s.render();
+    document.getElementById("coachPhase").textContent = s.phase;
+    document.getElementById("coachTitle").textContent = s.title;
+    document.getElementById("coachBody").innerHTML = s.coach;
+    document.getElementById("routeChip").textContent = s.route;
+    document.getElementById("routeBadge").textContent = s.route;
+    document.getElementById("progressText").textContent = `Paso ${idx+1} de ${STEPS.length}`;
+    document.getElementById("btnPrev").disabled = idx===0;
+    document.getElementById("btnNext").textContent = idx===STEPS.length-1 ? "Fin ✓" : "Siguiente →";
+    document.getElementById("stepRail").innerHTML = STEPS.map((st,n)=>`<button type="button" class="step-dot ${n===idx?"active":""} ${n<idx?"done":""}" data-i="${n}" title="${st.title}">${n+1}</button>`).join("");
+    document.querySelectorAll(".step-dot").forEach(d=> d.onclick=()=>{ stopAuto(); renderStep(+d.dataset.i); });
+    document.getElementById("mockFrame").scrollTop = 0;
+  }
+
+  function stopAuto(){ if(autoTimer){ clearInterval(autoTimer); autoTimer=null; document.getElementById("btnAuto").textContent="▶ Auto"; } }
+  function toggleAuto(){
+    if(autoTimer){ stopAuto(); return; }
+    document.getElementById("btnAuto").textContent="⏸ Pausar";
+    autoTimer = setInterval(()=>{ if(idx>=STEPS.length-1){ stopAuto(); return; } renderStep(idx+1); }, 4500);
+  }
+
+  document.getElementById("btnPrev").onclick=()=>{ stopAuto(); renderStep(idx-1); };
+  document.getElementById("btnNext").onclick=()=>{ stopAuto(); if(idx<STEPS.length-1) renderStep(idx+1); };
+  document.getElementById("btnAuto").onclick=toggleAuto;
+  document.addEventListener("keydown", e=>{
+    if(e.key==="ArrowLeft"){ stopAuto(); renderStep(idx-1); }
+    if(e.key==="ArrowRight"){ stopAuto(); if(idx<STEPS.length-1) renderStep(idx+1); }
+  });
+
+  renderStep(0);
+})();
+</script>
+</body>
+</html>

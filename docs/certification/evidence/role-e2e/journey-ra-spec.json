@@ -1,0 +1,201 @@
+{
+  "role": "RA-SPEC",
+  "email": "ra.spec@cert.local",
+  "when": "2026-07-19T00:21:31.284Z",
+  "pass": true,
+  "steps": [
+    {
+      "id": "LOGIN",
+      "action": "Login con credenciales del laboratorio",
+      "expected": "Autenticación exitosa y shell visible",
+      "actual": "shell visible",
+      "pass": true,
+      "ms": 5189,
+      "screenshot": "ra-spec-login.png"
+    },
+    {
+      "id": "SHELL-SIDEBAR",
+      "action": "Validar sidebar (menús visibles y ocultos)",
+      "expected": "Sidebar exacto: [dashboard, regulatory]",
+      "actual": "[dashboard, regulatory]",
+      "pass": true,
+      "ms": 13
+    },
+    {
+      "id": "SHELL-NAVBAR",
+      "action": "Validar navbar (sesión, rol, tenant, breadcrumb)",
+      "expected": "Chip de sesión con rol + tenant + breadcrumb visible",
+      "actual": "chip=\"RA Specialist Regulatory Specialist\" tenant=\"Tenant: 82af3877...\"",
+      "pass": true,
+      "ms": 30
+    },
+    {
+      "id": "DASHBOARD-KPI",
+      "action": "Validar dashboard (widgets/KPIs/cards)",
+      "expected": "Dashboard con tarjetas métricas visibles",
+      "actual": "bloques=8",
+      "pass": true,
+      "ms": 1582,
+      "screenshot": "ra-spec-dashboard-kpi.png"
+    },
+    {
+      "id": "RA-TABS",
+      "action": "Validar pestañas RA visibles/ocultas",
+      "expected": "Tabs exactos: [dashboard, portfolio, pipeline, dossiers, registrations, manufacturers]",
+      "actual": "[dashboard, portfolio, pipeline, dossiers, registrations, manufacturers]",
+      "pass": true,
+      "ms": 1448,
+      "screenshot": "ra-spec-ra-tabs.png"
+    },
+    {
+      "id": "CREATE-PRODUCT-DOSSIER",
+      "action": "Crear producto + expediente (modal enterprise)",
+      "expected": "Producto y expediente creados; modal con campos del manual (marca, nombre, código, riesgo A/B/C, país PA, autoridad)",
+      "actual": "riesgo=[A,B,C] país=PA producto=OK expediente=Draft",
+      "pass": true,
+      "ms": 3684,
+      "screenshot": "ra-spec-create-product-dossier.png"
+    },
+    {
+      "id": "UPLOAD-REQUIREMENTS",
+      "action": "Cargar requisitos/documentos (Marcar recibido con evidencia)",
+      "expected": "Requisitos pasan a Received con storedFileId",
+      "actual": "requisitos obligatorios Received=22/22",
+      "pass": true,
+      "ms": 33466,
+      "screenshot": "ra-spec-upload-requirements.png"
+    },
+    {
+      "id": "EDIT-DATES",
+      "action": "Editar mientras esté permitido (fechas plan)",
+      "expected": "PUT /dates permitido para Specialist (DOSSIER.UPDATE)",
+      "actual": "http=200",
+      "pass": true,
+      "ms": 241
+    },
+    {
+      "id": "SEND-TO-REVIEW",
+      "action": "Transiciones de preparación y envío a revisión",
+      "expected": "Draft→…→UnderTechnicalReview",
+      "actual": "status=UnderTechnicalReview",
+      "pass": true,
+      "ms": 6243,
+      "screenshot": "ra-spec-send-to-review.png"
+    },
+    {
+      "id": "SOD-SELF-REVIEW",
+      "action": "SoD: intentar auto-aceptar requisito propio",
+      "expected": "Denegado (PreventSelfReview)",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 493
+    },
+    {
+      "id": "NO-APPROVE-BTN",
+      "action": "Verificar que NO pueda aprobar (UI)",
+      "expected": "Botón de aprobación interna ausente",
+      "actual": "botones=0",
+      "pass": true,
+      "ms": 728
+    },
+    {
+      "id": "NO-SUBMIT-BTN",
+      "action": "Verificar que NO pueda someter (UI)",
+      "expected": "Botón de sometimiento ausente",
+      "actual": "botones=0",
+      "pass": true,
+      "ms": 27
+    },
+    {
+      "id": "NEG-API-APPROVE-INT",
+      "action": "POST /tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/dossiers/6bbd9406-e565-45f1-9b60-cfd1125e248d/approve-for-submission",
+      "expected": "HTTP 401/403 (política de permisos)",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 196
+    },
+    {
+      "id": "NEG-API-SUBMIT",
+      "action": "POST /tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/dossiers/6bbd9406-e565-45f1-9b60-cfd1125e248d/submit",
+      "expected": "HTTP 401/403 (política de permisos)",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 199
+    },
+    {
+      "id": "NEG-API-APPROVE-EXT",
+      "action": "POST /tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/dossiers/6bbd9406-e565-45f1-9b60-cfd1125e248d/approve",
+      "expected": "HTTP 401/403 (política de permisos)",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 233
+    },
+    {
+      "id": "NEG-API-BOOTSTRAP",
+      "action": "POST /tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/bootstrap",
+      "expected": "HTTP 401/403 (política de permisos)",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 263
+    },
+    {
+      "id": "NEG-API-LICENSE",
+      "action": "POST /tenants/82af3877-2786-4d39-bce8-c981101c771d/regulatory/operating-licenses",
+      "expected": "HTTP 401/403 (política de permisos)",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 205
+    },
+    {
+      "id": "NEG-URL-tenant-administration",
+      "action": "Acceso por URL directa #/tenant-administration",
+      "expected": "Pantalla bloqueada (Acceso denegado) — manual no asigna esta pantalla al rol",
+      "actual": "Acceso denegado renderizado",
+      "pass": true,
+      "ms": 1282,
+      "screenshot": "ra-spec-neg-url-tenant-administration.png"
+    },
+    {
+      "id": "NEG-URL-security",
+      "action": "Acceso por URL directa #/security",
+      "expected": "Pantalla bloqueada (Acceso denegado) — manual no asigna esta pantalla al rol",
+      "actual": "Acceso denegado renderizado",
+      "pass": true,
+      "ms": 1263,
+      "screenshot": "ra-spec-neg-url-security.png"
+    },
+    {
+      "id": "NEG-URL-audit-trail",
+      "action": "Acceso por URL directa #/audit-trail",
+      "expected": "Pantalla bloqueada (Acceso denegado) — manual no asigna esta pantalla al rol",
+      "actual": "Acceso denegado renderizado",
+      "pass": true,
+      "ms": 1254,
+      "screenshot": "ra-spec-neg-url-audit-trail.png"
+    },
+    {
+      "id": "TENANT-ISOLATION",
+      "action": "Intentar leer el expediente usando otro tenantId",
+      "expected": "HTTP 401/403 y ningún dato expuesto",
+      "actual": "http=403",
+      "pass": true,
+      "ms": 258
+    },
+    {
+      "id": "HISTORY",
+      "action": "Historial/auditoría del expediente",
+      "expected": "Historial con eventos registrados",
+      "actual": "eventos=6",
+      "pass": true,
+      "ms": 1480
+    },
+    {
+      "id": "LOGOUT",
+      "action": "Cerrar sesión",
+      "expected": "Retorno a pantalla de login",
+      "actual": "login visible",
+      "pass": true,
+      "ms": 113
+    }
+  ]
+}

@@ -710,24 +710,107 @@ public sealed class TenantManagementService : ITenantManagementService
         }
     }
 
+    public async Task<Result<TenantUserSummary>> UpdateUserAsync(
+        UpdateTenantUserCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var user = await _repository.GetUserAsync(command.TenantId, command.UserId, cancellationToken);
+            if (user is null)
+            {
+                return Result<TenantUserSummary>.Failure("User not found.");
+            }
+
+            var normalizedEmail = command.Email.Trim().ToUpperInvariant();
+            var duplicate = await _repository.UserEmailExistsAsync(
+                command.TenantId,
+                normalizedEmail,
+                command.UserId,
+                cancellationToken);
+            if (duplicate)
+            {
+                return Result<TenantUserSummary>.Failure("Another user already uses this email in the tenant.");
+            }
+
+            user.UpdateProfile(command.Email, command.FullName, _clock.UtcNow);
+            await AppendAuditAsync(
+                command.TenantId,
+                command.RequestedByUserId,
+                nameof(User),
+                user.Id,
+                AuditAction.TenantChanged,
+                $"Tenant user profile updated: {command.ChangeReason ?? "No reason supplied"}",
+                cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return Result<TenantUserSummary>.Success(ToSummary(user));
+        }
+        catch (DomainException exception)
+        {
+            return Result<TenantUserSummary>.Failure(exception.Message);
+        }
+    }
+
     private static string? ValidateInitialPassword(string password)
     {
         if (string.IsNullOrWhiteSpace(password))
         {
-            return "Initial password is required.";
+            return "Password is required.";
         }
 
         if (password.Length < 12)
         {
-            return "Initial password must be at least 12 characters.";
+            return "Password must be at least 12 characters.";
         }
 
-        if (!password.Any(char.IsUpper) || !password.Any(char.IsLower) || !password.Any(char.IsDigit) || !password.Any(char.IsPunctuation))
+        if (!password.Any(char.IsUpper) || !password.Any(char.IsLower) || !password.Any(char.IsDigit) || !password.Any(character => !char.IsLetterOrDigit(character)))
         {
-            return "Initial password must include uppercase, lowercase, number and symbol.";
+            return "Password must include uppercase, lowercase, number and symbol.";
         }
 
         return null;
+    }
+
+    public async Task<Result> ResetUserPasswordAsync(ResetTenantUserPasswordCommand command, CancellationToken cancellationToken = default)
+    {
+        var passwordValidation = ValidateInitialPassword(command.NewPassword);
+        if (passwordValidation is not null)
+        {
+            return Result.Failure(passwordValidation);
+        }
+
+        var user = await _repository.GetUserAsync(command.TenantId, command.UserId, cancellationToken);
+        if (user is null)
+        {
+            return Result.Failure("User not found.");
+        }
+
+        if (user.Status == UserStatus.Disabled)
+        {
+            return Result.Failure("Cannot reset password for a disabled user. Unlock or activate the user first.");
+        }
+
+        user.ChangePassword(_passwordHasher.HashPassword(command.NewPassword), _clock.UtcNow);
+        if (command.ForcePasswordChange)
+        {
+            user.RequirePasswordChange();
+        }
+
+        foreach (var session in user.Sessions.Where(session => session.IsActive(_clock.UtcNow)))
+        {
+            session.Revoke(_clock.UtcNow);
+        }
+
+        await AppendAuditAsync(
+            command.TenantId,
+            command.RequestedByUserId,
+            nameof(User),
+            user.Id,
+            AuditAction.TenantChanged,
+            $"Tenant user password reset by administrator: {command.ChangeReason ?? "No reason supplied"}",
+            cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return Result.Success();
     }
 
     public async Task<Result> ChangeUserStatusAsync(ChangeTenantUserStatusCommand command, CancellationToken cancellationToken = default)

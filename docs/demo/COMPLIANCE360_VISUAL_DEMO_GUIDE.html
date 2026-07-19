@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compliance 360 — Guía Visual Demo (Mock UI)</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#eef3f9;--surface:#fff;--surface-muted:#eef3f8;--text:#172033;--muted:#64748b;
+  --border:#d9e2ec;--accent:#1769aa;--accent-strong:#0f4c81;--success:#0f766e;--warning:#b45309;
+  --danger:#b91c1c;--focus:#2563eb;--shadow:0 18px 45px rgba(15,23,42,.08);
+  --gradient:linear-gradient(135deg,#0f4c81 0%,#1769aa 48%,#0f766e 100%);
+  --radius:14px;--coach-w:400px;--guide-accent:#d4af37;
+  font-family:"Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(circle at top left,rgba(23,105,170,.12),transparent 28rem),radial-gradient(circle at bottom right,rgba(15,118,110,.1),transparent 24rem),var(--bg);color:var(--text);min-height:100vh;overflow:hidden}
+.guide-shell{display:grid;grid-template-rows:auto 1fr;height:100vh}
+.guide-header{display:flex;align-items:center;gap:.65rem;padding:.55rem 1rem;background:rgba(255,255,255,.92);border-bottom:1px solid var(--border);backdrop-filter:blur(16px);z-index:20;flex-wrap:wrap}
+.guide-brand{display:flex;align-items:center;gap:.55rem;font-weight:800;font-size:.88rem;color:var(--accent-strong)}
+.guide-brand-mark{width:34px;height:34px;border-radius:10px;background:var(--gradient);color:#fff;display:grid;place-items:center;font-size:.68rem}
+.guide-meta{display:flex;flex-wrap:wrap;gap:.35rem;flex:1;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:.25rem;padding:.28rem .6rem;border-radius:999px;border:1px solid var(--border);background:var(--surface);font-size:.72rem;font-weight:600}
+.chip.role{color:#fff;border:none}
+.chip.gold{background:linear-gradient(135deg,#d4af37,#c9a020);color:#061e47;border:none}
+.chip.demo{background:#ecfdf5;border-color:#86efac;color:var(--success)}
+.guide-nav{display:flex;gap:.35rem;margin-left:auto}
+.gbtn{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:10px;padding:.42rem .85rem;font-size:.78rem;font-weight:650;cursor:pointer}
+.gbtn.primary{background:var(--gradient);border-color:var(--accent);color:#fff}
+.gbtn:hover{transform:translateY(-1px)}
+.guide-body{display:grid;grid-template-columns:1fr var(--coach-w);min-height:0}
+.mock-frame{position:relative;overflow:auto;background:var(--bg);border-right:1px solid var(--border)}
+.mock-scale{transform-origin:top left;min-height:100%}
+.demo-watermark{position:absolute;top:.65rem;left:50%;transform:translateX(-50%);z-index:9;pointer-events:none;
+  background:rgba(212,175,55,.92);color:#061e47;padding:.22rem .65rem;border-radius:999px;font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.role-switch-overlay{position:absolute;inset:0;z-index:8;background:rgba(15,76,129,.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:1rem}
+.role-switch-card{background:#fff;border-radius:var(--radius);padding:1.25rem;max-width:420px;width:100%;box-shadow:var(--shadow);border:2px solid #fdba74;text-align:center}
+.role-switch-card h3{color:#c2410c;font-size:.85rem;margin-bottom:.65rem;text-transform:uppercase;letter-spacing:.06em}
+.hotspot{position:relative;display:inline-block}
+.hotspot::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+  background:#061e47;color:#fff;padding:.25rem .45rem;border-radius:6px;font-size:.62rem;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;z-index:99}
+.hotspot:hover::after,.hotspot.pulse::after{opacity:1}
+.hotspot-ring{outline:3px solid var(--guide-accent);outline-offset:3px;border-radius:8px;animation:ringPulse 1.6s ease infinite}
+@keyframes ringPulse{0%,100%{outline-color:var(--guide-accent)}50%{outline-color:transparent}}
+.coach{background:linear-gradient(180deg,#fff 0%,#f8fafc 100%);display:flex;flex-direction:column;min-height:0;box-shadow:-8px 0 32px rgba(15,23,42,.06)}
+.coach-head{padding:1rem 1rem .75rem;border-bottom:1px solid var(--border)}
+.coach-head h2{font-size:1rem;color:var(--accent-strong);line-height:1.35;margin:.35rem 0}
+.coach-phase{font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.coach-scroll{flex:1;overflow-y:auto;padding:1rem;display:grid;gap:.85rem}
+.script-card{background:linear-gradient(135deg,#f8faff,#eef3ff);border:1px solid #c7d7f5;border-left:4px solid var(--accent);border-radius:0 12px 12px 0;padding:1rem;line-height:1.7;font-size:.92rem}
+.action-step{display:flex;gap:.55rem;padding:.55rem .65rem;border-radius:10px;border:1px solid var(--border);font-size:.82rem;background:var(--surface)}
+.action-step.active{background:#eff6ff;border-color:#93c5fd;box-shadow:inset 3px 0 0 var(--accent)}
+.action-step.done{opacity:.55}
+.action-num{width:22px;height:22px;border-radius:6px;background:var(--accent);color:#fff;font-size:.65rem;font-weight:800;display:grid;place-items:center;flex-shrink:0}
+.cred-card{background:var(--surface-muted);border:1px solid var(--border);border-radius:12px;padding:.75rem;font-size:.78rem}
+.cred-card code{word-break:break-all;font-size:.74rem}
+.flow-mini{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:.25rem;font-size:.68rem;margin-top:.35rem}
+.flow-mini div{background:var(--surface-muted);border:1px solid var(--border);border-radius:8px;padding:.4rem;text-align:center}
+.flow-mini .mid{border-color:var(--guide-accent);background:#fffef8;font-weight:700}
+.coach-foot{padding:.75rem 1rem;border-top:1px solid var(--border);display:flex;gap:.45rem}
+.block-rail{display:flex;gap:.2rem;padding:.45rem 1rem .35rem;overflow-x:auto;border-bottom:1px solid var(--border);background:rgba(255,255,255,.92);position:relative;z-index:15}
+.block-dot{width:28px;height:28px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);font-size:.62rem;font-weight:800;cursor:pointer;flex-shrink:0;display:grid;place-items:center}
+.block-dot.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.block-dot.done{background:var(--success);border-color:var(--success);color:#fff}
+
+/* ——— App UI replica (from styles.css) ——— */
+.login-page{min-height:calc(100vh - 90px);display:grid;grid-template-columns:minmax(280px,380px) 1fr}
+.login-panel{background:rgba(255,255,255,.92);padding:36px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--border);box-shadow:var(--shadow)}
+.login-hero{padding:40px;display:flex;flex-direction:column;justify-content:center;gap:20px;background:linear-gradient(135deg,rgba(15,76,129,.92),rgba(15,118,110,.78))}
+.brand-line{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.brand-mark{width:44px;height:44px;border-radius:12px;background:var(--gradient);color:#fff;display:grid;place-items:center;font-weight:800;font-size:.82rem}
+.product-badge{display:inline-flex;border:1px solid var(--border);border-radius:999px;padding:5px 10px;font-size:12px;color:var(--muted);background:var(--surface)}
+.login-panel h1{font-size:24px;margin:0 0 8px}
+.login-panel p,.hero-card p{color:var(--muted);line-height:1.5;font-size:14px}
+.form-stack{display:grid;gap:14px;margin-top:16px}
+.field{display:grid;gap:6px}
+.field label{font-weight:650;font-size:13px}
+.field input,.search-box{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:10px 12px;width:100%;font-size:14px}
+.btn{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:9px 13px;cursor:pointer;font-weight:600;font-size:13px}
+.btn.primary{background:var(--gradient);border-color:var(--accent);color:#fff}
+.hero-card h2{color:#fff;font-size:1.6rem;margin:.5rem 0}
+.hero-card .product-badge{border-color:rgba(255,255,255,.3);color:#fff;background:rgba(255,255,255,.12)}
+.status-pill{display:inline-flex;border:1px solid var(--border);border-radius:999px;padding:5px 10px;font-size:12px;background:var(--surface)}
+.status-pill.ok{color:var(--success);border-color:#99f6e4;background:#ecfdf5}
+.grid.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.glass-card{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:14px;padding:14px;color:#fff}
+.metric-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;opacity:.85}
+.metric-value{font-size:1.5rem;font-weight:800;margin-top:4px}
+.layout{min-height:calc(100vh - 90px);display:grid;grid-template-columns:250px 1fr}
+.sidebar{background:rgba(255,255,255,.92);border-right:1px solid var(--border);padding:14px;height:100%;overflow-y:auto}
+.brand{display:flex;align-items:center;gap:10px;padding:6px 6px 14px;border-bottom:1px solid var(--border)}
+.brand-title{font-weight:800;font-size:14px}
+.brand-subtitle{color:var(--muted);font-size:11px}
+.sidebar-status{display:grid;gap:6px;margin:12px 0;padding:12px;border:1px solid var(--border);border-radius:14px;background:var(--surface)}
+.sidebar-status small{color:var(--muted);font-size:11px}
+.nav-label{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em;padding:8px 6px 4px}
+.nav-button{width:100%;border:0;background:transparent;text-align:left;padding:8px 10px;border-radius:10px;display:grid;grid-template-columns:30px 1fr auto;gap:8px;align-items:center;font-size:13px;cursor:default;color:var(--text)}
+.nav-button.active{background:var(--surface-muted);box-shadow:inset 4px 0 0 var(--accent);font-weight:700;color:var(--accent-strong)}
+.nav-icon{width:26px;height:26px;border-radius:9px;background:rgba(23,105,170,.1);color:var(--accent-strong);display:grid;place-items:center;font-size:10px;font-weight:800}
+.sidebar-footer{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)}
+.main{min-width:0;display:flex;flex-direction:column}
+.topbar{height:60px;display:grid;grid-template-columns:1fr 1.2fr auto;gap:12px;align-items:center;padding:0 18px;background:rgba(255,255,255,.84);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
+.breadcrumbs.compact{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.top-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tenant-chip,.status-chip{font-size:12px;border:1px solid var(--border);border-radius:999px;padding:5px 9px;color:var(--muted);background:var(--surface)}
+.btn.danger{border-color:var(--danger);color:var(--danger);background:var(--surface)}
+.content{padding:18px;display:grid;gap:16px}
+.page-title h1{font-size:1.35rem;margin:0}
+.page-title p{color:var(--muted);font-size:13px;margin-top:4px}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.card,.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.section-title{font-size:1rem;margin:0 0 8px}
+.grid.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px}
+.metric-card span{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
+.metric-card strong{font-size:1.1rem}
+.tenant-hero,.platform-hero,.module-hero{display:flex;justify-content:space-between;gap:16px;padding:18px;border-radius:var(--radius);background:linear-gradient(135deg,rgba(23,105,170,.08),rgba(15,118,110,.06));border:1px solid var(--border)}
+.tenant-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.tenant-tab{border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:7px 12px;font-size:12px;cursor:default}
+.tenant-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.data-table{width:100%;border-collapse:collapse;font-size:12px}
+.data-table th{background:var(--surface-muted);text-align:left;padding:8px;border:1px solid var(--border);font-size:10px;text-transform:uppercase;color:var(--muted)}
+.data-table td{padding:8px;border:1px solid var(--border)}
+.tag-status{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700}
+.tag-status.active{background:#ecfdf5;color:var(--success)}
+.tag-status.draft{background:#fef3c7;color:var(--warning)}
+.read-only-notice{background:#fff7ed;border:1px dashed #fdba74;border-radius:12px;padding:14px;color:#9a3412;font-size:13px}
+.progress{width:100%;height:10px;border-radius:999px;overflow:hidden;margin:8px 0}
+.heat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.heat-cell{aspect-ratio:1;border-radius:6px;display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff}
+.intro-screen,.close-screen{min-height:calc(100vh - 130px);display:grid;place-items:center;padding:2rem}
+.intro-card,.close-card{max-width:720px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow)}
+.intro-card h1{font-size:1.8rem;color:var(--accent-strong);margin-bottom:.75rem}
+.pain-list{display:grid;grid-template-columns:1fr 1fr;gap:.45rem;margin:1rem 0;font-size:.85rem}
+.pain-list li{list-style:none;padding:.45rem .65rem;background:var(--surface-muted);border-radius:8px;border-left:3px solid var(--accent)}
+@media(max-width:1100px){.guide-body{grid-template-columns:1fr}.coach{position:fixed;right:0;top:auto;bottom:0;left:0;height:42vh;z-index:30;border-top:1px solid var(--border)}.mock-frame{padding-bottom:42vh}}
+
+/* Journey & onboarding */
+.welcome-overlay,.journey-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(6,30,71,.55);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:1rem}
+.welcome-overlay.open,.journey-overlay.open{display:flex}
+.welcome-card,.journey-card{background:var(--surface);border-radius:var(--radius);max-width:720px;width:100%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+.welcome-head,.journey-head{padding:1.25rem 1.35rem;border-bottom:1px solid var(--border)}
+.welcome-head h2,.journey-head h2{color:var(--accent-strong);font-size:1.2rem;margin-bottom:.35rem}
+.welcome-body,.journey-body{padding:1.1rem 1.35rem;overflow-y:auto;flex:1}
+.setup-steps{display:grid;gap:.55rem;margin:1rem 0}
+.setup-step{display:flex;gap:.65rem;padding:.65rem .75rem;border:1px solid var(--border);border-radius:10px;background:var(--surface-muted)}
+.setup-num{width:26px;height:26px;border-radius:8px;background:var(--gradient);color:#fff;font-weight:800;font-size:.72rem;display:grid;place-items:center;flex-shrink:0}
+.artifact-chain{display:flex;flex-wrap:wrap;gap:.3rem;margin:1rem 0}
+.artifact-chip-sm{font-size:.62rem;padding:.2rem .45rem;border-radius:6px;border:1px solid var(--border);background:var(--surface)}
+.artifact-chip-sm.arrow{background:transparent;border:none;color:var(--guide-accent);font-weight:700}
+.phase-timeline{list-style:none;display:grid;gap:.55rem}
+.phase-timeline li{border:1px solid var(--border);border-radius:12px;padding:.75rem .85rem;cursor:pointer;transition:all .2s;background:var(--surface)}
+.phase-timeline li:hover{border-color:var(--accent);transform:translateX(4px)}
+.phase-timeline li.active{border-color:var(--guide-accent);background:#fffef8;box-shadow:0 4px 16px rgba(212,175,55,.15)}
+.phase-timeline .ph-meta{font-size:.68rem;color:var(--muted);margin-top:.25rem}
+.tour-bar{display:none;background:linear-gradient(90deg,var(--accent-strong),var(--accent));color:#fff;padding:.45rem 1rem;font-size:.78rem;align-items:center;gap:.65rem;flex-wrap:wrap}
+.tour-bar.open{display:flex}
+.tour-bar button{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:8px;padding:.3rem .65rem;cursor:pointer;font-size:.72rem;font-weight:600}
+.journey-progress{height:4px;background:rgba(255,255,255,.2);border-radius:99px;flex:1;min-width:80px}
+.journey-progress-fill{height:100%;background:var(--guide-accent);border-radius:99px;transition:width .35s}
+.coach-position{font-size:.68rem;color:var(--muted);margin-top:.35rem;padding:.35rem .5rem;background:var(--surface-muted);border-radius:8px}
+
+/* ═══ PREMIUM 1000% UX ═══ */
+:root{--coach-w:420px}
+[data-theme="dark"]{--bg:#0a1220;--surface:#111b2e;--surface-muted:#0f1729;--text:#e8edf5;--muted:#94a3b8;--border:#1e2d45}
+[data-theme="dark"] body{background:#0a1220}
+.progress-ring-wrap{display:flex;align-items:center;gap:.35rem}
+.journey-svg-wrap{margin:0 1rem .35rem;border-bottom:1px solid var(--border);background:rgba(255,255,255,.85)}
+.journey-svg-wrap .journey-node:hover rect{filter:brightness(1.08)}
+.spotlight-bar{display:flex;align-items:center;gap:.55rem;padding:.55rem .85rem;background:linear-gradient(90deg,#061e47,#0f4c81);color:#fff;font-size:.8rem;border-bottom:2px solid var(--guide-accent)}
+.spotlight-pulse{width:10px;height:10px;border-radius:50%;background:var(--guide-accent);animation:spotPulse 1.2s ease infinite;flex-shrink:0}
+@keyframes spotPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.5}}
+.spotlight-btn{margin-left:auto;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:8px;padding:.35rem .7rem;cursor:pointer;font-size:.72rem;font-weight:700}
+.spotlight-btn:hover{background:rgba(255,255,255,.25)}
+.coach-tabs{display:flex;gap:.15rem;padding:.45rem 1rem 0;border-bottom:1px solid var(--border);overflow-x:auto}
+.coach-tab{padding:.4rem .7rem;border:none;background:none;cursor:pointer;font-size:.7rem;font-weight:700;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
+.coach-tab.active{color:var(--accent-strong);border-bottom-color:var(--guide-accent)}
+.coach-panel{display:none}.coach-panel.active{display:block}
+.cred-card.premium{border:2px solid var(--accent);background:linear-gradient(135deg,#f8faff,#fff)}
+.cred-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
+.cred-copy-btn{font-size:.65rem;padding:.25rem .5rem;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer;font-weight:700}
+.cred-grid{display:grid;gap:.35rem;font-size:.74rem}
+.cred-grid span{font-size:.58rem;text-transform:uppercase;color:var(--muted);font-weight:700}
+.verify-card{background:#ecfdf5;border:1px solid #86efac;border-radius:10px;padding:.75rem;font-size:.82rem}
+.block-rail .block-dot.role-dot{font-size:0;width:8px;min-width:8px;padding:0;border-radius:50%;height:8px;align-self:center}
+.mock-frame.block-enter{animation:blockEnter .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes blockEnter{from{opacity:0;transform:translateY(12px) scale(.99)}to{opacity:1;transform:none}}
+.celebrate-flash{animation:celebrateFlash .7s ease}
+@keyframes celebrateFlash{0%,100%{box-shadow:none}50%{box-shadow:0 0 0 4px var(--guide-accent),0 0 40px rgba(212,175,55,.35)}}
+.toast-premium{position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%) translateY(12px);background:#061e47;color:#fff;padding:.55rem 1.1rem;border-radius:999px;font-size:.8rem;z-index:600;opacity:0;transition:all .3s;pointer-events:none;border:1px solid var(--guide-accent)}
+.toast-premium.show{opacity:1;transform:translateX(-50%) translateY(0)}
+body.present-mode .coach{width:340px}
+body.present-mode .script-card{font-size:1.02rem;line-height:1.8}
+body.present-mode .guide-header{background:linear-gradient(90deg,#061e47,#0f4c81);color:#fff}
+body.present-mode .guide-header .chip:not(.role){background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2);color:#fff}
+body.immersive .guide-header,.body.immersive .block-rail,.body.immersive .journey-svg-wrap{opacity:0;pointer-events:none;position:absolute}
+body.immersive .tour-bar{top:0}
+.director-on .action-step.active{animation:directorGlow 1.5s ease infinite}
+@keyframes directorGlow{0%,100%{box-shadow:inset 3px 0 0 var(--accent)}50%{box-shadow:inset 3px 0 0 var(--guide-accent),0 0 12px rgba(212,175,55,.3)}}
+.gbtn.active-toggle{background:var(--guide-accent);color:#061e47;border-color:var(--guide-accent);font-weight:800}
+</style>
+</head>
+<body>
+<div class="guide-shell">
+  <header class="guide-header">
+    <div class="guide-brand"><div class="guide-brand-mark">C360</div>Guía Visual Demo · Mock UI</div>
+    <div class="guide-meta">
+      <span class="progress-ring-wrap" id="progressRing"></span>
+      <span class="chip demo">Mock UI · offline OK</span>
+      <span class="chip" id="chipBlock">Bloque 1/20</span>
+      <span class="chip role" id="chipRole">Presentador</span>
+      <span class="chip gold" id="chipTime">⏱ 00:00</span>
+      <span class="chip" id="chipPhase">Fase —</span>
+    </div>
+    <div class="guide-nav">
+      <button class="gbtn" id="btnPresent" title="Modo presentador">🎯 Presentar</button>
+      <button class="gbtn" id="btnDirector" title="Auto-avance acciones">⚡ Director</button>
+      <button class="gbtn" id="btnDark" title="Tema">🌙</button>
+      <button class="gbtn" id="btnImmersive" title="Pantalla completa">⛶</button>
+      <button class="gbtn" id="btnJourney">🎬 Flujo</button>
+      <button class="gbtn" id="btnTour">▶ Recorrido</button>
+      <button class="gbtn" id="btnPrev">←</button>
+      <button class="gbtn primary" id="btnNext">Siguiente →</button>
+    </div>
+  </header>
+  <div class="tour-bar" id="tourBar">
+    <span id="tourLabel">Recorrido guiado</span>
+    <div class="journey-progress"><div class="journey-progress-fill" id="tourProgress"></div></div>
+    <button id="btnTourPause">Pausar</button>
+    <button id="btnTourExit">Salir recorrido</button>
+  </div>
+  <div class="block-rail" id="blockRail"></div>
+  <div class="journey-svg-wrap" id="journeySvgWrap"></div>
+  <div class="guide-body">
+    <div class="mock-frame" id="mockFrame">
+      <div id="spotlightMount"></div>
+      <div class="demo-watermark">Vista simulada · Compliance 360</div>
+      <div class="mock-scale" id="mockApp"></div>
+      <div class="role-switch-overlay" id="roleOverlay" style="display:none"></div>
+    </div>
+    <aside class="coach" id="coach">
+      <div class="coach-tabs">
+        <button class="coach-tab active" data-ctab="script">🎤 Script</button>
+        <button class="coach-tab" data-ctab="actions">⚡ Acciones</button>
+        <button class="coach-tab" data-ctab="creds">🔑 Login</button>
+        <button class="coach-tab" data-ctab="verify">✓ E2E</button>
+      </div>
+      <div class="coach-head">
+        <div class="coach-phase" id="coachPhase">—</div>
+        <h2 id="coachTitle">—</h2>
+        <div class="flow-mini" id="coachFlow"></div>
+      </div>
+      <div class="coach-scroll">
+        <div class="coach-panel active" data-ctab-panel="script"><div class="script-card" id="coachScript"></div></div>
+        <div class="coach-panel" data-ctab-panel="actions"><div id="coachActions"></div></div>
+        <div class="coach-panel" data-ctab-panel="creds"><div id="coachCreds"></div></div>
+        <div class="coach-panel" data-ctab-panel="verify"><div class="verify-card" id="coachVerify"></div></div>
+      </div>
+      <div class="coach-foot">
+        <button class="gbtn" style="flex:1" id="btnScriptOnly">🎤 Solo script</button>
+        <button class="gbtn primary" style="flex:1" id="btnMarkDone">✓ Bloque listo</button>
+      </div>
+    </aside>
+  </div>
+</div>
+<div class="toast-premium" id="toastPremium"></div>
+<div class="welcome-overlay open" id="welcomeModal">
+  <div class="welcome-card">
+    <div class="welcome-head">
+      <h2 id="welcomeTitle">—</h2>
+      <p id="welcomeSub" style="color:var(--muted);font-size:.88rem"></p>
+    </div>
+    <div class="welcome-body" id="welcomeBody"></div>
+    <div style="padding:.85rem 1.35rem;border-top:1px solid var(--border);display:flex;gap:.45rem;flex-wrap:wrap">
+      <button class="gbtn primary" id="btnStartTour">▶ Iniciar recorrido guiado (Bloque 1)</button>
+      <button class="gbtn" id="btnStartBlock1">Ir al Bloque 1</button>
+      <button class="gbtn" id="btnWelcomeClose">Cerrar</button>
+    </div>
+  </div>
+</div>
+<div class="journey-overlay" id="journeyModal">
+  <div class="journey-card" style="max-width:800px">
+    <div class="journey-head"><h2>Flujo completo — inicio a fin</h2><p style="color:var(--muted);font-size:.82rem">10 fases · 20 bloques · clic en una fase para saltar</p></div>
+    <div class="journey-body" id="journeyBody"></div>
+    <div style="padding:.75rem 1.35rem;border-top:1px solid var(--border)"><button class="gbtn primary" id="btnJourneyClose">Cerrar</button></div>
+  </div>
+</div>
+<script>/* Shared premium UX — embedded in both demo guides */
+window.C360Guide = {
+  esc(s) { const d = document.createElement("div"); d.textContent = s ?? ""; return d.innerHTML; },
+
+  phaseForBlock(data, id) {
+    return (data.journey?.phases || []).find(p => p.blocks.includes(id));
+  },
+
+  progressRing(pct, size = 36) {
+    const r = (size - 6) / 2;
+    const c = 2 * Math.PI * r;
+    const off = c - (pct / 100) * c;
+    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" class="progress-ring" aria-hidden="true">
+      <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="rgba(0,0,0,.08)" stroke-width="4"/>
+      <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="url(#rg)" stroke-width="4" stroke-dasharray="${c}" stroke-dashoffset="${off}" stroke-linecap="round" transform="rotate(-90 ${size/2} ${size/2})"/>
+      <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0f4c81"/><stop offset="100%" stop-color="#d4af37"/></linearGradient></defs>
+      <text x="50%" y="54%" text-anchor="middle" font-size="9" font-weight="800" fill="#0f4c81">${pct}%</text></svg>`;
+  },
+
+  journeySvg(data, activeBlockId) {
+    const phases = data.journey?.phases || [];
+    if (!phases.length) return "";
+    const w = Math.min(phases.length * 88, 880);
+    return `<div class="journey-svg-wrap" style="overflow-x:auto;padding:.5rem 0"><svg viewBox="0 0 ${phases.length * 88} 72" width="${w}" height="72" class="journey-svg">
+      ${phases.map((p, i) => {
+        const active = p.blocks.includes(activeBlockId);
+        const done = p.blocks.every(bid => window.C360Guide._doneSet?.has(bid));
+        const x = i * 88 + 8;
+        const fill = active ? "#1769aa" : done ? "#0f766e" : "#e2e8f0";
+        const text = active ? "#fff" : done ? "#fff" : "#64748b";
+        return `<g class="journey-node" data-phase-idx="${p.blocks[0]-1}" style="cursor:pointer">
+          <rect x="${x}" y="8" width="72" height="44" rx="10" fill="${fill}" stroke="${active?"#d4af37":"transparent"}" stroke-width="2"/>
+          <text x="${x+36}" y="26" text-anchor="middle" font-size="8" font-weight="700" fill="${text}">F${p.order}</text>
+          <text x="${x+36}" y="40" text-anchor="middle" font-size="6.5" fill="${text}">${p.label.split(" ")[0]}</text>
+          ${i < phases.length - 1 ? `<line x1="${x+72}" y1="30" x2="${x+88}" y2="30" stroke="#d4af37" stroke-width="2" marker-end="url(#arr)"/>` : ""}
+        </g>`;
+      }).join("")}
+      <defs><marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#d4af37"/></marker></defs>
+    </svg></div>`;
+  },
+
+  bindJourneySvg(root, onGo) {
+    root.querySelectorAll(".journey-node").forEach(g => g.addEventListener("click", () => onGo(+g.dataset.phaseIdx)));
+  },
+
+  spotlightHtml(text) {
+    return `<div class="spotlight-bar" id="spotlightBar"><span class="spotlight-pulse"></span><span id="spotlightText">${this.esc(text)}</span><button class="spotlight-btn" id="btnSpotlightNext">Siguiente paso →</button></div>`;
+  },
+
+  toast(el, msg) {
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add("show");
+    setTimeout(() => el.classList.remove("show"), 2400);
+  },
+
+  celebrate(el) {
+    if (!el) return;
+    el.classList.add("celebrate-flash");
+    setTimeout(() => el.classList.remove("celebrate-flash"), 700);
+  },
+
+  copyText(text, toastEl) {
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => this.toast(toastEl, "Copiado al portapapeles"));
+  },
+
+  credCard(role, cred, copyFn) {
+    if (!cred) return "";
+    return `<div class="cred-card premium"><div class="cred-head"><strong>🔑 ${this.esc(role)}</strong><button type="button" class="cred-copy-btn" data-copy-role="${this.esc(role)}">Copiar todo</button></div>
+      <div class="cred-grid"><div><span>Tenant</span><code>${this.esc(cred.tenantId)}</code></div>
+      <div><span>Email</span><code>${this.esc(cred.email)}</code></div>
+      <div><span>Password</span><code>${this.esc(cred.password)}</code></div></div></div>`;
+  }
+};
+</script>
+<script>
+const DATA = {"company": {"name": "Alimentos Premium Panamá S.A.", "industry": "Manufactura de alimentos", "standards": "ISO 9001, ISO 22000, HACCP, BPM", "pain_points": ["Documentos en Excel sin control de versiones", "Auditorías manuales sin trazabilidad centralizada", "CAPA sin seguimiento estructurado", "Riesgos operativos sin matriz viva", "Indicadores calculados manualmente", "Reportes lentos para gerencia", "Sin segregación de funciones por rol", "Evidencias dispersas en carpetas y correos"]}, "baseUrl": "http://localhost:5272", "tenantId": "ddcaf211-afe0-44a0-9c90-4fbda8fc4871", "credentials": {"Platform Administrator": {"email": "admin@compliance360.local", "password": "OwnerStart!2026", "tenantId": "dc7c46ee-cb25-4ed5-b0b4-800788f7f626"}, "Tenant Administrator": {"email": "tenantadmin@alimentos-premium.test", "password": "Premium!2026", "tenantId": "ddcaf211-afe0-44a0-9c90-4fbda8fc4871"}, "Document Controller": {"email": "doccontrol@alimentos-premium.test", "password": "Premium!2026", "tenantId": "ddcaf211-afe0-44a0-9c90-4fbda8fc4871"}, "Quality Manager": {"email": "quality@alimentos-premium.test", "password": "Premium!2026", "tenantId": "ddcaf211-afe0-44a0-9c90-4fbda8fc4871"}, "Auditor": {"email": "auditor@alimentos-premium.test", "password": "Premium!2026", "tenantId": "ddcaf211-afe0-44a0-9c90-4fbda8fc4871"}, "CAPA Manager": {"email": "capa@alimentos-premium.test", "password": "Premium!2026", "tenantId": "ddcaf211-afe0-44a0-9c90-4fbda8fc4871"}, "Risk Manager": {"email": "risk@alimentos-premium.test", "password": "Premium!2026", "tenantId": "ddcaf211-afe0-44a0-9c90-4fbda8fc4871"}, "Indicators Manager": {"email": "indicators@alimentos-premium.test", "password": "Premium!2026", "tenantId": "ddcaf211-afe0-44a0-9c90-4fbda8fc4871"}, "Reporting Manager": {"email": "reporting@alimentos-premium.test", "password": "Premium!2026", "tenantId": "ddcaf211-afe0-44a0-9c90-4fbda8fc4871"}, "Storage Administrator": {"email": "storage@alimentos-premium.test", "password": "Premium!2026", "tenantId": "ddcaf211-afe0-44a0-9c90-4fbda8fc4871"}, "Notification Administrator": {"email": "notifications@alimentos-premium.test", "password": "Premium!2026", "tenantId": "ddcaf211-afe0-44a0-9c90-4fbda8fc4871"}, "Viewer": {"email": "viewer@alimentos-premium.test", "password": "Premium!2026", "tenantId": "ddcaf211-afe0-44a0-9c90-4fbda8fc4871"}}, "blocks": [{"id": 1, "title": "Bienvenida y problema del cliente", "duration": "5 min", "role": "Presentador", "user": "—", "screen": "Slide / conversación", "route": "—", "menu": "—", "actions": ["Saludar a gerencia, calidad, IT y operaciones.", "Presentar el escenario: Alimentos Premium Panamá S.A.", "Enumerar dolores: Excel, auditorías manuales, CAPA sin trazabilidad."], "buttons": "—", "data": "—", "result": "Cliente identifica sus propios dolores en la narrativa.", "script": "Buenos días. Hoy no les mostraré 'un software más'. Les mostraré cómo Alimentos Premium Panamá puede pasar de controles en Excel y carpetas compartidas a un sistema Enterprise donde cada acción queda registrada, cada rol tiene límites claros y la gerencia ve el cumplimiento en tiempo real. Imaginen su planta de manufactura de alimentos bajo ISO 9001, ISO 22000 y HACCP: documentos versionados, auditorías con evidencia, CAPA con causa raíz, riesgos con matriz viva e indicadores que alimentan reportes ejecutivos sin trabajo manual.", "benefit": "Enmarcar la demo como transformación de negocio, no como IT.", "faq": [{"q": "¿Esto reemplaza nuestro ERP?", "a": "No. Compliance 360 gobierna cumplimiento, calidad y riesgos. Se integra con ERP/MES vía API."}, {"q": "¿Cuánto tarda implementar?", "a": "Tenant operativo en días; módulos se activan progresivamente según madurez."}], "warnings": "No abrir la aplicación aún. Conectar con dolores reales del cliente.", "checklist": ["Confirmar asistentes clave", "Validar proyector y resolución", "Mencionar empresa ficticia"], "loginRole": null, "roleShort": "—", "roleColor": "#5b21b6", "roleChanged": false, "prevLoginRole": null, "midBlockSwitch": null, "flowIn": "Dolor del cliente (Excel, CAPA manual)", "flowOut": "Buy-in gerencia", "artifact": "—", "module": "—", "verify": "Cliente asiente con dolores", "roleCan": "", "roleCannot": "", "uiFocus": [], "recovery": "Narrar el beneficio de negocio del bloque. Refresh (F5). Re-login con tab Login & Rol. Si persiste, avanzar al siguiente bloque.", "durationMin": 5}, {"id": 2, "title": "Visión general de Compliance 360", "duration": "5 min", "role": "Platform Administrator", "user": "admin@compliance360.local", "screen": "SuperAdmin Platform Center", "route": "#/superadmin-platform", "menu": "Operations → SuperAdmin Platform", "actions": ["Abrir http://localhost:5272 en pestaña 1 (aplicación).", "Abrir COMPLIANCE360_INTERACTIVE_DEMO_GUIDE.html en pestaña 2 (guía).", "Login: Tenant ID platform, admin@compliance360.local.", "Navegar a SuperAdmin Platform Center.", "Mostrar tab Executive: salud global, tenants activos."], "buttons": "Tab 'Executive' · Tab 'Tenants'", "data": "Tenant ID plataforma: dc7c46ee-cb25-4ed5-b0b4-800788f7f626", "result": "Vista de gobierno global SaaS multi-tenant.", "script": "Compliance 360 es una plataforma Enterprise multi-tenant. Desde un único centro de gobierno ustedes administran clientes, licencias, seguridad global y auditoría de plataforma. Cada cliente —como Alimentos Premium— opera en su propio espacio aislado con usuarios, roles y datos separados. Esto es arquitectura SaaS de nivel consultoría: un producto, muchos clientes, cero mezcla de información.", "benefit": "Confianza Enterprise: multi-tenancy, gobierno central, escala comercial.", "faq": [{"q": "¿Dónde se aloja?", "a": "Cloud o on-premise según contrato; PostgreSQL + API .NET 9."}, {"q": "¿Hay un solo SuperAdmin?", "a": "Modelo RBAC: Platform Administrator, Operations, Security, Support con permisos explícitos."}], "warnings": "No entrar aún a módulos de negocio; mantener narrativa plataforma.", "checklist": ["Login exitoso", "Tab Executive visible", "Contador de tenants activos"], "loginRole": "Platform Administrator", "roleShort": "Plat.Admin", "roleColor": "#1d4ed8", "roleChanged": true, "prevLoginRole": null, "midBlockSwitch": null, "flowIn": "—", "flowOut": "Plataforma multi-tenant visible", "artifact": "Executive dashboard", "module": "SuperAdmin Platform", "verify": "Contador tenants activos", "roleCan": "Crear tenants, lifecycle, auditoría global.", "roleCannot": "No opera datos de negocio del tenant.", "uiFocus": ["Login page", "Tenant ID field", "Tab Executive", "Tab Tenants", "Tenant counter"], "recovery": "App no responde: dotnet run --project src/Compliance360.Web. Verificar puerto 5272.", "durationMin": 5}, {"id": 3, "title": "Creación y activación del cliente", "duration": "5 min", "role": "Platform Administrator", "user": "admin@compliance360.local", "screen": "SuperAdmin → Tenants", "route": "#/superadmin-platform", "menu": "Tab Tenants", "actions": ["En tab Tenants, mostrar listado de tenants existentes.", "Señalar 'Alimentos Premium Panama S.A.' ya provisionado (tenant demo).", "Opcional: mostrar formulario #create-tenant-form para explicar onboarding.", "Explicar lifecycle: Trial → Active → Suspended."], "buttons": "Tab 'Tenants' · Botón crear tenant (si demo en vivo)", "data": "Nombre: Alimentos Premium Panamá · Slug: alimentos-premium · Tax ID único", "result": "Cliente ve cómo un nuevo tenant nace en minutos.", "script": "Cuando firman contrato, creamos su tenant en segundos: identidad legal, slug, moneda, país. El tenant inicia en Trial, pasa a Active cuando ustedes están listos, y puede suspenderse por gobierno comercial sin perder datos. Hoy usamos Alimentos Premium Panamá, ya configurado para esta demostración.", "benefit": "Time-to-value: de contrato a tenant operativo el mismo día.", "faq": [{"q": "¿Podemos tener varios tenants?", "a": "Sí, para holdings o ambientes dev/test/prod."}, {"q": "¿Qué pasa al suspender?", "a": "Acceso bloqueado; datos preservados; reactivación inmediata."}], "warnings": "Si crea tenant en vivo, usar Tax ID único para evitar error 400.", "checklist": ["Tenant Alimentos Premium visible", "Estado Active confirmado"], "loginRole": "Platform Administrator", "roleShort": "Plat.Admin", "roleColor": "#1d4ed8", "roleChanged": false, "prevLoginRole": null, "midBlockSwitch": null, "flowIn": "Plataforma SaaS", "flowOut": "Tenant Alimentos Premium Active", "artifact": "Tenant lifecycle", "module": "SuperAdmin → Tenants", "verify": "Tenant en listado Active", "roleCan": "Crear tenants, lifecycle, auditoría global.", "roleCannot": "No opera datos de negocio del tenant.", "uiFocus": ["#/superadmin-platform", "Tab 'Tenants' · Botón crear tenant (si demo en vivo)"], "recovery": "Narrar el beneficio de negocio del bloque. Refresh (F5). Re-login con tab Login & Rol. Si persiste, avanzar al siguiente bloque.", "durationMin": 5}, {"id": 4, "title": "Administración del tenant", "duration": "6 min", "role": "Platform Administrator → Tenant Administrator", "user": "admin@compliance360.local luego tenantadmin@alimentos-premium.test", "screen": "Tenant Administration Center", "route": "#/tenant-administration", "menu": "Enterprise → Tenant Administration", "actions": ["Como Platform Admin: clic en tenant Alimentos Premium → ir a Tenant Administration.", "Logout. Login como Tenant Administrator.", "Tenant ID: ddcaf211-afe0-44a0-9c90-4fbda8fc4871", "Mostrar hero del tenant: nombre legal, estado, plan, usuarios, storage.", "Tab General: datos empresariales, industria alimentos.", "Tab Branding: logo, colores corporativos."], "buttons": "Tabs 'General' y 'Branding'", "data": "Industria: Manufactura de alimentos · País: PA · Moneda: USD", "result": "Perfil Enterprise completo del tenant visible.", "script": "Este es el corazón administrativo del cliente. Aquí vive la identidad de Alimentos Premium: razón social, RUC, industria alimentaria, branding para portal y comunicaciones. La gerencia ve de un vistazo cuántos usuarios consume la licencia, cuánto storage ocupa y el estado comercial del contrato.", "benefit": "Single pane of glass para IT y calidad: configuración sin tickets al vendor.", "faq": [{"q": "¿Personalizamos logo y colores?", "a": "Sí, branding por tenant incluido."}, {"q": "¿Quién administra esto?", "a": "Tenant Administrator; plataforma solo para gobierno SaaS."}], "warnings": "Cambiar tenant en localStorage si navega desde Platform Admin.", "checklist": ["Hero TAC visible", "Tabs General y Branding recorridos"], "loginRole": "Tenant Administrator", "roleShort": "Tenant Admin", "roleColor": "#0369a1", "roleChanged": true, "prevLoginRole": "Platform Administrator", "midBlockSwitch": {"from": "Platform Administrator", "to": "Tenant Administrator"}, "flowIn": "Tenant provisionado", "flowOut": "Perfil + branding tenant", "artifact": "TAC hero + tabs", "module": "Tenant Administration", "verify": "General y Branding OK", "roleCan": "Configura empresa, usuarios, roles, licencias.", "roleCannot": "No aprueba documentos ni cierra CAPA.", "uiFocus": ["#/tenant-administration", "Tabs 'General' y 'Branding'"], "recovery": "Platform Admin en TAC: usar tenant ddcaf211-afe0-44a0-9c90-4fbda8fc4871. Logout antes de Tenant Admin.", "durationMin": 6}, {"id": 5, "title": "Usuarios, roles y permisos", "duration": "6 min", "role": "Tenant Administrator", "user": "tenantadmin@alimentos-premium.test", "screen": "TAC → Usuarios y Roles", "route": "#/tenant-administration", "menu": "Tabs 'Usuarios' y 'Roles & Permisos'", "actions": ["Tab Usuarios: listar usuarios especialistas (Document Controller, QM, Auditor, etc.).", "Mostrar asignación de roles por usuario.", "Tab Roles & Permisos: explicar catálogo RBAC oficial.", "Destacar: permisos pequeños, no bypass por nombre de rol."], "buttons": "Tabs 'users' y 'rbac'", "data": "—", "result": "Matriz de roles clara para IT y auditor externo.", "script": "Compliance 360 no usa 'admin ve todo'. Cada persona tiene un rol con permisos explícitos: elaborar documentos, aprobar, auditar, gestionar CAPA, ver reportes. Esto es Segregación de Funciones diseñada para ISO y SOX: quien elabora no aprueba, quien almacena no envía correos, quien audita no cierra sus propias no conformidades.", "benefit": "RBAC auditable reduce riesgo regulatorio y conflictos internos.", "faq": [{"q": "¿Integramos con Active Directory?", "a": "SSO OIDC/SAML/LDAP configurable por tenant (PENDING producción)."}, {"q": "¿Roles personalizados?", "a": "Sí, desde catálogo oficial con permisos granulares."}], "warnings": "No mostrar contraseñas en pantalla compartida.", "checklist": ["Lista de 12+ usuarios demo", "Roles asignados visibles"], "loginRole": "Tenant Administrator", "roleShort": "Tenant Admin", "roleColor": "#0369a1", "roleChanged": false, "prevLoginRole": null, "midBlockSwitch": null, "flowIn": "Tenant configurado", "flowOut": "12 roles asignados", "artifact": "Matriz usuarios/roles", "module": "TAC → RBAC", "verify": "Usuarios demo visibles", "roleCan": "Configura empresa, usuarios, roles, licencias.", "roleCannot": "No aprueba documentos ni cierra CAPA.", "uiFocus": ["#/tenant-administration", "Tabs 'users' y 'rbac'"], "recovery": "Narrar el beneficio de negocio del bloque. Refresh (F5). Re-login con tab Login & Rol. Si persiste, avanzar al siguiente bloque.", "durationMin": 6}, {"id": 6, "title": "Control documental", "duration": "7 min", "role": "Document Controller", "user": "doccontrol@alimentos-premium.test", "screen": "Document Management", "route": "#/documents", "menu": "Operations → Document Management", "actions": ["Logout Tenant Admin. Login Document Controller.", "Ir a Document Management (#/documents).", "Mostrar listado de documentos existentes.", "En Action Center (#module-action-form): completar Code y Name.", "Ejemplo Code: BPM-LIM-001 · Name: Límite crítico CCP Limpieza.", "Clic Submit del formulario.", "Mostrar toast de éxito y documento en tabla."], "buttons": "#module-action-form button[type=submit]", "data": "Code: BPM-LIM-001 · Name: Límite crítico CCP Limpieza de línea", "result": "Documento controlado creado con código único auditable.", "script": "Adiós Excel suelto. El Document Controller crea procedimientos BPM y registros HACCP con código único, tipo y categoría. Cada documento nace en estado controlado y queda registrado en auditoría. En producción, aquí se adjuntan versiones PDF y se envían a revisión antes de publicación.", "benefit": "Trazabilidad documental ISO 9001/22000 sin carpetas compartidas.", "faq": [{"q": "¿Control de versiones?", "a": "Sí vía API; UI de versiones en roadmap."}, {"q": "¿Firma electrónica?", "a": "Integración third-party configurable (PENDING)."}], "warnings": "Document Controller NO debe ver botón de aprobar.", "checklist": ["Formulario visible", "Toast success", "Documento en listado"], "loginRole": "Document Controller", "roleShort": "Doc Control", "roleColor": "#047857", "roleChanged": true, "prevLoginRole": "Tenant Administrator", "midBlockSwitch": null, "flowIn": "RBAC activo", "flowOut": "Documento BPM-LIM-001", "artifact": "Controlled document", "module": "Document Management", "verify": "Toast + fila en tabla", "roleCan": "Crea tipos, categorías y documentos.", "roleCannot": "No puede aprobar (SoD).", "uiFocus": ["#/documents", "#module-action-form", "Code: BPM-LIM-001", "Submit", "Toast success"], "recovery": "Sin formulario create: logout → login doccontrol@alimentos-premium.test. Verificar rol Document Controller.", "durationMin": 7}, {"id": 7, "title": "Aprobación documental (SoD)", "duration": "5 min", "role": "Quality Manager", "user": "quality@alimentos-premium.test", "screen": "Document Management (solo lectura)", "route": "#/documents", "menu": "Operations → Document Management", "actions": ["Logout Document Controller. Login Quality Manager.", "Ir a Document Management.", "Mostrar que NO aparece formulario de creación (#module-action-form ausente).", "Explicar: QM tiene permiso DOCUMENT.APPROVE en JWT.", "Narrar flujo: elaboración → revisión → aprobación → publicación.", "Mencionar que aprobación formal se ejecuta vía workflow API certificado."], "buttons": "— (solo lectura en UI actual)", "data": "—", "result": "Cliente entiende segregación elaborador vs aprobador.", "script": "Observen: el Quality Manager entra al mismo módulo pero no puede crear documentos. Su rol es aprobar, no elaborar. Si intentara auto-aprobar, el sistema responde 403. Esto es Segregación de Funciones que un auditor externo puede verificar en segundos. El ciclo completo elaborar→aprobar está certificado a nivel API y listo para UI de workflow.", "benefit": "Cumplimiento SoD sin procesos paralelos en email.", "faq": [{"q": "¿QM puede editar borradores?", "a": "No crea; puede aprobar/rechazar vía workflow."}, {"q": "¿Audit trail?", "a": "Cada login, creación y decisión queda registrada."}], "warnings": "No improvisar aprobación en UI si no hay botón; explicar API certificada.", "checklist": ["Sin formulario create", "Listado documentos visible"], "loginRole": "Quality Manager", "roleShort": "Qual.Mgr", "roleColor": "#7c3aed", "roleChanged": true, "prevLoginRole": "Document Controller", "midBlockSwitch": null, "flowIn": "BPM-LIM-001 creado", "flowOut": "SoD elaborador≠aprobador", "artifact": "Sin formulario create", "module": "Document Management (SoD)", "verify": "#module-action-form ausente", "roleCan": "Aprueba documentos, CAPA, riesgos, indicadores.", "roleCannot": "No elabora registros operativos.", "uiFocus": ["#/documents", "Lista documentos", "SIN #module-action-form"], "recovery": "Si QM ve formulario create: narrar SoD — elaborador≠aprobador. API certificada.", "durationMin": 5}, {"id": 8, "title": "Gestión de auditorías", "duration": "6 min", "role": "Auditor", "user": "auditor@alimentos-premium.test", "screen": "Audit Management", "route": "#/audits", "menu": "Operations → Audit Management", "actions": ["Logout QM. Login Auditor.", "Ir a Audit Management (#/audits).", "Completar Action Center: Code AUD-INT-2026-01, Name Auditoría interna BPM Planta.", "Submit formulario.", "Mostrar programa/plan/auditoría creados en backend."], "buttons": "#module-action-form submit", "data": "Code: AUD-INT-2026-01 · Name: Auditoría interna BPM Planta Panamá", "result": "Programa de auditoría registrado con trazabilidad.", "script": "El Auditor planifica auditorías internas ISO y HACCP desde un solo lugar. Programa, plan y auditoría quedan vinculados. En la operación completa —certificada— se registran hallazgos, evidencias fotográficas y no conformidades que alimentan CAPA automáticamente.", "benefit": "Auditorías digitales con evidencia centralizada, no carpetas.", "faq": [{"q": "¿Checklists personalizados?", "a": "Sí, vía API de checklists por programa."}, {"q": "¿Auditor externo?", "a": "Rol Auditor con acceso solo lectura a evidencias autorizadas."}], "warnings": "Auditor no debe ver formulario CAPA de gestión.", "checklist": ["Auditoría creada", "Toast success"], "loginRole": "Auditor", "roleShort": "Auditor", "roleColor": "#b45309", "roleChanged": true, "prevLoginRole": "Quality Manager", "midBlockSwitch": null, "flowIn": "Documentos controlados", "flowOut": "AUD-INT-2026-01", "artifact": "Audit program", "module": "Audit Management", "verify": "Toast + auditoría en tabla", "roleCan": "Crea programas y auditorías.", "roleCannot": "No gestiona CAPA de cierre.", "uiFocus": ["#/audits", "#module-action-form", "Code: AUD-INT-2026-01"], "recovery": "Narrar el beneficio de negocio del bloque. Refresh (F5). Re-login con tab Login & Rol. Si persiste, avanzar al siguiente bloque.", "durationMin": 6}, {"id": 9, "title": "Hallazgos y no conformidades", "duration": "4 min", "role": "Auditor", "user": "auditor@alimentos-premium.test", "screen": "Audit Management + narrativa", "route": "#/audits", "menu": "Operations → Audit Management", "actions": ["Señalar auditoría recién creada en tabla.", "Explicar flujo API: start → finding → evidence → non-conformity.", "Conectar hallazgo con CAPA del siguiente bloque.", "Mostrar Audit Trail (#/audit-trail) brevemente si hay tiempo."], "buttons": "—", "data": "Hallazgo ejemplo: Desviación en registro de temperatura CCP", "result": "Cliente ve cadena auditoría → acción correctiva.", "script": "Cuando el auditor registra un hallazgo —por ejemplo, una desviación en registro de temperatura de un punto crítico HACCP— el sistema genera la trazabilidad completa: quién, cuándo, qué área, qué evidencia. Ese hallazgo puede originar una CAPA sin perder contexto en emails.", "benefit": "Puente automático auditoría-acción correctiva.", "faq": [{"q": "¿Fotos como evidencia?", "a": "Sí, vía módulo Storage + adjuntos API."}, {"q": "¿Clasificación NC mayor/menor?", "a": "Configurable en workflow de hallazgos."}], "warnings": "Hallazgo detallado es API; narrar con confianza sin inventar botones.", "checklist": ["Conexión auditoría→CAPA explicada"], "loginRole": "Auditor", "roleShort": "Auditor", "roleColor": "#b45309", "roleChanged": false, "prevLoginRole": null, "midBlockSwitch": null, "flowIn": "AUD-INT-2026-01", "flowOut": "Hallazgo temperatura CCP", "artifact": "Finding (API)", "module": "Audit → Findings", "verify": "Narrativa hallazgo→CAPA", "roleCan": "Crea programas y auditorías.", "roleCannot": "No gestiona CAPA de cierre.", "uiFocus": ["#/audits"], "recovery": "Narrar el beneficio de negocio del bloque. Refresh (F5). Re-login con tab Login & Rol. Si persiste, avanzar al siguiente bloque.", "durationMin": 4}, {"id": 10, "title": "CAPA — Acciones correctivas", "duration": "7 min", "role": "CAPA Manager", "user": "capa@alimentos-premium.test", "screen": "CAPA", "route": "#/capa", "menu": "Operations → CAPA", "actions": ["Logout Auditor. Login CAPA Manager.", "Ir a CAPA (#/capa).", "Crear CAPA: Code CAPA-TEMP-001, Name Desviación control temperatura CCP.", "Submit.", "Explicar ciclo certificado: classify → 5-Why → Ishikawa → corrective → effectiveness → QM closure."], "buttons": "#module-action-form submit", "data": "Code: CAPA-TEMP-001 · Name: Desviación control temperatura CCP", "result": "CAPA originada y lista para análisis de causa raíz.", "script": "La CAPA nace del hallazgo de auditoría. El CAPA Manager clasifica, aplica 5-Why e Ishikawa para causa raíz, define acciones correctivas y verifica eficacia. El Quality Manager cierra —nunca el mismo que la originó— cumpliendo ISO 9001 cláusula 10.2.", "benefit": "CAPA con metodología estructurada, no planillas sueltas.", "faq": [{"q": "¿5-Why integrado?", "a": "Sí, certificado en customer journey API."}, {"q": "¿Plazos y escalamiento?", "a": "Workflow con escalate-overdue certificado."}], "warnings": "CAPA Manager no puede aprobar cierre (SoD).", "checklist": ["CAPA creada", "Ciclo 5-Why mencionado"], "loginRole": "CAPA Manager", "roleShort": "CAPA Mgr", "roleColor": "#be185d", "roleChanged": true, "prevLoginRole": "Auditor", "midBlockSwitch": null, "flowIn": "Hallazgo auditoría", "flowOut": "CAPA-TEMP-001", "artifact": "Corrective action", "module": "CAPA", "verify": "CAPA en listado", "roleCan": "Crea y clasifica CAPA.", "roleCannot": "No aprueba cierre final.", "uiFocus": ["#/capa", "Code: CAPA-TEMP-001", "Submit"], "recovery": "Narrar el beneficio de negocio del bloque. Refresh (F5). Re-login con tab Login & Rol. Si persiste, avanzar al siguiente bloque.", "durationMin": 7}, {"id": 11, "title": "Gestión de riesgos", "duration": "6 min", "role": "Risk Manager", "user": "risk@alimentos-premium.test", "screen": "Risk Management", "route": "#/risks", "menu": "Operations → Risk Management", "actions": ["Logout CAPA Manager. Login Risk Manager.", "Ir a Risk Management (#/risks).", "Crear riesgo: Code RISK-CCP-01, Name Falla monitoreo temperatura CCP.", "Submit.", "Mencionar heat map en Executive Dashboard."], "buttons": "#module-action-form submit", "data": "Code: RISK-CCP-01 · Name: Falla monitoreo temperatura CCP", "result": "Riesgo en registro con evaluación inherente/residual (API).", "script": "Paralelo a CAPA, gestionamos riesgos operativos y de inocuidad. El Risk Manager registra el riesgo de falla en monitoreo de temperatura, evalúa inherente y residual, define tratamientos. La gerencia ve el heat map en el dashboard ejecutivo.", "benefit": "Risk-based thinking ISO 9001:2015 integrado al día a día.", "faq": [{"q": "¿Matriz 5x5?", "a": "Configurable por categoría y matriz de riesgo."}, {"q": "¿Vinculo riesgo-CAPA?", "a": "Sí, referencias cruzadas en módulos."}], "warnings": "—", "checklist": ["Riesgo creado", "Heat map mencionado"], "loginRole": "Risk Manager", "roleShort": "Risk Mgr", "roleColor": "#c2410c", "roleChanged": true, "prevLoginRole": "CAPA Manager", "midBlockSwitch": null, "flowIn": "CAPA en curso", "flowOut": "RISK-CCP-01", "artifact": "Risk register", "module": "Risk Management", "verify": "Riesgo en matriz", "roleCan": "Crea categorías, matrices y riesgos.", "roleCannot": "No cierra riesgos sin QM.", "uiFocus": ["#/risks", "#module-action-form submit"], "recovery": "Narrar el beneficio de negocio del bloque. Refresh (F5). Re-login con tab Login & Rol. Si persiste, avanzar al siguiente bloque.", "durationMin": 6}, {"id": 12, "title": "Indicadores de calidad", "duration": "5 min", "role": "Indicators Manager", "user": "indicators@alimentos-premium.test", "screen": "Quality Indicators", "route": "#/indicators", "menu": "Operations → Quality Indicators", "actions": ["Logout Risk Manager. Login Indicators Manager.", "Ir a Quality Indicators (#/indicators).", "Crear indicador: Code KPI-NC-Rate, Name Tasa NC por lote.", "Submit.", "Explicar metas, umbrales y mediciones periódicas."], "buttons": "#module-action-form submit", "data": "Code: KPI-NC-Rate · Name: Tasa de no conformidades por lote", "result": "KPI registrado con target y threshold.", "script": "Los indicadores dejan de calcularse en Excel el viernes. Definimos fórmula, meta, umbrales y mediciones periódicas. Cuando la tasa de NC por lote supera umbral, la gerencia recibe alerta.", "benefit": "KPIs confiables para comité de calidad y auditorías.", "faq": [{"q": "¿Importamos datos MES?", "a": "Vía API/mediciones manuales; conectores en roadmap."}, {"q": "¿Gráficos de tendencia?", "a": "Dashboard de indicadores certificado."}], "warnings": "—", "checklist": ["Indicador creado"], "loginRole": "Indicators Manager", "roleShort": "KPI Mgr", "roleColor": "#4338ca", "roleChanged": true, "prevLoginRole": "Risk Manager", "midBlockSwitch": null, "flowIn": "Riesgos registrados", "flowOut": "KPI-NC-Rate", "artifact": "Quality KPI", "module": "Quality Indicators", "verify": "Indicador con target", "roleCan": "Crea indicadores, metas y umbrales.", "roleCannot": "No altera datos de producción.", "uiFocus": ["#/indicators", "#module-action-form submit"], "recovery": "Narrar el beneficio de negocio del bloque. Refresh (F5). Re-login con tab Login & Rol. Si persiste, avanzar al siguiente bloque.", "durationMin": 5}, {"id": 13, "title": "Centro de reportes", "duration": "6 min", "role": "Reporting Manager", "user": "reporting@alimentos-premium.test", "screen": "Report Center", "route": "#/reports", "menu": "Command Center → Report Center", "actions": ["Logout Indicators Manager. Login Reporting Manager.", "Ir a Report Center (#/reports).", "Clic botón #seed-reports (semillar reportes estándar).", "Esperar toast de éxito.", "Clic #execute-report si habilitado.", "Mencionar exportación PDF/Excel."], "buttons": "#seed-reports · #execute-report", "data": "—", "result": "Reportes ejecutivos generados en segundos.", "script": "El Reporting Manager semilla el catálogo de reportes estándar — CAPA abiertas, riesgos críticos, estado documental — y ejecuta en un clic. Lo que antes tomaba días de consolidación en Excel ahora es un botón con trazabilidad de quién lo generó.", "benefit": "Reporting ejecutivo self-service para gerencia y auditor externo.", "faq": [{"q": "¿Reportes personalizados?", "a": "Sí, templates y parámetros configurables."}, {"q": "¿Programación automática?", "a": "Schedules certificados vía API."}], "warnings": "Seed puede tardar 3-5 seg; mantener conversación mientras carga.", "checklist": ["Seed OK", "Execute probado"], "loginRole": "Reporting Manager", "roleShort": "Reports", "roleColor": "#0f766e", "roleChanged": true, "prevLoginRole": "Indicators Manager", "midBlockSwitch": null, "flowIn": "KPIs + CAPA + riesgos", "flowOut": "Reportes ejecutivos", "artifact": "Seeded reports", "module": "Report Center", "verify": "Seed + execute OK", "roleCan": "Semilla, ejecuta y exporta reportes.", "roleCannot": "No modifica datos fuente.", "uiFocus": ["#/reports", "#seed-reports", "#execute-report"], "recovery": "Seed reports tarda 3-5s — mantener conversación. Si falla, narrar catálogo API.", "durationMin": 6}, {"id": 14, "title": "Storage — Evidencias centralizadas", "duration": "5 min", "role": "Storage Administrator", "user": "storage@alimentos-premium.test", "screen": "Configuration (Storage)", "route": "#/configuration", "menu": "Enterprise → Configuration", "actions": ["Logout Reporting Manager. Login Storage Administrator.", "Ir a Configuration (#/configuration).", "Mostrar panel Storage Providers.", "Clic #create-storage-provider.", "Confirmar que NO aparece #create-email-provider (SoD)."], "buttons": "#create-storage-provider", "data": "Provider local/Azure/S3 según ambiente", "result": "Proveedor de almacenamiento configurado.", "script": "Toda evidencia — fotos de auditoría, PDFs, registros HACCP— vive en storage gobernado. El Storage Administrator configura proveedores Azure, S3 o local. Separado del administrador de correo por Segregación de Funciones.", "benefit": "Un repositorio único de evidencias con permisos y auditoría.", "faq": [{"q": "¿Tamaño máximo archivo?", "a": "Definido por plan de licencia y proveedor."}, {"q": "¿Cifrado?", "a": "En tránsito HTTPS; en reposo según proveedor cloud."}], "warnings": "Producción requiere credenciales cloud reales (PENDING third-party).", "checklist": ["Storage provider creado", "Botón email ausente"], "loginRole": "Storage Administrator", "roleShort": "Storage", "roleColor": "#374151", "roleChanged": true, "prevLoginRole": "Reporting Manager", "midBlockSwitch": null, "flowIn": "Datos operativos", "flowOut": "Storage provider", "artifact": "File storage SoD", "module": "Configuration → Storage", "verify": "create-storage OK, no email btn", "roleCan": "Configura proveedores de archivos.", "roleCannot": "No administra SMTP (SoD).", "uiFocus": ["#/configuration", "#create-storage-provider"], "recovery": "Storage Admin NO debe ver #create-email-provider — es SoD.", "durationMin": 5}, {"id": 15, "title": "Notificaciones automáticas", "duration": "5 min", "role": "Notification Administrator", "user": "notifications@alimentos-premium.test", "screen": "Configuration (Email)", "route": "#/configuration", "menu": "Enterprise → Configuration", "actions": ["Logout Storage Admin. Login Notification Administrator.", "Ir a Configuration.", "Clic #create-email-provider.", "Confirmar que NO aparece #create-storage-provider (SoD).", "Explicar templates y alertas por evento."], "buttons": "#create-email-provider", "data": "SMTP dev: localhost:1025 · Producción: SendGrid/M365", "result": "Canal de notificaciones operativo.", "script": "Cuando una CAPA vence, un documento requiere aprobación o un indicador supera umbral, el responsable recibe notificación automática. SMTP configurable por tenant; en producción conectamos Microsoft 365 o SendGrid.", "benefit": "Proactividad: el sistema avisa, no depende de memoria humana.", "faq": [{"q": "¿Microsoft 365?", "a": "Sí, vía SMTP relay o Graph API (configuración producción)."}, {"q": "¿Plantillas personalizadas?", "a": "Notification templates por tenant certificados."}], "warnings": "Demo local usa SMTP dev; no llegará email real sin infra.", "checklist": ["Email provider creado", "SoD verificado"], "loginRole": "Notification Administrator", "roleShort": "Notif.", "roleColor": "#0e7490", "roleChanged": true, "prevLoginRole": "Storage Administrator", "midBlockSwitch": null, "flowIn": "Storage configurado", "flowOut": "Email provider", "artifact": "Notification SoD", "module": "Configuration → Email", "verify": "create-email OK, no storage btn", "roleCan": "Configura proveedores de email.", "roleCannot": "No administra storage (SoD).", "uiFocus": ["#/configuration", "#create-email-provider"], "recovery": "Notification Admin NO debe ver #create-storage-provider — es SoD.", "durationMin": 5}, {"id": 16, "title": "Viewer — Transparencia sin riesgo", "duration": "4 min", "role": "Viewer", "user": "viewer@alimentos-premium.test", "screen": "Módulos operativos (solo lectura)", "route": "#/documents", "menu": "Operations → varios módulos", "actions": ["Logout Notification Admin. Login Viewer.", "Recorrer documents, capa, risks, indicators.", "Confirmar ausencia de #module-action-form en cada módulo.", "Intentar narrar: API devolvería 403 si intentara crear."], "buttons": "—", "data": "—", "result": "Visibilidad total sin permiso de modificación.", "script": "Gerencia, consultores y auditores externos pueden tener rol Viewer: ven documentos, CAPA, riesgos e indicadores sin poder alterar nada. Transparencia total con riesgo cero de modificación accidental.", "benefit": "Democratizar información sin comprometer integridad.", "faq": [{"q": "¿Viewer ve datos sensibles?", "a": "Solo módulos con permiso READ explícito."}, {"q": "¿Exportar?", "a": "Solo si tiene permiso REPORT.READ."}], "warnings": "—", "checklist": ["3+ módulos sin formulario create"], "loginRole": "Viewer", "roleShort": "Viewer", "roleColor": "#64748b", "roleChanged": true, "prevLoginRole": "Notification Administrator", "midBlockSwitch": null, "flowIn": "Infra lista", "flowOut": "Visibilidad sin edición", "artifact": "Viewer access", "module": "Multi-module read-only", "verify": "3+ módulos sin create", "roleCan": "Consulta módulos autorizados.", "roleCannot": "No crea ni modifica nada.", "uiFocus": ["#/documents"], "recovery": "Narrar el beneficio de negocio del bloque. Refresh (F5). Re-login con tab Login & Rol. Si persiste, avanzar al siguiente bloque.", "durationMin": 4}, {"id": 17, "title": "Dashboard ejecutivo", "duration": "6 min", "role": "Tenant Administrator o Quality Manager", "user": "tenantadmin@alimentos-premium.test", "screen": "Executive Dashboard", "route": "#/dashboard", "menu": "Command Center → Executive Dashboard", "actions": ["Login Tenant Administrator (o QM).", "Ir a Executive Dashboard (#/dashboard).", "Mostrar métricas: CAPA, riesgos, indicadores, documentos.", "Señalar heat map de riesgos si visible.", "Recorrer tiles de módulos (workspace)."], "buttons": "—", "data": "—", "result": "Visión 360° del cumplimiento para C-level.", "script": "Este es el tablero que el CEO y el Director de Calidad abren cada lunes. CAPA abiertas, riesgos críticos, indicadores fuera de meta, documentos por vencer — todo en una sola pantalla alimentada por datos reales del tenant, no PowerPoint.", "benefit": "Governance visible: cumplimiento como KPI de negocio.", "faq": [{"q": "¿Personalizable?", "a": "Dashboard bindings por rol en roadmap."}, {"q": "¿Tiempo real?", "a": "Datos actualizados al refrescar; near-real-time con integraciones."}], "warnings": "—", "checklist": ["Dashboard cargado", "Métricas visibles"], "loginRole": "Tenant Administrator", "roleShort": "Tenant Admin", "roleColor": "#0369a1", "roleChanged": true, "prevLoginRole": "Viewer", "midBlockSwitch": null, "flowIn": "Todos los módulos", "flowOut": "Visión C-level", "artifact": "Dashboard metrics", "module": "Executive Dashboard", "verify": "Métricas + heat map", "roleCan": "Configura empresa, usuarios, roles, licencias.", "roleCannot": "No aprueba documentos ni cierra CAPA.", "uiFocus": ["#/dashboard", "Metrics tiles", "Risk heat map"], "recovery": "Narrar el beneficio de negocio del bloque. Refresh (F5). Re-login con tab Login & Rol. Si persiste, avanzar al siguiente bloque.", "durationMin": 6}, {"id": 18, "title": "Resumen de valor", "duration": "5 min", "role": "Presentador", "user": "—", "screen": "Conversación / guía HTML bloque 18", "route": "—", "menu": "—", "actions": ["Recapitular 8 dolores iniciales vs soluciones mostradas.", "Matriz valor: antes/después.", "Mencionar certificación Enterprise completada."], "buttons": "—", "data": "—", "result": "Cliente articula ROI en sus propias palabras.", "script": "Recapitulemos. Ustedes llegaron con Excel, auditorías manuales y CAPA sin seguimiento. Hoy vieron: tenant Enterprise en minutos, 12 roles con segregación de funciones, documentos controlados, auditorías trazables, CAPA con 5-Why, riesgos con heat map, KPIs automáticos, reportes en un clic y dashboards para gerencia. Compliance 360 no es un módulo: es su sistema nervioso de cumplimiento.", "benefit": "Cierre lógico antes de comercial.", "faq": [], "warnings": "No introducir features nuevas aquí.", "checklist": ["8 dolores mapeados a soluciones"], "loginRole": null, "roleShort": "—", "roleColor": "#5b21b6", "roleChanged": false, "prevLoginRole": null, "midBlockSwitch": null, "flowIn": "Demo completa", "flowOut": "ROI articulado", "artifact": "Valor resumido", "module": "—", "verify": "8 dolores mapeados", "roleCan": "", "roleCannot": "", "uiFocus": [], "recovery": "Narrar el beneficio de negocio del bloque. Refresh (F5). Re-login con tab Login & Rol. Si persiste, avanzar al siguiente bloque.", "durationMin": 5}, {"id": 19, "title": "Preguntas frecuentes", "duration": "8 min", "role": "Presentador", "user": "—", "screen": "Guía HTML → FAQ global", "route": "—", "menu": "—", "actions": ["Abrir sección FAQ en guía HTML.", "Responder preguntas del cliente usando respuestas preparadas."], "buttons": "—", "data": "—", "result": "Objeciones comunes resueltas.", "script": "Abramos espacio para preguntas. Las más comunes las anticipo: integración, tiempos, seguridad, costos de licencia y qué requiere configuración de su lado.", "benefit": "Confianza por transparencia.", "faq": [{"q": "¿Multi-plantas?", "a": "Un tenant con empresas/unidades; múltiples tenants para separación legal."}, {"q": "¿Migración documentos?", "a": "Servicio de implementación con carga masiva vía API/storage."}, {"q": "¿SLA y soporte?", "a": "Según contrato Enterprise; Support Operator break-glass auditado."}, {"q": "¿Validación 21 CFR Part 11?", "a": "Audit trail append-only, RBAC, MFA; validación formal en proyecto."}], "warnings": "Si no sabe respuesta, comprometer follow-up por escrito.", "checklist": ["FAQ consultada"], "loginRole": null, "roleShort": "—", "roleColor": "#5b21b6", "roleChanged": false, "prevLoginRole": null, "midBlockSwitch": null, "flowIn": "Preguntas cliente", "flowOut": "Objeciones resueltas", "artifact": "Confianza", "module": "FAQ", "verify": "FAQ consultada", "roleCan": "", "roleCannot": "", "uiFocus": [], "recovery": "Narrar el beneficio de negocio del bloque. Refresh (F5). Re-login con tab Login & Rol. Si persiste, avanzar al siguiente bloque.", "durationMin": 8}, {"id": 20, "title": "Cierre comercial", "duration": "5 min", "role": "Presentador", "user": "—", "screen": "Conversación", "route": "—", "menu": "—", "actions": ["Proponer piloto 90 días con Alimentos Premium como tenant real.", "Entregar playbook y acceso demo.", "Definir próximos pasos: propuesta, implementación, SSO, storage prod.", "Agradecer y acordar fecha de follow-up."], "buttons": "—", "data": "—", "result": "Compromiso de siguiente paso con fecha.", "script": "Les propongo tres pasos concretos: uno, workshop de implementación de 2 días con su equipo de calidad; dos, tenant piloto con sus documentos BPM reales; tres, conexión SSO y storage productivo en 4 semanas. ¿Agendamos la sesión de kick-off la próxima semana?", "benefit": "Conversión: de demo a proyecto.", "faq": [], "warnings": "No presionar; adaptar propuesta al tamaño del cliente.", "checklist": ["Next step acordado", "Contactos intercambiados", "Follow-up en calendario"], "loginRole": null, "roleShort": "—", "roleColor": "#5b21b6", "roleChanged": false, "prevLoginRole": null, "midBlockSwitch": null, "flowIn": "Interés confirmado", "flowOut": "Next step acordado", "artifact": "Propuesta piloto", "module": "—", "verify": "Follow-up en calendario", "roleCan": "", "roleCannot": "", "uiFocus": [], "recovery": "Narrar el beneficio de negocio del bloque. Refresh (F5). Re-login con tab Login & Rol. Si persiste, avanzar al siguiente bloque.", "durationMin": 5}], "rolesOverview": [{"role": "Platform Administrator", "purpose": "Administra la plataforma SaaS completa.", "can": "Crear tenants, lifecycle, auditoría global.", "cannot": "No opera datos de negocio del tenant.", "value": "Gobierno multi-cliente y time-to-market."}, {"role": "Tenant Administrator", "purpose": "Dueño operativo del tenant.", "can": "Configura empresa, usuarios, roles, licencias.", "cannot": "No aprueba documentos ni cierra CAPA.", "value": "Autonomía del cliente sin depender del vendor."}, {"role": "Document Controller", "purpose": "Elabora documentación controlada.", "can": "Crea tipos, categorías y documentos.", "cannot": "No puede aprobar (SoD).", "value": "Control documental ISO sin Excel."}, {"role": "Quality Manager", "purpose": "Aprueba y coordina calidad.", "can": "Aprueba documentos, CAPA, riesgos, indicadores.", "cannot": "No elabora registros operativos.", "value": "Segregación elaborador/aprobador auditable."}, {"role": "Auditor", "purpose": "Planifica y ejecuta auditorías.", "can": "Crea programas y auditorías.", "cannot": "No gestiona CAPA de cierre.", "value": "Auditoría integrada con hallazgos trazables."}, {"role": "CAPA Manager", "purpose": "Gestiona acciones correctivas.", "can": "Crea y clasifica CAPA.", "cannot": "No aprueba cierre final.", "value": "Ciclo CAPA estructurado 5-Why/Ishikawa."}, {"role": "Risk Manager", "purpose": "Administra registro de riesgos.", "can": "Crea categorías, matrices y riesgos.", "cannot": "No cierra riesgos sin QM.", "value": "Matriz de riesgo viva con heat map."}, {"role": "Indicators Manager", "purpose": "Gestiona KPIs de calidad.", "can": "Crea indicadores, metas y umbrales.", "cannot": "No altera datos de producción.", "value": "Indicadores automáticos para gerencia."}, {"role": "Reporting Manager", "purpose": "Centro de reportes.", "can": "Semilla, ejecuta y exporta reportes.", "cannot": "No modifica datos fuente.", "value": "Reportes ejecutivos en minutos."}, {"role": "Storage Administrator", "purpose": "Administra almacenamiento.", "can": "Configura proveedores de archivos.", "cannot": "No administra SMTP (SoD).", "value": "Evidencias centralizadas y seguras."}, {"role": "Notification Administrator", "purpose": "Administra notificaciones.", "can": "Configura proveedores de email.", "cannot": "No administra storage (SoD).", "value": "Alertas automáticas a responsables."}, {"role": "Viewer", "purpose": "Solo lectura transversal.", "can": "Consulta módulos autorizados.", "cannot": "No crea ni modifica nada.", "value": "Transparencia sin riesgo operativo."}], "globalFaq": [{"q": "¿Compliance 360 compite con SAP/Dynamics?", "a": "Se complementa: gobierna cumplimiento ISO/HACCP donde ERP es transaccional."}, {"q": "¿Datos en Panamá?", "a": "Hosting configurable; residencia de datos según contrato."}, {"q": "¿Mobile?", "a": "Responsive web; app nativa en roadmap."}, {"q": "¿Academy incluida?", "a": "Sí, certificación por rol para usuarios finales."}, {"q": "¿Qué queda pendiente third-party?", "a": "SMTP producción, cloud storage, SSO corporativo, firma digital, IA."}], "preDemo": ["App corriendo en http://localhost:5272 (o URL acordada)", "PostgreSQL activo y tenant Alimentos Premium provisionado", "Credenciales verificadas (ver DEMO_README.md)", "Navegador Chrome en pantalla compartida", "Guía HTML abierta en segunda pestaña", "Notificaciones del SO silenciadas", "Datos demo precargados (documentos, CAPA existentes OK)", "Proyector resolución 1920x1080 recomendada"], "duringDemo": ["Anunciar rol antes de cada login", "Logout visible entre roles", "No mostrar contraseñas en pantalla", "Usar guía HTML para script", "Marcar checklist por bloque", "Si algo falla, narrar valor mientras recupera"], "postDemo": ["Enviar resumen ejecutivo por email", "Compartir playbook Word", "Registrar preguntas pendientes", "Agendar follow-up con fecha", "Actualizar CRM/oportunidad"], "commercialTips": ["Anclar cada módulo a un dolor específico de Alimentos Premium.", "Usar números del dashboard, no adjetivos vacíos.", "Invitar al Director de Calidad a operar un bloque (Document Controller).", "Mencionar certificación Enterprise 29/29 E2E + 23/23 journey.", "Ser transparente sobre UI depth vs API depth: es fortaleza Enterprise."], "closingScript": "Les propongo tres pasos concretos: uno, workshop de implementación de 2 días con su equipo de calidad; dos, tenant piloto con sus documentos BPM reales; tres, conexión SSO y storage productivo en 4 semanas. ¿Agendamos la sesión de kick-off la próxima semana?", "closingActions": ["Proponer piloto 90 días con Alimentos Premium como tenant real.", "Entregar playbook y acceso demo.", "Definir próximos pasos: propuesta, implementación, SSO, storage prod.", "Agradecer y acordar fecha de follow-up."], "journey": {"title": "Customer Journey E2E — Alimentos Premium Panamá S.A.", "subtitle": "Historia de negocio en 20 bloques · 60–90 min · 12 roles", "artifactChain": ["Dolor cliente", "Plataforma SaaS", "Tenant Active", "RBAC 12 roles", "BPM-LIM-001", "SoD QM", "AUD-INT-2026-01", "Hallazgo CCP", "CAPA-TEMP-001", "RISK-CCP-01", "KPI-NC-Rate", "Reportes ejecutivos", "Storage SoD", "Email SoD", "Viewer RO", "Dashboard C-level", "ROI", "FAQ", "Piloto"], "phases": [{"id": "intro", "order": 1, "label": "Apertura comercial", "blocks": [1], "duration": "5 min", "role": "Presentador", "app": false, "goal": "Conectar dolores del cliente con la transformación Enterprise.", "story": "Sin abrir la app. Conversación con gerencia sobre Excel, auditorías manuales y CAPA sin trazabilidad.", "output": "Buy-in: el cliente reconoce sus dolores en la narrativa."}, {"id": "platform", "order": 2, "label": "Gobierno plataforma SaaS", "blocks": [2, 3], "duration": "10 min", "role": "Platform Administrator", "app": true, "goal": "Demostrar arquitectura multi-tenant y onboarding de clientes.", "story": "Login platform → SuperAdmin Executive → tab Tenants → Alimentos Premium Active.", "output": "Confianza Enterprise: un producto, muchos clientes aislados."}, {"id": "tenant", "order": 3, "label": "Tenant & RBAC", "blocks": [4, 5], "duration": "11 min", "role": "Platform Admin → Tenant Admin", "app": true, "goal": "Perfil del tenant y matriz de 12 roles con segregación de funciones.", "story": "TAC General/Branding → usuarios demo → explicar SoD por rol.", "output": "Autonomía del cliente sin depender del vendor."}, {"id": "docs", "order": 4, "label": "Control documental + SoD", "blocks": [6, 7], "duration": "10 min", "role": "Doc Controller → Quality Manager", "app": true, "goal": "Crear BPM-LIM-001 y demostrar que el aprobador NO elabora.", "story": "Document Controller crea documento → QM solo ve lista sin #module-action-form.", "output": "Artefacto BPM-LIM-001 + SoD auditable ISO."}, {"id": "audit", "order": 5, "label": "Auditoría & hallazgos", "blocks": [8, 9], "duration": "9 min", "role": "Auditor", "app": true, "goal": "Programa AUD-INT-2026-01 y hallazgo temperatura CCP.", "story": "Crear auditoría → narrar hallazgo vinculado a CAPA.", "output": "Hilo auditoría → no conformidad → acción correctiva."}, {"id": "capa", "order": 6, "label": "CAPA", "blocks": [10], "duration": "6 min", "role": "CAPA Manager", "app": true, "goal": "Registrar CAPA-TEMP-001 por desviación de temperatura.", "story": "Formulario CAPA → listado → beneficio ciclo 5-Why/Ishikawa.", "output": "CAPA-TEMP-001 en registro."}, {"id": "riskkpi", "order": 7, "label": "Riesgos & KPIs", "blocks": [11, 12], "duration": "10 min", "role": "Risk Manager → KPI Manager", "app": true, "goal": "RISK-CCP-01 en matriz + KPI-NC-Rate con meta.", "story": "Riesgo operativo CCP → indicador de calidad con target.", "output": "Matriz viva + KPI para gerencia."}, {"id": "reports", "order": 8, "label": "Reportes ejecutivos", "blocks": [13], "duration": "5 min", "role": "Reporting Manager", "app": true, "goal": "Seed + ejecutar reportes consolidados.", "story": "#seed-reports → #execute-report → narrar velocidad vs Excel.", "output": "Reportes PDF/Excel en minutos."}, {"id": "infra", "order": 9, "label": "Infraestructura SoD", "blocks": [14, 15, 16], "duration": "12 min", "role": "Storage → Notif → Viewer", "app": true, "goal": "Storage≠Email (SoD) + Viewer solo lectura transversal.", "story": "Storage Admin solo storage · Notif Admin solo email · Viewer sin create.", "output": "Evidencias centralizadas + alertas + transparencia."}, {"id": "close", "order": 10, "label": "Dashboard & cierre", "blocks": [17, 18, 19, 20], "duration": "17 min", "role": "Tenant Admin → Presentador", "app": true, "goal": "Visión C-level, ROI, FAQ y next step piloto.", "story": "Dashboard métricas → 8 dolores resueltos → objeciones → propuesta piloto.", "output": "Follow-up en calendario + propuesta comercial."}], "setup": [{"step": 1, "title": "Abrir esta guía", "detail": "Doble clic en el HTML — funciona offline, sin instalar nada."}, {"step": 2, "title": "Ensayar el flujo", "detail": "Use «Iniciar recorrido» o avance bloque a bloque con →."}, {"step": 3, "title": "Demo en vivo (opcional)", "detail": "Levante la app (dotnet run) en otra pestaña y replique cada bloque en localhost:5272."}], "dualScreen": {"guide": "Guía HTML (esta) — script, credenciales, acciones, mock visual.", "app": "Compliance 360 real — http://localhost:5272 cuando presente al cliente."}}};
+const G = window.C360Guide;
+const toastEl = () => document.getElementById("toastPremium");
+const NAV = [
+  { group:"Command Center", items:[["dashboard","Executive Dashboard"],["reports","Report Center"],["audit-trail","Audit Trail"]]},
+  { group:"Operations", items:[["documents","Document Management"],["audits","Audit Management"],["capa","CAPA"],["risks","Risk Management"],["indicators","Quality Indicators"]]},
+  { group:"Enterprise", items:[["superadmin-platform","SuperAdmin Platform"],["tenant-administration","Tenant Administration"],["configuration","Configuration"]]}
+];
+const DEMO_ROWS = {
+  documents:[["Procedimiento Limpieza Áreas","BPM-LIM-001","Active","2027-06-01"],["Plan HACCP Planta","PROC-HACCP-002","Active","2027-03-15"],["Instrucción CCP Temperatura","WI-CCP-003","Draft","2026-12-01"]],
+  audits:[["Auditoría Interna BPM","AUD-INT-2026-01","In Progress","Internal"],["Auditoría Proveedor Envases","AUD-SUP-2025-04","Closed","Supplier"]],
+  capa:[["Desviación temperatura CCP","CAPA-TEMP-001","Open","High"],["Reclamo cliente lote 4412","CAPA-RC-014","Closed","Medium"]],
+  risks:[["Fallo cadena de frío CCP","RISK-CCP-01","Open","Critical"],["Contaminación cruzada","RISK-XCONT-02","Mitigated","High"]],
+  indicators:[["Tasa NC mensual","KPI-NC-Rate","92%","Target 95%"],["OTIF proveedores","KPI-OTIF","88%","Target 90%"]],
+  reports:[["Executive Compliance Summary","PDF","Ready"],["CAPA Aging Report","Excel","Ready"],["Risk Heat Map Export","PDF","Ready"]]
+};
+const STORAGE = "c360_visual_demo_v2";
+const WELCOME_KEY = "c360_visual_welcome_seen";
+let idx = 0, actionIdx = 0, timer = Date.now(), done = new Set(JSON.parse(localStorage.getItem(STORAGE)||"[]"));
+let tourMode = false, directorMode = false, presentMode = false, coachTab = "script", directorTimer = null;
+G._doneSet = done;
+
+function phaseForBlock(id) { return G.phaseForBlock(DATA, id); }
+function esc(s) { return G.esc(s); }
+
+function renderWelcome() {
+  const j = DATA.journey;
+  if (!j) return;
+  document.getElementById("welcomeTitle").textContent = j.title;
+  document.getElementById("welcomeSub").textContent = j.subtitle;
+  document.getElementById("welcomeBody").innerHTML = `
+    <p style="margin-bottom:.75rem;font-size:.88rem"><strong>No necesita la app</strong> para usar esta guía. Funciona offline. La app real solo hace falta en demo en vivo.</p>
+    <div class="setup-steps">${j.setup.map(s=>`<div class="setup-step"><span class="setup-num">${s.step}</span><div><strong>${esc(s.title)}</strong><br><span style="font-size:.8rem;color:var(--muted)">${esc(s.detail)}</span></div></div>`).join("")}</div>
+    <p style="font-size:.72rem;text-transform:uppercase;color:var(--muted);font-weight:700;margin:1rem 0 .45rem">Cadena de artefactos E2E</p>
+    <div class="artifact-chain">${j.artifactChain.map((a,i)=>`<span class="artifact-chip-sm">${esc(a)}</span>${i<j.artifactChain.length-1?'<span class="artifact-chip-sm arrow">→</span>':""}`).join("")}</div>
+    ${G.journeySvg(DATA, 1)}
+    <ul class="phase-timeline" style="margin-top:1rem">${j.phases.map(p=>`<li data-block="${p.blocks[0]-1}"><strong>Fase ${p.order}: ${esc(p.label)}</strong> · Bloques ${p.blocks.join('–')}<div class="ph-meta">🎯 ${esc(p.goal)}</div></li>`).join("")}</ul>`;
+  G.bindJourneySvg(document.getElementById("welcomeBody"), i => { closeWelcome(); go(i); });
+  document.querySelectorAll("#welcomeBody .phase-timeline li").forEach(li => li.addEventListener("click", () => {
+    closeWelcome(); go(+li.dataset.block);
+  }));
+}
+
+function renderJourneyModal() {
+  const j = DATA.journey;
+  if (!j) return;
+  document.getElementById("journeyBody").innerHTML = `
+    <div class="artifact-chain" style="margin-bottom:1rem">${j.artifactChain.map((a,i)=>`<span class="artifact-chip-sm">${esc(a)}</span>${i<j.artifactChain.length-1?'<span class="artifact-chip-sm arrow">→</span>':""}`).join("")}</div>
+    ${G.journeySvg(DATA, DATA.blocks[idx]?.id)}
+    <ul class="phase-timeline">${j.phases.map(p=>{
+      const active = p.blocks.includes(DATA.blocks[idx]?.id);
+      return `<li class="${active?"active":""}" data-block="${p.blocks[0]-1}"><strong>Fase ${p.order}: ${esc(p.label)}</strong> · ${esc(p.duration)} · ${esc(p.role)}
+        <div class="ph-meta">📖 ${esc(p.story)}</div><div class="ph-meta">✅ ${esc(p.output)}</div></li>`;
+    }).join("")}</ul>`;
+  document.querySelectorAll("#journeyBody .phase-timeline li").forEach(li => li.addEventListener("click", () => {
+    document.getElementById("journeyModal").classList.remove("open");
+    go(+li.dataset.block);
+  }));
+  G.bindJourneySvg(document.getElementById("journeyBody"), i => { document.getElementById("journeyModal").classList.remove("open"); go(i); });
+}
+
+function closeWelcome() {
+  document.getElementById("welcomeModal").classList.remove("open");
+  localStorage.setItem(WELCOME_KEY, "1");
+}
+function startTour() {
+  closeWelcome();
+  tourMode = true;
+  document.getElementById("tourBar").classList.add("open");
+  go(0);
+  updateTourBar();
+}
+function stopTour() {
+  tourMode = false;
+  document.getElementById("tourBar").classList.remove("open");
+}
+function updateTourBar() {
+  const pct = Math.round(((idx + 1) / DATA.blocks.length) * 100);
+  document.getElementById("tourProgress").style.width = pct + "%";
+  const ph = phaseForBlock(DATA.blocks[idx]?.id);
+  document.getElementById("tourLabel").textContent = `Recorrido · Bloque ${DATA.blocks[idx]?.id}/20` + (ph ? ` · Fase ${ph.order}: ${ph.label}` : "");
+}
+
+function updateProgressRing() {
+  const pct = Math.round((done.size / DATA.blocks.length) * 100);
+  document.getElementById("progressRing").innerHTML = G.progressRing(pct || Math.round(((idx+1)/DATA.blocks.length)*100));
+}
+
+function renderJourneySvg() {
+  const wrap = document.getElementById("journeySvgWrap");
+  wrap.innerHTML = G.journeySvg(DATA, DATA.blocks[idx]?.id);
+  G.bindJourneySvg(wrap, go);
+}
+
+function renderSpotlight(b) {
+  const mount = document.getElementById("spotlightMount");
+  const act = b.actions?.[actionIdx];
+  if (!act) { mount.innerHTML = ""; return; }
+  mount.innerHTML = G.spotlightHtml(act);
+  document.getElementById("btnSpotlightNext")?.addEventListener("click", advanceAction);
+}
+
+function advanceAction() {
+  const b = DATA.blocks[idx];
+  const max = (b.actions?.length || 1) - 1;
+  if (actionIdx < max) { actionIdx++; renderCoach(b); renderSpotlight(b); }
+  else { G.toast(toastEl(), "Acciones completadas — marque bloque listo o Siguiente →"); }
+}
+
+function bindCoachTabs() {
+  document.querySelectorAll(".coach-tab").forEach(t => t.addEventListener("click", () => {
+    coachTab = t.dataset.ctab;
+    document.querySelectorAll(".coach-tab").forEach(x => x.classList.toggle("active", x.dataset.ctab === coachTab));
+    document.querySelectorAll(".coach-panel").forEach(p => p.classList.toggle("active", p.dataset.ctabPanel === coachTab));
+  }));
+}
+
+function routeKey(r){return (!r||r==="—")?null:r.replace("#/","").replace("#","")}
+function cred(role){return role?DATA.credentials[role]:null}
+function hs(html,tip,pulse){return `<span class="hotspot ${pulse?"pulse hotspot-ring":""}" data-tip="${esc(tip)}">${html}</span>`}
+
+function renderNav(active){
+  return NAV.map(g=>`<nav class="nav-group"><div class="nav-label">${esc(g.group)}</div>
+    ${g.items.map(([k,l])=>`<div class="nav-button ${k===active?"active":""}"><span class="nav-icon">${l.split(' ').map(w=>w[0]).join('').slice(0,2)}</span><span>${esc(l)}</span><span>›</span></div>`).join("")}</nav>`).join("")
+}
+
+function shellTop(routeKey, label, group, tenantShort, userEmail){
+  return `<header class="topbar">
+    <div><div class="breadcrumbs compact">Compliance 360 / ${esc(group)}</div><strong>${esc(label)}</strong></div>
+    <input class="search-box" placeholder="Buscar módulo o documento..." readonly>
+    <div class="top-actions">
+      <span class="status-pill ok">Production core</span>
+      <span class="tenant-chip">Tenant: ${esc(tenantShort)}</span>
+      ${hs(`<button class="btn danger">Salir</button>`,"Logout — cambio de rol",true)}
+    </div></header>`;
+}
+
+function tableHtml(title, cols, rows){
+  return `<section class="card"><h2 class="section-title">${esc(title)}</h2>
+    <table class="data-table"><thead><tr>${cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead>
+    <tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></section>`;
+}
+
+function moduleScreen(b, key, title, desc, showForm, formFields, rows){
+  const c = cred(b.loginRole);
+  const tenantShort = (c?.tenantId||DATA.tenantId).slice(0,8)+"…";
+  const form = showForm ? `<section class="card hotspot-ring" id="module-action-form">
+    <h2 class="section-title">Action Center</h2>
+    <div class="form-stack">${formFields.map(f=>`<div class="field"><label>${esc(f.label)}</label><input value="${esc(f.value)}" readonly></div>`).join("")}
+    ${hs(`<button class="btn primary">Guardar / Crear</button>`,"Submit — toast de éxito",true)}</div></section>`
+    : `<section class="card"><div class="read-only-notice"><strong>SoD — solo lectura</strong> Este rol no ve el formulario de creación (#module-action-form ausente).</div></section>`;
+  return `<div class="layout">${renderSidebar(key)}
+    <main class="main">${shellTop(key,title,"Operations",tenantShort,c?.email)}
+    <section class="content">
+      <div class="page-title"><h1>${esc(title)}</h1><p>${esc(desc)}</p></div>
+      <section class="grid cards">${[["Records",rows.length],["Page","1"],["Page Size","10"],["Status","Live"]].map(m=>`<article class="metric-card"><span>${m[0]}</span><strong>${m[1]}</strong></article>`).join("")}</section>
+      ${form}
+      ${tableHtml(title,["Title","Code","Status","Meta"],rows)}
+    </section></main></div>`;
+}
+
+function renderSidebar(active){
+  return `<aside class="sidebar"><div class="brand"><div class="brand-mark">C360</div><div><div class="brand-title">Compliance 360</div><div class="brand-subtitle">Enterprise Edition</div></div></div>
+    <section class="sidebar-status"><span class="status-pill ok">Live</span><strong>Alimentos Premium Panamá</strong><small>Tenant demo · ISO 9001 / HACCP</small></section>
+    ${renderNav(active)}<footer class="sidebar-footer"><span>ISO aligned</span><strong>9001 / 22000 / HACCP</strong></footer></aside>`;
+}
+
+function screenIntro(b){
+  return `<div class="intro-screen"><div class="intro-card">
+    <span class="product-badge">${esc(DATA.company.name)}</span>
+    <h1>${esc(b.title)}</h1>
+    <p style="margin-bottom:1rem;color:var(--muted)">${esc(b.screen)} · ${esc(b.duration)}</p>
+    <p>${esc(b.script.slice(0,280))}…</p>
+    <ul class="pain-list">${DATA.company.pain_points.slice(0,6).map(p=>`<li>${esc(p)}</li>`).join("")}</ul>
+    <p style="font-size:.82rem;color:var(--muted);margin-top:1rem"><strong>Nota:</strong> No abrir la app aún — conversación con gerencia.</p>
+  </div></div>`;
+}
+
+function screenClose(b){
+  return `<div class="close-screen"><div class="close-card">
+    <span class="product-badge">Cierre comercial</span>
+    <h1 style="color:var(--accent-strong);margin:.5rem 0">${esc(b.title)}</h1>
+    <div class="script-card" style="margin-top:1rem">${esc(b.script)}</div>
+    <ol style="margin-top:1rem;padding-left:1.2rem;font-size:.88rem;line-height:1.7">${b.actions.map(a=>`<li>${esc(a)}</li>`).join("")}</ol>
+  </div></div>`;
+}
+
+function screenLogin(b){
+  const c = cred(b.loginRole);
+  if(!c) return screenIntro(b);
+  return `<main class="login-page"><section class="login-panel">
+    <div class="brand-line"><div class="brand-mark">C360</div><span class="product-badge">Enterprise SaaS</span></div>
+    <h1>Compliance 360 Enterprise</h1>
+    <p>Inicie sesión con el rol de demo.</p>
+    <form class="form-stack">
+      <div class="field">${hs(`<label>Tenant ID</label><input value="${esc(c.tenantId)}" readonly>`,"Pegar tenant ID",true)}</div>
+      <div class="field">${hs(`<label>Email</label><input value="${esc(c.email)}" readonly>`,"Email del rol actual",true)}</div>
+      <div class="field"><label>Password</label><input type="password" value="••••••••••" readonly></div>
+      ${hs(`<button class="btn primary">Iniciar sesión</button>`,"Login en app real (pestaña 1)",true)}
+    </form></section>
+    <section class="login-hero"><div class="hero-card"><span class="product-badge">Production Workspace</span>
+      <h2>Gobierno integral de cumplimiento</h2><p>Multi-tenant · RBAC · Auditoría append-only · Dashboards vivos</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><span class="status-pill ok">API live</span><span class="status-pill ok">PostgreSQL</span></div>
+    </div><div class="grid cards"><div class="glass-card"><span class="metric-label">Modules</span><div class="metric-value">10</div></div>
+    <div class="glass-card"><span class="metric-label">Reports</span><div class="metric-value">24</div></div>
+    <div class="glass-card"><span class="metric-label">Security</span><div class="metric-value">JWT</div></div>
+    <div class="glass-card"><span class="metric-label">Audit</span><div class="metric-value">Append</div></div></div></section></main>`;
+}
+
+function screenPlatform(b, tab){
+  const c = cred(b.loginRole);
+  const tenants = [["Alimentos Premium Panamá S.A.","alimentos-premium","Active","Enterprise","12"],["Distribuidora Centroamérica","dist-centro","Trial","Standard","3"]];
+  const metrics = [["Tenants","8","Activos 6"],["Usuarios","47","Activos 41"],["Documentos","156","Global"],["Auditorías","23","Managed"]];
+  return `<div class="layout">${renderSidebar("superadmin-platform")}
+    <main class="main">${shellTop("superadmin-platform","SuperAdmin Platform Center","Platform",(c?.tenantId||"").slice(0,8)+"…",c?.email)}
+    <section class="content">
+      <div class="platform-hero"><div><span class="product-badge">Global SuperAdmin</span><h2 style="margin:.35rem 0">Centro de Gobierno Global</h2>
+      <p style="color:var(--muted);font-size:13px">Tenants, licencias, observabilidad y auditoría de plataforma.</p></div>
+      <div><span class="status-pill ok">Healthy</span><strong style="display:block;margin-top:6px">8 tenants</strong></div></div>
+      <section class="metric-grid">${metrics.map(m=>`<article class="metric-card"><span>${m[0]}</span><strong>${m[1]}</strong><small style="color:var(--muted)">${m[2]}</small></article>`).join("")}</section>
+      <div class="tenant-tabs">${[["executive","Executive"],["tenants","Tenants"],["licenses","Licencias"]].map(([k,l])=>
+        hs(`<span class="tenant-tab ${tab===k?"active":""}">${l}</span>`,`Tab ${l}`,tab===k)).join("")}</div>
+      ${tab==="tenants" ? tableHtml("Tenant fleet",["Name","Slug","Status","Plan","Users"],tenants) :
+        `<section class="card"><h2 class="section-title">Executive Dashboard</h2><p style="color:var(--muted);font-size:13px">Salud global, consumo y acciones rápidas de plataforma.</p>
+        <div class="grid two" style="margin-top:12px"><div class="metric-card"><span>Global Health</span><strong>Healthy</strong></div>
+        <div class="metric-card"><span>API Requests</span><strong>12,847</strong></div></div></section>`}
+    </section></main></div>`;
+}
+
+function screenTAC(b, tab){
+  const c = cred(b.loginRole);
+  return `<div class="layout">${renderSidebar("tenant-administration")}
+    <main class="main">${shellTop("tenant-administration","Tenant Administration Center","Enterprise",(c?.tenantId||DATA.tenantId).slice(0,8)+"…",c?.email)}
+    <section class="content">
+      <div class="tenant-hero"><div><span class="product-badge">Tenant Enterprise</span><h2 style="margin:.35rem 0">${esc(DATA.company.name)}</h2>
+      <p style="color:var(--muted);font-size:13px">Manufactura de alimentos · PA · USD · Plan Enterprise</p></div>
+      <div><span class="status-pill ok">Active</span><strong style="display:block;margin-top:6px">12 usuarios</strong></div></div>
+      <div class="tenant-tabs">${[["general","General"],["branding","Branding"],["users","Usuarios & Roles"]].map(([k,l])=>
+        hs(`<span class="tenant-tab ${tab===k?"active":""}">${l}</span>`,`Tab ${l}`,tab===k)).join("")}</div>
+      ${tab==="users" ? tableHtml("Usuarios demo",["Email","Rol","Estado"],[
+        ["doccontrol@alimentos-premium.test","Document Controller","Active"],
+        ["quality@alimentos-premium.test","Quality Manager","Active"],
+        ["auditor@alimentos-premium.test","Auditor","Active"],
+        ["viewer@alimentos-premium.test","Viewer","Active"]]) :
+        `<section class="card"><h2 class="section-title">${tab==="branding"?"Branding corporativo":"Datos generales"}</h2>
+        <div class="form-stack"><div class="field"><label>Industria</label><input value="Manufactura de alimentos" readonly></div>
+        <div class="field"><label>Estándares</label><input value="ISO 9001, ISO 22000, HACCP, BPM" readonly></div></div></section>`}
+    </section></main></div>`;
+}
+
+function screenConfig(b, mode){
+  const c = cred(b.loginRole);
+  const showStorage = mode !== "email-only";
+  const showEmail = mode !== "storage-only";
+  return `<div class="layout">${renderSidebar("configuration")}
+    <main class="main">${shellTop("configuration","Provider Administration","Enterprise",(c?.tenantId||DATA.tenantId).slice(0,8)+"…",c?.email)}
+    <section class="content">
+      <div class="module-hero"><div><p class="eyebrow">Configuración / Integraciones</p><h1 style="font-size:1.35rem">Provider Administration</h1>
+      <p style="color:var(--muted);font-size:13px">Storage y Email providers con SoD por rol.</p></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${showStorage ? hs(`<button class="btn primary" id="create-storage-provider">Crear Storage Local</button>`,"Storage Admin — solo este botón",mode==="storage-only") : ""}
+        ${showEmail ? hs(`<button class="btn" id="create-email-provider">Crear Email SMTP</button>`,"Notification Admin — solo este botón",mode==="email-only") : ""}
+      </div></div>
+      <section class="metric-grid"><article class="metric-card"><span>Health</span><strong>Ready</strong></article>
+      <article class="metric-card"><span>Storage Providers</span><strong>1</strong></article>
+      <article class="metric-card"><span>SMTP Providers</span><strong>1</strong></article>
+      <article class="metric-card"><span>Delivery Rate</span><strong>98%</strong></article></section>
+      ${tableHtml("Providers",["Type","Name","Status"],[["Storage","Local Filesystem","Active"],["Email","SMTP Dev","Active"]])}
+    </section></main></div>`;
+}
+
+function screenDashboard(b){
+  const c = cred(b.loginRole);
+  const heat = [1,2,2,3,4,2,3,3,4,5,2,1,3,2,4,3,2,2,1,3,4,3,2,2,1];
+  const colors = ["#86efac","#fde047","#fdba74","#fb923c","#ef4444"];
+  return `<div class="layout">${renderSidebar("dashboard")}
+    <main class="main">${shellTop("dashboard","Executive Dashboard","Command Center",(c?.tenantId||DATA.tenantId).slice(0,8)+"…",c?.email)}
+    <section class="content">
+      <div class="tenant-hero"><div><h2 style="margin:0">Visión C-Level — Alimentos Premium</h2><p style="color:var(--muted);font-size:13px">Métricas consolidadas de cumplimiento, riesgo y calidad.</p></div>
+      ${hs(`<span class="status-pill ok">Compliance 94%</span>`,"Métricas en tiles",true)}</div>
+      <section class="metric-grid">${[["Audit Open","2"],["CAPA Open","1"],["Risk Critical","1"],["KPI Alerts","0"]].map(m=>`<article class="metric-card"><span>${m[0]}</span><strong>${m[1]}</strong></article>`).join("")}</section>
+      <div class="grid two">
+        <section class="card">${hs(`<h2 class="section-title">Compliance Performance</h2><progress class="progress" value="94" max="100"></progress>`,"Barra de cumplimiento",true)}</section>
+        <section class="card">${hs(`<h2 class="section-title">Risk Heat Map</h2><div class="heat-grid">${heat.map((v,i)=>`<div class="heat-cell" style="background:${colors[v-1]}">${v}</div>`).join("")}</div>`,"Mapa de calor 5×5",true)}</section>
+      </div>
+    </section></main></div>`;
+}
+
+function screenReports(b){
+  return moduleScreen(b,"reports","Report Center","Seed, ejecutar y exportar reportes ejecutivos.",true,
+    [{label:"Report Code",value:"EXEC-COMPLIANCE"},{label:"Format",value:"PDF"}],
+    DEMO_ROWS.reports);
+}
+
+function mockForBlock(b){
+  const id = b.id, rk = routeKey(b.route);
+  if(id===1) return screenIntro(b);
+  if(id>=18) return screenClose(b);
+  if(b.roleChanged && b.loginRole) return screenLogin(b);
+  if(rk==="superadmin-platform") return screenPlatform(b, id===3?"tenants":"executive");
+  if(rk==="tenant-administration") return screenTAC(b, id===5?"users":"general");
+  if(rk==="configuration") return screenConfig(b, id===14?"storage-only":id===15?"email-only":"both");
+  if(rk==="dashboard") return screenDashboard(b);
+  if(rk==="reports") return screenReports(b);
+  if(rk==="documents") return moduleScreen(b,"documents","Document Management","Control documental ISO con workflow.",id===6,
+    [{label:"Code",value:"BPM-LIM-001"},{label:"Title",value:"Procedimiento Limpieza Áreas"}],DEMO_ROWS.documents);
+  if(rk==="audits") return moduleScreen(b,"audits","Audit Management","Programas, checklists y hallazgos.",id===8,
+    [{label:"Code",value:"AUD-INT-2026-01"},{label:"Title",value:"Auditoría Interna BPM"}],DEMO_ROWS.audits);
+  if(rk==="capa") return moduleScreen(b,"capa","CAPA","Acciones correctivas y preventivas.",true,
+    [{label:"Code",value:"CAPA-TEMP-001"},{label:"Title",value:"Desviación temperatura CCP"}],DEMO_ROWS.capa);
+  if(rk==="risks") return moduleScreen(b,"risks","Risk Management","Matriz de riesgos operativos.",true,
+    [{label:"Code",value:"RISK-CCP-01"},{label:"Title",value:"Fallo cadena de frío"}],DEMO_ROWS.risks);
+  if(rk==="indicators") return moduleScreen(b,"indicators","Quality Indicators","KPIs de calidad con metas.",true,
+    [{label:"Code",value:"KPI-NC-Rate"},{label:"Target",value:"95%"}],DEMO_ROWS.indicators);
+  if(id===16) return moduleScreen(b,"documents","Document Management (Viewer)","Consulta sin edición.",false,[],DEMO_ROWS.documents);
+  return screenIntro(b);
+}
+
+function renderCoach(b){
+  const ph = phaseForBlock(b.id);
+  document.getElementById("coachPhase").textContent = ph ? `Fase ${ph.order}/10 · ${ph.label}` : (b.module !== "—" ? b.module : b.screen);
+  document.getElementById("coachTitle").innerHTML = `Bloque ${b.id}: ${esc(b.title)}` +
+    (ph ? `<div class="coach-position">📍 ${esc(ph.story)}</div>` : "");
+  document.getElementById("coachScript").textContent = b.script;
+  document.getElementById("coachFlow").innerHTML = b.artifact && b.artifact !== "—"
+    ? `<div>${esc(b.flowIn)}</div><div>→</div><div class="mid">${esc(b.artifact)}</div><div>→</div><div>${esc(b.flowOut)}</div>` : "";
+  const c = cred(b.loginRole);
+  document.getElementById("coachCreds").innerHTML = c ? G.credCard(b.loginRole, c) : "<p style='color:var(--muted);font-size:.82rem'>Sin login en este bloque.</p>";
+  document.querySelectorAll(".cred-copy-btn").forEach(btn => btn.addEventListener("click", () => {
+    const cr = cred(btn.dataset.copyRole);
+    if (cr) G.copyText(`Tenant: ${cr.tenantId}\nEmail: ${cr.email}\nPassword: ${cr.password}`, toastEl());
+  }));
+  document.getElementById("coachActions").innerHTML = `<div class="${directorMode?"director-on":""}">` + b.actions.map((a,i)=>`<div class="action-step ${i===actionIdx?"active":i<actionIdx?"done":""}" data-ai="${i}">
+    <span class="action-num">${i+1}</span><span>${esc(a)}</span></div>`).join("") + "</div>";
+  document.getElementById("coachVerify").innerHTML = `<strong>✓ Criterio E2E</strong><br>${esc(b.verify)}`;
+  document.getElementById("chipBlock").textContent = `Bloque ${b.id}/20`;
+  document.getElementById("chipRole").textContent = b.loginRole || b.role;
+  document.getElementById("chipRole").style.background = b.roleColor || "#64748b";
+  document.getElementById("chipPhase").textContent = ph ? `Fase ${ph.order}` : "—";
+  document.getElementById("roleOverlay").style.display = b.roleChanged ? "flex" : "none";
+  document.getElementById("roleOverlay").innerHTML = b.roleChanged ? `<div class="role-switch-card"><h3>⚡ Cambio de rol</h3>
+    <p style="font-size:.9rem;margin-bottom:.65rem">Logout → login como <strong>${esc(b.loginRole)}</strong></p>
+    <button class="gbtn primary" onclick="document.getElementById('roleOverlay').style.display='none'">Entendido — continuar</button></div>` : "";
+  renderSpotlight(b);
+  updateProgressRing();
+}
+
+function renderRail(){
+  document.getElementById("blockRail").innerHTML = DATA.blocks.map((b,i)=>{
+    const ph = phaseForBlock(b.id);
+    return `<button class="block-dot ${i===idx?"active":""} ${done.has(b.id)?"done":""}" data-i="${i}" title="${esc(b.title)}" style="${ph && i===idx?"box-shadow:0 0 0 2px var(--guide-accent)":""}">${b.id}</button>`;
+  }).join("");
+  document.querySelectorAll(".block-dot").forEach(d=>d.addEventListener("click",()=>go(+d.dataset.i)));
+}
+
+function render(){
+  const b = DATA.blocks[idx];
+  const frame = document.getElementById("mockFrame");
+  frame.classList.remove("block-enter");
+  void frame.offsetWidth;
+  frame.classList.add("block-enter");
+  document.getElementById("mockApp").innerHTML = mockForBlock(b);
+  renderCoach(b);
+  renderRail();
+  renderJourneySvg();
+  bindCoachTabs();
+  document.querySelectorAll(".action-step").forEach(el=>el.addEventListener("click",()=>{actionIdx=+el.dataset.ai;renderCoach(b);}));
+  if (directorMode) startDirector();
+}
+
+function go(i){
+  if(i<0||i>=DATA.blocks.length) return;
+  idx=i; actionIdx=0; render();
+  if(tourMode) updateTourBar();
+  document.querySelector(`.block-dot[data-i="${i}"]`)?.scrollIntoView({inline:"center",block:"nearest"});
+}
+
+function markDone(){
+  const b = DATA.blocks[idx];
+  const ph = phaseForBlock(b.id);
+  done.add(b.id);
+  G._doneSet = done;
+  localStorage.setItem(STORAGE,JSON.stringify([...done]));
+  renderRail();
+  updateProgressRing();
+  G.celebrate(document.getElementById("coach"));
+  if (ph && ph.blocks.every(id => done.has(id))) G.toast(toastEl(), `🎉 Fase ${ph.order} completada: ${ph.label}`);
+  if(tourMode && idx < DATA.blocks.length - 1) setTimeout(()=>go(idx+1), 500);
+}
+
+function startDirector() {
+  clearInterval(directorTimer);
+  directorTimer = setInterval(() => {
+    const b = DATA.blocks[idx];
+    if (actionIdx < (b.actions?.length || 1) - 1) { actionIdx++; renderCoach(b); }
+  }, 3500);
+}
+function stopDirector() { clearInterval(directorTimer); directorTimer = null; }
+
+function toggleDirector() {
+  directorMode = !directorMode;
+  document.getElementById("btnDirector").classList.toggle("active-toggle", directorMode);
+  document.body.classList.toggle("director-on", directorMode);
+  if (directorMode) startDirector(); else stopDirector();
+  render();
+}
+
+function togglePresent() {
+  presentMode = !presentMode;
+  document.body.classList.toggle("present-mode", presentMode);
+  document.getElementById("btnPresent").classList.toggle("active-toggle", presentMode);
+  if (presentMode) { coachTab = "script"; document.querySelector('.coach-tab[data-ctab="script"]')?.click(); }
+}
+
+document.getElementById("btnPresent").addEventListener("click", togglePresent);
+document.getElementById("btnDirector").addEventListener("click", toggleDirector);
+document.getElementById("btnDark").addEventListener("click", () => {
+  const dark = document.documentElement.getAttribute("data-theme") === "dark";
+  document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+  document.getElementById("btnDark").textContent = dark ? "🌙" : "☀️";
+});
+document.getElementById("btnImmersive").addEventListener("click", () => {
+  document.body.classList.toggle("immersive");
+  if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
+});
+document.getElementById("btnPrev").addEventListener("click",()=>go(idx-1));
+document.getElementById("btnNext").addEventListener("click",()=>go(idx+1));
+document.getElementById("btnMarkDone").addEventListener("click", markDone);
+document.getElementById("btnJourney").addEventListener("click",()=>{ renderJourneyModal(); document.getElementById("journeyModal").classList.add("open"); });
+document.getElementById("btnJourneyClose").addEventListener("click",()=>document.getElementById("journeyModal").classList.remove("open"));
+document.getElementById("btnTour").addEventListener("click", startTour);
+document.getElementById("btnStartTour").addEventListener("click", startTour);
+document.getElementById("btnStartBlock1").addEventListener("click",()=>{ closeWelcome(); go(0); });
+document.getElementById("btnWelcomeClose").addEventListener("click", closeWelcome);
+document.getElementById("btnTourExit").addEventListener("click", stopTour);
+document.getElementById("journeyModal").addEventListener("click",e=>{ if(e.target.id==="journeyModal") e.target.classList.remove("open"); });
+document.getElementById("btnScriptOnly").addEventListener("click",()=>{
+  document.querySelector(".coach-scroll").scrollTop = 0;
+  document.getElementById("coachScript").style.fontSize = "1.05rem";
+});
+document.addEventListener("keydown",e=>{
+  if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA") return;
+  if(e.key==="ArrowRight") go(idx+1);
+  if(e.key==="ArrowLeft") go(idx-1);
+  if(e.key===" ") { e.preventDefault(); actionIdx=Math.min(actionIdx+1,(DATA.blocks[idx].actions?.length||1)-1); renderCoach(DATA.blocks[idx]); }
+  if(e.key==="j"||e.key==="J"){ renderJourneyModal(); document.getElementById("journeyModal").classList.add("open"); }
+  if(e.key==="g"||e.key==="G") startTour();
+});
+setInterval(()=>{
+  const s=Math.floor((Date.now()-timer)/1000);
+  document.getElementById("chipTime").textContent=`⏱ ${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
+},1000);
+renderWelcome();
+if(localStorage.getItem(WELCOME_KEY)) document.getElementById("welcomeModal").classList.remove("open");
+render();
+</script>
+</body>
+</html>

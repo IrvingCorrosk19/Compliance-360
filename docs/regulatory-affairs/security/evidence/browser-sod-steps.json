@@ -1,0 +1,117 @@
+{
+  "when": "2026-07-19T00:17:27.894Z",
+  "dossierId": "f2510d94-8ad4-458d-b1a7-23129543e0e7",
+  "failed": 0,
+  "steps": [
+    {
+      "step": "SPEC-UI",
+      "pass": true,
+      "detail": "Regulatory Affairs · SoD activo · perfil specialist"
+    },
+    {
+      "step": "SPEC-CREATE",
+      "pass": true,
+      "detail": "status=Planning"
+    },
+    {
+      "step": "SPEC-SELF-REVIEW-DENIED",
+      "pass": true,
+      "detail": "http=403"
+    },
+    {
+      "step": "SPEC-NO-INTERNAL",
+      "pass": true,
+      "detail": "http=403"
+    },
+    {
+      "step": "SPEC-TRANSITION-WaitingManufacturerDocuments",
+      "pass": true,
+      "detail": "http=200;status=WaitingManufacturerDocuments"
+    },
+    {
+      "step": "SPEC-TRANSITION-DocumentsReceived",
+      "pass": true,
+      "detail": "http=200;status=DocumentsReceived"
+    },
+    {
+      "step": "SPEC-TRANSITION-Assembling",
+      "pass": true,
+      "detail": "http=200;status=Assembling"
+    },
+    {
+      "step": "SPEC-TRANSITION-UnderTechnicalReview",
+      "pass": true,
+      "detail": "http=200;status=UnderTechnicalReview"
+    },
+    {
+      "step": "REV-COMPLETE-REVIEW",
+      "pass": true,
+      "detail": "http=200;status=ReadyForSubmission"
+    },
+    {
+      "step": "REV-NO-APPROVE",
+      "pass": true,
+      "detail": "http=403"
+    },
+    {
+      "step": "REV-NO-SUBMIT",
+      "pass": true,
+      "detail": "http=403"
+    },
+    {
+      "step": "APPR-INTERNAL",
+      "pass": true,
+      "detail": "status=ApprovedForSubmission"
+    },
+    {
+      "step": "APPR-NO-SUBMIT",
+      "pass": true,
+      "detail": "http=403"
+    },
+    {
+      "step": "SUB-NO-INTERNAL",
+      "pass": true,
+      "detail": "http=403"
+    },
+    {
+      "step": "SUB-SUBMIT",
+      "pass": true,
+      "detail": "status=Submitted"
+    },
+    {
+      "step": "VIEW-READ",
+      "pass": true,
+      "detail": "http=200;status=Submitted"
+    },
+    {
+      "step": "VIEW-NO-CREATE",
+      "pass": true,
+      "detail": "http=403"
+    },
+    {
+      "step": "VIEW-NO-EDIT",
+      "pass": true,
+      "detail": "http=403"
+    },
+    {
+      "step": "VIEW-NO-REVIEW",
+      "pass": true,
+      "detail": "http=403"
+    },
+    {
+      "step": "VIEW-NO-APPROVE",
+      "pass": true,
+      "detail": "http=403"
+    },
+    {
+      "step": "VIEW-NO-SUBMIT",
+      "pass": true,
+      "detail": "http=403"
+    },
+    {
+      "step": "VIEW-NO-DELETE",
+      "pass": true,
+      "detail": "http=403"
+    }
+  ]
+}

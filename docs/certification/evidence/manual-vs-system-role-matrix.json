@@ -1,0 +1,1178 @@
+[
+  {
+    "role": "TAC",
+    "email": "irvingcorrosk19@gmail.com",
+    "pass": true,
+    "checks": [
+      {
+        "id": "LOGIN",
+        "pass": true,
+        "detail": "shell visible"
+      },
+      {
+        "id": "SIDEBAR-EXACT",
+        "pass": true,
+        "detail": "got=[dashboard,audit-trail,regulatory,tenant-administration,security] expected=[dashboard,audit-trail,regulatory,tenant-administration,security]"
+      },
+      {
+        "id": "BADGE",
+        "pass": true,
+        "detail": "Regulatory Affairs · SoD activo · perfil tac"
+      },
+      {
+        "id": "TAB-YES-dashboard",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-portfolio",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-dossiers",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-registrations",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-licenses",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-config",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-sod",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-NO-pipeline",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-manufacturers",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-alerts",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-import",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "BTN-NEW-PRODUCT",
+        "pass": true,
+        "detail": "visible=false expected=false"
+      },
+      {
+        "id": "API-BOOTSTRAP",
+        "pass": true,
+        "detail": "http=200 expectedAllowed=true"
+      },
+      {
+        "id": "DENY-POST-regulatory/dossiers",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/transition",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/approve-for-submission",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/submit",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/approve",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "TAC-UI",
+        "pass": true,
+        "detail": "Compliance 360 / Enterprise / Administration ADMINISTRATION Tenant Administration Center Enterprise center to manage commercial identity, security, licensing, "
+      },
+      {
+        "id": "SECURITY-UI",
+        "pass": true,
+        "detail": "Compliance 360 / Enterprise / Administration ADMINISTRATION Security Configuración de seguridad del tenant (MFA/SSO según permisos). Dashboard Reports Swagger"
+      },
+      {
+        "id": "CONSOLE-CLEAN",
+        "pass": true,
+        "detail": "no console/page errors"
+      }
+    ],
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "role": "RA-ADM",
+    "email": "ra.admin@cert.local",
+    "pass": true,
+    "checks": [
+      {
+        "id": "LOGIN",
+        "pass": true,
+        "detail": "shell visible"
+      },
+      {
+        "id": "SIDEBAR-EXACT",
+        "pass": true,
+        "detail": "got=[dashboard,regulatory] expected=[dashboard,regulatory]"
+      },
+      {
+        "id": "BADGE",
+        "pass": true,
+        "detail": "Regulatory Affairs · SoD activo · perfil admin"
+      },
+      {
+        "id": "TAB-YES-dashboard",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-portfolio",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-manufacturers",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-licenses",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-alerts",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-import",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-config",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-sod",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-NO-pipeline",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-dossiers",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-registrations",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "BTN-NEW-PRODUCT",
+        "pass": true,
+        "detail": "visible=true expected=true"
+      },
+      {
+        "id": "MODAL-OPEN",
+        "pass": true,
+        "detail": "modal enterprise"
+      },
+      {
+        "id": "NO-NATIVE-PROMPT",
+        "pass": true,
+        "detail": "native=0"
+      },
+      {
+        "id": "RISK-ABC-ONLY",
+        "pass": true,
+        "detail": "options=A,B,C"
+      },
+      {
+        "id": "FIELD-PAIS",
+        "pass": true,
+        "detail": "value=PA"
+      },
+      {
+        "id": "CREATE-PRODUCT-DOSSIER",
+        "pass": true,
+        "detail": "producto + expediente creados"
+      },
+      {
+        "id": "API-BOOTSTRAP",
+        "pass": true,
+        "detail": "http=200 expectedAllowed=true"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/transition",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/approve-for-submission",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/submit",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/approve",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-PUT-requirements/00000000-0000-0000-0000-000000000001",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "CONSOLE-CLEAN",
+        "pass": true,
+        "detail": "no console/page errors"
+      }
+    ],
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "role": "RA-MGR",
+    "email": "ra.mgr@cert.local",
+    "pass": true,
+    "checks": [
+      {
+        "id": "LOGIN",
+        "pass": true,
+        "detail": "shell visible"
+      },
+      {
+        "id": "SIDEBAR-EXACT",
+        "pass": true,
+        "detail": "got=[dashboard,regulatory] expected=[dashboard,regulatory]"
+      },
+      {
+        "id": "BADGE",
+        "pass": true,
+        "detail": "Regulatory Affairs · SoD activo · perfil manager"
+      },
+      {
+        "id": "TAB-YES-dashboard",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-portfolio",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-pipeline",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-dossiers",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-registrations",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-alerts",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-sod",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-NO-manufacturers",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-licenses",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-import",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-config",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "BTN-NEW-PRODUCT",
+        "pass": true,
+        "detail": "visible=false expected=false"
+      },
+      {
+        "id": "API-BOOTSTRAP",
+        "pass": true,
+        "detail": "http=403 expectedAllowed=false"
+      },
+      {
+        "id": "DENY-POST-regulatory/bootstrap",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-regulatory/products",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-regulatory/dossiers",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/approve-for-submission",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/submit",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "CONSOLE-CLEAN",
+        "pass": true,
+        "detail": "no console/page errors"
+      }
+    ],
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "role": "RA-SPEC",
+    "email": "ra.spec@cert.local",
+    "pass": true,
+    "checks": [
+      {
+        "id": "LOGIN",
+        "pass": true,
+        "detail": "shell visible"
+      },
+      {
+        "id": "SIDEBAR-EXACT",
+        "pass": true,
+        "detail": "got=[dashboard,regulatory] expected=[dashboard,regulatory]"
+      },
+      {
+        "id": "BADGE",
+        "pass": true,
+        "detail": "Regulatory Affairs · SoD activo · perfil specialist"
+      },
+      {
+        "id": "TAB-YES-dashboard",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-portfolio",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-pipeline",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-dossiers",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-registrations",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-manufacturers",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-NO-licenses",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-alerts",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-import",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-config",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-sod",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "BTN-NEW-PRODUCT",
+        "pass": true,
+        "detail": "visible=true expected=true"
+      },
+      {
+        "id": "MODAL-OPEN",
+        "pass": true,
+        "detail": "modal enterprise"
+      },
+      {
+        "id": "NO-NATIVE-PROMPT",
+        "pass": true,
+        "detail": "native=0"
+      },
+      {
+        "id": "RISK-ABC-ONLY",
+        "pass": true,
+        "detail": "options=A,B,C"
+      },
+      {
+        "id": "FIELD-PAIS",
+        "pass": true,
+        "detail": "value=PA"
+      },
+      {
+        "id": "API-BOOTSTRAP",
+        "pass": true,
+        "detail": "http=403 expectedAllowed=false"
+      },
+      {
+        "id": "DENY-POST-regulatory/bootstrap",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/approve-for-submission",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/submit",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/approve",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-regulatory/renewals",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-regulatory/operating-licenses",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "CONSOLE-CLEAN",
+        "pass": true,
+        "detail": "no console/page errors"
+      }
+    ],
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "role": "RA-REV",
+    "email": "ra.rev@cert.local",
+    "pass": true,
+    "checks": [
+      {
+        "id": "LOGIN",
+        "pass": true,
+        "detail": "shell visible"
+      },
+      {
+        "id": "SIDEBAR-EXACT",
+        "pass": true,
+        "detail": "got=[dashboard,regulatory] expected=[dashboard,regulatory]"
+      },
+      {
+        "id": "BADGE",
+        "pass": true,
+        "detail": "Regulatory Affairs · SoD activo · perfil reviewer"
+      },
+      {
+        "id": "TAB-YES-dashboard",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-pipeline",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-dossiers",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-registrations",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-NO-portfolio",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-manufacturers",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-licenses",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-alerts",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-import",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-config",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-sod",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "API-BOOTSTRAP",
+        "pass": true,
+        "detail": "http=403 expectedAllowed=false"
+      },
+      {
+        "id": "DENY-POST-regulatory/products",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-regulatory/dossiers",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/transition",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/approve-for-submission",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/submit",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/observations",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-regulatory/renewals",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-regulatory/manufacturers",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-regulatory/operating-licenses",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "CONSOLE-CLEAN",
+        "pass": true,
+        "detail": "no console/page errors"
+      }
+    ],
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "role": "RA-APPR",
+    "email": "ra.appr@cert.local",
+    "pass": true,
+    "checks": [
+      {
+        "id": "LOGIN",
+        "pass": true,
+        "detail": "shell visible"
+      },
+      {
+        "id": "SIDEBAR-EXACT",
+        "pass": true,
+        "detail": "got=[dashboard,regulatory] expected=[dashboard,regulatory]"
+      },
+      {
+        "id": "BADGE",
+        "pass": true,
+        "detail": "Regulatory Affairs · SoD activo · perfil approver"
+      },
+      {
+        "id": "TAB-YES-dashboard",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-pipeline",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-dossiers",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-registrations",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-NO-portfolio",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-manufacturers",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-licenses",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-alerts",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-import",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-config",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-sod",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "API-BOOTSTRAP",
+        "pass": true,
+        "detail": "http=403 expectedAllowed=false"
+      },
+      {
+        "id": "DENY-POST-regulatory/products",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/transition",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/submit",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/observations",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-PUT-requirements/00000000-0000-0000-0000-000000000001",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "CONSOLE-CLEAN",
+        "pass": true,
+        "detail": "no console/page errors"
+      }
+    ],
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "role": "RA-SUB",
+    "email": "ra.sub@cert.local",
+    "pass": true,
+    "checks": [
+      {
+        "id": "LOGIN",
+        "pass": true,
+        "detail": "shell visible"
+      },
+      {
+        "id": "SIDEBAR-EXACT",
+        "pass": true,
+        "detail": "got=[dashboard,regulatory] expected=[dashboard,regulatory]"
+      },
+      {
+        "id": "BADGE",
+        "pass": true,
+        "detail": "Regulatory Affairs · SoD activo · perfil submitter"
+      },
+      {
+        "id": "TAB-YES-dashboard",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-pipeline",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-dossiers",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-registrations",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-NO-portfolio",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-manufacturers",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-licenses",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-alerts",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-import",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-config",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-sod",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "API-BOOTSTRAP",
+        "pass": true,
+        "detail": "http=403 expectedAllowed=false"
+      },
+      {
+        "id": "DENY-POST-regulatory/products",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/transition",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/approve-for-submission",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/observations",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-PUT-requirements/00000000-0000-0000-0000-000000000001",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "CONSOLE-CLEAN",
+        "pass": true,
+        "detail": "no console/page errors"
+      }
+    ],
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "role": "RA-VIEW",
+    "email": "ra.view@cert.local",
+    "pass": true,
+    "checks": [
+      {
+        "id": "LOGIN",
+        "pass": true,
+        "detail": "shell visible"
+      },
+      {
+        "id": "SIDEBAR-EXACT",
+        "pass": true,
+        "detail": "got=[dashboard,regulatory] expected=[dashboard,regulatory]"
+      },
+      {
+        "id": "BADGE",
+        "pass": true,
+        "detail": "Regulatory Affairs · SoD activo · perfil viewer"
+      },
+      {
+        "id": "TAB-YES-dashboard",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-portfolio",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-pipeline",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-dossiers",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-registrations",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-alerts",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-NO-manufacturers",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-licenses",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-import",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-config",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-sod",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "BTN-NEW-PRODUCT",
+        "pass": true,
+        "detail": "visible=false expected=false"
+      },
+      {
+        "id": "API-BOOTSTRAP",
+        "pass": true,
+        "detail": "http=403 expectedAllowed=false"
+      },
+      {
+        "id": "DENY-POST-regulatory/bootstrap",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-regulatory/products",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-regulatory/dossiers",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/transition",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-PUT-requirements/00000000-0000-0000-0000-000000000001",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/approve-for-submission",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/submit",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/approve",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/observations",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-regulatory/renewals",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-regulatory/manufacturers",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-regulatory/operating-licenses",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-PUT-regulatory/sod-settings",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "CONSOLE-CLEAN",
+        "pass": true,
+        "detail": "no console/page errors"
+      }
+    ],
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "role": "QM",
+    "email": "ra.qm@cert.local",
+    "pass": true,
+    "checks": [
+      {
+        "id": "LOGIN",
+        "pass": true,
+        "detail": "shell visible"
+      },
+      {
+        "id": "SIDEBAR-EXACT",
+        "pass": true,
+        "detail": "got=[dashboard,audit-trail,regulatory,documents,technical-sheets,audits,capa,risks,indicators,reports] expected=[dashboard,audit-trail,regulatory,documents,technical-sheets,audits,capa,risks,indicators,reports]"
+      },
+      {
+        "id": "BADGE",
+        "pass": true,
+        "detail": "Regulatory Affairs · SoD activo · perfil qm"
+      },
+      {
+        "id": "TAB-YES-dashboard",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-dossiers",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-YES-registrations",
+        "pass": true,
+        "detail": "visible"
+      },
+      {
+        "id": "TAB-NO-portfolio",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-pipeline",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-manufacturers",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-licenses",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-alerts",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-import",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-config",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "TAB-NO-sod",
+        "pass": true,
+        "detail": "hidden ok"
+      },
+      {
+        "id": "API-BOOTSTRAP",
+        "pass": true,
+        "detail": "http=403 expectedAllowed=false"
+      },
+      {
+        "id": "DENY-POST-regulatory/bootstrap",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-regulatory/products",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-regulatory/dossiers",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/transition",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/approve-for-submission",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "DENY-POST-00000000-0000-0000-0000-000000000001/submit",
+        "pass": true,
+        "detail": "http=403"
+      },
+      {
+        "id": "CONSOLE-CLEAN",
+        "pass": true,
+        "detail": "no console/page errors"
+      }
+    ],
+    "consoleErrors": [],
+    "pageErrors": []
+  }
+]

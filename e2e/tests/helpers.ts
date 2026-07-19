@@ -23,33 +23,74 @@ export function evidenceDir(role: string) {
 
 export async function login(page: Page, tenantId: string, email: string, password: string) {
   await page.goto("/");
-  await page.waitForSelector("#login-form", { timeout: 20000 });
-  await page.fill("#tenantId", tenantId);
-  await page.fill("#email", email);
-  await page.fill("#password", password);
-  await page.click("#login-form button[type=submit]");
+  await page.evaluate(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+  await page.reload();
+  await page.waitForSelector("#login-form, #legacy-login-form", { timeout: 20000 });
+
+  if (await page.locator("#tenantId").count()) {
+    await page.fill("#tenantId", tenantId);
+    await page.fill("#legacy-email, #email", email);
+    await page.fill("#legacy-password, #password", password);
+    await page.click("#legacy-login-form button[type=submit], #login-form button[type=submit]");
+  } else {
+    await page.fill("#email", email);
+    await page.click("#login-form button[type=submit]");
+
+    const orgRadio = page.locator('input[name="organizationId"]');
+    const passwordField = page.locator("#password");
+    await Promise.race([
+      orgRadio.first().waitFor({ state: "visible", timeout: 20000 }),
+      passwordField.waitFor({ state: "visible", timeout: 20000 }),
+    ]);
+
+    if (await orgRadio.count()) {
+      const preferred = tenantId
+        ? page.locator(`input[name="organizationId"][value="${tenantId}"]`)
+        : orgRadio.first();
+      if (tenantId && (await preferred.count())) {
+        await preferred.check();
+      } else {
+        await orgRadio.first().check();
+      }
+      await page.click("#login-form button[type=submit]");
+      await passwordField.waitFor({ state: "visible", timeout: 20000 });
+    }
+
+    await passwordField.waitFor({ state: "visible", timeout: 20000 });
+    await page.fill("#password", password);
+    await page.click("#login-form button[type=submit]");
+  }
+
   try {
     await page.waitForSelector("aside.sidebar", { timeout: 45000 });
   } catch {
     const err = await page.locator(".toast.error").last().textContent().catch(() => null);
-    throw new Error(`Login failed for ${email}: ${err ?? "shell not visible after 45s (server may be under load)"}`);
+    throw new Error(`Login failed for ${email}: ${err ?? "shell not visible after 45s"}`);
   }
 }
 
 export async function logout(page: Page) {
   await page.click("#logout");
-  await page.waitForSelector("#login-form", { timeout: 15000 });
+  await page.waitForSelector("#login-form, #legacy-login-form", { timeout: 15000 });
+  await page.evaluate(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
 }
 
 export async function go(page: Page, route: string) {
   await page.evaluate((rt) => { location.hash = `#/${rt}`; }, route);
-  await page.waitForTimeout(2000);
+  await page.waitForTimeout(2500);
 }
 
 export async function browserApi(page: Page, method: string, apiPath: string, body?: object) {
   return page.evaluate(async ({ method, apiPath, body }) => {
     const token = localStorage.getItem("c360.token");
-    const res = await fetch(`/api/v1${apiPath}`, {
+    const url = apiPath.startsWith("/api/") ? apiPath : `/api/v1${apiPath}`;
+    const res = await fetch(url, {
       method,
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: body ? JSON.stringify(body) : undefined,
@@ -59,6 +100,28 @@ export async function browserApi(page: Page, method: string, apiPath: string, bo
     try { parsed = JSON.parse(text); } catch { /* raw text */ }
     return { status: res.status, ok: res.ok, body: parsed, text };
   }, { method, apiPath, body });
+}
+
+export async function createModuleRecord(page: Page, route: string): Promise<string> {
+  await go(page, route);
+  const form = page.locator("#module-action-form");
+  await expect(form).toBeVisible();
+  const code = `E2E-${route.toUpperCase()}-${Date.now()}`;
+  await form.locator('[name="code"]').fill(code);
+  await form.locator('button[type="submit"]').click();
+  await expect(page.locator(".toast.success").last()).toBeVisible({ timeout: 20000 });
+  return code;
+}
+
+export async function createEnterpriseItem(page: Page, route: string): Promise<string> {
+  await go(page, route);
+  const form = page.locator("#enterprise-action-form");
+  await expect(form).toBeVisible();
+  const code = `E2E-${route.toUpperCase()}-${Date.now()}`;
+  await form.locator('[name="code"]').fill(code);
+  await form.locator('button[type="submit"]').click();
+  await expect(page.locator(".toast.success").last()).toBeVisible({ timeout: 20000 });
+  return code;
 }
 
 export async function jwtPermissions(page: Page): Promise<string[]> {
@@ -71,31 +134,6 @@ export async function jwtPermissions(page: Page): Promise<string[]> {
       return Array.isArray(p) ? p : [p];
     } catch { return []; }
   });
-}
-
-export async function createModuleRecord(page: Page, route: string) {
-  await go(page, route);
-  await expect(page.locator("#module-action-form")).toBeVisible({ timeout: 10000 });
-  const code = `E2E-${route.toUpperCase().replace(/[^A-Z]/g, "")}-${Date.now()}`;
-  await page.fill("#code", code);
-  const nameField = page.locator("#name");
-  if (await nameField.count()) {
-    await nameField.fill(`E2E ${route} ${Date.now()}`);
-  }
-  await page.click("#module-action-form button[type=submit]");
-  await expect(page.locator(".toast.success").filter({ hasText: /creado|created/i }).last()).toBeVisible({ timeout: 20000 });
-  return code;
-}
-
-export async function createEnterpriseItem(page: Page, route: string) {
-  await go(page, route);
-  await expect(page.locator("#enterprise-action-form")).toBeVisible({ timeout: 10000 });
-  const code = `ENT-${Date.now()}`;
-  await page.fill("#code", code);
-  await page.fill("#title", `E2E Enterprise ${route}`);
-  await page.click("#enterprise-action-form button[type=submit]");
-  await expect(page.locator(".toast.success").filter({ hasText: /creado|created/i }).last()).toBeVisible({ timeout: 20000 });
-  return code;
 }
 
 export type StepResult = { step: string; expected: string; actual: string; pass: boolean };

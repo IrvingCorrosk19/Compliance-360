@@ -66,6 +66,8 @@ public sealed class User : TenantEntity
 
     public string PasswordHash { get; private set; }
 
+    public string? PreferredLanguage { get; private set; }
+
     public UserStatus Status { get; private set; }
 
     public bool MfaEnabled { get; private set; }
@@ -100,12 +102,31 @@ public sealed class User : TenantEntity
         CompanyId = Guard.AgainstEmpty(companyId, nameof(companyId));
     }
 
+    public void UpdateProfile(string email, string fullName, DateTimeOffset updatedAtUtc)
+    {
+        Email = NormalizeEmail(email);
+        NormalizedEmail = Email.ToUpperInvariant();
+        FullName = Guard.AgainstNullOrWhiteSpace(fullName, nameof(fullName), 180);
+        MarkUpdated(updatedAtUtc);
+    }
+
     public void SetPasswordHash(string passwordHash)
     {
         PasswordHash = Guard.AgainstNullOrWhiteSpace(passwordHash, nameof(passwordHash), 1_000);
         PasswordChangedAtUtc = DateTimeOffset.UtcNow;
         Status = UserStatus.Active;
         ForcePasswordChangeRequired = false;
+    }
+
+    public void SetPreferredLanguage(string? language)
+    {
+        PreferredLanguage = language?.Trim().ToLowerInvariant() switch
+        {
+            "es" => "es",
+            "en" => "en",
+            _ => null
+        };
+        MarkUpdated(DateTimeOffset.UtcNow);
     }
 
     public PasswordHistory ChangePassword(string newPasswordHash, DateTimeOffset changedAtUtc)

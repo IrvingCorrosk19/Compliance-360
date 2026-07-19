@@ -1,0 +1,67 @@
+[
+  {
+    "id": "DEF1-CREATE-BOTH",
+    "pass": true,
+    "detail": "http=200 body={'id': 'be4bbc36-869c-4846-8a68-0c833dc9d210', 'companyName': 'Multimed', 'licenseType': 'Licencia Closure 2026-07-14', 'licenseNumber': 'LOP-CLOSE-001', 'issuedOn': None, 'expiresOn': '2029-11-21T00:00:00+00:00', 'status': 'Active', 'activeRenewalCaseId': None, 'companyConstitutedOn': '2003-01-17', 'operationsStartedOn': '2003-01-01'}"
+  },
+  {
+    "id": "DEF1-CREATE-NULL",
+    "pass": true,
+    "detail": "http=200"
+  },
+  {
+    "id": "DEF1-EDIT-OPS",
+    "pass": true,
+    "detail": "http=200 {'id': 'be4bbc36-869c-4846-8a68-0c833dc9d210', 'companyName': 'Multimed', 'licenseType': 'Licencia Closure 2026-07-14', 'licenseNumber': 'LOP-CLOSE-001', 'issuedOn': None, 'expiresOn': '2029-11-21T00:00:00+00:00', 'status': 'Active', 'activeRenewalCaseId': None, 'companyConstitutedOn': '2003-01-17', 'operationsStartedOn': '2003-02-01'}"
+  },
+  {
+    "id": "DEF1-LIST-READ",
+    "pass": true,
+    "detail": "n=1"
+  },
+  {
+    "id": "DEF1-VIEW-DENY",
+    "pass": true,
+    "detail": "http=403"
+  },
+  {
+    "id": "DEF1-X-TENANT",
+    "pass": true,
+    "detail": "http=403"
+  },
+  {
+    "id": "DEF2-CREATE-FICHA-REF",
+    "pass": true,
+    "detail": "http=200 status=Received"
+  },
+  {
+    "id": "DEF2-ATTACH-FICHA",
+    "pass": true,
+    "detail": "http=200"
+  },
+  {
+    "id": "DEF2-ATTACH-FORM",
+    "pass": true,
+    "detail": "http=200"
+  },
+  {
+    "id": "DEF2-VERSION-FICHA",
+    "pass": true,
+    "detail": "http=200 ref=102300-V2"
+  },
+  {
+    "id": "DEF2-VIEW-DENY",
+    "pass": true,
+    "detail": "http=403"
+  },
+  {
+    "id": "DEF2-PRODUCT-READ",
+    "pass": "cccccccc-bbbb-cccc-dddd-eeeeeeeeeeee",
+    "detail": "http=200"
+  },
+  {
+    "id": "DEF3-MANIFEST",
+    "pass": true,
+    "detail": "bd88a4a67fc3d7c3"
+  }
+]

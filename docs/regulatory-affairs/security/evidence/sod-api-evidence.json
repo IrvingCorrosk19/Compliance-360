@@ -1,0 +1,93 @@
+﻿[
+    {
+        "Case":  "SOD-001",
+        "Actor":  "ra.spec",
+        "Role":  "Specialist",
+        "Method":  "PUT",
+        "Path":  "requirements/accept",
+        "StatusBefore":  "Planning",
+        "StatusAfter":  "Planning",
+        "Http":  400,
+        "Detail":  "self review denied",
+        "Pass":  true,
+        "Tenant":  "82af3877-2786-4d39-bce8-c981101c771d"
+    },
+    {
+        "Case":  "SOD-002",
+        "Actor":  "ra.spec",
+        "Role":  "Specialist",
+        "Method":  "POST",
+        "Path":  "approve-for-submission",
+        "StatusBefore":  "Planning",
+        "StatusAfter":  "Planning",
+        "Http":  403,
+        "Detail":  "denied",
+        "Pass":  true,
+        "Tenant":  "82af3877-2786-4d39-bce8-c981101c771d"
+    },
+    {
+        "Case":  "SOD-003",
+        "Actor":  "ra.rev",
+        "Role":  "Reviewer",
+        "Method":  "POST",
+        "Path":  "approve-for-submission",
+        "StatusBefore":  "ReadyForSubmission",
+        "StatusAfter":  "ReadyForSubmission",
+        "Http":  403,
+        "Detail":  "denied self-approval",
+        "Pass":  true,
+        "Tenant":  "82af3877-2786-4d39-bce8-c981101c771d"
+    },
+    {
+        "Case":  "APPROVE-INTERNAL",
+        "Actor":  "ra.appr",
+        "Role":  "Approver",
+        "Method":  "POST",
+        "Path":  "approve-for-submission",
+        "StatusBefore":  "ReadyForSubmission",
+        "StatusAfter":  "ApprovedForSubmission",
+        "Http":  200,
+        "Detail":  "ok",
+        "Pass":  true,
+        "Tenant":  "82af3877-2786-4d39-bce8-c981101c771d"
+    },
+    {
+        "Case":  "SOD-004",
+        "Actor":  "ra.appr",
+        "Role":  "Approver",
+        "Method":  "POST",
+        "Path":  "submit",
+        "StatusBefore":  "ApprovedForSubmission",
+        "StatusAfter":  "ApprovedForSubmission",
+        "Http":  403,
+        "Detail":  "separate submitter",
+        "Pass":  true,
+        "Tenant":  "82af3877-2786-4d39-bce8-c981101c771d"
+    },
+    {
+        "Case":  "SUBMIT",
+        "Actor":  "ra.sub",
+        "Role":  "Submitter",
+        "Method":  "POST",
+        "Path":  "submit",
+        "StatusBefore":  "ApprovedForSubmission",
+        "StatusAfter":  "Submitted",
+        "Http":  200,
+        "Detail":  "ok",
+        "Pass":  true,
+        "Tenant":  "82af3877-2786-4d39-bce8-c981101c771d"
+    },
+    {
+        "Case":  "EXT-APPROVE",
+        "Actor":  "ra.mgr",
+        "Role":  "Manager",
+        "Method":  "POST",
+        "Path":  "approve",
+        "StatusBefore":  "UnderAuthorityReview",
+        "StatusAfter":  "Closed?",
+        "Http":  200,
+        "Detail":  "MQ-SOD-e82189",
+        "Pass":  true,
+        "Tenant":  "82af3877-2786-4d39-bce8-c981101c771d"
+    }
+]

@@ -1,0 +1,80 @@
+{
+  "source_stats": {
+    "CTT REGISTROS": {
+      "physical": 201,
+      "header": 1,
+      "emptyish": 9,
+      "operational": 191
+    },
+    "CTT REGISTROS (2)": {
+      "physical": 192,
+      "header": 1,
+      "emptyish": 0,
+      "operational": 191
+    },
+    "CTT REGISTROS TUBERIA": {
+      "physical": 202,
+      "header": 1,
+      "emptyish": 14,
+      "operational": 187
+    },
+    "DOCUMENTACION": {
+      "physical": 303,
+      "operational": 139
+    },
+    "CTT LICENCIAS OP": {
+      "physical": 13,
+      "operational_license_rows": 8,
+      "company_meta_rows": 2
+    }
+  },
+  "before": {
+    "products": 482,
+    "registrations": 360,
+    "licenses": 31,
+    "certificates": 311,
+    "manufacturers": 216,
+    "import_rows": 12178,
+    "licenses_with_constitution": 9,
+    "products_with_ficha": 387
+  },
+  "after_run1": {
+    "products": 482,
+    "registrations": 360,
+    "licenses": 31,
+    "certificates": 311,
+    "manufacturers": 216,
+    "import_rows": 12893,
+    "licenses_with_constitution": 9,
+    "products_with_ficha": 387
+  },
+  "after_run2": {
+    "products": 482,
+    "registrations": 360,
+    "licenses": 31,
+    "certificates": 311,
+    "manufacturers": 216,
+    "import_rows": 13608,
+    "licenses_with_constitution": 9,
+    "products_with_ficha": 387
+  },
+  "recon_rows": 347,
+  "recon_fail": 0,
+  "result_counts": {
+    "PASS_MATCHED": 199,
+    "REJECTED_EXPECTED": 9,
+    "PASS_CREATED": 139
+  },
+  "job": {
+    "body": {
+      "id": "b7b22a69-10b8-4d9b-b12b-b66df61b10c7",
+      "sourceFileName": "REGUTRACK_02JUN26_MG_CLOSURE_COPY.xlsx",
+      "status": "Committed",
+      "warningCount": 10,
+      "errorCount": 0,
+      "importedRowCount": 614,
+      "createdAtUtc": "2026-07-15T01:07:12.198595+00:00",
+      "validationReportJson": "{\"rows\": 715, \"errors\": 0, \"source\": \"REGUTRACK_02JUN26_MG_CLOSURE_COPY.xlsx\", \"warnings\": 10}"
+    }
+  }
+}

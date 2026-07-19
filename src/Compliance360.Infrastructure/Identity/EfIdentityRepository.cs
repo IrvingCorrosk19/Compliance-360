@@ -45,6 +45,20 @@ public sealed class EfIdentityRepository : IIdentityRepository
         return _dbContext.RefreshTokens.FirstOrDefaultAsync(token => token.TokenHash == tokenHash, cancellationToken);
     }
 
+    public Task<UserSession?> GetSessionByIdAsync(Guid tenantId, Guid sessionId, CancellationToken cancellationToken = default)
+    {
+        return _dbContext.UserSessions.FirstOrDefaultAsync(
+            session => session.TenantId == tenantId && session.Id == sessionId,
+            cancellationToken);
+    }
+
+    public Task<bool> IsTenantActiveAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        return _dbContext.Tenants.AnyAsync(
+            tenant => tenant.Id == tenantId && tenant.Status == Domain.TenantManagement.TenantStatus.Active,
+            cancellationToken);
+    }
+
     public async Task<bool> IsTenantMfaRequiredAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
         return await _dbContext.TenantSettings
@@ -103,6 +117,32 @@ public sealed class EfIdentityRepository : IIdentityRepository
             .Join(_dbContext.Permissions, rolePermission => rolePermission.PermissionId, permission => permission.Id, (_, permission) => permission.Code)
             .Distinct()
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<UserTenantMembership>> GetUserTenantMembershipsByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Users
+            .Where(user => user.NormalizedEmail == normalizedEmail)
+            .Join(_dbContext.Tenants, user => user.TenantId, tenant => tenant.Id, (user, tenant) => new { user, tenant })
+            .Join(_dbContext.TenantBranding, x => x.tenant.Id, branding => branding.TenantId, (x, branding) => new UserTenantMembership(
+                x.tenant.Id,
+                x.user.Id,
+                string.IsNullOrWhiteSpace(branding.DisplayName) ? x.tenant.Name : branding.DisplayName,
+                branding.LogoUri,
+                branding.PrimaryColor,
+                x.tenant.Industry))
+            .Distinct()
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<Guid?> ResolveTenantByHostAsync(string hostName, CancellationToken cancellationToken = default)
+    {
+        var normalizedHost = hostName.Trim().ToLowerInvariant();
+        return await _dbContext.TenantDomains
+            .Where(domain => domain.HostName == normalizedHost && domain.HttpsEnabled)
+            .OrderByDescending(domain => domain.IsDefault)
+            .Select(domain => (Guid?)domain.TenantId)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     private IQueryable<User> UserQuery()

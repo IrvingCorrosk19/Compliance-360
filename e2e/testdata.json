@@ -1,83 +1,112 @@
 {
-    "baseUrl":  "http://localhost:5272",
-    "tenantId":  "ddcaf211-afe0-44a0-9c90-4fbda8fc4871",
-    "platform":  {
-                     "email":  "admin@compliance360.local",
-                     "tenantId":  "dc7c46ee-cb25-4ed5-b0b4-800788f7f626",
-                     "password":  "OwnerStart!2026",
-                     "role":  "Platform Administrator"
-                 },
-    "users":  [
-                  {
-                      "role":  "Tenant Administrator",
-                      "email":  "tenantadmin@alimentos-premium.test",
-                      "password":  "Premium!2026"
-                  },
-                  {
-                      "role":  "Tenant Security Administrator",
-                      "email":  "security@alimentos-premium.test",
-                      "password":  "Premium!2026"
-                  },
-                  {
-                      "role":  "Document Controller",
-                      "email":  "doccontrol@alimentos-premium.test",
-                      "password":  "Premium!2026"
-                  },
-                  {
-                      "role":  "Quality Manager",
-                      "email":  "quality@alimentos-premium.test",
-                      "password":  "Premium!2026"
-                  },
-                  {
-                      "role":  "Auditor",
-                      "email":  "auditor@alimentos-premium.test",
-                      "password":  "Premium!2026"
-                  },
-                  {
-                      "role":  "Supplier Manager",
-                      "email":  "supplier@alimentos-premium.test",
-                      "password":  "Premium!2026"
-                  },
-                  {
-                      "role":  "CAPA Manager",
-                      "email":  "capa@alimentos-premium.test",
-                      "password":  "Premium!2026"
-                  },
-                  {
-                      "role":  "Risk Manager",
-                      "email":  "risk@alimentos-premium.test",
-                      "password":  "Premium!2026"
-                  },
-                  {
-                      "role":  "Indicators Manager",
-                      "email":  "indicators@alimentos-premium.test",
-                      "password":  "Premium!2026"
-                  },
-                  {
-                      "role":  "Reporting Manager",
-                      "email":  "reporting@alimentos-premium.test",
-                      "password":  "Premium!2026"
-                  },
-                  {
-                      "role":  "Storage Administrator",
-                      "email":  "storage@alimentos-premium.test",
-                      "password":  "Premium!2026"
-                  },
-                  {
-                      "role":  "Notification Administrator",
-                      "email":  "notifications@alimentos-premium.test",
-                      "password":  "Premium!2026"
-                  },
-                  {
-                      "role":  "Viewer",
-                      "email":  "viewer@alimentos-premium.test",
-                      "password":  "Premium!2026"
-                  }
-              ],
-    "support":  {
-                    "role":  "Support Operator",
-                    "email":  "support@compliance360.local",
-                    "password":  "OwnerStart!2026",
-                    "tenantId":  "dc7c46ee-cb25-4ed5-b0b4-800788f7f626"
-                }
+  "baseUrl": "http://localhost:5272",
+  "tenantId": "82af3877-2786-4d39-bce8-c981101c771d",
+  "platform": {
+    "email": "admin@compliance360.local",
+    "tenantId": "dc7c46ee-cb25-4ed5-b0b4-800788f7f626",
+    "password": "OwnerStart!2026",
+    "role": "Platform Administrator"
+  },
+  "users": [
+    {
+      "role": "Tenant Administrator",
+      "email": "irvingcorrosk19@gmail.com",
+      "password": "OwnerStart!2026"
+    },
+    {
+      "role": "Regulatory Administrator",
+      "email": "ra.admin@cert.local",
+      "password": "OwnerStart!2026"
+    },
+    {
+      "role": "Regulatory Manager",
+      "email": "ra.mgr@cert.local",
+      "password": "OwnerStart!2026"
+    },
+    {
+      "role": "Regulatory Specialist",
+      "email": "ra.spec@cert.local",
+      "password": "OwnerStart!2026"
+    },
+    {
+      "role": "Regulatory Reviewer",
+      "email": "ra.rev@cert.local",
+      "password": "OwnerStart!2026"
+    },
+    {
+      "role": "Regulatory Approver",
+      "email": "ra.appr@cert.local",
+      "password": "OwnerStart!2026"
+    },
+    {
+      "role": "Regulatory Submitter",
+      "email": "ra.sub@cert.local",
+      "password": "OwnerStart!2026"
+    },
+    {
+      "role": "Regulatory Viewer",
+      "email": "ra.view@cert.local",
+      "password": "OwnerStart!2026"
+    },
+    {
+      "role": "Quality Manager",
+      "email": "ra.qm@cert.local",
+      "password": "OwnerStart!2026"
+    },
+    {
+      "role": "Tenant Security Administrator",
+      "email": "security@cert.local",
+      "password": "OwnerStart!2026"
+    },
+    {
+      "role": "Document Controller",
+      "email": "doccontrol@cert.local",
+      "password": "OwnerStart!2026"
+    },
+    {
+      "role": "Auditor",
+      "email": "auditor@cert.local",
+      "password": "OwnerStart!2026"
+    },
+    {
+      "role": "Supplier Manager",
+      "email": "supplier@cert.local",
+      "password": "OwnerStart!2026"
+    },
+    {
+      "role": "CAPA Manager",
+      "email": "capa@cert.local",
+      "password": "OwnerStart!2026"
+    },
+    {
+      "role": "Risk Manager",
+      "email": "risk@cert.local",
+      "password": "OwnerStart!2026"
+    },
+    {
+      "role": "Indicators Manager",
+      "email": "indicators@cert.local",
+      "password": "OwnerStart!2026"
+    },
+    {
+      "role": "Reporting Manager",
+      "email": "reporting@cert.local",
+      "password": "OwnerStart!2026"
+    },
+    {
+      "role": "Storage Administrator",
+      "email": "storage@cert.local",
+      "password": "OwnerStart!2026"
+    },
+    {
+      "role": "Notification Administrator",
+      "email": "notifications@cert.local",
+      "password": "OwnerStart!2026"
+    },
+    {
+      "role": "Viewer",
+      "email": "viewer@cert.local",
+      "password": "OwnerStart!2026"
+    }
+  ]
 }

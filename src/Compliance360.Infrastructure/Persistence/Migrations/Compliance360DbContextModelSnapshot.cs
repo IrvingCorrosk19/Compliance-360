@@ -26,7 +26,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Audit.AuditLog", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Action")
@@ -123,7 +122,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.AuditManagement.AuditArea", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("AuditId")
@@ -160,7 +158,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.AuditManagement.AuditAttachment", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("AuditId")
@@ -214,7 +211,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.AuditManagement.AuditAuditor", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("AuditId")
@@ -246,7 +242,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.AuditManagement.AuditChecklist", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Code")
@@ -293,7 +288,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.AuditManagement.AuditChecklistItem", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("ChecklistId")
@@ -333,7 +327,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.AuditManagement.AuditCorrectiveActionLink", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("AuditId")
@@ -367,7 +360,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.AuditManagement.AuditEvidence", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("AuditId")
@@ -431,7 +423,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.AuditManagement.AuditFinding", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("AuditId")
@@ -484,7 +475,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.AuditManagement.AuditHistory", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Action")
@@ -522,7 +512,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.AuditManagement.AuditNonConformity", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("AuditId")
@@ -563,7 +552,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.AuditManagement.AuditObservation", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("AuditId")
@@ -601,7 +589,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.AuditManagement.AuditParticipant", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("AuditId")
@@ -637,7 +624,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.AuditManagement.AuditPlan", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("AuditProgramId")
@@ -678,7 +664,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.AuditManagement.AuditProgram", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Code")
@@ -722,7 +707,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.AuditManagement.AuditRecommendation", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("AuditId")
@@ -760,7 +744,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.AuditManagement.AuditSchedule", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("AuditId")
@@ -798,7 +781,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.AuditManagement.ManagedAudit", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("AuditPlanId")
@@ -860,7 +842,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.CapaManagement.Capa", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("AuditId")
@@ -953,7 +934,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.CapaManagement.CapaApprover", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("CapaId")
@@ -984,7 +964,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.CapaManagement.CapaAttachment", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("CapaId")
@@ -1038,7 +1017,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.CapaManagement.CapaCauseAnalysis", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("CapaId")
@@ -1117,7 +1095,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.CapaManagement.CapaContainmentAction", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("CapaId")
@@ -1168,7 +1145,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.CapaManagement.CapaCorrectiveAction", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("CapaId")
@@ -1219,7 +1195,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.CapaManagement.CapaEffectivenessCheck", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("CapaId")
@@ -1262,7 +1237,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.CapaManagement.CapaEvidence", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("CapaId")
@@ -1318,7 +1292,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.CapaManagement.CapaHistory", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Action")
@@ -1356,7 +1329,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.CapaManagement.CapaOwner", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("CapaId")
@@ -1395,7 +1367,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.CapaManagement.CapaPreventiveAction", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("CapaId")
@@ -1446,7 +1417,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.CapaManagement.CapaRootCause", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("CapaId")
@@ -1486,7 +1456,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Documents.Document", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset?>("ApprovedAtUtc")
@@ -1547,7 +1516,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Documents.DocumentApproval", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Comments")
@@ -1593,7 +1561,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Documents.DocumentCategory", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Code")
@@ -1629,7 +1596,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Documents.DocumentHistory", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Action")
@@ -1667,7 +1633,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Documents.DocumentPermission", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -1709,7 +1674,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Documents.DocumentType", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Code")
@@ -1748,7 +1712,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Documents.DocumentVersion", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("ChangeSummary")
@@ -1790,7 +1753,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Enterprise.EnterpriseWorkspaceItem", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Code")
@@ -1853,10 +1815,126 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
                     b.ToTable("enterprise_workspace_items", "compliance360");
                 });
 
+            modelBuilder.Entity("Compliance360.Domain.FormTemplates.FormTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)");
+
+                    b.Property<string>("PublishedVersionNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "Status", "IsDeleted");
+
+                    b.ToTable("form_templates", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.FormTemplates.FormTemplateVersion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ChangeLog")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("PublishedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("PublishedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("SchemaJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<Guid>("TemplateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("VersionNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TemplateId");
+
+                    b.HasIndex("TenantId", "TemplateId", "VersionNumber")
+                        .IsUnique();
+
+                    b.ToTable("form_template_versions", "compliance360");
+                });
+
             modelBuilder.Entity("Compliance360.Domain.Identity.MfaConfiguration", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("ConfiguredAtUtc")
@@ -1906,7 +1984,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Identity.PasswordHistory", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("ChangedAtUtc")
@@ -1941,7 +2018,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Identity.Permission", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Action")
@@ -1981,7 +2057,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Identity.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -2029,7 +2104,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Identity.Role", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -2065,7 +2139,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Identity.RolePermission", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -2096,7 +2169,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Identity.User", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<int>("AccessFailedCount")
@@ -2147,6 +2219,10 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
+                    b.Property<string>("PreferredLanguage")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(40)
@@ -2169,7 +2245,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Identity.UserRole", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -2200,7 +2275,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Identity.UserSession", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")
@@ -2236,7 +2310,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Notifications.NotificationAttachment", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("ContentType")
@@ -2276,7 +2349,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Notifications.NotificationDeadLetter", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -2313,7 +2385,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Notifications.NotificationDelivery", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -2356,7 +2427,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Notifications.NotificationHistory", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -2394,7 +2464,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Notifications.NotificationMessage", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Body")
@@ -2484,7 +2553,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Notifications.NotificationPreference", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Channel")
@@ -2518,7 +2586,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Notifications.NotificationProviderConfiguration", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -2560,7 +2627,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Notifications.NotificationRetry", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<int>("Attempt")
@@ -2599,7 +2665,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Notifications.NotificationSubscription", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Channel")
@@ -2640,7 +2705,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Notifications.NotificationTemplate", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Body")
@@ -2700,7 +2764,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.QualityIndicators.IndicatorAlert", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -2741,7 +2804,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.QualityIndicators.IndicatorAttachment", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("ContentType")
@@ -2793,7 +2855,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.QualityIndicators.IndicatorCategory", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Code")
@@ -2832,7 +2893,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.QualityIndicators.IndicatorFormula", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("CalculationType")
@@ -2867,7 +2927,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.QualityIndicators.IndicatorHistory", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Action")
@@ -2905,7 +2964,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.QualityIndicators.IndicatorMeasurement", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CapturedAtUtc")
@@ -2952,7 +3010,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.QualityIndicators.IndicatorPeriod", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -2992,7 +3049,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.QualityIndicators.IndicatorProcess", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Area")
@@ -3029,7 +3085,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.QualityIndicators.IndicatorResult", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -3075,7 +3130,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.QualityIndicators.IndicatorTarget", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -3107,7 +3161,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.QualityIndicators.IndicatorThreshold", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -3144,7 +3197,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.QualityIndicators.IndicatorTrend", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -3190,7 +3242,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.QualityIndicators.QualityIndicator", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("AuditId")
@@ -3284,10 +3335,1887 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
                     b.ToTable("quality_indicators", "compliance360");
                 });
 
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.AuthorityObservation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ClosedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<Guid>("DossierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("DueOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<int>("ObservationNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("ReceivedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("ResponseSubmittedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ResponsibleUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DossierId");
+
+                    b.HasIndex("TenantId", "DossierId");
+
+                    b.ToTable("authority_observations", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.AuthorityObservationRequirement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ObservationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("RequirementId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ObservationId", "RequirementId")
+                        .IsUnique();
+
+                    b.ToTable("authority_observation_requirements", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierChangeEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ActorRole")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AfterJson")
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("BeforeJson")
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("CorrelationId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DossierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Field")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("FromStatus")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<DateTimeOffset>("OccurredAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<long>("Sequence")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ToStatus")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DossierId");
+
+                    b.HasIndex("TenantId", "DossierId", "Sequence")
+                        .IsUnique();
+
+                    b.ToTable("dossier_change_events", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierCorrectionRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DossierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateTimeOffset>("RequestedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("RequestedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Severity")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<DateTimeOffset?>("SubmittedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DossierId");
+
+                    b.HasIndex("TenantId", "DossierId")
+                        .IsUnique()
+                        .HasFilter("\"Status\" IN ('Open', 'ResponseSubmitted')");
+
+                    b.HasIndex("TenantId", "DossierId", "Status");
+
+                    b.ToTable("dossier_correction_requests", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierCorrectionScopeItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CorrectionRequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FieldPath")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("ScopeType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<Guid?>("TargetId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CorrectionRequestId");
+
+                    b.HasIndex("TenantId", "CorrectionRequestId", "ScopeType");
+
+                    b.ToTable("dossier_correction_scope_items", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierEvidenceRevision", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("CorrectionRequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DocumentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("DossierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<bool>("IsCurrent")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<Guid>("RequirementId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Sha256")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("StoredFileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("UploadedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UploadedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("VersionNumber")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CorrectionRequestId");
+
+                    b.HasIndex("DossierId");
+
+                    b.HasIndex("RequirementId");
+
+                    b.HasIndex("TenantId", "RequirementId")
+                        .IsUnique()
+                        .HasFilter("\"IsCurrent\" = TRUE");
+
+                    b.HasIndex("TenantId", "DossierId", "IsCurrent");
+
+                    b.HasIndex("TenantId", "RequirementId", "VersionNumber")
+                        .IsUnique();
+
+                    b.ToTable("dossier_evidence_revisions", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierHistoryEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ActorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DossierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<DateTimeOffset>("OccurredAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DossierId");
+
+                    b.HasIndex("TenantId", "DossierId", "OccurredAtUtc");
+
+                    b.ToTable("dossier_history_events", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierMilestone", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ActualDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("CompletedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DossierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("MilestoneType")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("PlannedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ResponsibleUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DossierId");
+
+                    b.HasIndex("TenantId", "DossierId", "MilestoneType");
+
+                    b.ToTable("dossier_milestones", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierOverrideApproval", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("ApprovedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ApproverUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("OverrideRequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Stage")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OverrideRequestId");
+
+                    b.HasIndex("TenantId", "OverrideRequestId", "ApproverUserId")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "OverrideRequestId", "Stage")
+                        .IsUnique();
+
+                    b.ToTable("dossier_override_approvals", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierOverrideRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<DateTimeOffset?>("ConsumedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ConsumedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("DecidedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DossierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<Guid?>("RejectedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("RejectionReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("RequestedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("RequesterUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DossierId");
+
+                    b.HasIndex("TenantId", "DossierId")
+                        .IsUnique()
+                        .HasFilter("\"Status\" IN ('Pending', 'Approved')");
+
+                    b.HasIndex("TenantId", "DossierId", "Status");
+
+                    b.ToTable("dossier_override_requests", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierReopenApproval", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("ApprovedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ApproverUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ReopenRequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Stage")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReopenRequestId");
+
+                    b.HasIndex("TenantId", "ReopenRequestId", "ApproverUserId")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "ReopenRequestId", "Stage")
+                        .IsUnique();
+
+                    b.ToTable("dossier_reopen_approvals", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierReopenRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("DecidedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DossierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<Guid?>("RejectedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("RejectionReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("RequestedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("RequesterUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DossierId");
+
+                    b.HasIndex("TenantId", "DossierId")
+                        .IsUnique()
+                        .HasFilter("\"Status\" IN ('Pending', 'Approved')");
+
+                    b.HasIndex("TenantId", "DossierId", "Status");
+
+                    b.ToTable("dossier_reopen_requests", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierRequirement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<DateTimeOffset?>("CompletedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CurrentDocumentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("DossierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("DueDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsCritical")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("LastStatusChangedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("RequirementDefinitionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ResponsibleUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("SourceRequirementPackId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("SourceRequirementPackVersionLabel")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Guid?>("StoredFileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ValidationNotes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValidationStatus")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DossierId");
+
+                    b.HasIndex("TenantId", "DossierId", "Code");
+
+                    b.HasIndex("TenantId", "IsCritical", "Status");
+
+                    b.ToTable("dossier_requirements", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.LicenseMilestone", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ActualDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("LicenseRenewalCaseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<DateTimeOffset?>("PlannedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LicenseRenewalCaseId");
+
+                    b.ToTable("license_milestones", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.LicenseRenewalCase", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ApprovedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("AssembledOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CaseNumber")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<string>("Comments")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ManualPlatformTaskNotes")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OperatingLicenseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("OwnerUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<DateTimeOffset?>("SubmittedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("license_renewal_cases", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.LicenseRequirement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("LicenseRenewalCaseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Guid?>("StoredFileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LicenseRenewalCaseId");
+
+                    b.ToTable("license_requirements", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.ManufacturerCertificate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Apostilled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("ExpiresOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IssuedBy")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)");
+
+                    b.Property<DateTimeOffset?>("IssuedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LegalFormat")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Guid>("ManufacturerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Notarized")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<DateTimeOffset?>("RequestedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Guid?>("StoredFileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "ExpiresOn");
+
+                    b.HasIndex("TenantId", "Status");
+
+                    b.HasIndex("TenantId", "ManufacturerId", "Type");
+
+                    b.ToTable("manufacturer_certificates", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.ManufacturerCertificateDossierLink", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CertificateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DossierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("RequirementId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CertificateId", "DossierId")
+                        .IsUnique();
+
+                    b.ToTable("manufacturer_certificate_dossier_links", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.ManufacturerProfile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CommercialName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ContactEmail")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ContactPhone")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CountryCode")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LegalName")
+                        .IsRequired()
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)");
+
+                    b.Property<Guid?>("SupplierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "IsActive");
+
+                    b.HasIndex("TenantId", "LegalName");
+
+                    b.ToTable("manufacturer_profiles", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.MedicalDeviceProduct", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Brand")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("CatalogCode")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("CommercialName")
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
+                    b.Property<string>("CountryCode")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<DateTimeOffset?>("DeletedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("DistributorCompanyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("DistributorName")
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)");
+
+                    b.Property<Guid?>("FormDocumentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("FormReference")
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)");
+
+                    b.Property<string>("FormStatus")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Guid?>("FormStoredFileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("FormUpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("FormUpdatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Initiative")
+                        .HasColumnType("text");
+
+                    b.Property<string>("InternalCode")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsCommercializable")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("ManufacturerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal?>("OpportunityAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<string>("Priority")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProductType")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("RegisteredSuppliersCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("RegulatoryName")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
+                    b.Property<string>("RiskClass")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("SalesMarketingInput")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("SourceLineNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("TechnicalSheetDocumentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TechnicalSheetReference")
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)");
+
+                    b.Property<string>("TechnicalSheetStatus")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Guid?>("TechnicalSheetStoredFileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("TechnicalSheetUpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("TechnicalSheetUpdatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CatalogCode")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "IsDeleted");
+
+                    b.HasIndex("TenantId", "Brand", "IsDeleted");
+
+                    b.HasIndex("TenantId", "ManufacturerId", "IsDeleted");
+
+                    b.HasIndex("TenantId", "RiskClass", "IsDeleted");
+
+                    b.ToTable("medical_device_products", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.OperatingLicense", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ActiveRenewalCaseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AuthorityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Comments")
+                        .HasColumnType("text");
+
+                    b.Property<DateOnly?>("CompanyConstitutedOn")
+                        .HasColumnType("date");
+
+                    b.Property<Guid?>("CompanyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ExpiresOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("IssuedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LicenseNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LicenseType")
+                        .IsRequired()
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)");
+
+                    b.Property<DateOnly?>("OperationsStartedOn")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "ExpiresOn");
+
+                    b.HasIndex("TenantId", "Status");
+
+                    b.HasIndex("TenantId", "CompanyName", "LicenseType");
+
+                    b.ToTable("operating_licenses", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.RegistrationDossier", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ApprovedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("AssembledOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("AuthorityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CaseNumber")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<DateTimeOffset?>("ClosedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Comments")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<DateTimeOffset?>("DeletedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("EstimatedApprovalOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("EstimatedReceptionOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("EstimatedSubmissionOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ExistingRegistrationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("InternallyApprovedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("InternallyApprovedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("MaximumReceptionOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("ObservationReceivedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal?>("OpportunityAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<string>("Priority")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProcessType")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ReceivedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("RegulatoryOwnerUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("RequestedFromFactoryOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("RequirementPackId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("RequirementPackVersionLabel")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("ResultingRegistrationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("Revision")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("SalesMarketingInput")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("SubmissionExternalNumber")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("SubmissionProcedureNumber")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<Guid?>("SubmissionProofStoredFileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("SubmittedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("SubmittedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("TargetExpirationOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("WorkflowInstanceId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CaseNumber")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "AuthorityId", "IsDeleted");
+
+                    b.HasIndex("TenantId", "IsDeleted", "CreatedAtUtc");
+
+                    b.HasIndex("TenantId", "ProductId", "IsDeleted");
+
+                    b.HasIndex("TenantId", "Status", "IsDeleted");
+
+                    b.ToTable("registration_dossiers", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.RegulatoryAlertLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AlertType")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DaysRemaining")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("DeliveredAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("EntityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("EntityName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<Guid?>("RecipientUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Success")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "AlertType", "EntityId", "DaysRemaining", "DeliveredAtUtc");
+
+                    b.ToTable("regulatory_alert_logs", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.RegulatoryAlertSettings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ThresholdsCsv")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId")
+                        .IsUnique();
+
+                    b.ToTable("regulatory_alert_settings", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.RegulatoryAuthority", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AuthorityType")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("CountryCode")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique();
+
+                    b.ToTable("regulatory_authorities", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.RegulatoryRequirementPack", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AuthorityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<string>("CountryCode")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)");
+
+                    b.Property<Guid?>("OptionalFormTemplateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ProcessType")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("ProductCategory")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("PublishedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RiskClass")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("VersionLabel")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique();
+
+                    b.ToTable("regulatory_requirement_packs", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.RegulatorySoDSettings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("AllowEmergencyOverride")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("EmergencyOverrideRequiresReason")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("EmergencyOverrideRequiresSecondaryReview")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("PreventSelfApproval")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("PreventSelfReview")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("RequireApprovalForCriticalityChange")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("RequireApprovalForExternalDecisionRecording")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("RequireInternalApprovalBeforeSubmission")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("RequireSecondApprovalForCriticalWaiver")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("SeparateApproverAndSubmitter")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("SeparateDocumentUploaderAndReviewer")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId")
+                        .IsUnique();
+
+                    b.ToTable("regulatory_sod_settings", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.RegutrackImportJob", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("CommittedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ErrorCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ImportedRowCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SourceFileName")
+                        .IsRequired()
+                        .HasMaxLength(260)
+                        .HasColumnType("character varying(260)");
+
+                    b.Property<string>("StagingPayloadJson")
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UploadedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ValidationReportJson")
+                        .HasColumnType("jsonb");
+
+                    b.Property<int>("WarningCount")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CreatedAtUtc");
+
+                    b.ToTable("regutrack_import_jobs", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.RegutrackImportRow", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedDossierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("CreatedProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsValid")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("JobId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("NormalizedJson")
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("RawJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<int>("RowNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SheetName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "JobId", "RowNumber");
+
+                    b.ToTable("regutrack_import_rows", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.RequirementDefinition", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsCritical")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("PackId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PackId");
+
+                    b.ToTable("requirement_definitions", "compliance360");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.SanitaryRegistration", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AuthorityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ExpiresOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsCurrent")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("IssuedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("RegistrationNumber")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("RegistrationType")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<DateTimeOffset?>("RenewalDueOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ReplacesRegistrationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "ExpiresOn");
+
+                    b.HasIndex("TenantId", "RegistrationNumber");
+
+                    b.HasIndex("TenantId", "Status", "IsCurrent");
+
+                    b.HasIndex("TenantId", "ProductId", "AuthorityId", "IsCurrent");
+
+                    b.ToTable("sanitary_registrations", "compliance360");
+                });
+
             modelBuilder.Entity("Compliance360.Domain.Reporting.ReportCategory", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Code")
@@ -3333,7 +5261,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Reporting.ReportDashboardBinding", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -3373,7 +5300,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Reporting.ReportDefinition", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("CategoryId")
@@ -3437,7 +5363,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Reporting.ReportExecution", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset?>("CompletedAtUtc")
@@ -3493,7 +5418,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Reporting.ReportExport", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("ContentType")
@@ -3544,7 +5468,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Reporting.ReportHistory", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Action")
@@ -3582,7 +5505,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Reporting.ReportOutput", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -3620,7 +5542,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Reporting.ReportParameter", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -3670,7 +5591,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Reporting.ReportPermission", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<bool>("CanExecute")
@@ -3716,7 +5636,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Reporting.ReportSchedule", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -3757,7 +5676,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Reporting.ReportSubscription", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -3800,7 +5718,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Reporting.ReportTemplate", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Content")
@@ -3848,7 +5765,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.RiskManagement.Risk", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Area")
@@ -3968,7 +5884,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.RiskManagement.RiskAssessment", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("AssessedAtUtc")
@@ -4040,7 +5955,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.RiskManagement.RiskAttachment", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("ContentType")
@@ -4092,7 +6006,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.RiskManagement.RiskCategory", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Code")
@@ -4131,7 +6044,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.RiskManagement.RiskControl", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -4176,7 +6088,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.RiskManagement.RiskEvidence", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("ContentType")
@@ -4230,7 +6141,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.RiskManagement.RiskHistory", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Action")
@@ -4268,7 +6178,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.RiskManagement.RiskIndicator", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -4311,7 +6220,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.RiskManagement.RiskMatrix", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -4347,7 +6255,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.RiskManagement.RiskMitigationPlan", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -4388,7 +6295,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.RiskManagement.RiskOwner", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -4422,7 +6328,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.RiskManagement.RiskReview", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -4467,7 +6372,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.RiskManagement.RiskTreatment", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -4505,7 +6409,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Storage.StorageProviderConfiguration", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("ContainerName")
@@ -4568,7 +6471,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Storage.StoredFile", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("ContainerName")
@@ -4642,7 +6544,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Suppliers.Supplier", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("CountryCode")
@@ -4693,7 +6594,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Suppliers.SupplierDocument", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -4759,7 +6659,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Suppliers.SupplierEvaluation", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Comments")
@@ -4800,7 +6699,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Suppliers.SupplierExpirationAlert", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("AlertAtUtc")
@@ -4846,7 +6744,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.TechnicalSheets.Product", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -4886,7 +6783,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.TechnicalSheets.TechnicalSheet", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset?>("ApprovedAtUtc")
@@ -4934,7 +6830,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.TechnicalSheets.TechnicalSheetApproval", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Comments")
@@ -4980,7 +6875,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.TechnicalSheets.TechnicalSheetCertification", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -5020,7 +6914,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.TechnicalSheets.TechnicalSheetIngredient", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Allergen")
@@ -5058,7 +6951,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.TechnicalSheets.TechnicalSheetNutrient", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<decimal>("Amount")
@@ -5097,7 +6989,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.TechnicalSheets.TechnicalSheetVersion", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("ChangeSummary")
@@ -5136,7 +7027,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.TenantManagement.Company", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("CountryCode")
@@ -5177,7 +7067,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.TenantManagement.Subscription", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -5219,7 +7108,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.TenantManagement.Tenant", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("AddressLine1")
@@ -5324,7 +7212,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.TenantManagement.TenantApiCredential", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -5384,7 +7271,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.TenantManagement.TenantBackupRecord", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("BackupKind")
@@ -5444,7 +7330,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.TenantManagement.TenantBranding", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("CorporateEmail")
@@ -5509,7 +7394,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.TenantManagement.TenantDomain", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("CertificateStatus")
@@ -5587,7 +7471,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.TenantManagement.TenantHealthSignal", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CheckedAtUtc")
@@ -5631,7 +7514,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.TenantManagement.TenantLicense", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -5710,7 +7592,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.TenantManagement.TenantSettings", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -5777,7 +7658,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.TenantManagement.TenantSsoConfiguration", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Authority")
@@ -5868,7 +7748,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.TenantManagement.TenantWebhookDeliveryLog", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<int>("Attempt")
@@ -5914,7 +7793,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.TenantManagement.TenantWebhookEndpoint", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -5988,7 +7866,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Workflows.Workflow", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Code")
@@ -6034,7 +7911,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Workflows.WorkflowAssignment", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("AssignedByUserId")
@@ -6088,7 +7964,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Workflows.WorkflowEscalation", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("AssignmentId")
@@ -6127,7 +8002,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Workflows.WorkflowHistory", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Action")
@@ -6165,7 +8039,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Workflows.WorkflowInstance", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset?>("CompletedAtUtc")
@@ -6217,7 +8090,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Workflows.WorkflowNotification", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -6257,7 +8129,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Workflows.WorkflowRule", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -6299,7 +8170,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Workflows.WorkflowStep", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("AssignedRoleId")
@@ -6346,7 +8216,6 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Compliance360.Domain.Workflows.WorkflowTransition", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
@@ -6625,6 +8494,15 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Compliance360.Domain.FormTemplates.FormTemplateVersion", b =>
+                {
+                    b.HasOne("Compliance360.Domain.FormTemplates.FormTemplate", null)
+                        .WithMany("Versions")
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Compliance360.Domain.Identity.PasswordHistory", b =>
                 {
                     b.HasOne("Compliance360.Domain.Identity.User", null)
@@ -6765,6 +8643,161 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
                     b.HasOne("Compliance360.Domain.QualityIndicators.QualityIndicator", null)
                         .WithMany("Trends")
                         .HasForeignKey("IndicatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.AuthorityObservation", b =>
+                {
+                    b.HasOne("Compliance360.Domain.RegulatoryAffairs.RegistrationDossier", null)
+                        .WithMany("Observations")
+                        .HasForeignKey("DossierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.AuthorityObservationRequirement", b =>
+                {
+                    b.HasOne("Compliance360.Domain.RegulatoryAffairs.AuthorityObservation", null)
+                        .WithMany("LinkedRequirements")
+                        .HasForeignKey("ObservationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierChangeEvent", b =>
+                {
+                    b.HasOne("Compliance360.Domain.RegulatoryAffairs.RegistrationDossier", null)
+                        .WithMany()
+                        .HasForeignKey("DossierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierCorrectionRequest", b =>
+                {
+                    b.HasOne("Compliance360.Domain.RegulatoryAffairs.RegistrationDossier", null)
+                        .WithMany()
+                        .HasForeignKey("DossierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierCorrectionScopeItem", b =>
+                {
+                    b.HasOne("Compliance360.Domain.RegulatoryAffairs.DossierCorrectionRequest", null)
+                        .WithMany("ScopeItems")
+                        .HasForeignKey("CorrectionRequestId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierEvidenceRevision", b =>
+                {
+                    b.HasOne("Compliance360.Domain.RegulatoryAffairs.DossierCorrectionRequest", null)
+                        .WithMany()
+                        .HasForeignKey("CorrectionRequestId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Compliance360.Domain.RegulatoryAffairs.RegistrationDossier", null)
+                        .WithMany()
+                        .HasForeignKey("DossierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Compliance360.Domain.RegulatoryAffairs.DossierRequirement", null)
+                        .WithMany()
+                        .HasForeignKey("RequirementId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierHistoryEvent", b =>
+                {
+                    b.HasOne("Compliance360.Domain.RegulatoryAffairs.RegistrationDossier", null)
+                        .WithMany("History")
+                        .HasForeignKey("DossierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierMilestone", b =>
+                {
+                    b.HasOne("Compliance360.Domain.RegulatoryAffairs.RegistrationDossier", null)
+                        .WithMany("Milestones")
+                        .HasForeignKey("DossierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierOverrideApproval", b =>
+                {
+                    b.HasOne("Compliance360.Domain.RegulatoryAffairs.DossierOverrideRequest", null)
+                        .WithMany("Approvals")
+                        .HasForeignKey("OverrideRequestId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierOverrideRequest", b =>
+                {
+                    b.HasOne("Compliance360.Domain.RegulatoryAffairs.RegistrationDossier", null)
+                        .WithMany()
+                        .HasForeignKey("DossierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierReopenApproval", b =>
+                {
+                    b.HasOne("Compliance360.Domain.RegulatoryAffairs.DossierReopenRequest", null)
+                        .WithMany("Approvals")
+                        .HasForeignKey("ReopenRequestId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierReopenRequest", b =>
+                {
+                    b.HasOne("Compliance360.Domain.RegulatoryAffairs.RegistrationDossier", null)
+                        .WithMany()
+                        .HasForeignKey("DossierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierRequirement", b =>
+                {
+                    b.HasOne("Compliance360.Domain.RegulatoryAffairs.RegistrationDossier", null)
+                        .WithMany("Requirements")
+                        .HasForeignKey("DossierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.LicenseMilestone", b =>
+                {
+                    b.HasOne("Compliance360.Domain.RegulatoryAffairs.LicenseRenewalCase", null)
+                        .WithMany("Milestones")
+                        .HasForeignKey("LicenseRenewalCaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.LicenseRequirement", b =>
+                {
+                    b.HasOne("Compliance360.Domain.RegulatoryAffairs.LicenseRenewalCase", null)
+                        .WithMany("Requirements")
+                        .HasForeignKey("LicenseRenewalCaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.RequirementDefinition", b =>
+                {
+                    b.HasOne("Compliance360.Domain.RegulatoryAffairs.RegulatoryRequirementPack", null)
+                        .WithMany("Definitions")
+                        .HasForeignKey("PackId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -7272,6 +9305,11 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
                     b.Navigation("Versions");
                 });
 
+            modelBuilder.Entity("Compliance360.Domain.FormTemplates.FormTemplate", b =>
+                {
+                    b.Navigation("Versions");
+                });
+
             modelBuilder.Entity("Compliance360.Domain.Identity.Role", b =>
                 {
                     b.Navigation("Permissions");
@@ -7311,6 +9349,49 @@ namespace Compliance360.Infrastructure.Persistence.Migrations
                     b.Navigation("Thresholds");
 
                     b.Navigation("Trends");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.AuthorityObservation", b =>
+                {
+                    b.Navigation("LinkedRequirements");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierCorrectionRequest", b =>
+                {
+                    b.Navigation("ScopeItems");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierOverrideRequest", b =>
+                {
+                    b.Navigation("Approvals");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.DossierReopenRequest", b =>
+                {
+                    b.Navigation("Approvals");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.LicenseRenewalCase", b =>
+                {
+                    b.Navigation("Milestones");
+
+                    b.Navigation("Requirements");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.RegistrationDossier", b =>
+                {
+                    b.Navigation("History");
+
+                    b.Navigation("Milestones");
+
+                    b.Navigation("Observations");
+
+                    b.Navigation("Requirements");
+                });
+
+            modelBuilder.Entity("Compliance360.Domain.RegulatoryAffairs.RegulatoryRequirementPack", b =>
+                {
+                    b.Navigation("Definitions");
                 });
 
             modelBuilder.Entity("Compliance360.Domain.Reporting.ReportDefinition", b =>

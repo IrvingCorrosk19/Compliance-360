@@ -84,7 +84,28 @@ public enum AuditAction
     NotificationProviderChanged = 77,
     NotificationProviderFailover = 78,
     StorageProviderChanged = 79,
-    StorageProviderFailover = 80
+    StorageProviderFailover = 80,
+    FormTemplateCreated = 81,
+    FormTemplateUpdated = 82,
+    FormTemplatePublished = 83,
+    RegulatoryConfigured = 84,
+    RegulatoryProductCreated = 85,
+    RegulatoryProductUpdated = 86,
+    RegulatoryManufacturerUpdated = 87,
+    RegulatoryCertificateUpdated = 88,
+    RegulatoryDossierCreated = 89,
+    RegulatoryDossierUpdated = 90,
+    RegulatoryDossierTransitioned = 91,
+    RegulatoryRequirementUpdated = 92,
+    RegulatoryObservationOpened = 93,
+    RegulatoryObservationResponded = 94,
+    RegulatoryRegistrationApproved = 95,
+    RegulatoryLicenseUpdated = 96,
+    RegulatoryImportStaged = 97,
+    RegulatoryImportCommitted = 98,
+    RegulatorySoDActionDenied = 99,
+    RegulatorySoDEmergencyOverrideUsed = 100,
+    RegulatoryInternalApprovalGranted = 101
 }
 
 public enum AuditCategory
@@ -108,7 +129,8 @@ public enum AuditCategory
     RiskManagement = 16,
     QualityIndicators = 17,
     ReportingEngine = 18,
-    Observability = 19
+    Observability = 19,
+    RegulatoryAffairs = 20
 }
 
 public sealed record AuditContext(

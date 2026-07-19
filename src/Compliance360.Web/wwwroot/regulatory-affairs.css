@@ -1,0 +1,117 @@
+/* Compliance 360 — Regulatory Affairs Console (case-centric) */
+.ra-shell{display:flex;flex-direction:column;gap:1rem;min-height:70vh}
+.ra-nav{display:flex;flex-wrap:wrap;gap:.4rem}
+.ra-nav button{border:1px solid rgba(148,163,184,.35);background:rgba(15,23,42,.55);color:#e2e8f0;padding:.45rem .8rem;border-radius:.55rem;cursor:pointer}
+.ra-nav button.active{background:#0ea5e9;border-color:#0ea5e9;color:#0f172a;font-weight:600}
+.ra-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem}
+.ra-metric{background:rgba(15,23,42,.72);border:1px solid rgba(148,163,184,.25);border-radius:.75rem;padding:.9rem}
+.ra-metric strong{display:block;font-size:1.35rem}
+.ra-metric span{color:#94a3b8;font-size:.82rem}
+.ra-card{background:rgba(15,23,42,.72);border:1px solid rgba(148,163,184,.25);border-radius:.9rem;padding:1rem}
+.ra-table{width:100%;border-collapse:collapse;font-size:.88rem}
+.ra-table th,.ra-table td{padding:.55rem .45rem;border-bottom:1px solid rgba(148,163,184,.2);text-align:left;vertical-align:top}
+.ra-table tr{cursor:pointer}
+.ra-table tr:hover{background:rgba(14,165,233,.08)}
+.ra-kanban{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.6rem}
+.ra-col{background:rgba(2,6,23,.55);border:1px solid rgba(148,163,184,.2);border-radius:.7rem;padding:.55rem;min-height:180px}
+.ra-col h4{margin:0 0 .5rem;font-size:.78rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em}
+.ra-chip{display:block;background:rgba(30,41,59,.9);border:1px solid rgba(148,163,184,.25);border-radius:.55rem;padding:.55rem;margin-bottom:.45rem;cursor:pointer}
+.ra-actions{display:flex;flex-wrap:wrap;gap:.4rem;margin:.6rem 0}
+.ra-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.6rem}
+.ra-form label{display:flex;flex-direction:column;gap:.25rem;font-size:.8rem;color:#cbd5e1}
+.ra-form input,.ra-form select,.ra-form textarea{background:#0f172a;border:1px solid rgba(148,163,184,.35);color:#f8fafc;border-radius:.45rem;padding:.45rem .55rem}
+.ra-badge{display:inline-block;padding:.15rem .45rem;border-radius:999px;background:rgba(14,165,233,.18);color:#7dd3fc;font-size:.72rem}
+.ra-legacy{font-size:.78rem;color:#fbbf24;margin:.4rem 0 0}
+.ra-req.critical{border-left:3px solid #f97316}
+.ra-req.ok{opacity:.75}
+.ra-flow{display:flex;flex-wrap:wrap;gap:.35rem;margin:1rem 0;align-items:center}
+.ra-flow-sep{opacity:.4}
+.ra-badge.is-active{outline:2px solid #38bdf8}
+.ra-badge.is-done{opacity:.85}
+.ra-badge.is-todo{opacity:.45}
+.ra-note{color:#94a3b8;font-size:.85rem}
+.ra-shell-title{margin:.35rem 0}
+.ra-shell-lead{margin:0;color:#94a3b8;max-width:70ch}
+.ra-card.mb{margin-bottom:1rem}
+.ra-card.mt{margin-top:1rem}
+.ra-pre{white-space:pre-wrap}
+.ra-empty{color:#64748b;font-size:.8rem}
+.ra-req{padding:.45rem 0;border-bottom:1px solid rgba(148,163,184,.15)}
+.ra-workflow-card{display:grid;grid-template-columns:minmax(150px,.7fr) repeat(2,minmax(190px,1fr));gap:.8rem;margin:1rem 0;padding:.85rem;border:1px solid rgba(56,189,248,.35);border-radius:.75rem;background:rgba(14,165,233,.07)}
+.ra-workflow-card h4{margin:0 0 .3rem}
+.ra-workflow-card.is-unavailable{display:block;border-color:rgba(248,113,113,.45);background:rgba(127,29,29,.12)}
+.ra-token-list{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.35rem}
+.ra-token-list code{font-size:.7rem;padding:.18rem .35rem;border-radius:.35rem;background:rgba(15,23,42,.7);color:#bae6fd}
+.ra-correction-scope{margin:1rem 0;padding:.9rem;border-left:4px solid #f59e0b;border-radius:.55rem;background:rgba(245,158,11,.09)}
+.ra-correction-scope h4,.ra-correction-scope p{margin-top:0}
+.ra-req-header{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem}
+.ra-req.in-scope{margin:.45rem 0;padding:.7rem;border:1px solid rgba(245,158,11,.45);border-radius:.6rem;background:rgba(245,158,11,.06)}
+.ra-req.is-locked{opacity:.72}
+.ra-lock-reason{margin:.35rem 0;color:#cbd5e1;font-size:.78rem}
+.ra-evidence-versions{margin-top:.55rem;padding:.4rem .55rem;border-radius:.45rem;background:rgba(2,6,23,.38)}
+.ra-evidence-versions summary{cursor:pointer;color:#7dd3fc;font-size:.8rem}
+.ra-version-list{display:grid;gap:.45rem;padding-left:1.35rem}
+.ra-version-list li{padding:.45rem;border:1px solid rgba(148,163,184,.18);border-radius:.45rem}
+.ra-version-list li.is-current{border-color:#22c55e;background:rgba(34,197,94,.07)}
+.ra-version-list span,.ra-version-list small,.ra-version-list code{display:block;overflow-wrap:anywhere}
+.ra-current{display:inline-block!important;color:#86efac;font-size:.72rem;font-weight:700}
+.ra-disabled-action{display:flex;flex-direction:column;max-width:280px;gap:.2rem}
+.ra-disabled-action small{color:#fbbf24}
+.ra-actions button:disabled{cursor:not-allowed;opacity:.5}
+.ra-scope-picker{display:grid;gap:.45rem;max-height:300px;overflow:auto;padding:.7rem;border:1px solid rgba(148,163,184,.35);border-radius:.55rem}
+.ra-scope-picker label{display:flex;gap:.45rem;align-items:flex-start}
+.ra-inline-error{color:#fca5a5;margin:.2rem 0}
+.ra-timeline-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+.ra-timeline{display:grid;gap:.55rem;padding-left:1.25rem}
+.ra-timeline li{padding:.6rem;border-left:3px solid #38bdf8;background:rgba(2,6,23,.35)}
+.ra-timeline.legacy li{border-left-color:#64748b}
+.ra-timeline time,.ra-timeline strong,.ra-timeline span,.ra-timeline small{display:block}
+.ra-timeline time,.ra-timeline small{color:#94a3b8;font-size:.72rem;overflow-wrap:anywhere}
+.ra-timeline p{margin:.3rem 0}
+.btn.warning{border-color:#f59e0b;color:#fde68a}
+.btn.danger{border-color:#ef4444;color:#fecaca}
+
+/* Responsive enterprise layer */
+.ra-shell{min-width:0}
+.ra-card{min-width:0;overflow-wrap:break-word}
+.ra-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.ra-nav button{min-height:40px}
+
+@media (max-width:1023px){
+  .ra-grid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+  .ra-kanban{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+}
+
+@media (max-width:820px){
+  .ra-nav{gap:.35rem}
+  .ra-nav button{flex:1 1 auto;min-height:44px}
+  .ra-form{grid-template-columns:1fr}
+  .ra-form input,.ra-form select,.ra-form textarea{min-height:44px;font-size:16px}
+  .ra-actions .btn,.ra-actions button{flex:1 1 auto;min-height:44px}
+  .ra-kanban{grid-template-columns:1fr}
+  .ra-col{min-height:auto}
+  .ra-workflow-card,.ra-timeline-groups{grid-template-columns:1fr}
+  .ra-req-header{flex-direction:column}
+  .ra-evidence-versions{padding:.55rem}
+
+  /* Card view for RA tables (uses data-label set by app shell) */
+  .ra-table{font-size:.9rem}
+  .ra-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+  .ra-table tr{display:block;border:1px solid rgba(148,163,184,.25);border-radius:.7rem;margin-bottom:.6rem;padding:.25rem 0;background:rgba(15,23,42,.35)}
+  .ra-table td{display:grid;grid-template-columns:minmax(88px,38%) minmax(0,1fr);gap:.6rem;border-bottom:1px dashed rgba(148,163,184,.18);padding:.5rem .7rem;word-break:break-word}
+  .ra-table td:last-child{border-bottom:0}
+  .ra-table td::before{content:attr(data-label);font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;padding-top:.1rem}
+  .ra-table td:not([data-label]){grid-template-columns:1fr}
+  .ra-table td:not([data-label])::before{content:none}
+}
+
+@media (max-width:479px){
+  .ra-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ra-metric strong{font-size:1.15rem}
+  .ra-actions,.ra-disabled-action{width:100%;max-width:none}
+  .ra-actions .btn,.ra-disabled-action .btn{width:100%}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .ra-shell *{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+}

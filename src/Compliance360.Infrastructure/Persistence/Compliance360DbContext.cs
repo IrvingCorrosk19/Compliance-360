@@ -5,10 +5,12 @@ using Compliance360.Domain.CapaManagement;
 using Compliance360.Domain.Common;
 using Compliance360.Domain.Documents;
 using Compliance360.Domain.Enterprise;
+using Compliance360.Domain.FormTemplates;
 using Compliance360.Domain.Identity;
 using Compliance360.Domain.Notifications;
 using Compliance360.Domain.QualityIndicators;
 using Compliance360.Domain.Reporting;
+using Compliance360.Domain.RegulatoryAffairs;
 using Compliance360.Domain.RiskManagement;
 using Compliance360.Domain.Storage;
 using Compliance360.Domain.Suppliers;
@@ -290,16 +292,59 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
 
     public DbSet<EnterpriseWorkspaceItem> EnterpriseWorkspaceItems => Set<EnterpriseWorkspaceItem>();
 
+    public DbSet<FormTemplate> FormTemplates => Set<FormTemplate>();
+
+    public DbSet<FormTemplateVersion> FormTemplateVersions => Set<FormTemplateVersion>();
+
+    public DbSet<RegulatoryAuthority> RegulatoryAuthorities => Set<RegulatoryAuthority>();
+    public DbSet<MedicalDeviceProduct> MedicalDeviceProducts => Set<MedicalDeviceProduct>();
+    public DbSet<SanitaryRegistration> SanitaryRegistrations => Set<SanitaryRegistration>();
+    public DbSet<RegistrationDossier> RegistrationDossiers => Set<RegistrationDossier>();
+    public DbSet<DossierMilestone> DossierMilestones => Set<DossierMilestone>();
+    public DbSet<DossierRequirement> DossierRequirements => Set<DossierRequirement>();
+    public DbSet<AuthorityObservation> AuthorityObservations => Set<AuthorityObservation>();
+    public DbSet<AuthorityObservationRequirement> AuthorityObservationRequirements => Set<AuthorityObservationRequirement>();
+    public DbSet<RegulatoryRequirementPack> RegulatoryRequirementPacks => Set<RegulatoryRequirementPack>();
+    public DbSet<RequirementDefinition> RequirementDefinitions => Set<RequirementDefinition>();
+    public DbSet<ManufacturerProfile> ManufacturerProfiles => Set<ManufacturerProfile>();
+    public DbSet<ManufacturerCertificate> ManufacturerCertificates => Set<ManufacturerCertificate>();
+    public DbSet<ManufacturerCertificateDossierLink> ManufacturerCertificateDossierLinks => Set<ManufacturerCertificateDossierLink>();
+    public DbSet<OperatingLicense> OperatingLicenses => Set<OperatingLicense>();
+    public DbSet<LicenseRenewalCase> LicenseRenewalCases => Set<LicenseRenewalCase>();
+    public DbSet<LicenseRequirement> LicenseRequirements => Set<LicenseRequirement>();
+    public DbSet<LicenseMilestone> LicenseMilestones => Set<LicenseMilestone>();
+    public DbSet<DossierHistoryEvent> DossierHistoryEvents => Set<DossierHistoryEvent>();
+    public DbSet<RegutrackImportJob> RegutrackImportJobs => Set<RegutrackImportJob>();
+    public DbSet<RegutrackImportRow> RegutrackImportRows => Set<RegutrackImportRow>();
+    public DbSet<RegulatoryAlertSettings> RegulatoryAlertSettings => Set<RegulatoryAlertSettings>();
+    public DbSet<RegulatoryAlertLog> RegulatoryAlertLogs => Set<RegulatoryAlertLog>();
+    public DbSet<RegulatorySoDSettings> RegulatorySoDSettings => Set<RegulatorySoDSettings>();
+    public DbSet<DossierCorrectionRequest> DossierCorrectionRequests => Set<DossierCorrectionRequest>();
+    public DbSet<DossierCorrectionScopeItem> DossierCorrectionScopeItems => Set<DossierCorrectionScopeItem>();
+    public DbSet<DossierEvidenceRevision> DossierEvidenceRevisions => Set<DossierEvidenceRevision>();
+    public DbSet<DossierReopenRequest> DossierReopenRequests => Set<DossierReopenRequest>();
+    public DbSet<DossierReopenApproval> DossierReopenApprovals => Set<DossierReopenApproval>();
+    public DbSet<DossierOverrideRequest> DossierOverrideRequests => Set<DossierOverrideRequest>();
+    public DbSet<DossierOverrideApproval> DossierOverrideApprovals => Set<DossierOverrideApproval>();
+    public DbSet<DossierChangeEvent> DossierChangeEvents => Set<DossierChangeEvent>();
+
     public override int SaveChanges()
     {
         ApplyFoundationRules();
         return base.SaveChanges();
     }
 
-    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         ApplyFoundationRules();
-        return base.SaveChangesAsync(cancellationToken);
+        try
+        {
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw new DomainException("Revision conflict. The dossier was modified by another request.");
+        }
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
@@ -348,6 +393,8 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
         ConfigureQualityIndicators(modelBuilder);
         ConfigureReportingEngine(modelBuilder);
         ConfigureEnterpriseWorkspaces(modelBuilder);
+        ConfigureFormTemplates(modelBuilder);
+        ConfigureRegulatoryAffairs(modelBuilder);
 
         // Every domain aggregate/entity assigns its own Guid identifier in its constructor
         // (see Domain.Common.Entity). By EF convention a Guid key is treated as store-generated,
@@ -588,6 +635,7 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.Property(user => user.NormalizedEmail).HasMaxLength(320).IsRequired();
             entity.Property(user => user.FullName).HasMaxLength(180).IsRequired();
             entity.Property(user => user.PasswordHash).HasMaxLength(1_000).IsRequired();
+            entity.Property(user => user.PreferredLanguage).HasMaxLength(10);
             entity.Property(user => user.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
             entity.Property(user => user.MfaSecretEncrypted).HasMaxLength(2_000);
             entity.Property(user => user.ForcePasswordChangeRequired).IsRequired();
@@ -1934,6 +1982,387 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
         });
     }
 
+    private static void ConfigureFormTemplates(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<FormTemplate>(entity =>
+        {
+            entity.ToTable("form_templates");
+            entity.HasKey(t => t.Id);
+            entity.Property(t => t.Name).HasMaxLength(220).IsRequired();
+            entity.Property(t => t.Code).HasMaxLength(100).IsRequired();
+            entity.Property(t => t.Category).HasMaxLength(120).IsRequired();
+            entity.Property(t => t.Kind).HasConversion<string>().HasMaxLength(80).IsRequired();
+            entity.Property(t => t.Description).HasMaxLength(2_000).IsRequired();
+            entity.Property(t => t.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(t => t.PublishedVersionNumber).HasMaxLength(20);
+            entity.HasIndex(t => new { t.TenantId, t.Code }).IsUnique();
+            entity.HasIndex(t => new { t.TenantId, t.Status, t.IsDeleted });
+            entity.HasMany(t => t.Versions)
+                .WithOne()
+                .HasForeignKey(v => v.TemplateId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<FormTemplateVersion>(entity =>
+        {
+            entity.ToTable("form_template_versions");
+            entity.HasKey(v => v.Id);
+            entity.Property(v => v.VersionNumber).HasMaxLength(20).IsRequired();
+            entity.Property(v => v.SchemaJson).HasColumnType("jsonb").IsRequired();
+            entity.Property(v => v.ChangeLog).HasMaxLength(1_000).IsRequired();
+            entity.HasIndex(v => new { v.TenantId, v.TemplateId, v.VersionNumber }).IsUnique();
+        });
+    }
+
+    private static void ConfigureRegulatoryAffairs(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<RegulatoryAuthority>(e =>
+        {
+            e.ToTable("regulatory_authorities");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Code).HasMaxLength(40).IsRequired();
+            e.Property(x => x.Name).HasMaxLength(180).IsRequired();
+            e.Property(x => x.CountryCode).HasMaxLength(8).IsRequired();
+            e.Property(x => x.AuthorityType).HasConversion<string>().HasMaxLength(40);
+            e.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
+        });
+
+        modelBuilder.Entity<MedicalDeviceProduct>(e =>
+        {
+            e.ToTable("medical_device_products");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.CountryCode).HasMaxLength(8).IsRequired();
+            e.Property(x => x.Category).HasMaxLength(120).IsRequired();
+            e.Property(x => x.Brand).HasMaxLength(120).IsRequired();
+            e.Property(x => x.RegulatoryName).HasMaxLength(320).IsRequired();
+            e.Property(x => x.CommercialName).HasMaxLength(320);
+            e.Property(x => x.CatalogCode).HasMaxLength(120).IsRequired();
+            e.Property(x => x.RiskClass).HasConversion<string>().HasMaxLength(20);
+            e.Property(x => x.Currency).HasMaxLength(8);
+            e.Property(x => x.OpportunityAmount).HasPrecision(18, 2);
+            e.Property(x => x.DistributorName).HasMaxLength(220);
+            e.Property(x => x.TechnicalSheetReference).HasMaxLength(220);
+            e.Property(x => x.FormReference).HasMaxLength(220);
+            e.Property(x => x.TechnicalSheetStatus).HasConversion<string>().HasMaxLength(40);
+            e.Property(x => x.FormStatus).HasConversion<string>().HasMaxLength(40);
+            e.HasIndex(x => new { x.TenantId, x.CatalogCode }).IsUnique();
+            e.HasIndex(x => new { x.TenantId, x.Brand, x.IsDeleted });
+            e.HasIndex(x => new { x.TenantId, x.IsDeleted });
+            e.HasIndex(x => new { x.TenantId, x.ManufacturerId, x.IsDeleted });
+            e.HasIndex(x => new { x.TenantId, x.RiskClass, x.IsDeleted });
+        });
+
+        modelBuilder.Entity<SanitaryRegistration>(e =>
+        {
+            e.ToTable("sanitary_registrations");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.RegistrationNumber).HasMaxLength(120).IsRequired();
+            e.Property(x => x.RegistrationType).HasMaxLength(40);
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(40);
+            e.HasIndex(x => new { x.TenantId, x.ProductId, x.AuthorityId, x.IsCurrent });
+            e.HasIndex(x => new { x.TenantId, x.RegistrationNumber });
+            e.HasIndex(x => new { x.TenantId, x.Status, x.IsCurrent });
+            e.HasIndex(x => new { x.TenantId, x.ExpiresOn });
+        });
+
+        modelBuilder.Entity<RegistrationDossier>(e =>
+        {
+            e.ToTable("registration_dossiers");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.CaseNumber).HasMaxLength(60).IsRequired();
+            e.Property(x => x.ProcessType).HasConversion<string>().HasMaxLength(40);
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(40);
+            e.Property(x => x.Revision).IsConcurrencyToken();
+            e.Property(x => x.Currency).HasMaxLength(8);
+            e.Property(x => x.OpportunityAmount).HasPrecision(18, 2);
+            e.Property(x => x.SubmissionProcedureNumber).HasMaxLength(120);
+            e.Property(x => x.SubmissionExternalNumber).HasMaxLength(120);
+            e.HasIndex(x => new { x.TenantId, x.CaseNumber }).IsUnique();
+            e.HasIndex(x => new { x.TenantId, x.Status, x.IsDeleted });
+            e.HasIndex(x => new { x.TenantId, x.IsDeleted, x.CreatedAtUtc });
+            e.HasIndex(x => new { x.TenantId, x.ProductId, x.IsDeleted });
+            e.HasIndex(x => new { x.TenantId, x.AuthorityId, x.IsDeleted });
+            e.HasMany(x => x.Milestones).WithOne().HasForeignKey(m => m.DossierId).OnDelete(DeleteBehavior.Cascade);
+            e.HasMany(x => x.Requirements).WithOne().HasForeignKey(r => r.DossierId).OnDelete(DeleteBehavior.Cascade);
+            e.HasMany(x => x.Observations).WithOne().HasForeignKey(o => o.DossierId).OnDelete(DeleteBehavior.Cascade);
+            e.HasMany(x => x.History).WithOne().HasForeignKey(h => h.DossierId).OnDelete(DeleteBehavior.Cascade);
+            e.Navigation(x => x.Milestones).UsePropertyAccessMode(PropertyAccessMode.Field);
+            e.Navigation(x => x.Requirements).UsePropertyAccessMode(PropertyAccessMode.Field);
+            e.Navigation(x => x.Observations).UsePropertyAccessMode(PropertyAccessMode.Field);
+            e.Navigation(x => x.History).UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+
+        modelBuilder.Entity<DossierCorrectionRequest>(e =>
+        {
+            e.ToTable("dossier_correction_requests"); e.HasKey(x => x.Id);
+            e.Property(x => x.Reason).HasMaxLength(2000).IsRequired();
+            e.Property(x => x.Severity).HasConversion<string>().HasMaxLength(20);
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(30);
+            e.HasIndex(x => new { x.TenantId, x.DossierId, x.Status });
+            e.HasIndex(x => new { x.TenantId, x.DossierId })
+                .IsUnique()
+                .HasFilter("\"Status\" IN ('Open', 'ResponseSubmitted')");
+            e.HasOne<RegistrationDossier>().WithMany().HasForeignKey(x => x.DossierId).OnDelete(DeleteBehavior.Restrict);
+            e.HasMany(x => x.ScopeItems).WithOne().HasForeignKey(x => x.CorrectionRequestId).OnDelete(DeleteBehavior.Restrict);
+            e.Navigation(x => x.ScopeItems).UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+        modelBuilder.Entity<DossierCorrectionScopeItem>(e =>
+        {
+            e.ToTable("dossier_correction_scope_items"); e.HasKey(x => x.Id);
+            e.Property(x => x.ScopeType).HasMaxLength(30).IsRequired(); e.Property(x => x.FieldPath).HasMaxLength(300);
+            e.HasIndex(x => new { x.TenantId, x.CorrectionRequestId, x.ScopeType });
+        });
+        modelBuilder.Entity<DossierEvidenceRevision>(e =>
+        {
+            e.ToTable("dossier_evidence_revisions"); e.HasKey(x => x.Id);
+            e.Property(x => x.Sha256).HasMaxLength(128).IsRequired(); e.Property(x => x.FileName).HasMaxLength(300).IsRequired();
+            e.Property(x => x.Reason).HasMaxLength(2000).IsRequired(); e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
+            e.HasIndex(x => new { x.TenantId, x.RequirementId, x.VersionNumber }).IsUnique();
+            e.HasIndex(x => new { x.TenantId, x.DossierId, x.IsCurrent });
+            e.HasIndex(x => new { x.TenantId, x.RequirementId })
+                .IsUnique()
+                .HasFilter("\"IsCurrent\" = TRUE");
+            e.HasOne<RegistrationDossier>().WithMany().HasForeignKey(x => x.DossierId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<DossierRequirement>().WithMany().HasForeignKey(x => x.RequirementId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<DossierCorrectionRequest>().WithMany().HasForeignKey(x => x.CorrectionRequestId).OnDelete(DeleteBehavior.Restrict);
+        });
+        modelBuilder.Entity<DossierReopenRequest>(e =>
+        {
+            e.ToTable("dossier_reopen_requests"); e.HasKey(x => x.Id); e.Property(x => x.Reason).HasMaxLength(2000).IsRequired();
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(30); e.HasIndex(x => new { x.TenantId, x.DossierId, x.Status });
+            e.HasIndex(x => new { x.TenantId, x.DossierId })
+                .IsUnique()
+                .HasFilter("\"Status\" IN ('Pending', 'Approved')");
+            e.HasOne<RegistrationDossier>().WithMany().HasForeignKey(x => x.DossierId).OnDelete(DeleteBehavior.Restrict);
+            e.HasMany(x => x.Approvals).WithOne().HasForeignKey(x => x.ReopenRequestId).OnDelete(DeleteBehavior.Restrict);
+            e.Navigation(x => x.Approvals).UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+        modelBuilder.Entity<DossierReopenApproval>(e =>
+        {
+            e.ToTable("dossier_reopen_approvals"); e.HasKey(x => x.Id); e.Property(x => x.Stage).HasConversion<string>().HasMaxLength(20);
+            e.HasIndex(x => new { x.TenantId, x.ReopenRequestId, x.Stage }).IsUnique();
+            e.HasIndex(x => new { x.TenantId, x.ReopenRequestId, x.ApproverUserId }).IsUnique();
+        });
+        modelBuilder.Entity<DossierOverrideRequest>(e =>
+        {
+            e.ToTable("dossier_override_requests"); e.HasKey(x => x.Id); e.Property(x => x.Action).HasMaxLength(120).IsRequired();
+            e.Property(x => x.Reason).HasMaxLength(2000).IsRequired(); e.Property(x => x.Status).HasConversion<string>().HasMaxLength(30);
+            e.HasIndex(x => new { x.TenantId, x.DossierId, x.Status });
+            e.HasIndex(x => new { x.TenantId, x.DossierId })
+                .IsUnique()
+                .HasFilter("\"Status\" IN ('Pending', 'Approved')");
+            e.HasOne<RegistrationDossier>().WithMany().HasForeignKey(x => x.DossierId).OnDelete(DeleteBehavior.Restrict);
+            e.HasMany(x => x.Approvals).WithOne().HasForeignKey(x => x.OverrideRequestId).OnDelete(DeleteBehavior.Restrict);
+            e.Navigation(x => x.Approvals).UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+        modelBuilder.Entity<DossierOverrideApproval>(e =>
+        {
+            e.ToTable("dossier_override_approvals"); e.HasKey(x => x.Id); e.Property(x => x.Stage).HasConversion<string>().HasMaxLength(20);
+            e.HasIndex(x => new { x.TenantId, x.OverrideRequestId, x.Stage }).IsUnique();
+            e.HasIndex(x => new { x.TenantId, x.OverrideRequestId, x.ApproverUserId }).IsUnique();
+        });
+        modelBuilder.Entity<DossierChangeEvent>(e =>
+        {
+            e.ToTable("dossier_change_events"); e.HasKey(x => x.Id); e.Property(x => x.EventType).HasMaxLength(100).IsRequired();
+            e.Property(x => x.ActorRole).HasMaxLength(120); e.Property(x => x.FromStatus).HasConversion<string>().HasMaxLength(40);
+            e.Property(x => x.ToStatus).HasConversion<string>().HasMaxLength(40); e.Property(x => x.Field).HasMaxLength(200).IsRequired();
+            e.Property(x => x.BeforeJson).HasColumnType("jsonb"); e.Property(x => x.AfterJson).HasColumnType("jsonb");
+            e.Property(x => x.Reason).HasMaxLength(2000).IsRequired(); e.Property(x => x.CorrelationId).HasMaxLength(100).IsRequired();
+            e.HasIndex(x => new { x.TenantId, x.DossierId, x.Sequence }).IsUnique();
+            e.HasOne<RegistrationDossier>().WithMany().HasForeignKey(x => x.DossierId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<DossierHistoryEvent>(e =>
+        {
+            e.ToTable("dossier_history_events");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.EventType).HasMaxLength(80).IsRequired();
+            e.Property(x => x.Summary).HasMaxLength(2000).IsRequired();
+            e.HasIndex(x => new { x.TenantId, x.DossierId, x.OccurredAtUtc });
+        });
+
+        modelBuilder.Entity<DossierMilestone>(e =>
+        {
+            e.ToTable("dossier_milestones");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.MilestoneType).HasConversion<string>().HasMaxLength(40);
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(40);
+            e.HasIndex(x => new { x.TenantId, x.DossierId, x.MilestoneType });
+        });
+
+        modelBuilder.Entity<DossierRequirement>(e =>
+        {
+            e.ToTable("dossier_requirements");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Code).HasMaxLength(80).IsRequired();
+            e.Property(x => x.Name).HasMaxLength(220).IsRequired();
+            e.Property(x => x.Category).HasMaxLength(80);
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(40);
+            e.Property(x => x.ValidationStatus).HasConversion<string>().HasMaxLength(40);
+            e.HasIndex(x => new { x.TenantId, x.DossierId, x.Code });
+            e.HasIndex(x => new { x.TenantId, x.IsCritical, x.Status });
+        });
+
+        modelBuilder.Entity<AuthorityObservation>(e =>
+        {
+            e.ToTable("authority_observations");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Description).HasMaxLength(4000).IsRequired();
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(40);
+            e.HasIndex(x => new { x.TenantId, x.DossierId });
+            e.HasMany(x => x.LinkedRequirements).WithOne().HasForeignKey(l => l.ObservationId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AuthorityObservationRequirement>(e =>
+        {
+            e.ToTable("authority_observation_requirements");
+            e.HasKey(x => x.Id);
+            e.HasIndex(x => new { x.ObservationId, x.RequirementId }).IsUnique();
+        });
+
+        modelBuilder.Entity<RegulatoryRequirementPack>(e =>
+        {
+            e.ToTable("regulatory_requirement_packs");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Code).HasMaxLength(80).IsRequired();
+            e.Property(x => x.Name).HasMaxLength(220).IsRequired();
+            e.Property(x => x.CountryCode).HasMaxLength(8);
+            e.Property(x => x.VersionLabel).HasMaxLength(20);
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(40);
+            e.Property(x => x.RiskClass).HasConversion<string>().HasMaxLength(20);
+            e.Property(x => x.ProcessType).HasConversion<string>().HasMaxLength(40);
+            e.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
+            e.HasMany(x => x.Definitions).WithOne().HasForeignKey(d => d.PackId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<RequirementDefinition>(e =>
+        {
+            e.ToTable("requirement_definitions");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Code).HasMaxLength(80).IsRequired();
+            e.Property(x => x.Name).HasMaxLength(220).IsRequired();
+            e.Property(x => x.Category).HasMaxLength(80);
+        });
+
+        modelBuilder.Entity<ManufacturerProfile>(e =>
+        {
+            e.ToTable("manufacturer_profiles");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.LegalName).HasMaxLength(220).IsRequired();
+            e.Property(x => x.CountryCode).HasMaxLength(8).IsRequired();
+            e.HasIndex(x => new { x.TenantId, x.LegalName });
+            e.HasIndex(x => new { x.TenantId, x.IsActive });
+        });
+
+        modelBuilder.Entity<ManufacturerCertificate>(e =>
+        {
+            e.ToTable("manufacturer_certificates");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Type).HasConversion<string>().HasMaxLength(40);
+            e.Property(x => x.Number).HasMaxLength(120).IsRequired();
+            e.Property(x => x.IssuedBy).HasMaxLength(180);
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(40);
+            e.Property(x => x.LegalFormat).HasConversion<string>().HasMaxLength(40);
+            e.HasIndex(x => new { x.TenantId, x.ManufacturerId, x.Type });
+            e.HasIndex(x => new { x.TenantId, x.Status });
+            e.HasIndex(x => new { x.TenantId, x.ExpiresOn });
+        });
+
+        modelBuilder.Entity<ManufacturerCertificateDossierLink>(e =>
+        {
+            e.ToTable("manufacturer_certificate_dossier_links");
+            e.HasKey(x => x.Id);
+            e.HasIndex(x => new { x.CertificateId, x.DossierId }).IsUnique();
+        });
+
+        modelBuilder.Entity<OperatingLicense>(e =>
+        {
+            e.ToTable("operating_licenses");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.CompanyName).HasMaxLength(180).IsRequired();
+            e.Property(x => x.LicenseType).HasMaxLength(220).IsRequired();
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(40);
+            e.Property(x => x.CompanyConstitutedOn).HasColumnType("date");
+            e.Property(x => x.OperationsStartedOn).HasColumnType("date");
+            e.HasIndex(x => new { x.TenantId, x.CompanyName, x.LicenseType });
+            e.HasIndex(x => new { x.TenantId, x.Status });
+            e.HasIndex(x => new { x.TenantId, x.ExpiresOn });
+        });
+
+        modelBuilder.Entity<LicenseRenewalCase>(e =>
+        {
+            e.ToTable("license_renewal_cases");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.CaseNumber).HasMaxLength(60).IsRequired();
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(40);
+            e.HasMany(x => x.Requirements).WithOne().HasForeignKey(r => r.LicenseRenewalCaseId).OnDelete(DeleteBehavior.Cascade);
+            e.HasMany(x => x.Milestones).WithOne().HasForeignKey(m => m.LicenseRenewalCaseId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<LicenseRequirement>(e =>
+        {
+            e.ToTable("license_requirements");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Code).HasMaxLength(80);
+            e.Property(x => x.Name).HasMaxLength(220);
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(40);
+        });
+
+        modelBuilder.Entity<LicenseMilestone>(e =>
+        {
+            e.ToTable("license_milestones");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Name).HasMaxLength(120);
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(40);
+        });
+
+        modelBuilder.Entity<RegutrackImportJob>(e =>
+        {
+            e.ToTable("regutrack_import_jobs");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.SourceFileName).HasMaxLength(260);
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(40);
+            e.Property(x => x.StagingPayloadJson).HasColumnType("jsonb");
+            e.Property(x => x.ValidationReportJson).HasColumnType("jsonb");
+            e.HasIndex(x => new { x.TenantId, x.CreatedAtUtc });
+        });
+
+        modelBuilder.Entity<RegutrackImportRow>(e =>
+        {
+            e.ToTable("regutrack_import_rows");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.SheetName).HasMaxLength(120);
+            e.Property(x => x.RawJson).HasColumnType("jsonb");
+            e.Property(x => x.NormalizedJson).HasColumnType("jsonb");
+            e.HasIndex(x => new { x.TenantId, x.JobId, x.RowNumber });
+        });
+
+        modelBuilder.Entity<RegulatoryAlertSettings>(e =>
+        {
+            e.ToTable("regulatory_alert_settings");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.ThresholdsCsv).HasMaxLength(120);
+            e.HasIndex(x => x.TenantId).IsUnique();
+        });
+
+        modelBuilder.Entity<RegulatoryAlertLog>(e =>
+        {
+            e.ToTable("regulatory_alert_logs");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.AlertType).HasMaxLength(80);
+            e.Property(x => x.EntityName).HasMaxLength(120);
+            e.Property(x => x.Channel).HasMaxLength(40);
+            e.HasIndex(x => new { x.TenantId, x.AlertType, x.EntityId, x.DaysRemaining, x.DeliveredAtUtc });
+        });
+
+        modelBuilder.Entity<RegulatorySoDSettings>(e =>
+        {
+            e.ToTable("regulatory_sod_settings");
+            e.HasKey(x => x.Id);
+            e.HasIndex(x => x.TenantId).IsUnique();
+        });
+    }
+
     private void ApplyFoundationRules()
     {
         NormalizeQualityIndicatorAppendOnlyChildren();
@@ -1943,6 +2372,22 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             if (entry.State is EntityState.Modified or EntityState.Deleted)
             {
                 throw new DomainException("Audit logs are append-only.");
+            }
+        }
+
+        foreach (var entry in ChangeTracker.Entries<DossierChangeEvent>())
+        {
+            if (entry.State is EntityState.Modified or EntityState.Deleted)
+            {
+                throw new DomainException("Regulatory change events are append-only.");
+            }
+        }
+
+        foreach (var entry in ChangeTracker.Entries<DossierHistoryEvent>())
+        {
+            if (entry.State is EntityState.Modified or EntityState.Deleted)
+            {
+                throw new DomainException("Regulatory dossier history is append-only.");
             }
         }
 

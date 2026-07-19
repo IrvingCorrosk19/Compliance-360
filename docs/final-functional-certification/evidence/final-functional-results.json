@@ -1,0 +1,366 @@
+﻿[
+    {
+        "Id":  "ENV-LIVE",
+        "Module":  "env",
+        "Pass":  true,
+        "Detail":  "health",
+        "At":  "2026-07-14T20:08:02.4230197-05:00"
+    },
+    {
+        "Id":  "ENV-XLSX",
+        "Module":  "env",
+        "Pass":  true,
+        "Detail":  "xlsx bytes=483047",
+        "At":  "2026-07-14T20:08:02.4407364-05:00"
+    },
+    {
+        "Id":  "AUTH-tac",
+        "Module":  "auth",
+        "Pass":  true,
+        "Detail":  "login irvingcorrosk19@gmail.com",
+        "At":  "2026-07-14T20:08:02.5193473-05:00"
+    },
+    {
+        "Id":  "AUTH-admin",
+        "Module":  "auth",
+        "Pass":  true,
+        "Detail":  "login ra.admin@cert.local",
+        "At":  "2026-07-14T20:08:02.5580244-05:00"
+    },
+    {
+        "Id":  "AUTH-mgr",
+        "Module":  "auth",
+        "Pass":  true,
+        "Detail":  "login ra.mgr@cert.local",
+        "At":  "2026-07-14T20:08:02.6060815-05:00"
+    },
+    {
+        "Id":  "AUTH-spec",
+        "Module":  "auth",
+        "Pass":  true,
+        "Detail":  "login ra.spec@cert.local",
+        "At":  "2026-07-14T20:08:02.6553907-05:00"
+    },
+    {
+        "Id":  "AUTH-rev",
+        "Module":  "auth",
+        "Pass":  true,
+        "Detail":  "login ra.rev@cert.local",
+        "At":  "2026-07-14T20:08:02.7045087-05:00"
+    },
+    {
+        "Id":  "AUTH-appr",
+        "Module":  "auth",
+        "Pass":  true,
+        "Detail":  "login ra.appr@cert.local",
+        "At":  "2026-07-14T20:08:02.7420537-05:00"
+    },
+    {
+        "Id":  "AUTH-sub",
+        "Module":  "auth",
+        "Pass":  true,
+        "Detail":  "login ra.sub@cert.local",
+        "At":  "2026-07-14T20:08:02.7900489-05:00"
+    },
+    {
+        "Id":  "AUTH-view",
+        "Module":  "auth",
+        "Pass":  true,
+        "Detail":  "login ra.view@cert.local",
+        "At":  "2026-07-14T20:08:02.8388531-05:00"
+    },
+    {
+        "Id":  "AUTH-qm",
+        "Module":  "auth",
+        "Pass":  true,
+        "Detail":  "login ra.qm@cert.local",
+        "At":  "2026-07-14T20:08:02.8745659-05:00"
+    },
+    {
+        "Id":  "AUTH-BAD-PASS",
+        "Module":  "auth",
+        "Pass":  true,
+        "Detail":  "http=400",
+        "At":  "2026-07-14T20:08:02.9878051-05:00"
+    },
+    {
+        "Id":  "AUTH-NO-TOKEN",
+        "Module":  "auth",
+        "Pass":  true,
+        "Detail":  "http=401",
+        "At":  "2026-07-14T20:08:02.9902650-05:00"
+    },
+    {
+        "Id":  "AUTH-MINSA",
+        "Module":  "authority",
+        "Pass":  true,
+        "Detail":  "minsa=e714c1f2-3838-497e-8afa-c0d7690c3644",
+        "At":  "2026-07-14T20:08:03.0399858-05:00"
+    },
+    {
+        "Id":  "AUTH-CSS",
+        "Module":  "authority",
+        "Pass":  true,
+        "Detail":  "css=22328c2f-d32a-4149-bd9e-ab905f8d9484",
+        "At":  "2026-07-14T20:08:03.0399858-05:00"
+    },
+    {
+        "Id":  "PACK-22",
+        "Module":  "packs",
+        "Pass":  true,
+        "Detail":  "defs=22",
+        "At":  "2026-07-14T20:08:03.0892585-05:00"
+    },
+    {
+        "Id":  "PROD-CREATE",
+        "Module":  "product",
+        "Pass":  true,
+        "Detail":  "http=200",
+        "At":  "2026-07-14T20:08:03.1367595-05:00"
+    },
+    {
+        "Id":  "PROD-DUP",
+        "Module":  "product",
+        "Pass":  true,
+        "Detail":  "http=400",
+        "At":  "2026-07-14T20:08:03.1417748-05:00"
+    },
+    {
+        "Id":  "PROD-SEARCH",
+        "Module":  "product",
+        "Pass":  true,
+        "Detail":  "n=1",
+        "At":  "2026-07-14T20:08:03.1730070-05:00"
+    },
+    {
+        "Id":  "PROD-VIEW-DENY",
+        "Module":  "rbac",
+        "Pass":  true,
+        "Detail":  "http=403",
+        "At":  "2026-07-14T20:08:03.1730070-05:00"
+    },
+    {
+        "Id":  "MFR-CREATE",
+        "Module":  "manufacturer",
+        "Pass":  true,
+        "Detail":  "http=200 id=42dc8d89-5ba8-48d5-b622-791c4657e183",
+        "At":  "2026-07-14T20:08:03.2052973-05:00"
+    },
+    {
+        "Id":  "CERT-CREATE",
+        "Module":  "manufacturer",
+        "Pass":  true,
+        "Detail":  "http=200",
+        "At":  "2026-07-14T20:08:03.2728056-05:00"
+    },
+    {
+        "Id":  "DOS-CREATE",
+        "Module":  "dossier",
+        "Pass":  true,
+        "Detail":  "reqs=22",
+        "At":  "2026-07-14T20:08:03.3427392-05:00"
+    },
+    {
+        "Id":  "DOS-READY",
+        "Module":  "dossier",
+        "Pass":  true,
+        "Detail":  "status=ReadyForSubmission",
+        "At":  "2026-07-14T20:08:03.7044668-05:00"
+    },
+    {
+        "Id":  "SOD-SELF-REVIEW",
+        "Module":  "sod",
+        "Pass":  true,
+        "Detail":  "http=400",
+        "At":  "2026-07-14T20:08:03.7555825-05:00"
+    },
+    {
+        "Id":  "REV-REJECT",
+        "Module":  "review",
+        "Pass":  true,
+        "Detail":  "http=200",
+        "At":  "2026-07-14T20:08:03.9218561-05:00"
+    },
+    {
+        "Id":  "REV-ALL-CRIT",
+        "Module":  "review",
+        "Pass":  true,
+        "Detail":  "pendingCritical=0",
+        "At":  "2026-07-14T20:08:05.0714214-05:00"
+    },
+    {
+        "Id":  "APPR-INT",
+        "Module":  "approval",
+        "Pass":  true,
+        "Detail":  "status=ApprovedForSubmission",
+        "At":  "2026-07-14T20:08:05.1571266-05:00"
+    },
+    {
+        "Id":  "APPR-NO-SUB",
+        "Module":  "sod",
+        "Pass":  true,
+        "Detail":  "http=403",
+        "At":  "2026-07-14T20:08:05.1722699-05:00"
+    },
+    {
+        "Id":  "SUB-1",
+        "Module":  "submission",
+        "Pass":  true,
+        "Detail":  "status=Submitted",
+        "At":  "2026-07-14T20:08:05.2699919-05:00"
+    },
+    {
+        "Id":  "OBS-1",
+        "Module":  "observation",
+        "Pass":  true,
+        "Detail":  "status=Observed",
+        "At":  "2026-07-14T20:08:05.3733141-05:00"
+    },
+    {
+        "Id":  "OBS-1-RESP",
+        "Module":  "observation",
+        "Pass":  true,
+        "Detail":  "http=200",
+        "At":  "2026-07-14T20:08:05.4726557-05:00"
+    },
+    {
+        "Id":  "OBS-2",
+        "Module":  "observation",
+        "Pass":  true,
+        "Detail":  "http=200 status=Observed",
+        "At":  "2026-07-14T20:08:06.0733242-05:00"
+    },
+    {
+        "Id":  "OBS-2-RESP",
+        "Module":  "observation",
+        "Pass":  true,
+        "Detail":  "responded",
+        "At":  "2026-07-14T20:08:06.3053197-05:00"
+    },
+    {
+        "Id":  "EXT-NO-NUMBER",
+        "Module":  "registration",
+        "Pass":  true,
+        "Detail":  "http=400",
+        "At":  "2026-07-14T20:08:07.5058317-05:00"
+    },
+    {
+        "Id":  "EXT-APPROVE",
+        "Module":  "registration",
+        "Pass":  true,
+        "Detail":  "http=200 reg=MQ-FFC-5e38fd",
+        "At":  "2026-07-14T20:08:07.7219646-05:00"
+    },
+    {
+        "Id":  "REG-LIST",
+        "Module":  "registration",
+        "Pass":  true,
+        "Detail":  "found=1 http=200 reg=MQ-FFC-5e38fd",
+        "At":  "2026-07-14T20:08:07.7718905-05:00"
+    },
+    {
+        "Id":  "PROD-COMMERCIAL",
+        "Module":  "registration",
+        "Pass":  true,
+        "Detail":  "commercializable=True",
+        "At":  "2026-07-14T20:08:07.7886495-05:00"
+    },
+    {
+        "Id":  "RENEW-START",
+        "Module":  "renewal",
+        "Pass":  true,
+        "Detail":  "status=Planning type=Renewal",
+        "At":  "2026-07-14T20:08:07.8821048-05:00"
+    },
+    {
+        "Id":  "LIC-CREATE",
+        "Module":  "license",
+        "Pass":  true,
+        "Detail":  "http=200",
+        "At":  "2026-07-14T20:08:07.9209498-05:00"
+    },
+    {
+        "Id":  "LIC-RENEW",
+        "Module":  "license",
+        "Pass":  true,
+        "Detail":  "http=200",
+        "At":  "2026-07-14T20:08:08.0559741-05:00"
+    },
+    {
+        "Id":  "DASH-OK",
+        "Module":  "dashboard",
+        "Pass":  true,
+        "Detail":  "products=485 active=362",
+        "At":  "2026-07-14T20:08:08.1887241-05:00"
+    },
+    {
+        "Id":  "ALERTS",
+        "Module":  "alerts",
+        "Pass":  true,
+        "Detail":  "count=0",
+        "At":  "2026-07-14T20:08:08.2930846-05:00"
+    },
+    {
+        "Id":  "PIPELINE-LIST",
+        "Module":  "pipeline",
+        "Pass":  true,
+        "Detail":  "dossiers=96",
+        "At":  "2026-07-14T20:08:08.4043691-05:00"
+    },
+    {
+        "Id":  "IMP-XLSX-STAGE",
+        "Module":  "import",
+        "Pass":  true,
+        "Detail":  "http=200 status=Simulated warn=10 err=0",
+        "At":  "2026-07-14T20:08:09.1897225-05:00"
+    },
+    {
+        "Id":  "IMP-COMMIT-SAMPLE",
+        "Module":  "import",
+        "Pass":  true,
+        "Detail":  "http=200 imported=5",
+        "At":  "2026-07-14T20:08:09.3385292-05:00"
+    },
+    {
+        "Id":  "MT-products",
+        "Module":  "multitenancy",
+        "Pass":  true,
+        "Detail":  "http=403",
+        "At":  "2026-07-14T20:08:09.3385292-05:00"
+    },
+    {
+        "Id":  "MT-bf9e1e60-a0b5-4050-a472-34c71d031cd1",
+        "Module":  "multitenancy",
+        "Pass":  true,
+        "Detail":  "http=403",
+        "At":  "2026-07-14T20:08:09.3558438-05:00"
+    },
+    {
+        "Id":  "MT-registrations",
+        "Module":  "multitenancy",
+        "Pass":  true,
+        "Detail":  "http=403",
+        "At":  "2026-07-14T20:08:09.3567020-05:00"
+    },
+    {
+        "Id":  "MT-sod-settings",
+        "Module":  "multitenancy",
+        "Pass":  true,
+        "Detail":  "http=403",
+        "At":  "2026-07-14T20:08:09.3567020-05:00"
+    },
+    {
+        "Id":  "DATES-UPDATE",
+        "Module":  "milestones",
+        "Pass":  true,
+        "Detail":  "http=200 (closed dossier may deny)",
+        "At":  "2026-07-14T20:08:09.6617893-05:00"
+    },
+    {
+        "Id":  "TAC-NO-APPR",
+        "Module":  "rbac",
+        "Pass":  true,
+        "Detail":  "http=403",
+        "At":  "2026-07-14T20:08:09.6669124-05:00"
+    }
+]

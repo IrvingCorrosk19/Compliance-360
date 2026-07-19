@@ -1,0 +1,2 @@
+/* dark overrides live in manual.css [data-theme=dark] */
+body[data-theme="dark"] { color-scheme: dark; }

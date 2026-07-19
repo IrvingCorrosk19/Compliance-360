@@ -82,7 +82,8 @@ public sealed class EfDocumentRepository : IDocumentRepository
 
         var total = await query.CountAsync(cancellationToken);
         var items = await query
-            .OrderBy(document => document.Code)
+            .OrderByDescending(document => document.CreatedAtUtc)
+            .ThenBy(document => document.Code)
             .Skip((criteria.Page - 1) * criteria.PageSize)
             .Take(criteria.PageSize)
             .Select(document => new DocumentSummary(

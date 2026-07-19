@@ -1,15 +1,19 @@
 # 07 · RETEST RESULTS
 
-Full revalidation after establishing baseline and running the certification (FASE 8 discipline: build + test + full-flow re-execution).
+Full revalidation after login v2 rollout and E2E helper update (2026-07-09).
 
 ## Technical gates
 | Gate | Result |
 |---|---|
 | `dotnet build -c Release` | 0 warnings / 0 errors |
 | `dotnet test -c Release` | 238 / 238 PASS |
-| Health `/health`, `/health/ready` | 200 Healthy |
+| Health `/api/v1/health` | 200 OK |
+| Playwright E2E (login v2) | 29 / 29 PASS |
+| Customer journey harness | 23 / 23 PASS |
 
-## E2E functional (real Chrome, headed) — 29/29 PASS
+**Commit:** `1a7593bb43782f71d74d6d089ffaeb3b80127336` · **Date:** 2026-07-09
+
+## E2E functional (real Chrome) — 29/29 PASS
 - F01 Platform Administrator · F02 Tenant Administrator · F03 Tenant Security Administrator
 - F04–F05 Document SoD chain (Controller creates / Quality approves, Controller cannot approve)
 - F06 Auditor · F07 Supplier Manager · F08 CAPA Manager (cannot approve closure)
@@ -43,4 +47,4 @@ Viewer write 403 · cross-tenant read 403 · SoD close 403 · malformed body 400
 | Viewer | PASS | PASS | ✅ |
 | Support Operator | PASS | n/a | ✅ |
 
-**Retest verdict:** no regressions; all roles and flows PASS.
+**Retest verdict:** no regressions; all automated roles and flows PASS. Login v2 E2E helper fixed in `e2e/tests/helpers.ts`. Manual-only gaps unchanged: Technical Sheets (role permission), Support break-glass UI.

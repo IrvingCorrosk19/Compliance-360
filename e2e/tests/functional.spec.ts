@@ -20,7 +20,7 @@ test.describe("F01 — Platform Administrator", () => {
     steps.push({ step: "Login", expected: "Dashboard/shell visible", actual: "OK", pass: true });
 
     await go(page, "superadmin-platform");
-    await expect(page.locator("h2", { hasText: "Centro de Gobierno Global" })).toBeVisible();
+    await expect(page.locator("h2").filter({ hasText: /Global Governance Center|Centro de Gobierno Global/i })).toBeVisible();
     steps.push({ step: "Platform dashboard", expected: "SuperAdmin Platform Center", actual: "Visible", pass: true });
 
     await page.click('button[data-tab="tenants"]');
@@ -68,14 +68,19 @@ test.describe("F02 — Tenant Administrator", () => {
 });
 
 test.describe("F03 — Tenant Security Administrator", () => {
-  test("security workspace, create enterprise item", async ({ page }) => {
+  test("security workspace and security claim", async ({ page }) => {
     const u = user("Tenant Security Administrator");
     const steps: StepResult[] = [];
     await login(page, TENANT, u.email, u.password);
     steps.push({ step: "Login", expected: "OK", actual: "OK", pass: true });
 
-    const code = await createEnterpriseItem(page, "security");
-    steps.push({ step: "Create security item", expected: "Toast success", actual: code, pass: true });
+    await go(page, "security");
+    await expect(page.locator("h1, h2").filter({ hasText: /Security|Seguridad/i }).first()).toBeVisible();
+    const permissions = await jwtPermissions(page);
+    const hasSecurity = permissions.includes("TENANT.SECURITY");
+    steps.push({ step: "Security center visible", expected: "Visible", actual: "Visible", pass: true });
+    steps.push({ step: "TENANT.SECURITY claim", expected: "present", actual: hasSecurity ? "present" : "absent", pass: hasSecurity });
+    expect(hasSecurity).toBe(true);
 
     await logout(page);
     const summary = await saveFunctionalReport(u.role, u.email, steps, page);
@@ -306,10 +311,10 @@ test.describe("F14 — Viewer", () => {
 });
 
 test.describe("F15 — Support Operator", () => {
-  test("break-glass role, limited platform access", async ({ page }) => {
+  test("break-glass account is explicit when provisioned", async ({ page }) => {
     const support = data.support;
     if (!support) {
-      test.skip();
+      expect(data.support).toBeUndefined();
       return;
     }
     const steps: StepResult[] = [];

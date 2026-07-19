@@ -1,0 +1,121 @@
+[
+  {
+    "id": "login",
+    "name": "Inicio de sesión",
+    "route": "#/login",
+    "module": "Auth",
+    "objective": "Identificar usuario y obtener token JWT para el tenant."
+  },
+  {
+    "id": "tenant-administration",
+    "name": "Tenant Administration",
+    "route": "#/tenant-administration",
+    "module": "Enterprise",
+    "objective": "Gestionar usuarios, roles y perfil del tenant."
+  },
+  {
+    "id": "security",
+    "name": "Security",
+    "route": "#/security",
+    "module": "Enterprise",
+    "objective": "Configuración de seguridad del tenant (MFA/SSO según permisos)."
+  },
+  {
+    "id": "audit-trail",
+    "name": "Audit Trail",
+    "route": "#/audit-trail",
+    "module": "Command Center",
+    "objective": "Consultar eventos de auditoría."
+  },
+  {
+    "id": "regulatory-shell",
+    "name": "Consola de Asuntos Regulatorios",
+    "route": "#/regulatory",
+    "module": "Regulatory Affairs",
+    "objective": "Contenedor de todas las vistas RA."
+  },
+  {
+    "id": "regulatory-dashboard",
+    "name": "Dashboard RA",
+    "route": "#/regulatory → Dashboard",
+    "module": "Regulatory Affairs",
+    "objective": "Métricas de productos, CT activos, en trámite, requisitos críticos, detenidos >14d, por vencer."
+  },
+  {
+    "id": "regulatory-portfolio",
+    "name": "Portafolio",
+    "route": "#/regulatory → Portafolio",
+    "module": "Regulatory Affairs",
+    "objective": "Listar productos y crear producto + expediente."
+  },
+  {
+    "id": "regulatory-pipeline",
+    "name": "Pipeline",
+    "route": "#/regulatory → Pipeline",
+    "module": "Regulatory Affairs",
+    "objective": "Kanban por estado del expediente + Vencido + Renovación."
+  },
+  {
+    "id": "regulatory-dossiers",
+    "name": "Expedientes",
+    "route": "#/regulatory → Expedientes",
+    "module": "Regulatory Affairs",
+    "objective": "Listar y abrir el workspace del expediente."
+  },
+  {
+    "id": "regulatory-dossier-detail",
+    "name": "Workspace del expediente",
+    "route": "#/regulatory → Expedientes → detalle",
+    "module": "Regulatory Affairs",
+    "objective": "Ejecutar prep, revisión, aprobación interna, sometimiento, observación y aprobación externa."
+  },
+  {
+    "id": "regulatory-registrations",
+    "name": "Registros CT/RS",
+    "route": "#/regulatory → Registros CT/RS",
+    "module": "Regulatory Affairs",
+    "objective": "Consultar números CT/RS, emisión y vencimiento."
+  },
+  {
+    "id": "regulatory-manufacturers",
+    "name": "Fabricantes",
+    "route": "#/regulatory → Fabricantes",
+    "module": "Regulatory Affairs",
+    "objective": "Alta de fabricante y certificados."
+  },
+  {
+    "id": "regulatory-licenses",
+    "name": "Licencias",
+    "route": "#/regulatory → Licencias",
+    "module": "Regulatory Affairs",
+    "objective": "Registrar licencias operativas."
+  },
+  {
+    "id": "regulatory-alerts",
+    "name": "Alertas",
+    "route": "#/regulatory → Alertas",
+    "module": "Regulatory Affairs",
+    "objective": "Evaluar alertas de vencimiento / riesgo operativo."
+  },
+  {
+    "id": "regulatory-import",
+    "name": "Importación",
+    "route": "#/regulatory → Importación",
+    "module": "Regulatory Affairs",
+    "objective": "Stage XLSX del libro REGUTRACK."
+  },
+  {
+    "id": "regulatory-config",
+    "name": "Configuración",
+    "route": "#/regulatory → Configuración",
+    "module": "Regulatory Affairs",
+    "objective": "Bootstrap regulatorio (autoridades + pack)."
+  },
+  {
+    "id": "regulatory-sod",
+    "name": "SoD Settings",
+    "route": "#/regulatory → SoD Settings",
+    "module": "Regulatory Affairs",
+    "objective": "Consultar política de segregación de funciones."
+  }
+]

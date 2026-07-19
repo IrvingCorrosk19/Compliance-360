@@ -242,7 +242,17 @@ public sealed class DevelopmentBootstrapRunner
         "permissions",
         "user_roles",
         "role_permissions",
-        "audit_logs"
+        "audit_logs",
+        "documents",
+        "technical_sheets",
+        "capas",
+        "risks",
+        "quality_indicators",
+        "medical_device_products",
+        "registration_dossiers",
+        "regulatory_authorities",
+        "regulatory_requirement_packs",
+        "regutrack_import_jobs"
     ];
 
     private static readonly string[] CriticalIndexes =
@@ -325,6 +335,12 @@ public sealed class DevelopmentBootstrapRunner
             {
                 await dbContext.Database.MigrateAsync(cancellationToken);
             }
+
+            AddCheck(
+                checks,
+                "Compliance 360 Schema",
+                DevelopmentBootstrapStatus.Ok,
+                "Full QMS and Regulatory Affairs schema preserved. Development bootstrap never drops business tables.");
 
             var pendingMigrations = (await dbContext.Database.GetPendingMigrationsAsync(cancellationToken)).ToArray();
             AddCheck(checks, "Migrations", pendingMigrations.Length == 0 ? DevelopmentBootstrapStatus.Ok : DevelopmentBootstrapStatus.Error, pendingMigrations.Length == 0 ? "Current EF migration is applied." : $"Pending migrations: {string.Join(", ", pendingMigrations)}");
