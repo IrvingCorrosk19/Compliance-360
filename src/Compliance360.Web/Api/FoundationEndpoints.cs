@@ -449,6 +449,31 @@ public static class FoundationEndpoints
             ApiResult.From(await service.ListAuthoritiesAsync(ApiContext.TenantId(httpContext, tenantId), ct)))
             .RequireAuthorization(PermissionPolicies.RegulatoryRead);
 
+        // Lightweight directory for assigning dossier owners (name/email), without TENANT.USERS.
+        ra.MapGet("/assignees", async (Guid tenantId, string? search, HttpContext httpContext, Compliance360DbContext dbContext, CancellationToken ct) =>
+        {
+            var currentTenantId = ApiContext.TenantId(httpContext, tenantId);
+            var query = dbContext.Users.AsNoTracking()
+                .Where(user => user.TenantId == currentTenantId && user.Status == UserStatus.Active);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var term = search.Trim().ToLowerInvariant();
+                query = query.Where(user =>
+                    user.FullName.ToLower().Contains(term) ||
+                    user.Email.ToLower().Contains(term));
+            }
+
+            var assignees = await query
+                .OrderBy(user => user.FullName)
+                .ThenBy(user => user.Email)
+                .Select(user => new RegulatoryAssigneeDto(user.Id, user.FullName, user.Email))
+                .Take(100)
+                .ToListAsync(ct);
+
+            return Results.Ok(assignees);
+        }).RequireAuthorization(PermissionPolicies.RegulatoryRead);
+
         ra.MapGet("/dashboard", async (Guid tenantId, HttpContext httpContext, IRegulatoryAffairsService service, CancellationToken ct) =>
             ApiResult.From(await service.GetDashboardAsync(ApiContext.TenantId(httpContext, tenantId), ct)))
             .RequireAuthorization(PermissionPolicies.RegulatoryRead);

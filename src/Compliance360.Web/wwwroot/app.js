@@ -4080,7 +4080,7 @@ async function ensureRegulatoryAffairs() {
       return;
     }
     const script = document.createElement("script");
-    script.src = "/regulatory-affairs.js?v=cert-1";
+    script.src = "/regulatory-affairs.js?v=owner-picker-1";
     script.async = false;
     script.dataset.raConsole = "1";
     script.onload = () => resolve();

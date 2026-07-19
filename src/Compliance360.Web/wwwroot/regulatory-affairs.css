@@ -115,3 +115,7 @@
 @media (prefers-reduced-motion:reduce){
   .ra-shell *{scroll-behavior:auto!important;transition:none!important;animation:none!important}
 }
+
+.ra-user-filter{width:100%;margin-bottom:.4rem}
+.ra-user-select{width:100%;min-height:8.5rem}
+.ra-user-select option[hidden]{display:none}

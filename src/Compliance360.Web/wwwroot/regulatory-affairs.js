@@ -243,7 +243,7 @@
       const link = document.createElement("link");
       link.id = "regulatory-affairs-css";
       link.rel = "stylesheet";
-      link.href = "/regulatory-affairs.css?v=5";
+      link.href = "/regulatory-affairs.css?v=owner-picker-1";
       document.head.appendChild(link);
     }
 
@@ -394,14 +394,25 @@
       let control;
       if (f.type === "textarea") {
         control = `<textarea id="${fid}" name="${esc(f.name)}" rows="${f.rows || 3}" minlength="${f.minlength || 0}" maxlength="${f.maxlength || 4000}" ${f.required ? "required" : ""} ${f.readonly ? "readonly" : ""} placeholder="${esc(f.placeholder || "")}">${esc(f.value || "")}</textarea>`;
+      } else if (f.type === "user-picker") {
+        const options = f.options || [];
+        const emptyLabel = f.emptyLabel || tr("Regulatory.Workflow.NoOwner", "— Sin responsable —");
+        const selected = String(f.value || "");
+        control = `
+          ${f.readonly ? `<input type="hidden" name="${esc(f.name)}" value="${esc(selected)}">` : ""}
+          <input type="search" id="${fid}-filter" class="ra-user-filter" placeholder="${esc(f.placeholder || tr("Regulatory.Workflow.SearchOwner", "Buscar por nombre o correo..."))}" ${f.readonly ? "disabled" : ""} autocomplete="off">
+          <select id="${fid}" ${f.readonly ? "disabled" : `name="${esc(f.name)}"`} ${f.required ? "required" : ""} class="ra-user-select" size="${Math.min(8, Math.max(5, Math.min(options.length + 1, 10)))}">
+            <option value="" ${!selected ? "selected" : ""}>${esc(emptyLabel)}</option>
+            ${options.map(o => `<option value="${esc(o.value)}" ${String(o.value) === selected ? "selected" : ""} data-search="${esc(`${o.label} ${o.email || ""}`.toLowerCase())}">${esc(o.label)}</option>`).join("")}
+          </select>`;
       } else if (f.type === "select") {
-        control = `<select id="${fid}" name="${esc(f.name)}" ${f.required ? "required" : ""}>${(f.options || []).map(o => `<option value="${esc(o.value)}">${esc(o.label)}</option>`).join("")}</select>`;
+        control = `<select id="${fid}" name="${esc(f.name)}" ${f.required ? "required" : ""} ${f.readonly ? "disabled" : ""}>${(f.options || []).map(o => `<option value="${esc(o.value)}" ${String(o.value) === String(f.value || "") ? "selected" : ""}>${esc(o.label)}</option>`).join("")}</select>${f.readonly ? `<input type="hidden" name="${esc(f.name)}" value="${esc(f.value || "")}">` : ""}`;
       } else if (f.type === "file") {
         control = `<input id="${fid}" name="${esc(f.name)}" type="file" ${f.accept ? `accept="${esc(f.accept)}"` : ""} ${f.required ? "required" : ""}>`;
       } else {
         control = `<input id="${fid}" name="${esc(f.name)}" type="${f.type || "text"}" minlength="${f.minlength || 0}" maxlength="${f.maxlength || 200}" value="${esc(f.value || "")}" ${f.required ? "required" : ""} ${f.readonly ? "readonly" : ""} placeholder="${esc(f.placeholder || "")}">`;
       }
-      return `<div class="field"><label for="${fid}">${esc(f.label)}${req}</label>${control}</div>`;
+      return `<div class="field">${f.type === "user-picker" ? `<label for="${fid}-filter">${esc(f.label)}${req}</label>` : `<label for="${fid}">${esc(f.label)}${req}</label>`}${control}</div>`;
     }).join("");
     overlay.innerHTML = `
       <form class="ra-modal form-stack" autocomplete="off" novalidate>
@@ -416,6 +427,21 @@
     document.body.appendChild(overlay);
     const form = overlay.querySelector("form");
     const submitBtn = form.querySelector("button[type=submit]");
+    form.querySelectorAll(".ra-user-filter").forEach(filter => {
+      const select = filter.parentElement?.querySelector("select.ra-user-select");
+      if (!select) return;
+      filter.addEventListener("input", () => {
+        const term = filter.value.trim().toLowerCase();
+        Array.from(select.options).forEach((option, index) => {
+          if (index === 0) {
+            option.hidden = false;
+            return;
+          }
+          const haystack = option.dataset.search || option.textContent.toLowerCase();
+          option.hidden = term.length > 0 && !haystack.includes(term);
+        });
+      });
+    });
     const close = () => {
       document.removeEventListener("keydown", onKeyDown);
       overlay.remove();
@@ -953,10 +979,30 @@
         }
       });
     });
-    body.querySelector("#ra-edit-metadata")?.addEventListener("click", () => {
+    body.querySelector("#ra-edit-metadata")?.addEventListener("click", async () => {
       const correctionFields = new Set(correction?.fieldPaths || []);
       const readonlyOutsideCorrectionScope = path =>
         hasControlledMetadataScope && !correctionFields.has(path);
+      let assignees = [];
+      try {
+        const payload = await api("/assignees");
+        assignees = Array.isArray(payload) ? payload : [];
+      } catch (error) {
+        toast(error.message || tr("Regulatory.Workflow.AssigneesLoadFailed", "No se pudo cargar la lista de responsables."), "error");
+        return;
+      }
+      const currentOwnerId = d.regulatoryOwnerUserId || "";
+      if (currentOwnerId && !assignees.some(user => String(user.id) === String(currentOwnerId))) {
+        assignees = [
+          { id: currentOwnerId, fullName: tr("Regulatory.Workflow.CurrentOwner", "Responsable actual"), email: currentOwnerId },
+          ...assignees
+        ];
+      }
+      const ownerOptions = assignees.map(user => ({
+        value: user.id,
+        email: user.email || "",
+        label: `${user.fullName || user.email}${user.email ? ` — ${user.email}` : ""}`
+      }));
       openFormModal({
         id: "ra-edit-metadata-modal",
         title: tr("Regulatory.Workflow.EditMetadata", "Editar metadata"),
@@ -965,7 +1011,16 @@
         fields: [
           { name: "reason", label: tr("Regulatory.Workflow.ChangeReason", "Motivo del cambio"), type: "textarea", required: true, minlength: 8, maxlength: 2000 },
           { name: "priority", label: tr("Regulatory.Workflow.Priority", "Prioridad"), value: d.priority || "", maxlength: 80, readonly: readonlyOutsideCorrectionScope("metadata.priority") },
-          { name: "ownerUserId", label: tr("Regulatory.Workflow.OwnerUserId", "ID del responsable"), value: d.regulatoryOwnerUserId || "", maxlength: 36, readonly: readonlyOutsideCorrectionScope("metadata.ownerUserId") },
+          {
+            name: "ownerUserId",
+            label: tr("Regulatory.Workflow.OwnerUserId", "Responsable"),
+            type: "user-picker",
+            value: currentOwnerId,
+            options: ownerOptions,
+            placeholder: tr("Regulatory.Workflow.SearchOwner", "Buscar por nombre o correo..."),
+            emptyLabel: tr("Regulatory.Workflow.NoOwner", "— Sin responsable —"),
+            readonly: readonlyOutsideCorrectionScope("metadata.ownerUserId")
+          },
           { name: "salesMarketingInput", label: tr("Regulatory.Workflow.SalesMarketingInput", "Información comercial/regulatoria"), type: "textarea", value: d.salesMarketingInput || "", maxlength: 2000, readonly: readonlyOutsideCorrectionScope("metadata.salesMarketingInput") },
           { name: "opportunityAmount", label: tr("Regulatory.Workflow.OpportunityAmount", "Monto de oportunidad"), type: "number", value: d.opportunityAmount ?? "", readonly: readonlyOutsideCorrectionScope("metadata.opportunityAmount") },
           { name: "currency", label: tr("Regulatory.Workflow.Currency", "Moneda"), value: d.currency || "USD", maxlength: 3, readonly: readonlyOutsideCorrectionScope("metadata.currency") },
@@ -985,7 +1040,7 @@
                 expectedRevision: workflow.revision,
                 reason: data.reason.trim(),
                 priority: data.priority.trim() || null,
-                ownerUserId: data.ownerUserId.trim() || null,
+                ownerUserId: (data.ownerUserId || "").trim() || null,
                 salesMarketingInput: data.salesMarketingInput.trim() || null,
                 opportunityAmount: data.opportunityAmount === "" ? null : Number(data.opportunityAmount),
                 currency: data.currency.trim().toUpperCase() || null,
