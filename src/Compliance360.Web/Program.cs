@@ -113,6 +113,7 @@ builder.Services.AddHealthChecks()
     .Add(new Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckRegistration("notification-mailgun", provider => new NotificationProviderHealthCheck(provider.GetRequiredService<INotificationProviderFactory>(), provider.GetRequiredService<Microsoft.Extensions.Options.IOptions<NotificationProviderOptions>>(), NotificationProvider.Mailgun), null, ["notification", "mailgun"]))
     .Add(new Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckRegistration("notification-resend", provider => new NotificationProviderHealthCheck(provider.GetRequiredService<INotificationProviderFactory>(), provider.GetRequiredService<Microsoft.Extensions.Options.IOptions<NotificationProviderOptions>>(), NotificationProvider.Resend), null, ["notification", "resend"]))
     .AddCheck<NotificationQueueHealthCheck>("notification-queue", tags: ["ready", "notification", "queue"])
+    .AddCheck<AlertCenterWorkerHealthCheck>("alert-center-worker", tags: ["notification", "worker"])
     .AddCheck<NotificationDeadLetterHealthCheck>("notification-dead-letter", tags: ["ready", "notification", "dead-letter"])
     .AddCheck<DataProtectionHealthCheck>("data-protection", tags: ["ready", "security"]);
 builder.Services.AddOpenTelemetry()

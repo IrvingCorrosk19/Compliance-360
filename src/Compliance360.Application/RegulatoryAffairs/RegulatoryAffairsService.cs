@@ -21,6 +21,7 @@ public sealed class RegulatoryAffairsService : IRegulatoryAffairsService
     private readonly IRegulatorySoDGate _sod;
     private readonly INotificationService _notifications;
     private readonly IStorageRepository _storage;
+    private readonly IAlertEventIngestionService? _alertEvents;
 
     public RegulatoryAffairsService(
         IRegulatoryAffairsRepository repo,
@@ -30,7 +31,8 @@ public sealed class RegulatoryAffairsService : IRegulatoryAffairsService
         IRegutrackWorkbookParser workbookParser,
         IRegulatorySoDGate sod,
         INotificationService notifications,
-        IStorageRepository storage)
+        IStorageRepository storage,
+        IAlertEventIngestionService? alertEvents = null)
     {
         _repo = repo;
         _db = db;
@@ -40,6 +42,7 @@ public sealed class RegulatoryAffairsService : IRegulatoryAffairsService
         _sod = sod;
         _notifications = notifications;
         _storage = storage;
+        _alertEvents = alertEvents;
     }
 
     public async Task<Result<IReadOnlyCollection<AuthorityDto>>> EnsureDefaultAuthoritiesAsync(Guid tenantId, Guid userId, CancellationToken ct = default)
@@ -382,7 +385,11 @@ public sealed class RegulatoryAffairsService : IRegulatoryAffairsService
                 dossier.RegulatoryOwnerUserId ?? dossier.CreatedByUserId,
                 "Aprobado para sometimiento",
                 $"El expediente {dossier.CaseNumber} fue autorizado internamente para sometimiento.",
-                ct);
+                ct,
+                "regulatory.dossier.status_changed",
+                dossier.Id,
+                dossier.CaseNumber,
+                "ApprovedForSubmission");
             await _db.SaveChangesAsync(ct);
             return Result<DossierDetailDto>.Success(MapDossier(dossier));
         }
@@ -429,7 +436,11 @@ public sealed class RegulatoryAffairsService : IRegulatoryAffairsService
                 dossier.RegulatoryOwnerUserId ?? dossier.CreatedByUserId,
                 "Sometimiento registrado",
                 $"El expediente {dossier.CaseNumber} fue registrado como Submitted ante la autoridad.",
-                ct);
+                ct,
+                "regulatory.dossier.submitted",
+                dossier.Id,
+                dossier.CaseNumber,
+                "Submitted");
             await _db.SaveChangesAsync(ct);
             return Result<DossierDetailDto>.Success(MapDossier(dossier));
         }
@@ -475,7 +486,11 @@ public sealed class RegulatoryAffairsService : IRegulatoryAffairsService
                 dossier.RegulatoryOwnerUserId ?? dossier.CreatedByUserId,
                 "Resometimiento registrado",
                 $"La respuesta del expediente {dossier.CaseNumber} fue resometida ante la autoridad.",
-                ct);
+                ct,
+                "regulatory.dossier.resubmitted",
+                dossier.Id,
+                dossier.CaseNumber,
+                "Resubmitted");
             await _db.SaveChangesAsync(ct);
             return Result<DossierDetailDto>.Success(MapDossier(dossier));
         }
@@ -546,7 +561,11 @@ public sealed class RegulatoryAffairsService : IRegulatoryAffairsService
                 dossier.RegulatoryOwnerUserId ?? dossier.CreatedByUserId,
                 "Decisión externa rechazada",
                 $"La autoridad rechazó el expediente {dossier.CaseNumber}.",
-                ct);
+                ct,
+                "regulatory.dossier.status_changed",
+                dossier.Id,
+                dossier.CaseNumber,
+                "Rejected");
             await _db.SaveChangesAsync(ct);
             return Result<DossierDetailDto>.Success(MapDossier(dossier));
         }
@@ -668,7 +687,11 @@ public sealed class RegulatoryAffairsService : IRegulatoryAffairsService
                 command.ResponsibleUserId ?? dossier.RegulatoryOwnerUserId ?? dossier.CreatedByUserId,
                 "Observación recibida de autoridad",
                 $"Se registró una observación en el expediente {dossier.CaseNumber}.",
-                ct);
+                ct,
+                "regulatory.observation.opened",
+                obs.Id,
+                dossier.CaseNumber,
+                "Open");
             await _db.SaveChangesAsync(ct);
             return Result<DossierDetailDto>.Success(MapDossier(dossier));
         }
@@ -1754,8 +1777,44 @@ public sealed class RegulatoryAffairsService : IRegulatoryAffairsService
         Guid? targetUserId,
         string subject,
         string body,
-        CancellationToken ct)
+        CancellationToken ct,
+        string? eventCode = null,
+        Guid? entityId = null,
+        string? caseNumber = null,
+        string? status = null)
     {
+        if (_alertEvents is not null && !string.IsNullOrWhiteSpace(eventCode) && entityId.HasValue)
+        {
+            try
+            {
+                var payload = JsonSerializer.Serialize(new
+                {
+                    entityId,
+                    caseNumber,
+                    status,
+                    ownerUserId = targetUserId,
+                    responsibleUserId = targetUserId,
+                    creatorUserId = actorUserId,
+                    subject
+                });
+                await _alertEvents.IngestAsync(new IngestAlertEventCommand(
+                    tenantId,
+                    eventCode,
+                    payload,
+                    "RegulatoryAffairs",
+                    eventCode.Contains("observation", StringComparison.OrdinalIgnoreCase)
+                        ? nameof(AuthorityObservation)
+                        : nameof(RegistrationDossier),
+                    entityId,
+                    $"ra:{entityId.Value:N}:{Guid.NewGuid():N}",
+                    _clock.UtcNow), ct);
+            }
+            catch
+            {
+                // Progressive dual-write: configurable alerts cannot block the authoritative regulatory transaction.
+            }
+        }
+
         if (!targetUserId.HasValue || targetUserId.Value == Guid.Empty)
         {
             return;

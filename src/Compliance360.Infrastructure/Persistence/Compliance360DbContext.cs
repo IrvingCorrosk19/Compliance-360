@@ -100,7 +100,45 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
 
     public DbSet<NotificationProviderConfiguration> NotificationProviderConfigurations => Set<NotificationProviderConfiguration>();
 
+    public DbSet<TenantNotificationProvider> TenantNotificationProviders => Set<TenantNotificationProvider>();
+
     public DbSet<NotificationDeadLetter> NotificationDeadLetters => Set<NotificationDeadLetter>();
+
+    public DbSet<NotificationOutboxEvent> NotificationOutbox => Set<NotificationOutboxEvent>();
+
+    public DbSet<NotificationWorkerHeartbeat> NotificationWorkerHeartbeats => Set<NotificationWorkerHeartbeat>();
+
+    public DbSet<NotificationInboxItem> NotificationInboxItems => Set<NotificationInboxItem>();
+
+    public DbSet<NotificationTemplateVersion> NotificationTemplateVersions => Set<NotificationTemplateVersion>();
+
+    public DbSet<AlertEventType> AlertEventTypes => Set<AlertEventType>();
+
+    public DbSet<AlertDefinition> AlertDefinitions => Set<AlertDefinition>();
+
+    public DbSet<AlertDefinitionVersion> AlertDefinitionVersions => Set<AlertDefinitionVersion>();
+
+    public DbSet<AlertOccurrence> AlertOccurrences => Set<AlertOccurrence>();
+
+    public DbSet<AlertSchedule> AlertSchedules => Set<AlertSchedule>();
+
+    public DbSet<AlertScheduleExecution> AlertScheduleExecutions => Set<AlertScheduleExecution>();
+
+    public DbSet<RecipientGroup> RecipientGroups => Set<RecipientGroup>();
+
+    public DbSet<RecipientGroupMember> RecipientGroupMembers => Set<RecipientGroupMember>();
+
+    public DbSet<RecipientDepartment> RecipientDepartments => Set<RecipientDepartment>();
+
+    public DbSet<RecipientDirectoryProfile> RecipientDirectoryProfiles => Set<RecipientDirectoryProfile>();
+
+    public DbSet<AuthorizedExternalRecipient> AuthorizedExternalRecipients => Set<AuthorizedExternalRecipient>();
+
+    public DbSet<RecipientDistributionList> RecipientDistributionLists => Set<RecipientDistributionList>();
+
+    public DbSet<RecipientDistributionListMember> RecipientDistributionListMembers => Set<RecipientDistributionListMember>();
+
+    public DbSet<RecipientFallbackConfiguration> RecipientFallbackConfigurations => Set<RecipientFallbackConfiguration>();
 
     public DbSet<Document> Documents => Set<Document>();
 
@@ -787,8 +825,8 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.Property(template => template.Code).HasMaxLength(120).IsRequired();
             entity.Property(template => template.Channel).HasConversion<string>().HasMaxLength(40).IsRequired();
             entity.Property(template => template.Subject).HasMaxLength(250).IsRequired();
-            entity.Property(template => template.Body).HasMaxLength(4_000).IsRequired();
-            entity.Property(template => template.TextBody).HasMaxLength(4_000);
+            entity.Property(template => template.Body).HasMaxLength(64_000).IsRequired();
+            entity.Property(template => template.TextBody).HasMaxLength(16_000);
             entity.Property(template => template.Locale).HasMaxLength(20);
             entity.Property(template => template.BrandingJson).HasColumnType("jsonb");
             entity.HasIndex(template => new { template.TenantId, template.Code, template.Channel }).IsUnique();
@@ -800,15 +838,37 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.HasKey(message => message.Id);
             entity.Property(message => message.Channel).HasConversion<string>().HasMaxLength(40).IsRequired();
             entity.Property(message => message.Recipient).HasMaxLength(320).IsRequired();
+            entity.Property(message => message.Routing).HasConversion<string>().HasMaxLength(20).IsRequired();
             entity.Property(message => message.Subject).HasMaxLength(250).IsRequired();
-            entity.Property(message => message.Body).HasMaxLength(4_000).IsRequired();
-            entity.Property(message => message.TextBody).HasMaxLength(4_000);
+            entity.Property(message => message.Body).HasMaxLength(64_000).IsRequired();
+            entity.Property(message => message.TextBody).HasMaxLength(16_000);
             entity.Property(message => message.Priority).HasConversion<string>().HasMaxLength(40).IsRequired();
             entity.Property(message => message.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
             entity.Property(message => message.LastProvider).HasConversion<string>().HasMaxLength(40);
             entity.Property(message => message.FailureReason).HasMaxLength(1_000);
+            entity.Property(message => message.IdempotencyKey).HasMaxLength(200).IsRequired();
+            entity.Property(message => message.LeaseToken).HasMaxLength(120);
+            entity.Property(message => message.LeaseOwner).HasMaxLength(160);
+            entity.HasOne<AlertOccurrence>()
+                .WithMany()
+                .HasForeignKey(message => new { message.TenantId, message.AlertOccurrenceId })
+                .HasPrincipalKey(occurrence => new { occurrence.TenantId, occurrence.Id })
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<AlertDefinition>()
+                .WithMany()
+                .HasForeignKey(message => new { message.TenantId, message.AlertDefinitionId })
+                .HasPrincipalKey(definition => new { definition.TenantId, definition.Id })
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<AlertDefinitionVersion>()
+                .WithMany()
+                .HasForeignKey(message => new { message.TenantId, message.AlertDefinitionVersionId })
+                .HasPrincipalKey(version => new { version.TenantId, version.Id })
+                .OnDelete(DeleteBehavior.Restrict);
             entity.HasIndex(message => new { message.TenantId, message.Status, message.Priority, message.QueuedAtUtc });
             entity.HasIndex(message => new { message.TenantId, message.TargetUserId, message.QueuedAtUtc });
+            entity.HasIndex(message => new { message.TenantId, message.IdempotencyKey }).IsUnique();
+            entity.HasIndex(message => new { message.Status, message.AvailableAtUtc, message.NextRetryAtUtc, message.LeaseUntilUtc });
+            entity.HasIndex(message => new { message.TenantId, message.AlertOccurrenceId });
         });
 
         modelBuilder.Entity<NotificationDelivery>(entity =>
@@ -875,6 +935,21 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.HasIndex(configuration => new { configuration.TenantId, configuration.Provider, configuration.Name }).IsUnique();
         });
 
+        modelBuilder.Entity<TenantNotificationProvider>(entity =>
+        {
+            entity.ToTable("tenant_notification_providers");
+            entity.HasKey(provider => provider.Id);
+            entity.Property(provider => provider.Provider).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(provider => provider.Authentication).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(provider => provider.Name).HasMaxLength(120).IsRequired();
+            entity.Property(provider => provider.FromAddress).HasMaxLength(320).IsRequired();
+            entity.Property(provider => provider.FromName).HasMaxLength(160);
+            entity.Property(provider => provider.ProtectedSettings).HasColumnType("text").IsRequired();
+            entity.Property(provider => provider.LastFailureCode).HasMaxLength(120);
+            entity.HasIndex(provider => new { provider.TenantId, provider.Priority });
+            entity.HasIndex(provider => new { provider.TenantId, provider.Name }).IsUnique();
+        });
+
         modelBuilder.Entity<NotificationDeadLetter>(entity =>
         {
             entity.ToTable("notification_dead_letters");
@@ -882,6 +957,272 @@ public sealed class Compliance360DbContext : DbContext, IApplicationDbContext
             entity.Property(deadLetter => deadLetter.Reason).HasMaxLength(1_000).IsRequired();
             entity.Property(deadLetter => deadLetter.PayloadJson).HasColumnType("jsonb").IsRequired();
             entity.HasIndex(deadLetter => new { deadLetter.TenantId, deadLetter.DeadLetteredAtUtc });
+        });
+
+        modelBuilder.Entity<NotificationOutboxEvent>(entity =>
+        {
+            entity.ToTable("notification_outbox");
+            entity.HasKey(outboxEvent => outboxEvent.Id);
+            entity.Property(outboxEvent => outboxEvent.EventType).HasMaxLength(160).IsRequired();
+            entity.Property(outboxEvent => outboxEvent.AggregateType).HasMaxLength(120).IsRequired();
+            entity.Property(outboxEvent => outboxEvent.PayloadJson).HasColumnType("jsonb").IsRequired();
+            entity.Property(outboxEvent => outboxEvent.CorrelationId).HasMaxLength(120).IsRequired();
+            entity.Property(outboxEvent => outboxEvent.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(outboxEvent => outboxEvent.LeaseToken).HasMaxLength(120);
+            entity.Property(outboxEvent => outboxEvent.LeaseOwner).HasMaxLength(160);
+            entity.Property(outboxEvent => outboxEvent.LastError).HasMaxLength(1_000);
+            entity.HasIndex(outboxEvent => new { outboxEvent.Status, outboxEvent.AvailableAtUtc, outboxEvent.LeaseUntilUtc });
+            entity.HasIndex(outboxEvent => new { outboxEvent.TenantId, outboxEvent.CorrelationId });
+            entity.HasIndex(outboxEvent => new { outboxEvent.TenantId, outboxEvent.EventType, outboxEvent.AggregateId });
+        });
+
+        modelBuilder.Entity<NotificationWorkerHeartbeat>(entity =>
+        {
+            entity.ToTable("notification_worker_heartbeats");
+            entity.HasKey(heartbeat => heartbeat.Id);
+            entity.Property(heartbeat => heartbeat.WorkerId).HasMaxLength(160).IsRequired();
+            entity.Property(heartbeat => heartbeat.InstanceName).HasMaxLength(160).IsRequired();
+            entity.Property(heartbeat => heartbeat.Status).HasMaxLength(40).IsRequired();
+            entity.Property(heartbeat => heartbeat.LastError).HasMaxLength(1_000);
+            entity.HasIndex(heartbeat => heartbeat.WorkerId).IsUnique();
+            entity.HasIndex(heartbeat => new { heartbeat.Status, heartbeat.LastSeenAtUtc });
+        });
+
+        modelBuilder.Entity<NotificationInboxItem>(entity =>
+        {
+            entity.ToTable("notification_inbox_items");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.State).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.HasIndex(item => new { item.TenantId, item.NotificationMessageId, item.UserId }).IsUnique();
+            entity.HasIndex(item => new { item.TenantId, item.UserId, item.State, item.SortAtUtc });
+            entity.HasIndex(item => new { item.TenantId, item.UserId, item.IsFavorite, item.SortAtUtc });
+        });
+
+        modelBuilder.Entity<NotificationTemplateVersion>(entity =>
+        {
+            entity.ToTable("notification_template_versions");
+            entity.HasKey(version => version.Id);
+            entity.Property(version => version.Locale).HasMaxLength(20).IsRequired();
+            entity.Property(version => version.Subject).HasMaxLength(250).IsRequired();
+            entity.Property(version => version.HtmlBody).HasMaxLength(64_000).IsRequired();
+            entity.Property(version => version.TextBody).HasMaxLength(16_000);
+            entity.Property(version => version.VariablesJson).HasColumnType("jsonb").IsRequired();
+            entity.Property(version => version.BrandingJson).HasColumnType("jsonb");
+            entity.Property(version => version.Lifecycle).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.HasOne<NotificationTemplate>()
+                .WithMany()
+                .HasForeignKey(version => new { version.TenantId, version.NotificationTemplateId })
+                .HasPrincipalKey(template => new { template.TenantId, template.Id })
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(version => new { version.TenantId, version.NotificationTemplateId, version.Locale, version.Version }).IsUnique();
+            entity.HasIndex(version => new { version.TenantId, version.Lifecycle, version.PublishedAtUtc });
+        });
+
+        modelBuilder.Entity<AlertEventType>(entity =>
+        {
+            entity.ToTable("alert_event_types");
+            entity.HasKey(eventType => eventType.Id);
+            entity.Property(eventType => eventType.Code).HasMaxLength(160).IsRequired();
+            entity.Property(eventType => eventType.Name).HasMaxLength(200).IsRequired();
+            entity.Property(eventType => eventType.Module).HasMaxLength(120).IsRequired();
+            entity.Property(eventType => eventType.SchemaJson).HasColumnType("jsonb").IsRequired();
+            entity.HasIndex(eventType => new { eventType.TenantId, eventType.Code }).IsUnique();
+            entity.HasIndex(eventType => new { eventType.TenantId, eventType.Module, eventType.IsActive });
+        });
+
+        modelBuilder.Entity<AlertDefinition>(entity =>
+        {
+            entity.ToTable("alert_definitions");
+            entity.HasKey(definition => definition.Id);
+            entity.Property(definition => definition.Code).HasMaxLength(160).IsRequired();
+            entity.Property(definition => definition.Name).HasMaxLength(200).IsRequired();
+            entity.Property(definition => definition.Description).HasMaxLength(2_000).IsRequired();
+            entity.Property(definition => definition.Priority).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(definition => definition.Lifecycle).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.HasOne<AlertEventType>()
+                .WithMany()
+                .HasForeignKey(definition => new { definition.TenantId, definition.EventTypeId })
+                .HasPrincipalKey(eventType => new { eventType.TenantId, eventType.Id })
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(definition => new { definition.TenantId, definition.Code }).IsUnique();
+            entity.HasIndex(definition => new { definition.TenantId, definition.EventTypeId, definition.Lifecycle });
+        });
+
+        modelBuilder.Entity<AlertDefinitionVersion>(entity =>
+        {
+            entity.ToTable("alert_definition_versions");
+            entity.HasKey(version => version.Id);
+            entity.Property(version => version.ConditionJson).HasColumnType("jsonb").IsRequired();
+            entity.Property(version => version.RecipientRulesJson).HasColumnType("jsonb").IsRequired();
+            entity.Property(version => version.ChannelPoliciesJson).HasColumnType("jsonb").IsRequired();
+            entity.Property(version => version.DedupeExpression).HasMaxLength(500).IsRequired();
+            entity.Property(version => version.UnknownPolicy).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(version => version.Lifecycle).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.HasOne<AlertDefinition>()
+                .WithMany()
+                .HasForeignKey(version => new { version.TenantId, version.DefinitionId })
+                .HasPrincipalKey(definition => new { definition.TenantId, definition.Id })
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(version => new { version.TenantId, version.DefinitionId, version.Version }).IsUnique();
+            entity.HasIndex(version => new { version.TenantId, version.Lifecycle, version.PublishedAtUtc });
+        });
+
+        modelBuilder.Entity<AlertOccurrence>(entity =>
+        {
+            entity.ToTable("alert_occurrences");
+            entity.HasKey(occurrence => occurrence.Id);
+            entity.Property(occurrence => occurrence.DedupeKey).HasMaxLength(500).IsRequired();
+            entity.Property(occurrence => occurrence.PayloadJson).HasColumnType("jsonb").IsRequired();
+            entity.Property(occurrence => occurrence.CorrelationId).HasMaxLength(120).IsRequired();
+            entity.Property(occurrence => occurrence.SourceModule).HasMaxLength(120).IsRequired();
+            entity.Property(occurrence => occurrence.EntityType).HasMaxLength(160).IsRequired();
+            entity.Property(occurrence => occurrence.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(occurrence => occurrence.FailureReason).HasMaxLength(1_000);
+            entity.HasOne<AlertDefinition>()
+                .WithMany()
+                .HasForeignKey(occurrence => new { occurrence.TenantId, occurrence.DefinitionId })
+                .HasPrincipalKey(definition => new { definition.TenantId, definition.Id })
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<AlertDefinitionVersion>()
+                .WithMany()
+                .HasForeignKey(occurrence => new { occurrence.TenantId, occurrence.DefinitionVersionId })
+                .HasPrincipalKey(version => new { version.TenantId, version.Id })
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<AlertEventType>()
+                .WithMany()
+                .HasForeignKey(occurrence => new { occurrence.TenantId, occurrence.EventTypeId })
+                .HasPrincipalKey(eventType => new { eventType.TenantId, eventType.Id })
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(occurrence => new { occurrence.TenantId, occurrence.DefinitionVersionId, occurrence.DedupeKey, occurrence.OccurredAtUtc });
+            entity.HasIndex(occurrence => new { occurrence.TenantId, occurrence.Status, occurrence.OccurredAtUtc });
+            entity.HasIndex(occurrence => new { occurrence.TenantId, occurrence.CorrelationId });
+        });
+
+        modelBuilder.Entity<AlertSchedule>(entity =>
+        {
+            entity.ToTable("alert_schedules");
+            entity.HasKey(schedule => schedule.Id);
+            entity.Property(schedule => schedule.Code).HasMaxLength(160).IsRequired();
+            entity.Property(schedule => schedule.Name).HasMaxLength(200).IsRequired();
+            entity.Property(schedule => schedule.CronExpression).HasMaxLength(120).IsRequired();
+            entity.Property(schedule => schedule.TimeZoneId).HasMaxLength(120).IsRequired();
+            entity.Property(schedule => schedule.BusinessCalendarJson).HasColumnType("jsonb").IsRequired();
+            entity.Property(schedule => schedule.QuietHoursJson).HasColumnType("jsonb").IsRequired();
+            entity.Property(schedule => schedule.CatchUpPolicy).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(schedule => schedule.Digest).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(schedule => schedule.LeaseOwner).HasMaxLength(200);
+            entity.HasOne<AlertDefinition>()
+                .WithMany()
+                .HasForeignKey(schedule => new { schedule.TenantId, schedule.DefinitionId })
+                .HasPrincipalKey(definition => new { definition.TenantId, definition.Id })
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(schedule => new { schedule.TenantId, schedule.Code }).IsUnique();
+            entity.HasIndex(schedule => new { schedule.IsActive, schedule.NextExecutionAtUtc, schedule.LeaseUntilUtc });
+        });
+
+        modelBuilder.Entity<AlertScheduleExecution>(entity =>
+        {
+            entity.ToTable("alert_schedule_executions");
+            entity.HasKey(execution => execution.Id);
+            entity.Property(execution => execution.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(execution => execution.WorkerId).HasMaxLength(200).IsRequired();
+            entity.Property(execution => execution.FailureReason).HasMaxLength(1_000);
+            entity.HasOne<AlertSchedule>()
+                .WithMany()
+                .HasForeignKey(execution => new { execution.TenantId, execution.ScheduleId })
+                .HasPrincipalKey(schedule => new { schedule.TenantId, schedule.Id })
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(execution => new { execution.TenantId, execution.ScheduleId, execution.ScheduledForUtc }).IsUnique();
+            entity.HasIndex(execution => new { execution.TenantId, execution.Status, execution.StartedAtUtc });
+        });
+
+        modelBuilder.Entity<RecipientGroup>(entity =>
+        {
+            entity.ToTable("recipient_groups");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.Name).HasMaxLength(160).IsRequired();
+            entity.HasIndex(item => new { item.TenantId, item.Name }).IsUnique();
+        });
+
+        modelBuilder.Entity<RecipientGroupMember>(entity =>
+        {
+            entity.ToTable("recipient_group_members");
+            entity.HasKey(item => item.Id);
+            entity.HasOne<RecipientGroup>().WithMany()
+                .HasForeignKey(item => new { item.TenantId, item.GroupId })
+                .HasPrincipalKey(item => new { item.TenantId, item.Id }).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<User>().WithMany()
+                .HasForeignKey(item => new { item.TenantId, item.UserId })
+                .HasPrincipalKey(item => new { item.TenantId, item.Id }).OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(item => new { item.TenantId, item.GroupId, item.UserId }).IsUnique();
+        });
+
+        modelBuilder.Entity<RecipientDepartment>(entity =>
+        {
+            entity.ToTable("recipient_departments");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.Name).HasMaxLength(160).IsRequired();
+            entity.HasIndex(item => new { item.TenantId, item.Name }).IsUnique();
+        });
+
+        modelBuilder.Entity<RecipientDirectoryProfile>(entity =>
+        {
+            entity.ToTable("recipient_directory_profiles");
+            entity.HasKey(item => item.Id);
+            entity.HasOne<User>().WithMany()
+                .HasForeignKey(item => new { item.TenantId, item.UserId })
+                .HasPrincipalKey(item => new { item.TenantId, item.Id }).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<RecipientDepartment>().WithMany()
+                .HasForeignKey(item => new { item.TenantId, item.DepartmentId })
+                .HasPrincipalKey(item => new { item.TenantId, item.Id }).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<User>().WithMany()
+                .HasForeignKey(item => new { item.TenantId, item.SupervisorUserId })
+                .HasPrincipalKey(item => new { item.TenantId, item.Id }).OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(item => new { item.TenantId, item.UserId }).IsUnique();
+            entity.HasIndex(item => new { item.TenantId, item.DepartmentId });
+        });
+
+        modelBuilder.Entity<AuthorizedExternalRecipient>(entity =>
+        {
+            entity.ToTable("authorized_external_recipients");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.Email).HasMaxLength(320).IsRequired();
+            entity.Property(item => item.DisplayName).HasMaxLength(180).IsRequired();
+            entity.HasIndex(item => new { item.TenantId, item.Email }).IsUnique();
+        });
+
+        modelBuilder.Entity<RecipientDistributionList>(entity =>
+        {
+            entity.ToTable("recipient_distribution_lists");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.Name).HasMaxLength(160).IsRequired();
+            entity.HasIndex(item => new { item.TenantId, item.Name }).IsUnique();
+        });
+
+        modelBuilder.Entity<RecipientDistributionListMember>(entity =>
+        {
+            entity.ToTable("recipient_distribution_list_members");
+            entity.HasKey(item => item.Id);
+            entity.HasOne<RecipientDistributionList>().WithMany()
+                .HasForeignKey(item => new { item.TenantId, item.DistributionListId })
+                .HasPrincipalKey(item => new { item.TenantId, item.Id }).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<User>().WithMany()
+                .HasForeignKey(item => new { item.TenantId, item.UserId })
+                .HasPrincipalKey(item => new { item.TenantId, item.Id }).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<AuthorizedExternalRecipient>().WithMany()
+                .HasForeignKey(item => new { item.TenantId, item.ExternalRecipientId })
+                .HasPrincipalKey(item => new { item.TenantId, item.Id }).OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(item => new { item.TenantId, item.DistributionListId, item.UserId }).IsUnique();
+            entity.HasIndex(item => new { item.TenantId, item.DistributionListId, item.ExternalRecipientId }).IsUnique();
+        });
+
+        modelBuilder.Entity<RecipientFallbackConfiguration>(entity =>
+        {
+            entity.ToTable("recipient_fallback_configurations");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.Mode).HasConversion<string>().HasMaxLength(40).IsRequired();
+            entity.Property(item => item.Routing).HasConversion<string>().HasMaxLength(20).IsRequired();
+            entity.HasIndex(item => item.TenantId).IsUnique();
         });
     }
 

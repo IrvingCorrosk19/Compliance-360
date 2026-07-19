@@ -257,6 +257,7 @@ window.permissionsFromToken = permissionsFromToken;
 
 const routePermissions = {
   dashboard: ["TENANT.READ", "REGULATORY.REPORT.READ"],
+  "alert-center": ["NOTIFICATION.READ", "NOTIFICATION.MANAGE", "NOTIFICATION.ADMIN", "TENANT.NOTIFICATIONS"],
   "audit-trail": ["AUDIT.READ", "TENANT.AUDIT"],
   "superadmin-platform": ["PLATFORM.DASHBOARD.READ"],
   "tenant-administration": ["PLATFORM.TENANT.READ", "TENANT.USERS", "TENANT.ROLES", "TENANT.UPDATE"],
@@ -298,6 +299,7 @@ const loadingMessages = {
   default: ["Cargando informacion...", "Sincronizando informacion...", "Procesando solicitud..."],
   login: ["Validando credenciales...", "Cargando perfil...", "Preparando entorno..."],
   dashboard: ["Preparando dashboard...", "Calculando indicadores...", "Analizando datos..."],
+  "alert-center": ["Cargando Alert Center...", "Consultando inbox...", "Sincronizando alertas..."],
   documents: ["Consultando documentos...", "Preparando listado documental...", "Sincronizando informacion..."],
   "technical-sheets": ["Preparando ficha tecnica...", "Consultando productos...", "Cargando informacion tecnica..."],
   suppliers: ["Cargando proveedores...", "Consultando evaluaciones...", "Sincronizando informacion..."],
@@ -326,6 +328,7 @@ const loadingMessages = {
 const navigation = [
   { group: "Nav.CommandCenter", items: [
     ["dashboard", "Nav.Dashboard"],
+    ["alert-center", "AlertCenter.Title"],
     ["audit-trail", "Tac.Audit"]
   ]},
   { group: "Nav.Regulatory", items: [
@@ -680,6 +683,9 @@ function shellView() {
             </datalist>
           </div>
           <div class="top-actions">
+            ${canNavigate("alert-center") ? `<button id="notification-bell" class="notification-bell" type="button" aria-label="Abrir Alert Center" title="Alert Center">
+              <span aria-hidden="true">🔔</span><span id="notification-badge" class="notification-badge" hidden>0</span>
+            </button>` : ""}
             <span class="session-chip" title="${escapeHtml(session.email)} · ${escapeHtml(session.role)}">
               <span class="session-chip-name">${escapeHtml(session.name)}</span>
               <span class="session-chip-role">${escapeHtml(session.role)}</span>
@@ -892,6 +898,7 @@ function bindMfaChallenge() {
 
 function bindShell() {
   bindResponsiveShell();
+  bindNotificationBell();
   document.querySelectorAll("[data-route]").forEach(button => {
     button.addEventListener("click", () => {
       closeSidebarDrawer();
@@ -964,6 +971,27 @@ function bindShell() {
       location.reload();
     }
   });
+}
+
+function bindNotificationBell() {
+  const bell = document.querySelector("#notification-bell");
+  if (!bell) return;
+  bell.addEventListener("click", () => {
+    location.hash = "#/alert-center";
+  });
+  ensureAlertCenter()
+    .then(() => window.getAlertCenterCounts())
+    .then(counts => {
+      const badge = document.querySelector("#notification-badge");
+      if (!badge) return;
+      badge.textContent = counts.unread > 99 ? "99+" : String(counts.unread || 0);
+      badge.hidden = !counts.unread;
+      bell.setAttribute("aria-label", `Abrir Alert Center; ${counts.unread || 0} no leídas`);
+    })
+    .catch(() => {
+      bell.classList.add("degraded");
+      bell.title = "Alert Center temporalmente no disponible";
+    });
 }
 
 const mobileDrawerQuery = window.matchMedia("(max-width: 767px)");
@@ -1071,6 +1099,11 @@ async function renderRoute() {
     }
     if (state.route === "configuration") {
       await renderIntegrationsAdministration(content);
+      return;
+    }
+    if (state.route === "alert-center") {
+      await ensureAlertCenter();
+      await window.renderAlertCenter(content);
       return;
     }
     if (state.route === "reports") {
@@ -3946,6 +3979,30 @@ async function ensureRegulatoryAffairs() {
   });
   if (typeof window.renderRegulatoryAffairs !== "function") {
     throw new Error("RA Console no inicializó renderRegulatoryAffairs.");
+  }
+}
+
+async function ensureAlertCenter() {
+  if (typeof window.renderAlertCenter === "function") {
+    return;
+  }
+  await new Promise((resolve, reject) => {
+    const existing = document.querySelector('script[data-alert-center="1"]');
+    if (existing) {
+      existing.addEventListener("load", () => resolve(), { once: true });
+      existing.addEventListener("error", () => reject(new Error("No se pudo cargar alert-center.js")), { once: true });
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "/alert-center.js?v=foundation-1";
+    script.async = false;
+    script.dataset.alertCenter = "1";
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("No se pudo cargar /alert-center.js"));
+    document.head.appendChild(script);
+  });
+  if (typeof window.renderAlertCenter !== "function") {
+    throw new Error("Alert Center no inicializó renderAlertCenter.");
   }
 }
 

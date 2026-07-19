@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Compliance360.Domain.Audit;
 using Compliance360.Domain.Common;
 using Compliance360.Domain.Notifications;
@@ -15,6 +16,7 @@ public sealed class NotificationService : INotificationService
     private readonly INotificationAuditService _auditService;
     private readonly IApplicationDbContext _dbContext;
     private readonly IClock _clock;
+    private readonly INotificationOutboxWriter? _outboxWriter;
 
     public NotificationService(
         INotificationRepository repository,
@@ -24,7 +26,8 @@ public sealed class NotificationService : INotificationService
         INotificationTrackingService trackingService,
         INotificationAuditService auditService,
         IApplicationDbContext dbContext,
-        IClock clock)
+        IClock clock,
+        INotificationOutboxWriter? outboxWriter = null)
     {
         _repository = repository;
         _dispatcher = dispatcher;
@@ -34,6 +37,7 @@ public sealed class NotificationService : INotificationService
         _auditService = auditService;
         _dbContext = dbContext;
         _clock = clock;
+        _outboxWriter = outboxWriter;
     }
 
     public async Task<Result<NotificationTemplateSummary>> CreateTemplateAsync(CreateNotificationTemplateCommand command, CancellationToken cancellationToken = default)
@@ -72,6 +76,8 @@ public sealed class NotificationService : INotificationService
         {
             var (subject, body, templateId) = await ResolveContentAsync(command, cancellationToken);
             var message = new NotificationMessage(command.TenantId, command.Channel, command.Recipient, subject, body, command.Priority, _clock.UtcNow);
+            message.ConfigureDurability(command.IdempotencyKey, 3);
+            message.SetRouting(command.Routing);
             if (templateId.HasValue)
             {
                 message.LinkTemplate(templateId.Value);
@@ -82,7 +88,41 @@ public sealed class NotificationService : INotificationService
                 message.TargetUser(command.TargetUserId.Value);
             }
 
+            if (command.AlertOccurrenceId.HasValue
+                && command.AlertDefinitionId.HasValue
+                && command.AlertDefinitionVersionId.HasValue)
+            {
+                message.LinkAlertContext(
+                    command.AlertOccurrenceId.Value,
+                    command.AlertDefinitionId.Value,
+                    command.AlertDefinitionVersionId.Value);
+            }
+
             await _repository.AddMessageAsync(message, cancellationToken);
+            if (_outboxWriter is not null)
+            {
+                var payload = JsonSerializer.Serialize(new
+                {
+                    messageId = message.Id,
+                    channel = message.Channel.ToString(),
+                    priority = message.Priority.ToString(),
+                    targetUserId = message.TargetUserId,
+                    alertOccurrenceId = message.AlertOccurrenceId,
+                    alertDefinitionId = message.AlertDefinitionId,
+                    alertDefinitionVersionId = message.AlertDefinitionVersionId
+                });
+                await _outboxWriter.AddAsync(
+                    new NotificationOutboxEvent(
+                        command.TenantId,
+                        "notification.message.queued",
+                        nameof(NotificationMessage),
+                        message.Id,
+                        payload,
+                        message.Id.ToString("N"),
+                        _clock.UtcNow),
+                    cancellationToken);
+            }
+
             await _trackingService.TrackAsync(command.TenantId, message.Id, NotificationDeliveryStatus.Queued, "Queued", cancellationToken);
             await _auditService.AppendAsync(command.TenantId, command.RequestedByUserId, nameof(NotificationMessage), message.Id, AuditAction.NotificationQueued, true, null, cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
@@ -160,7 +200,7 @@ public sealed class NotificationService : INotificationService
                 return Result.Failure("Notification message not found.");
             }
 
-            message.Cancel();
+            message.Cancel(_clock.UtcNow);
             await _trackingService.TrackAsync(command.TenantId, message.Id, NotificationDeliveryStatus.Cancelled, "Cancelled", cancellationToken);
             await _auditService.AppendAsync(command.TenantId, command.RequestedByUserId, nameof(NotificationMessage), message.Id, AuditAction.NotificationCancelled, true, null, cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
@@ -230,7 +270,7 @@ public sealed class NotificationService : INotificationService
 
         return (
             Guard.AgainstNullOrWhiteSpace(command.Subject, nameof(command.Subject), 250),
-            Guard.AgainstNullOrWhiteSpace(command.Body, nameof(command.Body), 4_000),
+            Guard.AgainstNullOrWhiteSpace(command.Body, nameof(command.Body), 64_000),
             null);
     }
 

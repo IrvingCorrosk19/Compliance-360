@@ -98,10 +98,56 @@ public sealed class NotificationQueueHealthCheck : IHealthCheck
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
-        var queued = await _dbContext.NotificationMessages.CountAsync(message => message.Status == NotificationStatus.Queued, cancellationToken);
+        var nowUtc = DateTimeOffset.UtcNow;
+        var queued = await _dbContext.NotificationMessages.CountAsync(
+            message => message.Status == NotificationStatus.Queued
+                || message.Status == NotificationStatus.Retried
+                || (message.Status == NotificationStatus.Processing && message.LeaseUntilUtc < nowUtc),
+            cancellationToken);
         return queued < 10_000
             ? HealthCheckResult.Healthy($"Notification queue depth is {queued}.")
             : HealthCheckResult.Degraded($"Notification queue depth is high: {queued}.");
+    }
+}
+
+public sealed class AlertCenterWorkerHealthCheck : IHealthCheck
+{
+    private readonly Compliance360DbContext _dbContext;
+    private readonly IOptions<NotificationWorkerOptions> _options;
+
+    public AlertCenterWorkerHealthCheck(Compliance360DbContext dbContext, IOptions<NotificationWorkerOptions> options)
+    {
+        _dbContext = dbContext;
+        _options = options;
+    }
+
+    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+    {
+        if (!_options.Value.Enabled)
+        {
+            return HealthCheckResult.Degraded("Alert Center worker is disabled by configuration.");
+        }
+
+        var newestHeartbeat = await _dbContext.NotificationWorkerHeartbeats
+            .AsNoTracking()
+            .OrderByDescending(heartbeat => heartbeat.LastSeenAtUtc)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (newestHeartbeat is null)
+        {
+            return HealthCheckResult.Degraded("No Alert Center worker heartbeat has been recorded.");
+        }
+
+        var maximumAge = TimeSpan.FromSeconds(Math.Clamp(_options.Value.LeaseDurationSeconds * 2, 30, 1_800));
+        var age = DateTimeOffset.UtcNow - newestHeartbeat.LastSeenAtUtc;
+        if (age > maximumAge || newestHeartbeat.Status == "Stopped")
+        {
+            return HealthCheckResult.Unhealthy(
+                $"Alert Center worker heartbeat is stale ({Math.Round(age.TotalSeconds)} seconds) or stopped.");
+        }
+
+        return newestHeartbeat.Status == "Healthy"
+            ? HealthCheckResult.Healthy($"Alert Center worker is healthy; last heartbeat {Math.Round(age.TotalSeconds)} seconds ago.")
+            : HealthCheckResult.Degraded($"Alert Center worker status is {newestHeartbeat.Status}; last heartbeat {Math.Round(age.TotalSeconds)} seconds ago.");
     }
 }
 

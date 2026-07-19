@@ -19,6 +19,7 @@ public sealed class RegulatoryWorkflowV2Service : IRegulatoryWorkflowV2Service
     private readonly IStorageRepository? _storage;
     private readonly INotificationService? _notifications;
     private readonly IAuditContextAccessor? _auditContext;
+    private readonly IAlertEventIngestionService? _alertEvents;
 
     public RegulatoryWorkflowV2Service(IRegulatoryWorkflowV2Repository repo, IApplicationDbContext db, IAuditRepository audit, IClock clock)
         : this(repo, db, audit, clock, null)
@@ -36,7 +37,29 @@ public sealed class RegulatoryWorkflowV2Service : IRegulatoryWorkflowV2Service
     }
 
     public RegulatoryWorkflowV2Service(IRegulatoryWorkflowV2Repository repo, IApplicationDbContext db, IAuditRepository audit, IClock clock, IStorageRepository? storage, INotificationService? notifications, IAuditContextAccessor? auditContext)
-    { _repo = repo; _db = db; _audit = audit; _clock = clock; _storage = storage; _notifications = notifications; _auditContext = auditContext; }
+        : this(repo, db, audit, clock, storage, notifications, auditContext, null)
+    {
+    }
+
+    public RegulatoryWorkflowV2Service(
+        IRegulatoryWorkflowV2Repository repo,
+        IApplicationDbContext db,
+        IAuditRepository audit,
+        IClock clock,
+        IStorageRepository? storage,
+        INotificationService? notifications,
+        IAuditContextAccessor? auditContext,
+        IAlertEventIngestionService? alertEvents)
+    {
+        _repo = repo;
+        _db = db;
+        _audit = audit;
+        _clock = clock;
+        _storage = storage;
+        _notifications = notifications;
+        _auditContext = auditContext;
+        _alertEvents = alertEvents;
+    }
 
     public async Task<Result<WorkflowSnapshotV2Dto>> GetWorkflowSnapshotAsync(Guid tenantId, Guid dossierId, CancellationToken ct = default)
     {
@@ -107,7 +130,8 @@ public sealed class RegulatoryWorkflowV2Service : IRegulatoryWorkflowV2Service
             await Record(c.TenantId, d, "CorrectionRequested", c.RequestedByUserId, c.ActorRole, from, d.Status, "correction", c.Reason, c.CorrelationId(), ct);
             await SaveAudit(c.TenantId, c.RequestedByUserId, d.Id, ct);
             await Notify(c.TenantId, c.RequestedByUserId, d.RegulatoryOwnerUserId ?? d.CreatedByUserId,
-                "Corrección regulatoria solicitada", $"El expediente {d.CaseNumber} fue devuelto para corrección controlada.", ct);
+                "Corrección regulatoria solicitada", $"El expediente {d.CaseNumber} fue devuelto para corrección controlada.", ct,
+                "regulatory.dossier.correction_requested", d, c.CorrelationId());
             return Result<CorrectionRequestV2Dto>.Success(Map(request));
         }
         catch (DomainException ex) { return Result<CorrectionRequestV2Dto>.Failure(ex.Message); }
@@ -142,7 +166,8 @@ public sealed class RegulatoryWorkflowV2Service : IRegulatoryWorkflowV2Service
             await Record(c.TenantId, d, "CorrectionSubmitted", c.RequestedByUserId, c.ActorRole, from, d.Status, "correction", c.Reason, c.CorrelationId(), ct);
             await SaveAudit(c.TenantId, c.RequestedByUserId, d.Id, ct);
             await Notify(c.TenantId, c.RequestedByUserId, correction.RequestedByUserId,
-                "Corrección regulatoria enviada", $"La corrección del expediente {d.CaseNumber} fue enviada a revisión técnica.", ct);
+                "Corrección regulatoria enviada", $"La corrección del expediente {d.CaseNumber} fue enviada a revisión técnica.", ct,
+                "regulatory.dossier.status_changed", d, c.CorrelationId());
             return Result<DossierDetailDto>.Success(Map(d));
         }
         catch (DomainException ex) { return Result<DossierDetailDto>.Failure(ex.Message); }
@@ -238,7 +263,8 @@ public sealed class RegulatoryWorkflowV2Service : IRegulatoryWorkflowV2Service
                 from, d.Status, "technical-review", c.Reason, c.CorrelationId(), ct);
             await SaveAudit(c.TenantId, c.RequestedByUserId, d.Id, ct);
             await Notify(c.TenantId, c.RequestedByUserId, d.RegulatoryOwnerUserId ?? d.CreatedByUserId,
-                "Revisión técnica completada", $"El expediente {d.CaseNumber} está listo para aprobación interna.", ct);
+                "Revisión técnica completada", $"El expediente {d.CaseNumber} está listo para aprobación interna.", ct,
+                "regulatory.dossier.status_changed", d, c.CorrelationId());
             return Result<DossierDetailDto>.Success(Map(d));
         }
         catch (DomainException ex) { return Result<DossierDetailDto>.Failure(ex.Message); }
@@ -363,7 +389,8 @@ public sealed class RegulatoryWorkflowV2Service : IRegulatoryWorkflowV2Service
             await Record(c.TenantId, d, "DossierReopened", c.RequestedByUserId, c.ActorRole, from, d.Status, "status", request.Reason, c.CorrelationId(), ct);
             await SaveAudit(c.TenantId, c.RequestedByUserId, d.Id, ct);
             await Notify(c.TenantId, c.RequestedByUserId, d.RegulatoryOwnerUserId ?? d.CreatedByUserId,
-                "Expediente reabierto", $"El expediente {d.CaseNumber} fue reabierto bajo corrección controlada.", ct);
+                "Expediente reabierto", $"El expediente {d.CaseNumber} fue reabierto bajo corrección controlada.", ct,
+                "regulatory.dossier.status_changed", d, c.CorrelationId());
             return Result<DossierDetailDto>.Success(Map(d));
         }
         catch (DomainException ex) { return Result<DossierDetailDto>.Failure(ex.Message); }
@@ -441,7 +468,8 @@ public sealed class RegulatoryWorkflowV2Service : IRegulatoryWorkflowV2Service
                 from, d.Status, "status", reason, c.CorrelationId(), ct);
             await SaveAudit(c.TenantId, c.RequestedByUserId, d.Id, ct);
             await Notify(c.TenantId, c.RequestedByUserId, d.RegulatoryOwnerUserId ?? d.CreatedByUserId,
-                "Expediente cancelado", $"El expediente {d.CaseNumber} fue cancelado sin eliminar su evidencia.", ct);
+                "Expediente cancelado", $"El expediente {d.CaseNumber} fue cancelado sin eliminar su evidencia.", ct,
+                "regulatory.dossier.status_changed", d, c.CorrelationId());
             return Result<DossierDetailDto>.Success(Map(d));
         }
         catch (DomainException ex) { return Result<DossierDetailDto>.Failure(ex.Message); }
@@ -498,8 +526,49 @@ public sealed class RegulatoryWorkflowV2Service : IRegulatoryWorkflowV2Service
         await _db.SaveChangesAsync(ct);
     }
 
-    private async Task Notify(Guid tenantId, Guid actorUserId, Guid? targetUserId, string subject, string body, CancellationToken ct)
+    private async Task Notify(
+        Guid tenantId,
+        Guid actorUserId,
+        Guid? targetUserId,
+        string subject,
+        string body,
+        CancellationToken ct,
+        string? eventCode = null,
+        RegistrationDossier? dossier = null,
+        string? correlationId = null)
     {
+        if (_alertEvents is not null && !string.IsNullOrWhiteSpace(eventCode) && dossier is not null)
+        {
+            try
+            {
+                var payload = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    entityId = dossier.Id,
+                    dossierId = dossier.Id,
+                    caseNumber = dossier.CaseNumber,
+                    status = dossier.Status.ToString(),
+                    ownerUserId = dossier.RegulatoryOwnerUserId ?? dossier.CreatedByUserId,
+                    responsibleUserId = targetUserId,
+                    creatorUserId = dossier.CreatedByUserId,
+                    actorUserId,
+                    subject
+                });
+                await _alertEvents.IngestAsync(new IngestAlertEventCommand(
+                    tenantId,
+                    eventCode,
+                    payload,
+                    "RegulatoryWorkflowV2",
+                    nameof(RegistrationDossier),
+                    dossier.Id,
+                    string.IsNullOrWhiteSpace(correlationId) ? $"rw:{dossier.Id:N}:{Guid.NewGuid():N}" : correlationId,
+                    _clock.UtcNow), ct);
+            }
+            catch
+            {
+                // Progressive dual-write cannot invalidate an audited workflow transition.
+            }
+        }
+
         if (_notifications is null || !targetUserId.HasValue || targetUserId.Value == Guid.Empty)
             return;
 

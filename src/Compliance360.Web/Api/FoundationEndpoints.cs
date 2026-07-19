@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Compliance360.Application;
 using Compliance360.Application.Audit;
 using Compliance360.Application.AuditManagement;
 using Compliance360.Application.CapaManagement;
@@ -26,6 +27,7 @@ using Compliance360.Domain.RegulatoryAffairs;
 using Compliance360.Domain.AuditManagement;
 using Compliance360.Domain.CapaManagement;
 using Compliance360.Domain.Identity;
+using Compliance360.Domain.Notifications;
 using Compliance360.Domain.QualityIndicators;
 using Compliance360.Domain.Reporting;
 using Compliance360.Domain.RiskManagement;
@@ -73,6 +75,7 @@ public static class FoundationEndpoints
             .WithTags("Compliance 360 API v2")
             .RequireRateLimiting("api");
         MapRegulatoryWorkflowV2(apiV2);
+        MapAlertCenter(apiV2);
 
         return api;
     }
@@ -1311,6 +1314,632 @@ public static class FoundationEndpoints
             ApiResult.From(await service.ConfigureProviderAsync(
                 new ConfigureNotificationProviderCommand(ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), request.Provider, request.Name, request.Priority, request.IsDefault, request.IsEnabled),
                 cancellationToken))).RequireAuthorization(PermissionPolicies.NotificationAdmin);
+    }
+
+    private static void MapAlertCenter(RouteGroupBuilder api)
+    {
+        var alertCenter = api.MapGroup("/tenants/{tenantId:guid}/alert-center")
+            .WithTags("Alert Center");
+
+        alertCenter.MapGet("/providers", async (
+            Guid tenantId, HttpContext httpContext, IProviderCenterService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ListAsync(ApiContext.TenantId(httpContext, tenantId), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationAdmin);
+
+        alertCenter.MapPost("/providers", async (
+            Guid tenantId, UpsertProviderCenterRequest request, HttpContext httpContext,
+            IProviderCenterService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.UpsertAsync(new UpsertProviderCenterCommand(
+                ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), request.ProviderId,
+                request.Provider, request.Name, request.Priority, request.IsEnabled, request.Authentication,
+                request.FromAddress, request.FromName, request.Settings, request.RateLimitPerMinute,
+                request.CircuitFailureThreshold, request.CircuitBreakSeconds), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationAdmin);
+
+        alertCenter.MapPut("/providers/{providerId:guid}", async (
+            Guid tenantId, Guid providerId, UpsertProviderCenterRequest request, HttpContext httpContext,
+            IProviderCenterService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.UpsertAsync(new UpsertProviderCenterCommand(
+                ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), providerId,
+                request.Provider, request.Name, request.Priority, request.IsEnabled, request.Authentication,
+                request.FromAddress, request.FromName, request.Settings, request.RateLimitPerMinute,
+                request.CircuitFailureThreshold, request.CircuitBreakSeconds), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationAdmin);
+
+        alertCenter.MapPost("/providers/{providerId:guid}/connection-test", async (
+            Guid tenantId, Guid providerId, HttpContext httpContext, IProviderCenterService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.TestConnectionAsync(ApiContext.TenantId(httpContext, tenantId), providerId, cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationAdmin);
+
+        alertCenter.MapPost("/providers/{providerId:guid}/sandbox-send", async (
+            Guid tenantId, Guid providerId, SendProviderSandboxRequest request, HttpContext httpContext,
+            IProviderCenterService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.SendSandboxAsync(new SendProviderSandboxCommand(
+                ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), providerId,
+                request.Recipient, request.Subject, request.Body), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationAdmin);
+
+        alertCenter.MapGet("/inbox", async (
+            Guid tenantId,
+            NotificationInboxState? state,
+            bool? favorite,
+            string? search,
+            int page,
+            int pageSize,
+            HttpContext httpContext,
+            INotificationInboxService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.SearchAsync(
+                new NotificationInboxQuery(
+                    ApiContext.TenantId(httpContext, tenantId),
+                    ApiContext.UserId(httpContext),
+                    state,
+                    favorite,
+                    search,
+                    page <= 0 ? 1 : page,
+                    pageSize <= 0 ? 25 : pageSize),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationRead);
+
+        alertCenter.MapGet("/inbox/counts", async (
+            Guid tenantId,
+            HttpContext httpContext,
+            INotificationInboxService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GetCountsAsync(
+                ApiContext.TenantId(httpContext, tenantId),
+                ApiContext.UserId(httpContext),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationRead);
+
+        alertCenter.MapPost("/inbox/{inboxItemId:guid}/actions", async (
+            Guid tenantId,
+            Guid inboxItemId,
+            NotificationInboxActionRequest request,
+            HttpContext httpContext,
+            INotificationInboxService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ApplyActionAsync(
+                new NotificationInboxActionCommand(
+                    ApiContext.TenantId(httpContext, tenantId),
+                    ApiContext.UserId(httpContext),
+                    inboxItemId,
+                    request.Action),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationRead);
+
+        alertCenter.MapPost("/inbox/actions/bulk", async (
+            Guid tenantId,
+            NotificationInboxBulkActionRequest request,
+            HttpContext httpContext,
+            INotificationInboxService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ApplyBulkActionAsync(
+                new NotificationInboxBulkActionCommand(
+                    ApiContext.TenantId(httpContext, tenantId),
+                    ApiContext.UserId(httpContext),
+                    request.InboxItemIds ?? [],
+                    request.Action,
+                    request.All),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationRead);
+
+        alertCenter.MapGet("/templates", async (
+            Guid tenantId,
+            string? search,
+            NotificationChannel? channel,
+            NotificationTemplateLifecycle? lifecycle,
+            string? locale,
+            int page,
+            int pageSize,
+            HttpContext httpContext,
+            INotificationTemplateCenterService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.SearchAsync(
+                new NotificationTemplateCenterQuery(
+                    ApiContext.TenantId(httpContext, tenantId),
+                    search,
+                    channel,
+                    lifecycle,
+                    locale,
+                    page <= 0 ? 1 : page,
+                    pageSize <= 0 ? 25 : pageSize),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationTemplate);
+
+        alertCenter.MapPost("/templates", async (
+            Guid tenantId,
+            CreateNotificationTemplateDefinitionRequest request,
+            HttpContext httpContext,
+            INotificationTemplateCenterService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CreateTemplateAsync(
+                new CreateNotificationTemplateDefinitionCommand(
+                    ApiContext.TenantId(httpContext, tenantId),
+                    request.Code,
+                    request.Channel,
+                    request.Locale,
+                    request.Subject,
+                    request.HtmlBody,
+                    request.TextBody,
+                    request.BrandingJson,
+                    ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationTemplate);
+
+        alertCenter.MapGet("/template-versions/{versionId:guid}", async (
+            Guid tenantId,
+            Guid versionId,
+            HttpContext httpContext,
+            INotificationTemplateCenterService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GetVersionAsync(
+                ApiContext.TenantId(httpContext, tenantId),
+                versionId,
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationTemplate);
+
+        alertCenter.MapPost("/templates/{templateId:guid}/versions", async (
+            Guid tenantId,
+            Guid templateId,
+            CreateNotificationTemplateVersionRequest request,
+            HttpContext httpContext,
+            INotificationTemplateCenterService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CreateVersionAsync(
+                new CreateNotificationTemplateVersionCommand(
+                    ApiContext.TenantId(httpContext, tenantId),
+                    templateId,
+                    request.Locale,
+                    request.Subject,
+                    request.HtmlBody,
+                    request.TextBody,
+                    request.BrandingJson,
+                    ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationTemplate);
+
+        alertCenter.MapPost("/template-versions/{versionId:guid}/duplicate", async (
+            Guid tenantId,
+            Guid versionId,
+            DuplicateNotificationTemplateVersionRequest request,
+            HttpContext httpContext,
+            INotificationTemplateCenterService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.DuplicateVersionAsync(
+                new DuplicateNotificationTemplateVersionCommand(
+                    ApiContext.TenantId(httpContext, tenantId),
+                    versionId,
+                    request.Locale,
+                    ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationTemplate);
+
+        alertCenter.MapPost("/template-versions/{versionId:guid}/actions", async (
+            Guid tenantId,
+            Guid versionId,
+            NotificationTemplateLifecycleActionRequest request,
+            HttpContext httpContext,
+            INotificationTemplateCenterService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ApplyLifecycleActionAsync(
+                new NotificationTemplateLifecycleCommand(
+                    ApiContext.TenantId(httpContext, tenantId),
+                    versionId,
+                    request.Action,
+                    ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationTemplate);
+
+        alertCenter.MapPost("/template-versions/{versionId:guid}/preview", async (
+            Guid tenantId,
+            Guid versionId,
+            PreviewNotificationTemplateVersionRequest request,
+            HttpContext httpContext,
+            INotificationTemplateCenterService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.PreviewVersionAsync(
+                new PreviewNotificationTemplateVersionCommand(
+                    ApiContext.TenantId(httpContext, tenantId),
+                    versionId,
+                    request.Variables ?? new Dictionary<string, string>(),
+                    request.Branding),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationTemplate);
+
+        alertCenter.MapPost("/template-versions/{versionId:guid}/test-send", async (
+            Guid tenantId,
+            Guid versionId,
+            SendNotificationTemplateTestRequest request,
+            HttpContext httpContext,
+            INotificationTemplateCenterService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.SendTestAsync(
+                new SendNotificationTemplateTestCommand(
+                    ApiContext.TenantId(httpContext, tenantId),
+                    versionId,
+                    request.Recipient,
+                    request.TargetUserId,
+                    request.Variables ?? new Dictionary<string, string>(),
+                    ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationSend);
+
+        alertCenter.MapGet("/event-types", async (
+            Guid tenantId,
+            string? module,
+            HttpContext httpContext,
+            IAlertRuleCenterService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(Compliance360.Shared.Result<IReadOnlyCollection<AlertEventTypeSummary>>.Success(await service.ListEventTypesAsync(
+                ApiContext.TenantId(httpContext, tenantId),
+                module,
+                cancellationToken))))
+            .RequireAuthorization(PermissionPolicies.NotificationRead);
+
+        alertCenter.MapPost("/events", async (
+            Guid tenantId,
+            IngestAlertEventRequest request,
+            HttpContext httpContext,
+            IAlertEventIngestionService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.IngestAsync(new IngestAlertEventCommand(
+                ApiContext.TenantId(httpContext, tenantId),
+                request.EventCode,
+                request.PayloadJson,
+                request.SourceModule,
+                request.EntityType,
+                request.EntityId,
+                request.CorrelationId,
+                request.OccurredAtUtc), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationSend);
+
+        alertCenter.MapGet("/rules", async (
+            Guid tenantId,
+            string? search,
+            Guid? eventTypeId,
+            AlertDefinitionLifecycle? lifecycle,
+            int page,
+            int pageSize,
+            HttpContext httpContext,
+            IAlertRuleCenterService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(Compliance360.Shared.Result<AlertDefinitionSearchResult>.Success(await service.SearchAsync(
+                new AlertDefinitionSearchQuery(
+                    ApiContext.TenantId(httpContext, tenantId),
+                    search,
+                    eventTypeId,
+                    lifecycle,
+                    page <= 0 ? 1 : page,
+                    pageSize <= 0 ? 25 : pageSize),
+                cancellationToken))))
+            .RequireAuthorization(PermissionPolicies.NotificationRead);
+
+        alertCenter.MapGet("/rules/{definitionId:guid}", async (
+            Guid tenantId,
+            Guid definitionId,
+            HttpContext httpContext,
+            IAlertRuleCenterService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GetAsync(
+                ApiContext.TenantId(httpContext, tenantId),
+                definitionId,
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationRead);
+
+        alertCenter.MapPost("/rules", async (
+            Guid tenantId,
+            CreateAlertDefinitionRequest request,
+            HttpContext httpContext,
+            IAlertRuleCenterService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CreateAsync(
+                new CreateAlertDefinitionCommand(
+                    ApiContext.TenantId(httpContext, tenantId),
+                    request.EventTypeId,
+                    request.Code,
+                    request.Name,
+                    request.Description,
+                    request.OwnerUserId ?? ApiContext.UserId(httpContext),
+                    request.Priority,
+                    request.ConditionJson,
+                    request.RecipientRulesJson,
+                    request.ChannelPoliciesJson,
+                    request.DedupeExpression,
+                    request.SilenceWindowMinutes,
+                    request.SlaMinutes,
+                    request.UnknownPolicy,
+                    ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationManage);
+
+        alertCenter.MapPost("/rules/{definitionId:guid}/versions", async (
+            Guid tenantId,
+            Guid definitionId,
+            CreateAlertDefinitionVersionRequest request,
+            HttpContext httpContext,
+            IAlertRuleCenterService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CreateVersionAsync(
+                new CreateAlertDefinitionVersionCommand(
+                    ApiContext.TenantId(httpContext, tenantId),
+                    definitionId,
+                    request.ConditionJson,
+                    request.RecipientRulesJson,
+                    request.ChannelPoliciesJson,
+                    request.DedupeExpression,
+                    request.SilenceWindowMinutes,
+                    request.SlaMinutes,
+                    request.UnknownPolicy,
+                    ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationManage);
+
+        alertCenter.MapPost("/rules/{definitionId:guid}/versions/{versionId:guid}/actions", async (
+            Guid tenantId,
+            Guid definitionId,
+            Guid versionId,
+            AlertDefinitionLifecycleActionRequest request,
+            HttpContext httpContext,
+            IAlertRuleCenterService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ApplyLifecycleActionAsync(
+                new AlertDefinitionLifecycleCommand(
+                    ApiContext.TenantId(httpContext, tenantId),
+                    definitionId,
+                    versionId,
+                    request.Action,
+                    ApiContext.UserId(httpContext)),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationManage);
+
+        alertCenter.MapPost("/rules/simulate", async (
+            Guid tenantId,
+            SimulateAlertRuleRequest request,
+            HttpContext httpContext,
+            IAlertRuleCenterService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.SimulateAsync(
+                new AlertRuleSimulationCommand(
+                    ApiContext.TenantId(httpContext, tenantId),
+                    request.DefinitionId,
+                    request.VersionId,
+                    request.ConditionJson,
+                    request.UnknownPolicy,
+                    request.EventPayloadJson),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationRead);
+
+        alertCenter.MapPost("/rules/{definitionId:guid}/versions/{versionId:guid}/recipients/preview", async (
+            Guid tenantId, Guid definitionId, Guid versionId, PreviewAlertRecipientsRequest request, HttpContext httpContext,
+            IRecipientResolverService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.PreviewAsync(new PreviewRecipientsCommand(
+                ApiContext.TenantId(httpContext, tenantId), definitionId, versionId, ApiContext.UserId(httpContext), request.Channel,
+                request.Topic, request.RelationshipUsers ?? new Dictionary<RecipientKind, Guid?>()), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationRead);
+
+        alertCenter.MapPut("/recipient-preferences", async (
+            Guid tenantId, SetRecipientPreferenceRequest request, HttpContext httpContext,
+            IRecipientResolverService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.SetPreferenceAsync(new SetRecipientPreferenceCommand(
+                ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), request.Channel, request.Enabled), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationRead);
+
+        alertCenter.MapGet("/recipient-directory", async (
+            Guid tenantId, HttpContext httpContext, IRecipientResolverService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GetDirectoryAsync(
+                ApiContext.TenantId(httpContext, tenantId),
+                ApiContext.UserId(httpContext),
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationManage);
+
+        alertCenter.MapPost("/recipient-groups", async (
+            Guid tenantId, CreateRecipientGroupRequest request, HttpContext httpContext,
+            IRecipientResolverService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CreateGroupAsync(new CreateRecipientGroupCommand(
+                ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), request.Name), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationManage);
+
+        alertCenter.MapPost("/recipient-groups/{groupId:guid}/members", async (
+            Guid tenantId, Guid groupId, AddRecipientGroupMemberRequest request, HttpContext httpContext,
+            IRecipientResolverService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddGroupMemberAsync(new AddRecipientGroupMemberCommand(
+                ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), groupId, request.UserId), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationManage);
+
+        alertCenter.MapPost("/recipient-departments", async (
+            Guid tenantId, CreateRecipientDepartmentRequest request, HttpContext httpContext,
+            IRecipientResolverService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CreateDepartmentAsync(new CreateRecipientDepartmentCommand(
+                ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), request.Name), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationManage);
+
+        alertCenter.MapPut("/recipient-directory/{userId:guid}", async (
+            Guid tenantId, Guid userId, SetRecipientDirectoryProfileRequest request, HttpContext httpContext,
+            IRecipientResolverService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.SetDirectoryProfileAsync(new SetRecipientDirectoryProfileCommand(
+                ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), userId, request.DepartmentId, request.SupervisorUserId), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationManage);
+
+        alertCenter.MapPost("/authorized-external-recipients", async (
+            Guid tenantId, AuthorizeExternalRecipientRequest request, HttpContext httpContext,
+            IRecipientResolverService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AuthorizeExternalAsync(new AuthorizeExternalRecipientCommand(
+                ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), request.Email, request.DisplayName), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationAdmin);
+
+        alertCenter.MapPost("/distribution-lists", async (
+            Guid tenantId, CreateRecipientDistributionListRequest request, HttpContext httpContext,
+            IRecipientResolverService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CreateDistributionListAsync(new CreateRecipientDistributionListCommand(
+                ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), request.Name), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationManage);
+
+        alertCenter.MapPost("/distribution-lists/{listId:guid}/members", async (
+            Guid tenantId, Guid listId, AddRecipientDistributionListMemberRequest request, HttpContext httpContext,
+            IRecipientResolverService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AddDistributionListMemberAsync(new AddRecipientDistributionListMemberCommand(
+                ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), listId, request.UserId, request.ExternalRecipientId), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationManage);
+
+        alertCenter.MapPut("/recipient-fallback", async (
+            Guid tenantId, SetRecipientFallbackRequest request, HttpContext httpContext,
+            IRecipientResolverService service, CancellationToken cancellationToken) =>
+            ApiResult.From(await service.SetFallbackAsync(new SetRecipientFallbackCommand(
+                ApiContext.TenantId(httpContext, tenantId), ApiContext.UserId(httpContext), request.Mode, request.TargetId, request.Routing), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationAdmin);
+
+        alertCenter.MapGet("/schedules", async (
+            Guid tenantId,
+            HttpContext httpContext,
+            IAlertSchedulerService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ListAsync(ApiContext.TenantId(httpContext, tenantId), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationRead);
+
+        alertCenter.MapPost("/schedules/preview", (
+            Guid tenantId,
+            PreviewAlertScheduleRequest request,
+            HttpContext httpContext,
+            IAlertSchedulerService service,
+            IClock clock) =>
+            ApiResult.From(service.Preview(new AlertSchedulePreviewCommand(
+                request.CronExpression,
+                request.TimeZoneId,
+                request.BusinessCalendarJson,
+                request.QuietHoursJson,
+                request.FromUtc ?? clock.UtcNow,
+                request.Count))))
+            .RequireAuthorization(PermissionPolicies.NotificationManage);
+
+        alertCenter.MapPost("/schedules", async (
+            Guid tenantId,
+            CreateAlertScheduleRequest request,
+            HttpContext httpContext,
+            IAlertSchedulerService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.CreateAsync(new CreateAlertScheduleCommand(
+                ApiContext.TenantId(httpContext, tenantId),
+                request.DefinitionId,
+                request.Code,
+                request.Name,
+                request.CronExpression,
+                request.TimeZoneId,
+                request.BusinessCalendarJson,
+                request.QuietHoursJson,
+                request.CatchUpPolicy,
+                request.MaxCatchUpExecutions,
+                request.Digest,
+                ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationManage);
+
+        alertCenter.MapPost("/schedules/{scheduleId:guid}/state", async (
+            Guid tenantId,
+            Guid scheduleId,
+            ChangeAlertScheduleStateRequest request,
+            HttpContext httpContext,
+            IAlertSchedulerService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.SetActiveAsync(new ChangeAlertScheduleStateCommand(
+                ApiContext.TenantId(httpContext, tenantId),
+                scheduleId,
+                request.IsActive,
+                ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationManage);
+
+        alertCenter.MapGet("/operations/dashboard", async (
+            Guid tenantId,
+            HttpContext httpContext,
+            IAlertOperationsService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GetDashboardAsync(ApiContext.TenantId(httpContext, tenantId), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationRead);
+
+        alertCenter.MapGet("/operations/messages", async (
+            Guid tenantId,
+            string? search,
+            NotificationStatus? status,
+            NotificationChannel? channel,
+            NotificationProvider? provider,
+            Guid? alertDefinitionId,
+            Guid? alertOccurrenceId,
+            DateTimeOffset? fromUtc,
+            DateTimeOffset? toUtc,
+            int page,
+            int pageSize,
+            HttpContext httpContext,
+            IAlertOperationsService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.SearchAsync(new AlertOperationsQuery(
+                ApiContext.TenantId(httpContext, tenantId),
+                search,
+                status,
+                channel,
+                provider,
+                alertDefinitionId,
+                alertOccurrenceId,
+                fromUtc,
+                toUtc,
+                page <= 0 ? 1 : page,
+                pageSize <= 0 ? 50 : pageSize), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationRead);
+
+        alertCenter.MapGet("/operations/messages/{messageId:guid}", async (
+            Guid tenantId,
+            Guid messageId,
+            HttpContext httpContext,
+            IAlertOperationsService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GetDetailAsync(
+                ApiContext.TenantId(httpContext, tenantId),
+                messageId,
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationRead);
+
+        alertCenter.MapPost("/operations/messages/{messageId:guid}/actions", async (
+            Guid tenantId,
+            Guid messageId,
+            AlertMessageOperationRequest request,
+            HttpContext httpContext,
+            IAlertOperationsService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ExecuteAsync(new AlertMessageOperationCommand(
+                ApiContext.TenantId(httpContext, tenantId),
+                messageId,
+                request.Action,
+                ApiContext.UserId(httpContext)), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationManage);
+
+        alertCenter.MapGet("/operations/export.csv", async (
+            Guid tenantId,
+            string? search,
+            NotificationStatus? status,
+            NotificationChannel? channel,
+            NotificationProvider? provider,
+            Guid? alertDefinitionId,
+            Guid? alertOccurrenceId,
+            DateTimeOffset? fromUtc,
+            DateTimeOffset? toUtc,
+            HttpContext httpContext,
+            IAlertOperationsService service,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await service.ExportCsvAsync(new AlertOperationsQuery(
+                ApiContext.TenantId(httpContext, tenantId),
+                search,
+                status,
+                channel,
+                provider,
+                alertDefinitionId,
+                alertOccurrenceId,
+                fromUtc,
+                toUtc,
+                1,
+                500), cancellationToken);
+            return result.IsSuccess
+                ? Results.Content(result.Value!, "text/csv; charset=utf-8")
+                : ApiResult.From(result);
+        }).RequireAuthorization(PermissionPolicies.NotificationRead);
     }
 
     private static void MapDocuments(RouteGroupBuilder api)

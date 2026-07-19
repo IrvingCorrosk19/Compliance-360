@@ -97,6 +97,55 @@ public interface INotificationAuditService
     Task AppendAsync(Guid tenantId, Guid userId, string entityName, Guid entityId, AuditAction action, bool success, string? error, CancellationToken cancellationToken = default);
 }
 
+public interface INotificationOutboxWriter
+{
+    Task AddAsync(NotificationOutboxEvent outboxEvent, CancellationToken cancellationToken = default);
+}
+
+public interface INotificationQueueRepository
+{
+    Task<IReadOnlyCollection<NotificationOutboxEvent>> ClaimOutboxAsync(
+        string workerId,
+        int batchSize,
+        DateTimeOffset nowUtc,
+        TimeSpan leaseDuration,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<NotificationMessage>> ClaimMessagesAsync(
+        string workerId,
+        int batchSize,
+        DateTimeOffset nowUtc,
+        TimeSpan leaseDuration,
+        CancellationToken cancellationToken = default);
+
+    Task AddDeliveryAsync(NotificationDelivery delivery, CancellationToken cancellationToken = default);
+
+    Task AddRetryAsync(NotificationRetry retry, CancellationToken cancellationToken = default);
+
+    Task AddHistoryAsync(NotificationHistory history, CancellationToken cancellationToken = default);
+
+    Task AddDeadLetterAsync(NotificationDeadLetter deadLetter, CancellationToken cancellationToken = default);
+
+    Task SaveChangesAsync(CancellationToken cancellationToken = default);
+
+    Task UpdateHeartbeatAsync(
+        string workerId,
+        string instanceName,
+        int activeLeases,
+        long processedCount,
+        long failureCount,
+        string? lastError,
+        bool stopping,
+        CancellationToken cancellationToken = default);
+}
+
+public interface INotificationQueueProcessor
+{
+    Task<NotificationQueueBatchResult> ProcessBatchAsync(string workerId, string instanceName, CancellationToken cancellationToken = default);
+
+    Task MarkStoppedAsync(string workerId, string instanceName, CancellationToken cancellationToken = default);
+}
+
 public sealed record CreateNotificationTemplateCommand(
     Guid TenantId,
     Guid RequestedByUserId,
@@ -126,7 +175,12 @@ public sealed record QueueNotificationCommand(
     string? TemplateCode,
     IReadOnlyDictionary<string, string> Variables,
     NotificationPriority Priority,
-    Guid? TargetUserId);
+    Guid? TargetUserId,
+    Guid? AlertOccurrenceId = null,
+    Guid? AlertDefinitionId = null,
+    Guid? AlertDefinitionVersionId = null,
+    string? IdempotencyKey = null,
+    RecipientRouting Routing = RecipientRouting.To);
 
 public sealed record SendNotificationCommand(Guid TenantId, Guid NotificationMessageId, Guid RequestedByUserId);
 
@@ -181,7 +235,11 @@ public sealed record NotificationProviderEndpoint(
     string? FromName,
     string? BaseUrl,
     string? Domain,
-    bool UseSsl);
+    bool UseSsl,
+    NotificationProviderAuthentication Authentication = NotificationProviderAuthentication.ApiKey,
+    string? ClientId = null,
+    string? DirectoryTenantId = null,
+    string? Region = null);
 
 public sealed record NotificationProviderHealth(NotificationProvider Provider, bool Healthy, string Message);
 
@@ -237,6 +295,31 @@ public sealed class NotificationProviderOptions
 
     public Dictionary<NotificationProvider, NotificationProviderEndpointOptions> Providers { get; set; } = [];
 }
+
+public sealed class NotificationWorkerOptions
+{
+    public const string SectionName = "AlertCenter:Worker";
+
+    public bool Enabled { get; set; } = true;
+
+    public int BatchSize { get; set; } = 25;
+
+    public int PollIntervalMilliseconds { get; set; } = 1_000;
+
+    public int LeaseDurationSeconds { get; set; } = 60;
+
+    public int MaxAttempts { get; set; } = 3;
+
+    public int OutboxBatchSize { get; set; } = 100;
+}
+
+public sealed record NotificationQueueBatchResult(
+    int OutboxPublished,
+    int MessagesClaimed,
+    int MessagesSucceeded,
+    int MessagesRetried,
+    int MessagesDeadLettered,
+    int MessagesFailed);
 
 public sealed class NotificationProviderEndpointOptions
 {

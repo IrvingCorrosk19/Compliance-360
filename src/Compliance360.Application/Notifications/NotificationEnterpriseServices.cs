@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.Json;
 using Compliance360.Domain.Audit;
 using Compliance360.Domain.Notifications;
@@ -18,9 +19,9 @@ public sealed class NotificationTemplateEngine : INotificationTemplateEngine
         }
 
         return new NotificationRenderedTemplate(
-            RenderTokens(subject, enrichedVariables),
-            RenderTokens(htmlBody, enrichedVariables),
-            string.IsNullOrWhiteSpace(textBody) ? null : RenderTokens(textBody, enrichedVariables));
+            RenderTokens(subject, enrichedVariables, htmlEncodeValues: false).Replace("\r", " ", StringComparison.Ordinal).Replace("\n", " ", StringComparison.Ordinal),
+            RenderTokens(htmlBody, enrichedVariables, htmlEncodeValues: true),
+            string.IsNullOrWhiteSpace(textBody) ? null : RenderTokens(textBody, enrichedVariables, htmlEncodeValues: false));
     }
 
     private static void AddIfPresent(Dictionary<string, string> variables, string key, string? value)
@@ -31,12 +32,13 @@ public sealed class NotificationTemplateEngine : INotificationTemplateEngine
         }
     }
 
-    private static string RenderTokens(string template, IReadOnlyDictionary<string, string> variables)
+    private static string RenderTokens(string template, IReadOnlyDictionary<string, string> variables, bool htmlEncodeValues)
     {
         var rendered = template;
         foreach (var variable in variables)
         {
-            rendered = rendered.Replace($"{{{{{variable.Key}}}}}", variable.Value, StringComparison.OrdinalIgnoreCase);
+            var value = htmlEncodeValues ? WebUtility.HtmlEncode(variable.Value) : variable.Value;
+            rendered = rendered.Replace($"{{{{{variable.Key}}}}}", value, StringComparison.OrdinalIgnoreCase);
         }
 
         return rendered;

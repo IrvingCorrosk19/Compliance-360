@@ -19,7 +19,8 @@ public enum NotificationStatus
     Cancelled = 3,
     Delivered = 4,
     Retried = 5,
-    DeadLetter = 6
+    DeadLetter = 6,
+    Processing = 7
 }
 
 public enum NotificationPriority
@@ -39,7 +40,8 @@ public enum NotificationProvider
     GmailSmtp = 4,
     Microsoft365 = 5,
     ExchangeOnline = 6,
-    AmazonSes = 7
+    AmazonSes = 7,
+    Internal = 8
 }
 
 public enum NotificationDeliveryStatus
@@ -68,7 +70,7 @@ public sealed class NotificationTemplate : TenantEntity
         Code = Guard.AgainstNullOrWhiteSpace(code, nameof(code), 120).ToUpperInvariant();
         Channel = channel;
         Subject = Guard.AgainstNullOrWhiteSpace(subject, nameof(subject), 250);
-        Body = Guard.AgainstNullOrWhiteSpace(body, nameof(body), 4_000);
+        Body = Guard.AgainstNullOrWhiteSpace(body, nameof(body), 64_000);
         IsActive = true;
     }
 
@@ -93,15 +95,15 @@ public sealed class NotificationTemplate : TenantEntity
     public void UpdateContent(string subject, string body)
     {
         Subject = Guard.AgainstNullOrWhiteSpace(subject, nameof(subject), 250);
-        Body = Guard.AgainstNullOrWhiteSpace(body, nameof(body), 4_000);
+        Body = Guard.AgainstNullOrWhiteSpace(body, nameof(body), 64_000);
         Version++;
     }
 
     public void ConfigureEnterpriseContent(string? textBody, string? locale, string? brandingJson)
     {
-        TextBody = string.IsNullOrWhiteSpace(textBody) ? null : Guard.AgainstNullOrWhiteSpace(textBody, nameof(textBody), 4_000);
+        TextBody = string.IsNullOrWhiteSpace(textBody) ? null : Guard.AgainstNullOrWhiteSpace(textBody, nameof(textBody), 16_000);
         Locale = string.IsNullOrWhiteSpace(locale) ? null : Guard.AgainstNullOrWhiteSpace(locale, nameof(locale), 20);
-        BrandingJson = string.IsNullOrWhiteSpace(brandingJson) ? null : Guard.AgainstNullOrWhiteSpace(brandingJson, nameof(brandingJson), 4_000);
+        BrandingJson = string.IsNullOrWhiteSpace(brandingJson) ? null : Guard.AgainstNullOrWhiteSpace(brandingJson, nameof(brandingJson), 16_000);
     }
 
     public void Disable()
@@ -132,19 +134,31 @@ public sealed class NotificationMessage : TenantEntity
         Channel = channel;
         Recipient = Guard.AgainstNullOrWhiteSpace(recipient, nameof(recipient), 320);
         Subject = Guard.AgainstNullOrWhiteSpace(subject, nameof(subject), 250);
-        Body = Guard.AgainstNullOrWhiteSpace(body, nameof(body), 4_000);
+        Body = Guard.AgainstNullOrWhiteSpace(body, nameof(body), 64_000);
         Priority = priority;
         QueuedAtUtc = queuedAtUtc;
+        AvailableAtUtc = queuedAtUtc;
+        IdempotencyKey = $"message:{Id:N}";
+        MaxAttempts = 3;
         Status = NotificationStatus.Queued;
+        Routing = RecipientRouting.To;
     }
 
     public Guid? TemplateId { get; private set; }
 
     public Guid? TargetUserId { get; private set; }
 
+    public Guid? AlertOccurrenceId { get; private set; }
+
+    public Guid? AlertDefinitionId { get; private set; }
+
+    public Guid? AlertDefinitionVersionId { get; private set; }
+
     public NotificationChannel Channel { get; private set; }
 
     public string Recipient { get; private set; }
+
+    public RecipientRouting Routing { get; private set; }
 
     public string Subject { get; private set; }
 
@@ -172,6 +186,76 @@ public sealed class NotificationMessage : TenantEntity
 
     public NotificationProvider? LastProvider { get; private set; }
 
+    public string IdempotencyKey { get; private set; } = string.Empty;
+
+    public DateTimeOffset AvailableAtUtc { get; private set; }
+
+    public int MaxAttempts { get; private set; }
+
+    public string? LeaseToken { get; private set; }
+
+    public string? LeaseOwner { get; private set; }
+
+    public DateTimeOffset? LeaseUntilUtc { get; private set; }
+
+    public DateTimeOffset? ProcessingStartedAtUtc { get; private set; }
+
+    public DateTimeOffset? LastAttemptAtUtc { get; private set; }
+
+    public DateTimeOffset? CompletedAtUtc { get; private set; }
+
+    public void ConfigureDurability(string? idempotencyKey, int maxAttempts, DateTimeOffset? availableAtUtc = null)
+    {
+        if (!string.IsNullOrWhiteSpace(idempotencyKey))
+        {
+            IdempotencyKey = Guard.AgainstNullOrWhiteSpace(idempotencyKey, nameof(idempotencyKey), 200);
+        }
+
+        MaxAttempts = Guard.AgainstOutOfRange(maxAttempts, nameof(maxAttempts), 1, 20);
+        AvailableAtUtc = availableAtUtc ?? QueuedAtUtc;
+    }
+
+    public void AcquireLease(string leaseToken, string leaseOwner, DateTimeOffset nowUtc, DateTimeOffset leaseUntilUtc)
+    {
+        if (Status is not (NotificationStatus.Queued or NotificationStatus.Retried or NotificationStatus.Processing))
+        {
+            throw new DomainException("Notification message is not claimable.");
+        }
+
+        if (Status == NotificationStatus.Processing && LeaseUntilUtc.HasValue && LeaseUntilUtc > nowUtc)
+        {
+            throw new DomainException("Notification message already has an active lease.");
+        }
+
+        if (AvailableAtUtc > nowUtc || NextRetryAtUtc > nowUtc)
+        {
+            throw new DomainException("Notification message is not available yet.");
+        }
+
+        if (leaseUntilUtc <= nowUtc)
+        {
+            throw new DomainException("Lease expiration must be in the future.");
+        }
+
+        LeaseToken = Guard.AgainstNullOrWhiteSpace(leaseToken, nameof(leaseToken), 120);
+        LeaseOwner = Guard.AgainstNullOrWhiteSpace(leaseOwner, nameof(leaseOwner), 160);
+        LeaseUntilUtc = leaseUntilUtc;
+        ProcessingStartedAtUtc = nowUtc;
+        LastAttemptAtUtc = nowUtc;
+        Status = NotificationStatus.Processing;
+    }
+
+    public void RenewLease(string leaseToken, DateTimeOffset nowUtc, DateTimeOffset leaseUntilUtc)
+    {
+        EnsureLease(leaseToken, nowUtc);
+        if (leaseUntilUtc <= nowUtc)
+        {
+            throw new DomainException("Lease expiration must be in the future.");
+        }
+
+        LeaseUntilUtc = leaseUntilUtc;
+    }
+
     public void LinkTemplate(Guid templateId)
     {
         TemplateId = Guard.AgainstEmpty(templateId, nameof(templateId));
@@ -182,16 +266,35 @@ public sealed class NotificationMessage : TenantEntity
         TargetUserId = Guard.AgainstEmpty(targetUserId, nameof(targetUserId));
     }
 
-    public void MarkSent(DateTimeOffset sentAtUtc)
+    public void SetRouting(RecipientRouting routing)
+    {
+        Routing = routing;
+    }
+
+    public void LinkAlertContext(Guid occurrenceId, Guid definitionId, Guid definitionVersionId)
+    {
+        AlertOccurrenceId = Guard.AgainstEmpty(occurrenceId, nameof(occurrenceId));
+        AlertDefinitionId = Guard.AgainstEmpty(definitionId, nameof(definitionId));
+        AlertDefinitionVersionId = Guard.AgainstEmpty(definitionVersionId, nameof(definitionVersionId));
+    }
+
+    public void MarkSent(DateTimeOffset sentAtUtc, string? leaseToken = null)
     {
         if (Status == NotificationStatus.Cancelled)
         {
             throw new DomainException("Cancelled notifications cannot be sent.");
         }
 
+        if (Status == NotificationStatus.Processing)
+        {
+            EnsureLease(leaseToken, sentAtUtc, allowExpired: true);
+        }
+
         Status = NotificationStatus.Sent;
         SentAtUtc = sentAtUtc;
+        CompletedAtUtc = sentAtUtc;
         FailureReason = null;
+        ClearLease();
     }
 
     public void MarkDelivered(DateTimeOffset deliveredAtUtc)
@@ -203,14 +306,21 @@ public sealed class NotificationMessage : TenantEntity
 
         Status = NotificationStatus.Delivered;
         DeliveredAtUtc = deliveredAtUtc;
+        CompletedAtUtc = deliveredAtUtc;
     }
 
-    public void MarkFailed(string reason, DateTimeOffset failedAtUtc, NotificationProvider? provider = null)
+    public void MarkFailed(string reason, DateTimeOffset failedAtUtc, NotificationProvider? provider = null, string? leaseToken = null)
     {
+        if (Status == NotificationStatus.Processing)
+        {
+            EnsureLease(leaseToken, failedAtUtc, allowExpired: true);
+        }
+
         Status = NotificationStatus.Failed;
         FailedAtUtc = failedAtUtc;
         FailureReason = Guard.AgainstNullOrWhiteSpace(reason, nameof(reason), 1_000);
         LastProvider = provider;
+        ClearLease();
     }
 
     public void MarkRetried(DateTimeOffset nextRetryAtUtc)
@@ -218,6 +328,9 @@ public sealed class NotificationMessage : TenantEntity
         Status = NotificationStatus.Retried;
         RetryCount++;
         NextRetryAtUtc = nextRetryAtUtc;
+        AvailableAtUtc = nextRetryAtUtc;
+        CompletedAtUtc = null;
+        ClearLease();
     }
 
     public void MoveToDeadLetter(string reason, DateTimeOffset deadLetteredAtUtc)
@@ -226,16 +339,41 @@ public sealed class NotificationMessage : TenantEntity
         FailedAtUtc = deadLetteredAtUtc;
         FailureReason = Guard.AgainstNullOrWhiteSpace(reason, nameof(reason), 1_000);
         NextRetryAtUtc = null;
+        CompletedAtUtc = deadLetteredAtUtc;
+        ClearLease();
     }
 
-    public void Cancel()
+    public void Cancel(DateTimeOffset cancelledAtUtc = default)
     {
         if (Status is NotificationStatus.Sent or NotificationStatus.Delivered)
         {
             throw new DomainException("Sent or delivered notifications cannot be cancelled.");
         }
 
+        cancelledAtUtc = cancelledAtUtc == default ? DateTimeOffset.UtcNow : cancelledAtUtc;
         Status = NotificationStatus.Cancelled;
+        CompletedAtUtc = cancelledAtUtc;
+        ClearLease();
+    }
+
+    private void EnsureLease(string? leaseToken, DateTimeOffset nowUtc, bool allowExpired = false)
+    {
+        if (string.IsNullOrWhiteSpace(leaseToken) || !string.Equals(LeaseToken, leaseToken, StringComparison.Ordinal))
+        {
+            throw new DomainException("Notification lease token is invalid.");
+        }
+
+        if (!allowExpired && (!LeaseUntilUtc.HasValue || LeaseUntilUtc <= nowUtc))
+        {
+            throw new DomainException("Notification lease has expired.");
+        }
+    }
+
+    private void ClearLease()
+    {
+        LeaseToken = null;
+        LeaseOwner = null;
+        LeaseUntilUtc = null;
     }
 }
 
@@ -344,6 +482,12 @@ public sealed class NotificationPreference : TenantEntity
     public NotificationChannel Channel { get; private set; }
 
     public bool Enabled { get; private set; }
+
+    public void SetEnabled(bool enabled, DateTimeOffset nowUtc)
+    {
+        Enabled = enabled;
+        MarkUpdated(nowUtc);
+    }
 }
 
 public sealed class NotificationHistory : TenantEntity

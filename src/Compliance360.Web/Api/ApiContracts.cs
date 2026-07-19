@@ -301,6 +301,124 @@ public sealed record QueueNotificationRequest(
 
 public sealed record ConfigureNotificationProviderRequest(NotificationProvider Provider, string Name, int Priority, bool IsDefault, bool IsEnabled);
 
+public sealed record UpsertProviderCenterRequest(
+    Guid? ProviderId,
+    NotificationProvider Provider,
+    string Name,
+    int Priority,
+    bool IsEnabled,
+    NotificationProviderAuthentication Authentication,
+    string FromAddress,
+    string? FromName,
+    ProviderSecretSettings Settings,
+    int RateLimitPerMinute = 60,
+    int CircuitFailureThreshold = 5,
+    int CircuitBreakSeconds = 300);
+
+public sealed record SendProviderSandboxRequest(string Recipient, string? Subject, string? Body);
+
+public sealed record NotificationInboxActionRequest(NotificationInboxAction Action);
+
+public sealed record NotificationInboxBulkActionRequest(IReadOnlyCollection<Guid>? InboxItemIds, NotificationInboxAction Action, bool All);
+
+public sealed record CreateNotificationTemplateVersionRequest(string Locale, string Subject, string HtmlBody, string? TextBody, string? BrandingJson);
+
+public sealed record CreateNotificationTemplateDefinitionRequest(string Code, NotificationChannel Channel, string Locale, string Subject, string HtmlBody, string? TextBody, string? BrandingJson);
+
+public sealed record DuplicateNotificationTemplateVersionRequest(string Locale);
+
+public sealed record NotificationTemplateLifecycleActionRequest(NotificationTemplateLifecycleAction Action);
+
+public sealed record PreviewNotificationTemplateVersionRequest(IReadOnlyDictionary<string, string>? Variables, TenantNotificationBranding? Branding);
+
+public sealed record SendNotificationTemplateTestRequest(string Recipient, Guid? TargetUserId, IReadOnlyDictionary<string, string>? Variables);
+
+public sealed record PreviewAlertRecipientsRequest(NotificationChannel Channel, string? Topic, IReadOnlyDictionary<RecipientKind, Guid?>? RelationshipUsers);
+
+public sealed record SetRecipientPreferenceRequest(NotificationChannel Channel, bool Enabled);
+
+public sealed record CreateRecipientGroupRequest(string Name);
+
+public sealed record AddRecipientGroupMemberRequest(Guid UserId);
+
+public sealed record CreateRecipientDepartmentRequest(string Name);
+
+public sealed record SetRecipientDirectoryProfileRequest(Guid? DepartmentId, Guid? SupervisorUserId);
+
+public sealed record AuthorizeExternalRecipientRequest(string Email, string DisplayName);
+
+public sealed record CreateRecipientDistributionListRequest(string Name);
+
+public sealed record AddRecipientDistributionListMemberRequest(Guid? UserId, Guid? ExternalRecipientId);
+
+public sealed record SetRecipientFallbackRequest(RecipientFallbackMode Mode, Guid? TargetId, RecipientRouting Routing);
+
+public sealed record CreateAlertDefinitionRequest(
+    Guid EventTypeId,
+    string Code,
+    string Name,
+    string Description,
+    Guid? OwnerUserId,
+    NotificationPriority Priority,
+    string ConditionJson,
+    string RecipientRulesJson,
+    string ChannelPoliciesJson,
+    string DedupeExpression,
+    int SilenceWindowMinutes,
+    int? SlaMinutes,
+    AlertUnknownPolicy UnknownPolicy);
+
+public sealed record CreateAlertDefinitionVersionRequest(
+    string ConditionJson,
+    string RecipientRulesJson,
+    string ChannelPoliciesJson,
+    string DedupeExpression,
+    int SilenceWindowMinutes,
+    int? SlaMinutes,
+    AlertUnknownPolicy UnknownPolicy);
+
+public sealed record AlertDefinitionLifecycleActionRequest(string Action);
+
+public sealed record SimulateAlertRuleRequest(
+    Guid? DefinitionId,
+    Guid? VersionId,
+    string? ConditionJson,
+    AlertUnknownPolicy UnknownPolicy,
+    string EventPayloadJson);
+
+public sealed record CreateAlertScheduleRequest(
+    Guid DefinitionId,
+    string Code,
+    string Name,
+    string CronExpression,
+    string TimeZoneId,
+    string BusinessCalendarJson,
+    string QuietHoursJson,
+    AlertScheduleCatchUpPolicy CatchUpPolicy,
+    int MaxCatchUpExecutions,
+    AlertScheduleDigest Digest);
+
+public sealed record PreviewAlertScheduleRequest(
+    string CronExpression,
+    string TimeZoneId,
+    string BusinessCalendarJson,
+    string QuietHoursJson,
+    DateTimeOffset? FromUtc,
+    int Count);
+
+public sealed record ChangeAlertScheduleStateRequest(bool IsActive);
+
+public sealed record AlertMessageOperationRequest(string Action);
+
+public sealed record IngestAlertEventRequest(
+    string EventCode,
+    string PayloadJson,
+    string SourceModule,
+    string EntityType,
+    Guid? EntityId,
+    string CorrelationId,
+    DateTimeOffset? OccurredAtUtc);
+
 public sealed record ConfigureStorageProviderRequest(StorageProviderKind Provider, string Name, string ContainerName, int Priority, bool IsDefault, bool IsEnabled, string SettingsJson);
 
 public sealed record CreateDocumentTypeRequest(string Name, string Code, int RetentionDays);

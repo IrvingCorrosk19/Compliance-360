@@ -42,6 +42,48 @@ services:
     networks:
       - compliance360_net
 
+  worker:
+    build: .
+    container_name: compliance360_worker
+    restart: always
+    command: ["dotnet", "/app/worker/Compliance360.Worker.dll"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DOTNET_ENVIRONMENT: Production
+      ConnectionStrings__Compliance360: Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      AlertCenter__Worker__Enabled: "true"
+      AlertCenter__Worker__BatchSize: "50"
+      AlertCenter__Worker__PollIntervalMilliseconds: "1000"
+      AlertCenter__Worker__LeaseDurationSeconds: "90"
+      AlertCenter__Worker__MaxAttempts: "3"
+    volumes:
+      - compliance360_dataprotection_keys:/root/.aspnet/DataProtection-Keys
+    networks:
+      - compliance360_net
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: compliance360_mailpit
+    profiles: ["sandbox"]
+    restart: unless-stopped
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "1"
+    ports:
+      - "127.0.0.1:1025:1025"
+      - "127.0.0.1:8025:8025"
+    networks:
+      - compliance360_net
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
 volumes:
   compliance360_postgres_data:
     name: compliance360_postgres_data
