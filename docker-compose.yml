@@ -38,7 +38,8 @@ services:
       - compliance360_storage:/app/storage
       - compliance360_dataprotection_keys:/root/.aspnet/DataProtection-Keys
     ports:
-      - "127.0.0.1:8085:8080"
+      # VPS nginx proxies public :443/:8085 -> 127.0.0.1:8086
+      - "127.0.0.1:8086:8080"
     networks:
       - compliance360_net
 
@@ -46,7 +47,9 @@ services:
     build: .
     container_name: compliance360_worker
     restart: always
-    command: ["dotnet", "/app/worker/Compliance360.Worker.dll"]
+    # Override image ENTRYPOINT (Web.dll) so this container runs the Alert Center worker.
+    working_dir: /app/worker
+    entrypoint: ["dotnet", "Compliance360.Worker.dll"]
     depends_on:
       postgres:
         condition: service_healthy
@@ -55,6 +58,7 @@ services:
     environment:
       DOTNET_ENVIRONMENT: Production
       ConnectionStrings__Compliance360: Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      Jwt__SigningKey: ${JWT_SIGNING_KEY}
       AlertCenter__Worker__Enabled: "true"
       AlertCenter__Worker__BatchSize: "50"
       AlertCenter__Worker__PollIntervalMilliseconds: "1000"
