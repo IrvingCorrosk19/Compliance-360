@@ -243,7 +243,7 @@
       const link = document.createElement("link");
       link.id = "regulatory-affairs-css";
       link.rel = "stylesheet";
-      link.href = "/regulatory-affairs.css?v=evidence-dl-1";
+      link.href = "/regulatory-affairs.css?v=evidence-del-1";
       document.head.appendChild(link);
     }
 
@@ -750,13 +750,14 @@
     URL.revokeObjectURL(url);
   }
 
-  function evidenceStatusHtml(requirement) {
+  function evidenceStatusHtml(requirement, canDelete = false) {
     if (!requirement?.storedFileId) {
       return `<p class="ra-evidence-status is-missing"><span class="ra-badge warn">${esc(tr("Regulatory.EvidenceMissing", "Sin evidencia"))}</span> ${esc(tr("Regulatory.EvidenceMissingHelp", "Aún no hay archivo cargado para este requisito."))}</p>`;
     }
     return `<p class="ra-evidence-status is-loaded">
       <span class="ra-badge ok">${esc(tr("Regulatory.EvidenceLoaded", "Evidencia cargada"))}</span>
       <button type="button" class="btn primary" data-download-evidence="${esc(requirement.storedFileId)}" data-download-name="${esc(requirement.code || "evidence")}">${esc(tr("Regulatory.DownloadEvidence", "Descargar evidencia"))}</button>
+      ${canDelete ? `<button type="button" class="btn danger" data-delete-evidence="${esc(requirement.id)}" data-delete-code="${esc(requirement.code || "")}">${esc(tr("Regulatory.DeleteEvidence", "Eliminar evidencia"))}</button>` : ""}
     </p>`;
   }
 
@@ -928,11 +929,19 @@
         </aside>` : ""}
         <div class="ra-actions">${actions.join("") || `<em>${esc(tr("Regulatory.Workflow.NoActions", "Sin acciones disponibles para su rol en este estado."))}</em>`}</div>
         <h4>${esc(tr("Regulatory.Workflow.Requirements", "Requisitos"))} (${d.requirements?.length || 0})</h4>
-        <div id="ra-reqs">${(d.requirements || []).map(r => `
+        <div id="ra-reqs">${(d.requirements || []).map(r => {
+          const canDeleteEvidence = prep
+            && !!r.storedFileId
+            && !["Accepted", "Waived"].includes(r.status)
+            && (
+              (d.status !== "CorrectionRequested" && !["UnderTechnicalReview", "ReadyForSubmission"].includes(d.status))
+              || (d.status === "CorrectionRequested" && correctionRequirementIds.has(r.id))
+            );
+          return `
           <article class="ra-req ${r.isCritical ? "critical" : ""} ${r.status === "Accepted" ? "ok" : ""} ${r.storedFileId ? "has-evidence" : "no-evidence"} ${d.status === "CorrectionRequested" && correctionRequirementIds.has(r.id) ? "in-scope" : ""} ${d.status === "CorrectionRequested" && !correctionRequirementIds.has(r.id) ? "is-locked" : ""}">
             <div class="ra-req-header"><div><strong>${esc(r.code)}</strong> ${esc(r.name)}</div>
             <span class="ra-badge">${esc(r.status)}${r.isCritical ? ` · ${esc(tr("Regulatory.Workflow.Critical", "crítico"))}` : ""}${r.storedFileId ? ` · ${esc(tr("Regulatory.EvidenceLoadedShort", "con archivo"))}` : ""}</span></div>
-            ${evidenceStatusHtml(r)}
+            ${evidenceStatusHtml(r, canDeleteEvidence)}
             ${d.status === "CorrectionRequested" && !correctionRequirementIds.has(r.id) ? `<p class="ra-lock-reason">🔒 ${esc(tr("Regulatory.Workflow.OutsideScope", "Bloqueado: este requisito no pertenece al alcance de la corrección activa."))}</p>` : ""}
             ${prep && !["Accepted", "Waived"].includes(r.status) && d.status !== "CorrectionRequested" && !["UnderTechnicalReview", "ReadyForSubmission"].includes(d.status) ? `
               <label class="btn file-action">
@@ -946,7 +955,8 @@
             <details class="ra-evidence-versions" data-evidence-requirement="${r.id}" ${r.storedFileId ? "open" : ""}><summary>${esc(tr("Regulatory.Workflow.ViewVersions", "Consultar versiones V1/V2"))}</summary>
               <div data-evidence-list>${evidenceVersionsHtml(r, [])}</div>
             </details>
-          </article>`).join("")}
+          </article>`;
+        }).join("")}
         </div>
         ${d.submissionProofStoredFileId ? `<div class="ra-card ra-submission-proof">
           <h4>${esc(tr("Regulatory.SubmissionProof", "Comprobante de sometimiento"))}</h4>
@@ -983,6 +993,33 @@
       });
     };
     bindEvidenceDownloads(body);
+    body.querySelectorAll("[data-delete-evidence]").forEach(button => {
+      button.addEventListener("click", () => {
+        const requirementId = button.dataset.deleteEvidence;
+        const code = button.dataset.deleteCode || "";
+        openFormModal({
+          id: "ra-delete-evidence-modal",
+          title: tr("Regulatory.DeleteEvidence", "Eliminar evidencia"),
+          subtitle: tr("Regulatory.DeleteEvidenceHelp", "La eliminación queda auditada. Indique el motivo (mínimo 8 caracteres). El archivo se marca como eliminado y el historial del expediente conserva el rastro."),
+          submitLabel: tr("Regulatory.DeleteEvidenceConfirm", "Eliminar evidencia"),
+          fields: [
+            { name: "reason", label: tr("Regulatory.DeleteEvidenceReason", "Motivo de eliminación"), type: "textarea", required: true, minlength: 8, maxlength: 2000, value: "" }
+          ],
+          onSubmit: async data => {
+            const reason = String(data.reason || "").trim();
+            if (reason.length < 8) {
+              throw new Error(tr("Regulatory.DeleteEvidenceReasonRequired", "Indique un motivo auditado de al menos 8 caracteres."));
+            }
+            await api(`/dossiers/${id}/requirements/${requirementId}/evidence`, {
+              method: "DELETE",
+              body: { reason }
+            });
+            toast(tr("Regulatory.EvidenceDeleted", "Evidencia eliminada y auditada.") + (code ? ` (${code})` : ""), "success");
+            await reload();
+          }
+        });
+      });
+    });
     body.querySelectorAll("details[data-evidence-requirement]").forEach(details => {
       const loadVersions = async () => {
         if (details.dataset.loaded === "true" || details.dataset.loading === "true") return;

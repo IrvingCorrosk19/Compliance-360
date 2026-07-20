@@ -953,6 +953,37 @@ public sealed class DossierRequirement : TenantEntity
         CompletedOn ??= now;
     }
 
+    public void ClearEvidence(Guid actorUserId, string reason)
+    {
+        if (string.IsNullOrWhiteSpace(reason) || reason.Trim().Length < 8)
+        {
+            throw new DomainException("An audited reason of at least 8 characters is required to remove evidence.");
+        }
+
+        if (Status is DossierRequirementStatus.Accepted or DossierRequirementStatus.Waived)
+        {
+            throw new DomainException("Evidence cannot be removed after the requirement has been accepted or waived.");
+        }
+
+        if (!StoredFileId.HasValue && !CurrentDocumentId.HasValue)
+        {
+            throw new DomainException("This requirement has no evidence to remove.");
+        }
+
+        StoredFileId = null;
+        CurrentDocumentId = null;
+        CompletedOn = null;
+        LastStatusChangedByUserId = actorUserId;
+        ValidationNotes = string.IsNullOrWhiteSpace(ValidationNotes)
+            ? $"Evidence removed: {reason.Trim()}"
+            : $"{ValidationNotes.Trim()} | Evidence removed: {reason.Trim()}";
+        if (Status == DossierRequirementStatus.Received)
+        {
+            Status = DossierRequirementStatus.Pending;
+            ValidationStatus = RequirementValidationStatus.NotValidated;
+        }
+    }
+
     public void SetStatus(DossierRequirementStatus status, string? notes, Guid? userId)
     {
         if (status == DossierRequirementStatus.Waived && string.IsNullOrWhiteSpace(notes))

@@ -750,6 +750,22 @@ public static class FoundationEndpoints
         })
             .RequireAuthorization(PermissionPolicies.RegulatoryRead);
 
+        ra.MapDelete("/dossiers/{dossierId:guid}/requirements/{requirementId:guid}/evidence", async (
+                Guid tenantId,
+                Guid dossierId,
+                Guid requirementId,
+                RemoveDossierRequirementEvidenceRequest request,
+                HttpContext httpContext,
+                IRegulatoryAffairsService service,
+                CancellationToken ct) =>
+            ApiResult.From(await service.RemoveRequirementEvidenceAsync(new RemoveRequirementEvidenceCommand(
+                ApiContext.TenantId(httpContext, tenantId),
+                dossierId,
+                requirementId,
+                request.Reason,
+                ApiContext.UserId(httpContext)), ct)))
+            .RequireAuthorization(PermissionPolicies.RegulatoryEvidenceUpload);
+
         ra.MapPost("/dossiers/{dossierId:guid}/observations", async (Guid tenantId, Guid dossierId, OpenObservationRequest request, HttpContext httpContext, IRegulatoryAffairsService service, CancellationToken ct) =>
             ApiResult.From(await service.OpenObservationAsync(new OpenObservationCommand(
                 ApiContext.TenantId(httpContext, tenantId), dossierId, request.Description, request.ReceivedOn, request.DueOn,

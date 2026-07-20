@@ -244,6 +244,7 @@ public sealed record ConsumeOverrideV2Request(long ExpectedRevision, string Acti
 public sealed record UpdateDossierMetadataV2Request(long ExpectedRevision, string Reason, string? Priority, Guid? OwnerUserId, string? SalesMarketingInput, decimal? OpportunityAmount, string? Currency, string? Comments, DateTimeOffset? RequestedFromFactoryOn, DateTimeOffset? EstimatedReceptionOn, DateTimeOffset? MaximumReceptionOn, DateTimeOffset? EstimatedSubmissionOn, DateTimeOffset? EstimatedApprovalOn, DateTimeOffset? TargetExpirationOn, Guid? CorrectionRequestId = null);
 public sealed record UpdateDossierDatesRequest(DateTimeOffset? RequestedFromFactoryOn, DateTimeOffset? EstimatedReceptionOn, DateTimeOffset? MaximumReceptionOn, DateTimeOffset? EstimatedSubmissionOn, DateTimeOffset? EstimatedApprovalOn, DateTimeOffset? TargetExpirationOn);
 public sealed record UpdateDossierRequirementRequest(DossierRequirementStatus Status, Guid? DocumentId, Guid? StoredFileId, string? Notes, string? EmergencyOverrideReason = null);
+public sealed record RemoveDossierRequirementEvidenceRequest(string Reason);
 public sealed record OpenObservationRequest(string Description, DateTimeOffset ReceivedOn, DateTimeOffset? DueOn, Guid? ResponsibleUserId, IReadOnlyList<Guid>? RequirementIds);
 public sealed record RespondObservationRequest(string Notes, bool Close);
 public sealed record ApproveDossierRequest(

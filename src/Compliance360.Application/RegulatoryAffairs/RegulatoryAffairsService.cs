@@ -22,6 +22,7 @@ public sealed class RegulatoryAffairsService : IRegulatoryAffairsService
     private readonly INotificationService _notifications;
     private readonly IStorageRepository _storage;
     private readonly IAlertEventIngestionService? _alertEvents;
+    private readonly IRegulatoryWorkflowV2Repository? _workflowRepo;
 
     public RegulatoryAffairsService(
         IRegulatoryAffairsRepository repo,
@@ -32,7 +33,8 @@ public sealed class RegulatoryAffairsService : IRegulatoryAffairsService
         IRegulatorySoDGate sod,
         INotificationService notifications,
         IStorageRepository storage,
-        IAlertEventIngestionService? alertEvents = null)
+        IAlertEventIngestionService? alertEvents = null,
+        IRegulatoryWorkflowV2Repository? workflowRepo = null)
     {
         _repo = repo;
         _db = db;
@@ -43,6 +45,7 @@ public sealed class RegulatoryAffairsService : IRegulatoryAffairsService
         _notifications = notifications;
         _storage = storage;
         _alertEvents = alertEvents;
+        _workflowRepo = workflowRepo;
     }
 
     public async Task<Result<IReadOnlyCollection<AuthorityDto>>> EnsureDefaultAuthoritiesAsync(Guid tenantId, Guid userId, CancellationToken ct = default)
@@ -651,6 +654,160 @@ public sealed class RegulatoryAffairsService : IRegulatoryAffairsService
             req.SetStatus(command.Status, command.Notes, command.RequestedByUserId);
             dossier.IncrementRevision();
             await Audit(command.TenantId, command.RequestedByUserId, req.Id, nameof(DossierRequirement), AuditAction.RegulatoryRequirementUpdated, ct);
+            await _db.SaveChangesAsync(ct);
+            return Result<DossierDetailDto>.Success(MapDossier(dossier));
+        }
+        catch (DomainException ex)
+        {
+            return Result<DossierDetailDto>.Failure(ex.Message);
+        }
+    }
+
+    public async Task<Result<DossierDetailDto>> RemoveRequirementEvidenceAsync(RemoveRequirementEvidenceCommand command, CancellationToken ct = default)
+    {
+        try
+        {
+            var reason = Guard.AgainstNullOrWhiteSpace(command.Reason, nameof(command.Reason), 2000).Trim();
+            if (reason.Length < 8)
+            {
+                return Result<DossierDetailDto>.Failure("An audited reason of at least 8 characters is required to remove evidence.");
+            }
+
+            var dossier = await RequireDossier(command.TenantId, command.DossierId, ct);
+            var req = dossier.GetRequirement(command.RequirementId);
+            var preparationAllowed = dossier.Status is
+                RegistrationDossierStatus.Draft
+                or RegistrationDossierStatus.Planning
+                or RegistrationDossierStatus.WaitingManufacturerDocuments
+                or RegistrationDossierStatus.DocumentsReceived
+                or RegistrationDossierStatus.Assembling;
+            var correctionAllowed = false;
+            if (dossier.Status == RegistrationDossierStatus.CorrectionRequested && _workflowRepo is not null)
+            {
+                var correction = await _workflowRepo.GetOpenCorrectionAsync(command.TenantId, dossier.Id, ct);
+                correctionAllowed = correction is not null && correction.IncludesRequirement(command.RequirementId);
+            }
+
+            if (!preparationAllowed && !correctionAllowed)
+            {
+                return Result<DossierDetailDto>.Failure("Evidence can only be removed during preparation or within an active correction scope.");
+            }
+
+            if (!req.StoredFileId.HasValue && !req.CurrentDocumentId.HasValue)
+            {
+                return Result<DossierDetailDto>.Failure("This requirement has no evidence to remove.");
+            }
+
+            var previousStoredFileId = req.StoredFileId;
+            var previousDocumentId = req.CurrentDocumentId;
+            var previousStatus = req.Status;
+            StoredFile? storedFile = null;
+            if (previousStoredFileId.HasValue)
+            {
+                storedFile = await _storage.GetByIdAsync(command.TenantId, previousStoredFileId.Value, ct);
+                if (storedFile is not null)
+                {
+                    if (!string.Equals(storedFile.OwnerEntityName, nameof(RegistrationDossier), StringComparison.Ordinal)
+                        || storedFile.OwnerEntityId != dossier.Id)
+                    {
+                        return Result<DossierDetailDto>.Failure("Stored file does not belong to this dossier.");
+                    }
+                }
+            }
+
+            req.ClearEvidence(command.RequestedByUserId, reason);
+
+            if (_workflowRepo is not null)
+            {
+                var versions = await _workflowRepo.ListEvidenceAsync(command.TenantId, dossier.Id, command.RequirementId, ct);
+                foreach (var version in versions.Where(x => x.Status == DossierEvidenceRevisionStatus.Active || x.IsCurrent))
+                {
+                    version.Void();
+                }
+
+                var sequence = await _workflowRepo.NextSequenceAsync(command.TenantId, dossier.Id, ct);
+                await _workflowRepo.AddChangeEventAsync(new DossierChangeEvent(
+                    command.TenantId,
+                    dossier.Id,
+                    sequence,
+                    "EvidenceRemoved",
+                    command.RequestedByUserId,
+                    null,
+                    null,
+                    null,
+                    $"requirements/{command.RequirementId}/evidence",
+                    previousStoredFileId?.ToString("N"),
+                    null,
+                    reason,
+                    $"ra-evidence-remove:{dossier.Id:N}:{command.RequirementId:N}:{Guid.NewGuid():N}",
+                    _clock.UtcNow), ct);
+            }
+
+            if (storedFile is not null && storedFile.Status != StoredFileStatus.Deleted)
+            {
+                var fileAuditPrevious = JsonSerializer.Serialize(new
+                {
+                    storedFileId = storedFile.Id,
+                    fileName = storedFile.OriginalFileName,
+                    sha256 = storedFile.Sha256Hash,
+                    status = storedFile.Status.ToString()
+                });
+                storedFile.Delete();
+                await Audit(
+                    command.TenantId,
+                    command.RequestedByUserId,
+                    storedFile.Id,
+                    nameof(StoredFile),
+                    AuditAction.Deleted,
+                    ct,
+                    previousValuesJson: fileAuditPrevious,
+                    newValuesJson: JsonSerializer.Serialize(new { status = StoredFileStatus.Deleted.ToString() }),
+                    metadataJson: JsonSerializer.Serialize(new
+                    {
+                        action = "RegulatoryEvidenceFileDeleted",
+                        dossierId = dossier.Id,
+                        requirementId = req.Id,
+                        reason
+                    }),
+                    category: AuditCategory.FileStorage);
+            }
+
+            dossier.RecordHistory(
+                "EvidenceRemoved",
+                $"Evidence removed from requirement {req.Code}. File={previousStoredFileId?.ToString("N") ?? "none"}; Reason={reason}",
+                command.RequestedByUserId,
+                _clock.UtcNow);
+            dossier.IncrementRevision();
+
+            await Audit(
+                command.TenantId,
+                command.RequestedByUserId,
+                req.Id,
+                nameof(DossierRequirement),
+                AuditAction.RegulatoryRequirementUpdated,
+                ct,
+                previousValuesJson: JsonSerializer.Serialize(new
+                {
+                    storedFileId = previousStoredFileId,
+                    documentId = previousDocumentId,
+                    status = previousStatus.ToString()
+                }),
+                newValuesJson: JsonSerializer.Serialize(new
+                {
+                    storedFileId = (Guid?)null,
+                    documentId = (Guid?)null,
+                    status = req.Status.ToString()
+                }),
+                metadataJson: JsonSerializer.Serialize(new
+                {
+                    action = "RegulatoryEvidenceRemoved",
+                    dossierId = dossier.Id,
+                    requirementId = req.Id,
+                    requirementCode = req.Code,
+                    reason,
+                    deletedStoredFileId = previousStoredFileId
+                }));
+
             await _db.SaveChangesAsync(ct);
             return Result<DossierDetailDto>.Success(MapDossier(dossier));
         }
@@ -1764,10 +1921,29 @@ public sealed class RegulatoryAffairsService : IRegulatoryAffairsService
         return $"RA-{Guid.NewGuid():N}"[..16].ToUpperInvariant();
     }
 
-    private async Task Audit(Guid tenantId, Guid userId, Guid entityId, string entityName, AuditAction action, CancellationToken ct)
+    private async Task Audit(
+        Guid tenantId,
+        Guid userId,
+        Guid entityId,
+        string entityName,
+        AuditAction action,
+        CancellationToken ct,
+        string? previousValuesJson = null,
+        string? newValuesJson = null,
+        string? metadataJson = null,
+        AuditCategory? category = null)
     {
         var context = new AuditContext(tenantId, userId, null, null, null, null, null, null, null);
-        var evt = new AuditEvent(entityName, entityId, action, AuditCategory.RegulatoryAffairs, context, new AuditSnapshot(null, null), new AuditMetadata(null), true, null);
+        var evt = new AuditEvent(
+            entityName,
+            entityId,
+            action,
+            category ?? AuditCategory.RegulatoryAffairs,
+            context,
+            new AuditSnapshot(previousValuesJson, newValuesJson),
+            new AuditMetadata(metadataJson),
+            true,
+            null);
         await _audit.AddAsync(AuditLog.FromEvent(evt, _clock.UtcNow), ct);
     }
 

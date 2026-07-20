@@ -32,6 +32,7 @@ public interface IRegulatoryAffairsService
     Task<Result<DossierDetailDto>> RejectDossierAsync(RejectDossierCommand command, CancellationToken ct = default);
     Task<Result<DossierDetailDto>> UpdateDossierDatesAsync(UpdateDossierDatesCommand command, CancellationToken ct = default);
     Task<Result<DossierDetailDto>> UpdateRequirementAsync(UpdateRequirementCommand command, CancellationToken ct = default);
+    Task<Result<DossierDetailDto>> RemoveRequirementEvidenceAsync(RemoveRequirementEvidenceCommand command, CancellationToken ct = default);
     Task<Result<DossierDetailDto>> OpenObservationAsync(OpenObservationCommand command, CancellationToken ct = default);
     Task<Result<DossierDetailDto>> RespondObservationAsync(RespondObservationCommand command, CancellationToken ct = default);
     Task<Result<RegistrationDto>> ApproveDossierAsync(ApproveDossierCommand command, CancellationToken ct = default);
@@ -152,6 +153,7 @@ public sealed record RejectDossierCommand(
     string? EmergencyOverrideReason = null);
 public sealed record UpdateDossierDatesCommand(Guid TenantId, Guid DossierId, DateTimeOffset? RequestedFromFactoryOn, DateTimeOffset? EstimatedReceptionOn, DateTimeOffset? MaximumReceptionOn, DateTimeOffset? EstimatedSubmissionOn, DateTimeOffset? EstimatedApprovalOn, DateTimeOffset? TargetExpirationOn, Guid RequestedByUserId);
 public sealed record UpdateRequirementCommand(Guid TenantId, Guid DossierId, Guid RequirementId, DossierRequirementStatus Status, Guid? DocumentId, Guid? StoredFileId, string? Notes, Guid RequestedByUserId, string? EmergencyOverrideReason = null);
+public sealed record RemoveRequirementEvidenceCommand(Guid TenantId, Guid DossierId, Guid RequirementId, string Reason, Guid RequestedByUserId);
 public sealed record OpenObservationCommand(Guid TenantId, Guid DossierId, string Description, DateTimeOffset ReceivedOn, DateTimeOffset? DueOn, Guid? ResponsibleUserId, IReadOnlyList<Guid>? RequirementIds, Guid RequestedByUserId);
 public sealed record RespondObservationCommand(Guid TenantId, Guid DossierId, Guid ObservationId, string Notes, bool Close, Guid RequestedByUserId);
 public sealed record ApproveDossierCommand(

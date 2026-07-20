@@ -4083,7 +4083,7 @@ async function ensureRegulatoryAffairs() {
       return;
     }
     const script = document.createElement("script");
-    script.src = "/regulatory-affairs.js?v=evidence-dl-1";
+    script.src = "/regulatory-affairs.js?v=evidence-del-1";
     script.async = false;
     script.dataset.raConsole = "1";
     script.onload = () => resolve();
