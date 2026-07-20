@@ -750,7 +750,7 @@ public static class FoundationEndpoints
         })
             .RequireAuthorization(PermissionPolicies.RegulatoryRead);
 
-        ra.MapDelete("/dossiers/{dossierId:guid}/requirements/{requirementId:guid}/evidence", async (
+        ra.MapPost("/dossiers/{dossierId:guid}/requirements/{requirementId:guid}/evidence/remove", async (
                 Guid tenantId,
                 Guid dossierId,
                 Guid requirementId,

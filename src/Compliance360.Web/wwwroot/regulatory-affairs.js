@@ -243,7 +243,7 @@
       const link = document.createElement("link");
       link.id = "regulatory-affairs-css";
       link.rel = "stylesheet";
-      link.href = "/regulatory-affairs.css?v=evidence-del-1";
+      link.href = "/regulatory-affairs.css?v=evidence-del-2";
       document.head.appendChild(link);
     }
 
@@ -1010,8 +1010,8 @@
             if (reason.length < 8) {
               throw new Error(tr("Regulatory.DeleteEvidenceReasonRequired", "Indique un motivo auditado de al menos 8 caracteres."));
             }
-            await api(`/dossiers/${id}/requirements/${requirementId}/evidence`, {
-              method: "DELETE",
+            await api(`/dossiers/${id}/requirements/${requirementId}/evidence/remove`, {
+              method: "POST",
               body: { reason }
             });
             toast(tr("Regulatory.EvidenceDeleted", "Evidencia eliminada y auditada.") + (code ? ` (${code})` : ""), "success");
