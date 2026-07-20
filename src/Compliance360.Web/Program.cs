@@ -283,6 +283,23 @@ if (app.Environment.IsDevelopment() && !DevelopmentBootstrapRuntime.IsTestHost)
         return;
     }
 }
+else if (!DevelopmentBootstrapRuntime.IsTestHost)
+{
+    // Keep catalog role templates aligned in production (e.g. new NOTIFICATION.READ on TAC).
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<Compliance360DbContext>();
+    var rbacProvisioning = scope.ServiceProvider.GetRequiredService<Compliance360.Application.Rbac.IRbacProvisioningService>();
+    await rbacProvisioning.EnsurePermissionCatalogAsync(app.Lifetime.ApplicationStopping);
+    var tenantIds = await dbContext.Tenants
+        .AsNoTracking()
+        .Where(tenant => tenant.Status == TenantStatus.Active && tenant.Slug != "platform")
+        .Select(tenant => tenant.Id)
+        .ToListAsync(app.Lifetime.ApplicationStopping);
+    foreach (var tenantId in tenantIds)
+    {
+        await rbacProvisioning.EnsureTenantRolesAsync(tenantId, app.Lifetime.ApplicationStopping);
+    }
+}
 
 app.UseForwardedHeaders();
 app.UseSerilogRequestLogging();
