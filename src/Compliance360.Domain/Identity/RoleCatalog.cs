@@ -80,6 +80,7 @@ public static class RoleCatalog
                 P.TenantRead, P.TenantUpdate, P.TenantBranding, P.TenantBilling, P.TenantIntegrations,
                 P.TenantHealth, P.TenantBackup, P.TenantUsers, P.TenantRoles, P.IdentityManage, P.RbacManage,
                 P.TenantAudit, P.AuditRead, P.TemplateRead, P.TemplateManage,
+                P.NotificationRead,
                 P.RegulatoryConfigure, P.RegulatorySoDManage, P.RegulatoryProductRead, P.RegulatoryDossierRead,
                 P.RegulatoryRegistrationRead, P.RegulatoryManufacturerDocumentRead, P.RegulatoryLicenseRead,
                 P.RegulatoryReportRead,

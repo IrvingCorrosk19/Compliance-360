@@ -1455,11 +1455,11 @@ public static class FoundationEndpoints
             NotificationChannel? channel,
             NotificationTemplateLifecycle? lifecycle,
             string? locale,
-            int page,
-            int pageSize,
             HttpContext httpContext,
             INotificationTemplateCenterService service,
-            CancellationToken cancellationToken) =>
+            CancellationToken cancellationToken,
+            int page = 1,
+            int pageSize = 25) =>
             ApiResult.From(await service.SearchAsync(
                 new NotificationTemplateCenterQuery(
                     ApiContext.TenantId(httpContext, tenantId),
@@ -1624,11 +1624,11 @@ public static class FoundationEndpoints
             string? search,
             Guid? eventTypeId,
             AlertDefinitionLifecycle? lifecycle,
-            int page,
-            int pageSize,
             HttpContext httpContext,
             IAlertRuleCenterService service,
-            CancellationToken cancellationToken) =>
+            CancellationToken cancellationToken,
+            int page = 1,
+            int pageSize = 25) =>
             ApiResult.From(Compliance360.Shared.Result<AlertDefinitionSearchResult>.Success(await service.SearchAsync(
                 new AlertDefinitionSearchQuery(
                     ApiContext.TenantId(httpContext, tenantId),

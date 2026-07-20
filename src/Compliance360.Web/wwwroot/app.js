@@ -1062,10 +1062,13 @@ function closeSidebarDrawer() {
 }
 
 function renderAccessDenied(content) {
+  const isAlertCenter = state.route === "alert-center";
   content.innerHTML = `
     <section class="card" data-testid="access-denied">
       <h2 class="section-title">${t("Common.AccessDenied")}</h2>
-      <p class="metric-label">${t("Common.AccessDeniedDetail")}</p>
+      <p class="metric-label">${isAlertCenter
+        ? t("AlertCenter.AccessDeniedDetail", "Su rol no incluye notificaciones. Use Notification Administrator (notifications@cert.local) para configurar, o pida NOTIFICATION.READ al Tenant Administrator.")
+        : t("Common.AccessDeniedDetail")}</p>
       <div class="button-row"><button class="btn primary" data-route="dashboard">Ir al Dashboard</button></div>
     </section>`;
   content.querySelector("[data-route]")?.addEventListener("click", () => location.hash = "#/dashboard");
