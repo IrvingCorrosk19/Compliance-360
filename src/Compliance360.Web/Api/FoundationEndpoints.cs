@@ -610,6 +610,65 @@ public static class FoundationEndpoints
             .DisableAntiforgery()
             .RequireAuthorization(PermissionPolicies.RegulatoryEvidenceUpload);
 
+        ra.MapGet("/dossiers/{dossierId:guid}/evidence/{storedFileId:guid}/content", async (
+                Guid tenantId,
+                Guid dossierId,
+                Guid storedFileId,
+                HttpContext httpContext,
+                IRegulatoryAffairsService regulatoryService,
+                IStorageFoundationService storageService,
+                IFileStorageService fileStorageService,
+                CancellationToken ct) =>
+            {
+                var scopedTenantId = ApiContext.TenantId(httpContext, tenantId);
+                var dossier = await regulatoryService.GetDossierAsync(scopedTenantId, dossierId, ct);
+                if (!dossier.IsSuccess || dossier.Value is null)
+                {
+                    return ApiResult.From(dossier);
+                }
+
+                var linkedToDossier =
+                    dossier.Value.SubmissionProofStoredFileId == storedFileId ||
+                    dossier.Value.Requirements.Any(requirement => requirement.StoredFileId == storedFileId);
+                var file = await storageService.GetAsync(
+                    new GetStoredFileQuery(scopedTenantId, storedFileId, ApiContext.UserId(httpContext)),
+                    ct);
+                if (!file.IsSuccess || file.Value is null)
+                {
+                    return ApiResult.From(file);
+                }
+
+                var ownedByDossier =
+                    string.Equals(file.Value.OwnerEntityName, nameof(RegistrationDossier), StringComparison.Ordinal) &&
+                    file.Value.OwnerEntityId == dossierId;
+                if (!linkedToDossier && !ownedByDossier)
+                {
+                    return Results.Problem("Stored file is not linked to this dossier.", statusCode: StatusCodes.Status404NotFound);
+                }
+
+                var download = await storageService.RegisterDownloadAsync(
+                    new RegisterFileDownloadCommand(scopedTenantId, storedFileId, ApiContext.UserId(httpContext)),
+                    ct);
+                if (!download.IsSuccess || download.Value is null)
+                {
+                    return ApiResult.From(download);
+                }
+
+                try
+                {
+                    var stream = await fileStorageService.OpenReadAsync(download.Value.ObjectKey, ct);
+                    return Results.File(
+                        stream,
+                        string.IsNullOrWhiteSpace(download.Value.ContentType) ? "application/octet-stream" : download.Value.ContentType,
+                        download.Value.OriginalFileName);
+                }
+                catch (FileNotFoundException exception)
+                {
+                    return Results.Problem(exception.Message, statusCode: StatusCodes.Status404NotFound);
+                }
+            })
+            .RequireAuthorization(PermissionPolicies.RegulatoryRead);
+
         ra.MapPost("/dossiers/{dossierId:guid}/transition", async (Guid tenantId, Guid dossierId, TransitionDossierRequest request, HttpContext httpContext, IRegulatoryAffairsService service, CancellationToken ct) =>
             ApiResult.From(await service.TransitionDossierAsync(new TransitionDossierCommand(
                 ApiContext.TenantId(httpContext, tenantId), dossierId, request.TargetStatus, request.WaiverReason, ApiContext.UserId(httpContext), request.EmergencyOverrideReason), ct)))

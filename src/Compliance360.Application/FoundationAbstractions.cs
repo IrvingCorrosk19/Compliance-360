@@ -92,6 +92,8 @@ public sealed class RefreshTokenOptions
 public interface IFileStorageService
 {
     Task<StoredFileDescriptor> SaveAsync(FileStorageRequest request, CancellationToken cancellationToken = default);
+
+    Task<Stream> OpenReadAsync(string objectKey, CancellationToken cancellationToken = default);
 }
 
 public sealed record FileStorageRequest(

@@ -44,4 +44,32 @@ public sealed class LocalFileStorageService : IFileStorageService
             sizeBytes,
             sha256Hash);
     }
+
+    public Task<Stream> OpenReadAsync(string objectKey, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(objectKey))
+        {
+            throw new FileNotFoundException("Stored file object key is missing.");
+        }
+
+        var relative = objectKey.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
+        var candidates = new[]
+        {
+            Path.Combine(_options.RootPath, relative),
+            Path.GetFullPath(Path.Combine(_options.RootPath, relative)),
+            Path.Combine("/app/storage", relative),
+            Path.Combine("/app/web/storage", relative)
+        };
+
+        foreach (var candidate in candidates.Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            if (File.Exists(candidate))
+            {
+                Stream stream = File.OpenRead(candidate);
+                return Task.FromResult(stream);
+            }
+        }
+
+        throw new FileNotFoundException($"Stored file content was not found for object key '{objectKey}'.");
+    }
 }

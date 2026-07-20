@@ -243,7 +243,7 @@
       const link = document.createElement("link");
       link.id = "regulatory-affairs-css";
       link.rel = "stylesheet";
-      link.href = "/regulatory-affairs.css?v=owner-picker-1";
+      link.href = "/regulatory-affairs.css?v=evidence-dl-1";
       document.head.appendChild(link);
     }
 
@@ -721,6 +721,45 @@
     body.querySelectorAll("tr[data-id]").forEach(tr => tr.addEventListener("click", () => showDossierDetail(body, tr.dataset.id)));
   }
 
+  async function downloadDossierEvidence(dossierId, storedFileId, fileName) {
+    const token = localStorage.getItem("c360.token");
+    const tenantId = resolveTenantId();
+    const res = await fetch(
+      `/api/v1/tenants/${tenantId}/regulatory/dossiers/${dossierId}/evidence/${storedFileId}/content`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    if (!res.ok) {
+      const text = await res.text();
+      let message = tr("Regulatory.EvidenceDownloadFailed", "No se pudo descargar la evidencia.");
+      try {
+        const payload = JSON.parse(text);
+        message = payload.detail || payload.title || payload.error || message;
+      } catch {
+        if (text && text.length < 200) message = text;
+      }
+      throw new Error(message);
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = fileName || `evidence-${storedFileId}.bin`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function evidenceStatusHtml(requirement) {
+    if (!requirement?.storedFileId) {
+      return `<p class="ra-evidence-status is-missing"><span class="ra-badge warn">${esc(tr("Regulatory.EvidenceMissing", "Sin evidencia"))}</span> ${esc(tr("Regulatory.EvidenceMissingHelp", "Aún no hay archivo cargado para este requisito."))}</p>`;
+    }
+    return `<p class="ra-evidence-status is-loaded">
+      <span class="ra-badge ok">${esc(tr("Regulatory.EvidenceLoaded", "Evidencia cargada"))}</span>
+      <button type="button" class="btn primary" data-download-evidence="${esc(requirement.storedFileId)}" data-download-name="${esc(requirement.code || "evidence")}">${esc(tr("Regulatory.DownloadEvidence", "Descargar evidencia"))}</button>
+    </p>`;
+  }
+
   function evidenceVersionsHtml(requirement, versions) {
     const rows = [...(versions || [])];
     if (requirement.storedFileId && !rows.some(v => v.storedFileId === requirement.storedFileId)) {
@@ -744,6 +783,7 @@
         <span>${esc(v.fileName || "—")} · ${esc(v.status || "—")}</span>
         <small>${esc(v.reason || "—")}${v.uploadedAtUtc ? ` · ${esc(formatDateTime(v.uploadedAtUtc))}` : ""}</small>
         ${v.sha256 ? `<code title="SHA-256">${esc(v.sha256)}</code>` : ""}
+        ${v.storedFileId ? `<button type="button" class="btn" data-download-evidence="${esc(v.storedFileId)}" data-download-name="${esc(v.fileName || requirement.code || "evidence")}">${esc(tr("Regulatory.DownloadEvidence", "Descargar evidencia"))}</button>` : ""}
       </li>`).join("")}</ol>`;
   }
 
@@ -889,9 +929,10 @@
         <div class="ra-actions">${actions.join("") || `<em>${esc(tr("Regulatory.Workflow.NoActions", "Sin acciones disponibles para su rol en este estado."))}</em>`}</div>
         <h4>${esc(tr("Regulatory.Workflow.Requirements", "Requisitos"))} (${d.requirements?.length || 0})</h4>
         <div id="ra-reqs">${(d.requirements || []).map(r => `
-          <article class="ra-req ${r.isCritical ? "critical" : ""} ${r.status === "Accepted" ? "ok" : ""} ${d.status === "CorrectionRequested" && correctionRequirementIds.has(r.id) ? "in-scope" : ""} ${d.status === "CorrectionRequested" && !correctionRequirementIds.has(r.id) ? "is-locked" : ""}">
+          <article class="ra-req ${r.isCritical ? "critical" : ""} ${r.status === "Accepted" ? "ok" : ""} ${r.storedFileId ? "has-evidence" : "no-evidence"} ${d.status === "CorrectionRequested" && correctionRequirementIds.has(r.id) ? "in-scope" : ""} ${d.status === "CorrectionRequested" && !correctionRequirementIds.has(r.id) ? "is-locked" : ""}">
             <div class="ra-req-header"><div><strong>${esc(r.code)}</strong> ${esc(r.name)}</div>
-            <span class="ra-badge">${esc(r.status)}${r.isCritical ? ` · ${esc(tr("Regulatory.Workflow.Critical", "crítico"))}` : ""}</span></div>
+            <span class="ra-badge">${esc(r.status)}${r.isCritical ? ` · ${esc(tr("Regulatory.Workflow.Critical", "crítico"))}` : ""}${r.storedFileId ? ` · ${esc(tr("Regulatory.EvidenceLoadedShort", "con archivo"))}` : ""}</span></div>
+            ${evidenceStatusHtml(r)}
             ${d.status === "CorrectionRequested" && !correctionRequirementIds.has(r.id) ? `<p class="ra-lock-reason">🔒 ${esc(tr("Regulatory.Workflow.OutsideScope", "Bloqueado: este requisito no pertenece al alcance de la corrección activa."))}</p>` : ""}
             ${prep && !["Accepted", "Waived"].includes(r.status) && d.status !== "CorrectionRequested" && !["UnderTechnicalReview", "ReadyForSubmission"].includes(d.status) ? `
               <label class="btn file-action">
@@ -902,11 +943,18 @@
             ${prep && d.status === "CorrectionRequested" && correctionRequirementIds.has(r.id) ? `<button type="button" class="btn primary" data-correction-evidence="${r.id}">${esc(tr("Regulatory.Workflow.UploadCorrectionVersion", "Cargar versión corregida"))}</button>` : ""}
             ${review && d.status === "UnderTechnicalReview" ? `<button type="button" class="btn" data-accept="${r.id}">Aceptar</button>
               <button type="button" class="btn" data-reject="${r.id}">Rechazar</button>` : ""}
-            <details class="ra-evidence-versions" data-evidence-requirement="${r.id}"><summary>${esc(tr("Regulatory.Workflow.ViewVersions", "Consultar versiones V1/V2"))}</summary>
+            <details class="ra-evidence-versions" data-evidence-requirement="${r.id}" ${r.storedFileId ? "open" : ""}><summary>${esc(tr("Regulatory.Workflow.ViewVersions", "Consultar versiones V1/V2"))}</summary>
               <div data-evidence-list>${evidenceVersionsHtml(r, [])}</div>
             </details>
           </article>`).join("")}
         </div>
+        ${d.submissionProofStoredFileId ? `<div class="ra-card ra-submission-proof">
+          <h4>${esc(tr("Regulatory.SubmissionProof", "Comprobante de sometimiento"))}</h4>
+          <p class="ra-evidence-status is-loaded">
+            <span class="ra-badge ok">${esc(tr("Regulatory.EvidenceLoaded", "Evidencia cargada"))}</span>
+            <button type="button" class="btn primary" data-download-evidence="${esc(d.submissionProofStoredFileId)}" data-download-name="submission-proof">${esc(tr("Regulatory.DownloadEvidence", "Descargar evidencia"))}</button>
+          </p>
+        </div>` : ""}
         ${prep && d.status === "CorrectionRequested" && correction ? `<div class="ra-actions"><button type="button" class="btn primary" id="ra-submit-correction">${esc(tr("Regulatory.Workflow.SubmitCorrection", "Enviar corrección a revisión"))}</button></div>` : ""}
         <h4>Observaciones</h4>
         <ul>${(d.observations || []).map(o => `<li>#${o.observationNumber} ${esc(o.status)} — ${esc(o.description)}
@@ -917,9 +965,27 @@
 
     body.querySelector("#ra-back")?.addEventListener("click", () => showDossiers(body, null));
     const reload = () => showDossierDetail(body, id);
+    const bindEvidenceDownloads = (root) => {
+      root.querySelectorAll("[data-download-evidence]").forEach(button => {
+        if (button.dataset.bound === "1") return;
+        button.dataset.bound = "1";
+        button.addEventListener("click", async () => {
+          try {
+            button.disabled = true;
+            await downloadDossierEvidence(id, button.dataset.downloadEvidence, button.dataset.downloadName || "evidence");
+            toast(tr("Regulatory.EvidenceDownloadStarted", "Descarga iniciada."), "success");
+          } catch (error) {
+            toast(error.message, "error");
+          } finally {
+            button.disabled = false;
+          }
+        });
+      });
+    };
+    bindEvidenceDownloads(body);
     body.querySelectorAll("details[data-evidence-requirement]").forEach(details => {
-      details.addEventListener("toggle", async () => {
-        if (!details.open || details.dataset.loaded === "true" || details.dataset.loading === "true") return;
+      const loadVersions = async () => {
+        if (details.dataset.loaded === "true" || details.dataset.loading === "true") return;
         const requirementId = details.dataset.evidenceRequirement;
         const requirement = (d.requirements || []).find(item => item.id === requirementId);
         const list = details.querySelector("[data-evidence-list]");
@@ -928,13 +994,18 @@
         try {
           const versions = await apiV2(`/${id}/requirements/${requirementId}/evidence`);
           list.innerHTML = evidenceVersionsHtml(requirement, versions);
+          bindEvidenceDownloads(list);
           details.dataset.loaded = "true";
         } catch (error) {
           list.innerHTML = `<p class="ra-empty">${esc(error.message || tr("Common.Error", "No fue posible cargar las versiones."))}</p>`;
         } finally {
           delete details.dataset.loading;
         }
+      };
+      details.addEventListener("toggle", () => {
+        if (details.open) loadVersions();
       });
+      if (details.open) loadVersions();
     });
     body.querySelector("#ra-send-technical-review")?.addEventListener("click", async () => {
       try {

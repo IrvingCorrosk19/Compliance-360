@@ -34,6 +34,7 @@ services:
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__Compliance360: Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
       Jwt__SigningKey: ${JWT_SIGNING_KEY}
+      Storage__RootPath: /app/storage
     volumes:
       - compliance360_storage:/app/storage
       - compliance360_dataprotection_keys:/root/.aspnet/DataProtection-Keys

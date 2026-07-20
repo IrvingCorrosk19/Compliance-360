@@ -116,6 +116,11 @@
   .ra-shell *{scroll-behavior:auto!important;transition:none!important;animation:none!important}
 }
 
-.ra-user-filter{width:100%;margin-bottom:.4rem}
-.ra-user-select{width:100%;min-height:8.5rem}
-.ra-user-select option[hidden]{display:none}
+.ra-evidence-status{display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;margin:.35rem 0 .55rem}
+.ra-evidence-status .btn{margin:0}
+.ra-badge.ok{background:rgba(34,197,94,.18);color:#86efac}
+.ra-badge.warn{background:rgba(245,158,11,.18);color:#fcd34d}
+.ra-req.has-evidence{border-left:3px solid #22c55e}
+.ra-req.no-evidence{border-left:3px solid rgba(148,163,184,.35)}
+.ra-version-list .btn{margin-top:.35rem}
+.ra-submission-proof{margin-top:1rem}

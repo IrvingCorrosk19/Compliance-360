@@ -41,6 +41,9 @@ public sealed class EnterpriseFileStorageService : IFileStorageService
 
         return await _fallback.SaveAsync(request, cancellationToken);
     }
+
+    public Task<Stream> OpenReadAsync(string objectKey, CancellationToken cancellationToken = default)
+        => _fallback.OpenReadAsync(objectKey, cancellationToken);
 }
 
 public sealed class StorageProviderFactory : IStorageProviderFactory

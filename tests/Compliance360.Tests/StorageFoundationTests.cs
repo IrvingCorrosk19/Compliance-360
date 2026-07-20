@@ -263,6 +263,9 @@ public sealed class StorageFoundationTests
             var bytes = memory.ToArray();
             return new StoredFileDescriptor("Fake", "docs", $"{request.TenantId:N}/{Guid.NewGuid():N}", bytes.Length, Convert.ToHexString(SHA256.HashData(bytes)));
         }
+
+        public Task<Stream> OpenReadAsync(string objectKey, CancellationToken cancellationToken = default)
+            => throw new FileNotFoundException("Fake storage has no persisted content.");
     }
 
     private sealed class FakeApplicationDbContext : IApplicationDbContext
