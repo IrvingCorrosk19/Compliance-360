@@ -739,7 +739,7 @@ public sealed class RegulatoryAffairsService : IRegulatoryAffairsService
                     previousStoredFileId?.ToString("N"),
                     null,
                     reason,
-                    $"ra-evidence-remove:{dossier.Id:N}:{command.RequirementId:N}:{Guid.NewGuid():N}",
+                    $"ra-evd-rm:{Guid.NewGuid():N}",
                     _clock.UtcNow), ct);
             }
 
