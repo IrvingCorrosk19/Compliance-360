@@ -736,8 +736,10 @@ public sealed class RegulatoryAffairsService : IRegulatoryAffairsService
                     null,
                     null,
                     $"requirements/{command.RequirementId}/evidence",
-                    previousStoredFileId?.ToString("N"),
-                    null,
+                    previousStoredFileId.HasValue
+                        ? JsonSerializer.Serialize(new { storedFileId = previousStoredFileId.Value })
+                        : null,
+                    JsonSerializer.Serialize(new { storedFileId = (Guid?)null }),
                     reason,
                     $"ra-evd-rm:{Guid.NewGuid():N}",
                     _clock.UtcNow), ct);

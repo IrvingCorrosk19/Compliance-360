@@ -90,6 +90,61 @@ public sealed class RegulatoryAffairsDomainTests
         Assert.Contains(pack.Definitions, d => d.Code == "ISO" && d.IsCritical);
     }
 
+    [Fact]
+    public void ClearEvidence_requires_audited_reason_of_at_least_8_chars()
+    {
+        var req = BuildRequirementWithEvidence();
+        var ex = Assert.Throws<DomainException>(() => req.ClearEvidence(Guid.NewGuid(), "short"));
+        Assert.Contains("8 characters", ex.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void ClearEvidence_clears_file_and_reopens_received_requirement()
+    {
+        var actor = Guid.NewGuid();
+        var req = BuildRequirementWithEvidence();
+        Assert.Equal(DossierRequirementStatus.Received, req.Status);
+        Assert.NotNull(req.StoredFileId);
+
+        req.ClearEvidence(actor, "Archivo incorrecto subido por error");
+
+        Assert.Null(req.StoredFileId);
+        Assert.Null(req.CurrentDocumentId);
+        Assert.Null(req.CompletedOn);
+        Assert.Equal(DossierRequirementStatus.Pending, req.Status);
+        Assert.Equal(RequirementValidationStatus.NotValidated, req.ValidationStatus);
+        Assert.Equal(actor, req.LastStatusChangedByUserId);
+        Assert.Contains("Evidence removed", req.ValidationNotes, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void ClearEvidence_blocked_when_requirement_accepted()
+    {
+        var req = BuildRequirementWithEvidence();
+        req.SetStatus(DossierRequirementStatus.Accepted, "ok", Guid.NewGuid());
+        var ex = Assert.Throws<DomainException>(() =>
+            req.ClearEvidence(Guid.NewGuid(), "Motivo auditado válido"));
+        Assert.Contains("accepted or waived", ex.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void ClearEvidence_blocked_when_no_evidence_attached()
+    {
+        var req = new DossierRequirement(
+            Guid.NewGuid(), Guid.NewGuid(), null, "ISO", "ISO", null, "Quality", true, true, 1, null, null);
+        var ex = Assert.Throws<DomainException>(() =>
+            req.ClearEvidence(Guid.NewGuid(), "Motivo auditado válido"));
+        Assert.Contains("no evidence", ex.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static DossierRequirement BuildRequirementWithEvidence()
+    {
+        var req = new DossierRequirement(
+            Guid.NewGuid(), Guid.NewGuid(), null, "ISO", "ISO 13485", null, "Quality", true, true, 1, null, null);
+        req.AttachFile(null, Guid.NewGuid(), DateTimeOffset.UtcNow);
+        return req;
+    }
+
     private static RegulatoryRequirementPack BuildPack(Guid tenantId, Guid userId)
     {
         var pack = new RegulatoryRequirementPack(tenantId, "TEST-PACK", "Test", "PA", null, null, null, null, userId);
