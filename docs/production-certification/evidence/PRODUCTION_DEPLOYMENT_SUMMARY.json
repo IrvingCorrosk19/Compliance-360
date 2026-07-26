@@ -1,0 +1,19 @@
+{
+  "generatedAt": "2026-07-26T23:57:13.025519+00:00",
+  "functionalCertification": "100/100",
+  "certifiedReleaseCommit": "1dd34a6860827fe39e6f3b9c84bcede6c653b054",
+  "remoteCommit": "1dd34a6860827fe39e6f3b9c84bcede6c653b054",
+  "productionCommit": null,
+  "commitParityCertifiedToRemote": true,
+  "commitParityCertifiedToProduction": false,
+  "deployment": "FAIL_BLOCKED_SSH",
+  "preDeployProductionSmoke": {
+    "PASS": 22,
+    "FAIL": 0
+  },
+  "backupVerified": false,
+  "migration": "NOT_REQUIRED_CODE_ANALYSIS",
+  "releaseTag": null,
+  "finalVerdict": "PRODUCTION DEPLOYMENT FAILED",
+  "blocker": "No SSH private key for VPS 164.68.99.83"
+}

@@ -50,6 +50,8 @@
 - Local machine has **no usable SSH private key** for `root@164.68.99.83` (`Permission denied (publickey,password)`).
 - Deploy/backup steps require operator-provided SSH access after push.
 
-## Intended CERTIFIED_RELEASE_COMMIT
+## CERTIFIED_RELEASE_COMMIT
 
-Filled after commit creation.
+`1dd34a6860827fe39e6f3b9c84bcede6c653b054` (`1dd34a6`) — pushed to `origin/master`.
+
+LOCAL=REMOTE=YES. PRODUCTION=NOT DEPLOYED (SSH blocked).
