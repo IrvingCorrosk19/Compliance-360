@@ -40,7 +40,26 @@ public sealed class EfReportingEngineRepository : IReportingEngineRepository
     public async Task<ReportSearchResult> SearchAsync(ReportSearchCriteria criteria, CancellationToken cancellationToken = default)
     {
         var query = _dbContext.ReportDefinitions.AsNoTracking().Where(definition => definition.TenantId == criteria.TenantId);
-        if (!string.IsNullOrWhiteSpace(criteria.SearchText)) query = query.Where(definition => definition.Name.Contains(criteria.SearchText) || definition.Code.Contains(criteria.SearchText));
+        if (!string.IsNullOrWhiteSpace(criteria.SearchText))
+        {
+            var term = criteria.SearchText.Trim();
+            if (DbSearch.SupportsILike(_dbContext))
+            {
+                var pattern = DbSearch.ContainsPattern(term);
+                query = query.Where(definition =>
+                    EF.Functions.ILike(definition.Name, pattern) ||
+                    EF.Functions.ILike(definition.Code, pattern) ||
+                    EF.Functions.ILike(definition.DatasetKey, pattern));
+            }
+            else
+            {
+                var lower = term.ToLowerInvariant();
+                query = query.Where(definition =>
+                    definition.Name.ToLower().Contains(lower) ||
+                    definition.Code.ToLower().Contains(lower) ||
+                    definition.DatasetKey.ToLower().Contains(lower));
+            }
+        }
         if (criteria.Module.HasValue) query = query.Where(definition => definition.Module == criteria.Module.Value);
         if (criteria.Status.HasValue) query = query.Where(definition => definition.Status == criteria.Status.Value);
         var total = await query.CountAsync(cancellationToken);

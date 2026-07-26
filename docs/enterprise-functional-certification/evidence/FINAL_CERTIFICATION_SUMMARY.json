@@ -1,0 +1,69 @@
+{
+  "generatedAt": "2026-07-26T22:40:00Z",
+  "lab": {
+    "baseUrl": "http://localhost:5272",
+    "tenantId": "82af3877-2786-4d39-bce8-c981101c771d",
+    "workerRequired": true,
+    "primaryDossier": {
+      "caseNumber": "RA-20260726-3308",
+      "dossierId": "d61c1305-e6d1-43c6-9b28-e854762510cb",
+      "terminalStatus": "Closed"
+    }
+  },
+  "tests": {
+    "planned": 88,
+    "executed": 88,
+    "PASS": 84,
+    "FAIL": 1,
+    "BLOCKED": 1,
+    "SKIPPED": 0,
+    "notes": "Harness 82 + follow-up retests (alert inbox, terminal close, observation close/resubmit/approve) + Playwright SoD. Remaining FAIL: PROD-NEG-EMPTY (HTTP 500). Remaining BLOCKED: Report Center TAC access."
+  },
+  "severityOpen": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 4,
+    "P3": 2,
+    "P4": 1
+  },
+  "coverage": "≈85% RA critical surface (auth, RBAC/SoD, products, dossiers, docs, workflow V2 through Closed, alerts inbox, audit, MT deny, dashboard, perf). Gaps: report exports, deep responsive, second business tenant data isolation, live SMTP delivery.",
+  "scores": {
+    "Functional Completeness": 82,
+    "Regulatory Workflow": 86,
+    "Configurability": 74,
+    "RBAC": 94,
+    "SoD": 95,
+    "Auditability": 88,
+    "Document Management": 84,
+    "Alert Engine": 72,
+    "Notifications": 60,
+    "Reporting": 52,
+    "Search": 62,
+    "Administration": 78,
+    "Multitenancy": 85,
+    "Localization": 70,
+    "UX": 72,
+    "Performance": 92,
+    "Reliability": 86
+  },
+  "enterpriseFunctionalScore": 81,
+  "level": "Enterprise Candidate",
+  "productionVerdict": "CONDITIONALLY READY",
+  "regression": {
+    "dotnetBuildRelease": "PASS (0 errors, 0 warnings)",
+    "unitTests": "PASS 313/313",
+    "playwrightSod": "PASS 1/1 (16.9s)"
+  },
+  "top10Gaps": [
+    "Report Center / exports not E2E certified (403/404)",
+    "Notifications: SMTP/Mailpit and cloud provider secrets not exercised (FUNCTIONALLY READY — EXTERNAL CONFIGURATION REQUIRED)",
+    "Empty product create returns HTTP 500 instead of 4xx",
+    "Web Development bootstrap hard-fails without healthy Alert Center Worker",
+    "Runtime ES/EN localization mix despite 100% locale key parity",
+    "Search limited to list/filter patterns; full-text enterprise search not proven",
+    "Second business tenant deep isolation (search/export bleed) not fully exercised",
+    "Observation client contract ambiguous (create response shape)",
+    "Post-login landing can remain on #/login placeholders before #/regulatory",
+    "Responsive tablet/mobile operations not deeply certified"
+  ]
+}

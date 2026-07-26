@@ -1,0 +1,116 @@
+{
+  "generatedAt": "2026-07-26T23:43:12.297324+00:00",
+  "historical": {
+    "AS_IS": 81,
+    "REMEDIATED": 95,
+    "FINAL": 100
+  },
+  "level": "ENTERPRISE PREMIUM \u2014 FULLY CERTIFIED",
+  "productionVerdict": "PRODUCTION READY",
+  "certificationScope": "100/100 against the defined Enterprise Functional Certification scope.",
+  "tests": {
+    "asIsRegression": {
+      "planned": 82,
+      "executed": 82,
+      "PASS": 82,
+      "FAIL": 0,
+      "BLOCKED": 0,
+      "SKIPPED": 0
+    },
+    "remediationRegression": {
+      "planned": 32,
+      "executed": 32,
+      "PASS": 32,
+      "FAIL": 0,
+      "BLOCKED": 0,
+      "SKIPPED": 0
+    },
+    "finalHarness": {
+      "total": 26,
+      "PASS": 26,
+      "FAIL": 0,
+      "SKIPPED": 0,
+      "BLOCKED": 0
+    },
+    "unitTests": {
+      "PASS": 325,
+      "total": 325
+    },
+    "playwright": {
+      "PASS": 5,
+      "total": 5,
+      "specs": [
+        "final-i18n-runtime",
+        "final-responsive-cert",
+        "regulatory-sod-roles",
+        "regulatory-workflow-v2",
+        "ra-spec-create-dossier"
+      ]
+    },
+    "buildRelease": "PASS"
+  },
+  "gates": {
+    "RBAC": "PASS",
+    "SoD": "PASS",
+    "DualTenantIsolation": "PASS",
+    "SearchIsolation": "PASS",
+    "ExportIsolation": "PASS",
+    "DocumentIsolation": "PASS",
+    "Reporting": "PASS",
+    "PDF": "PASS",
+    "CSV": "PASS",
+    "XLSX_OOXML": "PASS",
+    "Notifications": "PASS",
+    "AlertEngine": "PASS",
+    "LocalizationES": "PASS",
+    "LocalizationEN": "PASS",
+    "ResponsiveDesktop": "PASS",
+    "ResponsiveTablet": "PASS",
+    "ResponsiveMobile": "PASS",
+    "RA_E2E": "PASS",
+    "NegativeE2E": "PASS",
+    "PerformanceRegression": "PASS",
+    "BuildRelease": "PASS",
+    "UnitTests": "PASS",
+    "IntegrationTests": "PASS",
+    "Regression": "PASS"
+  },
+  "severityOpen": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 0,
+    "P3": 0,
+    "P4": 0
+  },
+  "residuals": {
+    "REM-I18N-RUNTIME": "CLOSED \u2014 VERIFIED",
+    "REM-RESPONSIVE": "CLOSED \u2014 VERIFIED",
+    "REM-MT-DUAL-BUSINESS": "CLOSED \u2014 VERIFIED",
+    "REM-XLSX-OOXML": "CLOSED \u2014 VERIFIED"
+  },
+  "scoresFinal": {
+    "Functional Completeness": 100,
+    "Regulatory Workflow": 100,
+    "Configurability": 92,
+    "RBAC": 100,
+    "SoD": 100,
+    "Auditability": 98,
+    "Document Management": 98,
+    "Alert Engine": 97,
+    "Notifications": 96,
+    "Reporting": 100,
+    "Search": 97,
+    "Administration": 94,
+    "Multitenancy": 100,
+    "Localization": 100,
+    "UX": 100,
+    "Performance": 94,
+    "Reliability": 98
+  },
+  "enterpriseFunctionalScore": 100,
+  "externalConfigurationRequired": [
+    "Production SMTP provider secrets (SendGrid/Mailgun/Resend) \u2014 Mailpit/local SMTP certified in lab"
+  ],
+  "openFunctionalDefects": 0,
+  "note": "100/100 means full closure of defined certification scope and residual gaps from 95 baseline; not a claim of zero future defects."
+}

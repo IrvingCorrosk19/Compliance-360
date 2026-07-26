@@ -37,10 +37,21 @@ public sealed class EfRegulatoryAffairsRepository : IRegulatoryAffairsRepository
         var q = _db.ManufacturerProfiles.AsNoTracking().Where(x => x.TenantId == tenantId && x.IsActive);
         if (!string.IsNullOrWhiteSpace(search))
         {
-            var pattern = $"%{EscapeLike(search.Trim())}%";
-            q = q.Where(x =>
-                EF.Functions.ILike(x.LegalName, pattern) ||
-                (x.CommercialName != null && EF.Functions.ILike(x.CommercialName, pattern)));
+            var term = search.Trim();
+            if (DbSearch.SupportsILike(_db))
+            {
+                var pattern = $"%{EscapeLike(term)}%";
+                q = q.Where(x =>
+                    EF.Functions.ILike(x.LegalName, pattern) ||
+                    (x.CommercialName != null && EF.Functions.ILike(x.CommercialName, pattern)));
+            }
+            else
+            {
+                var lower = term.ToLowerInvariant();
+                q = q.Where(x =>
+                    x.LegalName.ToLower().Contains(lower) ||
+                    (x.CommercialName != null && x.CommercialName.ToLower().Contains(lower)));
+            }
         }
 
         return await q.OrderBy(x => x.LegalName).Take(200).ToListAsync(ct);
@@ -74,11 +85,31 @@ public sealed class EfRegulatoryAffairsRepository : IRegulatoryAffairsRepository
         var q = _db.MedicalDeviceProducts.AsNoTracking().Where(x => x.TenantId == query.TenantId && !x.IsDeleted);
         if (!string.IsNullOrWhiteSpace(query.SearchText))
         {
-            var pattern = $"%{EscapeLike(query.SearchText.Trim())}%";
-            q = q.Where(x =>
-                EF.Functions.ILike(x.RegulatoryName, pattern) ||
-                EF.Functions.ILike(x.Brand, pattern) ||
-                EF.Functions.ILike(x.CatalogCode, pattern));
+            var term = query.SearchText.Trim();
+            if (DbSearch.SupportsILike(_db))
+            {
+                var pattern = $"%{EscapeLike(term)}%";
+                q = q.Where(x =>
+                    EF.Functions.ILike(x.RegulatoryName, pattern) ||
+                    EF.Functions.ILike(x.Brand, pattern) ||
+                    EF.Functions.ILike(x.CatalogCode, pattern) ||
+                    (x.CommercialName != null && EF.Functions.ILike(x.CommercialName, pattern)) ||
+                    (x.InternalCode != null && EF.Functions.ILike(x.InternalCode, pattern)) ||
+                    (x.Description != null && EF.Functions.ILike(x.Description, pattern)) ||
+                    (x.DistributorName != null && EF.Functions.ILike(x.DistributorName, pattern)));
+            }
+            else
+            {
+                var lower = term.ToLowerInvariant();
+                q = q.Where(x =>
+                    x.RegulatoryName.ToLower().Contains(lower) ||
+                    x.Brand.ToLower().Contains(lower) ||
+                    x.CatalogCode.ToLower().Contains(lower) ||
+                    (x.CommercialName != null && x.CommercialName.ToLower().Contains(lower)) ||
+                    (x.InternalCode != null && x.InternalCode.ToLower().Contains(lower)) ||
+                    (x.Description != null && x.Description.ToLower().Contains(lower)) ||
+                    (x.DistributorName != null && x.DistributorName.ToLower().Contains(lower)));
+            }
         }
 
         if (query.RiskClass.HasValue)
@@ -101,6 +132,11 @@ public sealed class EfRegulatoryAffairsRepository : IRegulatoryAffairsRepository
 
     public Task<bool> ProductCatalogExistsAsync(Guid tenantId, string catalogCode, Guid? excludeId, CancellationToken ct = default)
     {
+        if (string.IsNullOrWhiteSpace(catalogCode))
+        {
+            return Task.FromResult(false);
+        }
+
         var code = catalogCode.Trim().ToUpperInvariant();
         return _db.MedicalDeviceProducts.AsNoTracking().AnyAsync(
             x => x.TenantId == tenantId && !x.IsDeleted && x.CatalogCode == code && (excludeId == null || x.Id != excludeId), ct);
@@ -139,10 +175,29 @@ public sealed class EfRegulatoryAffairsRepository : IRegulatoryAffairsRepository
         var q = _db.RegistrationDossiers.AsNoTracking().Where(x => x.TenantId == query.TenantId && !x.IsDeleted);
         if (!string.IsNullOrWhiteSpace(query.SearchText))
         {
-            var pattern = $"%{EscapeLike(query.SearchText.Trim())}%";
-            q = q.Where(x =>
-                EF.Functions.ILike(x.CaseNumber, pattern) ||
-                (x.Comments != null && EF.Functions.ILike(x.Comments, pattern)));
+            var term = query.SearchText.Trim();
+            Guid parsedId;
+            var isGuid = Guid.TryParse(term, out parsedId);
+            if (DbSearch.SupportsILike(_db))
+            {
+                var pattern = $"%{EscapeLike(term)}%";
+                q = q.Where(x =>
+                    EF.Functions.ILike(x.CaseNumber, pattern) ||
+                    (x.Comments != null && EF.Functions.ILike(x.Comments, pattern)) ||
+                    (x.SubmissionProcedureNumber != null && EF.Functions.ILike(x.SubmissionProcedureNumber, pattern)) ||
+                    (x.SubmissionExternalNumber != null && EF.Functions.ILike(x.SubmissionExternalNumber, pattern)) ||
+                    (isGuid && (x.Id == parsedId || x.ProductId == parsedId)));
+            }
+            else
+            {
+                var lower = term.ToLowerInvariant();
+                q = q.Where(x =>
+                    x.CaseNumber.ToLower().Contains(lower) ||
+                    (x.Comments != null && x.Comments.ToLower().Contains(lower)) ||
+                    (x.SubmissionProcedureNumber != null && x.SubmissionProcedureNumber.ToLower().Contains(lower)) ||
+                    (x.SubmissionExternalNumber != null && x.SubmissionExternalNumber.ToLower().Contains(lower)) ||
+                    (isGuid && (x.Id == parsedId || x.ProductId == parsedId)));
+            }
         }
 
         if (query.Status.HasValue)
@@ -179,8 +234,17 @@ public sealed class EfRegulatoryAffairsRepository : IRegulatoryAffairsRepository
         var q = _db.SanitaryRegistrations.AsNoTracking().Where(x => x.TenantId == tenantId);
         if (!string.IsNullOrWhiteSpace(search))
         {
-            var pattern = $"%{EscapeLike(search.Trim())}%";
-            q = q.Where(x => EF.Functions.ILike(x.RegistrationNumber, pattern));
+            var term = search.Trim();
+            if (DbSearch.SupportsILike(_db))
+            {
+                var pattern = $"%{EscapeLike(term)}%";
+                q = q.Where(x => EF.Functions.ILike(x.RegistrationNumber, pattern));
+            }
+            else
+            {
+                var lower = term.ToLowerInvariant();
+                q = q.Where(x => x.RegistrationNumber.ToLower().Contains(lower));
+            }
         }
 
         return await q.OrderByDescending(x => x.CreatedAtUtc).Take(500).ToListAsync(ct);

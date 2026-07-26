@@ -131,6 +131,14 @@ public sealed class RegulatoryAffairsService : IRegulatoryAffairsService
     {
         try
         {
+            // Validate required fields before repository/catalog checks so empty payloads
+            // return a controlled DomainException (HTTP 400) instead of NullReferenceException (HTTP 500).
+            Guard.AgainstNullOrWhiteSpace(command.CountryCode, nameof(command.CountryCode), 8);
+            Guard.AgainstNullOrWhiteSpace(command.Category, nameof(command.Category), 120);
+            Guard.AgainstNullOrWhiteSpace(command.Brand, nameof(command.Brand), 120);
+            Guard.AgainstNullOrWhiteSpace(command.RegulatoryName, nameof(command.RegulatoryName), 260);
+            Guard.AgainstNullOrWhiteSpace(command.CatalogCode, nameof(command.CatalogCode), 80);
+
             if (await _repo.ProductCatalogExistsAsync(command.TenantId, command.CatalogCode, null, ct))
             {
                 return Result<ProductDto>.Failure("Catalog code already exists for this tenant.");
@@ -819,7 +827,7 @@ public sealed class RegulatoryAffairsService : IRegulatoryAffairsService
         }
     }
 
-    public async Task<Result<DossierDetailDto>> OpenObservationAsync(OpenObservationCommand command, CancellationToken ct = default)
+    public async Task<Result<OpenObservationResultDto>> OpenObservationAsync(OpenObservationCommand command, CancellationToken ct = default)
     {
         try
         {
@@ -852,11 +860,21 @@ public sealed class RegulatoryAffairsService : IRegulatoryAffairsService
                 dossier.CaseNumber,
                 "Open");
             await _db.SaveChangesAsync(ct);
-            return Result<DossierDetailDto>.Success(MapDossier(dossier));
+            var observationDto = new ObservationDto(
+                obs.Id,
+                obs.ObservationNumber,
+                obs.ReceivedOn,
+                obs.DueOn,
+                obs.Description,
+                obs.Status,
+                obs.ResponseSubmittedOn,
+                obs.ClosedOn,
+                obs.Notes);
+            return Result<OpenObservationResultDto>.Success(new OpenObservationResultDto(observationDto, MapDossier(dossier)));
         }
         catch (DomainException ex)
         {
-            return Result<DossierDetailDto>.Failure(ex.Message);
+            return Result<OpenObservationResultDto>.Failure(ex.Message);
         }
     }
 
@@ -906,15 +924,45 @@ public sealed class RegulatoryAffairsService : IRegulatoryAffairsService
                 return Result<RegistrationDto>.Failure("Registration number is required to record external authority approval.");
             }
 
-            await EnsureDossierStoredFileAsync(command.TenantId, dossier.Id, command.ResolutionStoredFileId, ct);
-            if (dossier.Status is RegistrationDossierStatus.Submitted)
+            if (command.ResolutionStoredFileId.HasValue && command.ResolutionStoredFileId.Value != Guid.Empty)
             {
-                dossier.TransitionTo(RegistrationDossierStatus.UnderAuthorityReview, _clock.UtcNow);
+                await EnsureDossierStoredFileAsync(command.TenantId, dossier.Id, command.ResolutionStoredFileId.Value, ct);
             }
 
             if (dossier.Status is RegistrationDossierStatus.Observed or RegistrationDossierStatus.CorrectingObservation)
             {
-                return Result<RegistrationDto>.Failure("Close or resolve observations before approval, or transition to UnderAuthorityReview after resubmission.");
+                var openObservations = dossier.Observations
+                    .Where(o => o.ClosedOn is null)
+                    .Select(o => o.ObservationNumber)
+                    .ToArray();
+                if (openObservations.Length > 0)
+                {
+                    return Result<RegistrationDto>.Failure(
+                        $"Close or resolve observations before approval (open: {string.Join(", ", openObservations)}), or transition to UnderAuthorityReview after resubmission.");
+                }
+
+                // All observations closed: advance through the controlled correction path so the
+                // authority decision can be recorded without requiring a separate resubmit call
+                // when the response already closed every observation.
+                if (dossier.Status == RegistrationDossierStatus.Observed)
+                {
+                    dossier.TransitionTo(RegistrationDossierStatus.CorrectingObservation, _clock.UtcNow);
+                }
+
+                if (dossier.Status == RegistrationDossierStatus.CorrectingObservation)
+                {
+                    dossier.TransitionTo(RegistrationDossierStatus.ResponseReady, _clock.UtcNow);
+                }
+
+                if (dossier.Status == RegistrationDossierStatus.ResponseReady)
+                {
+                    dossier.TransitionTo(RegistrationDossierStatus.Resubmitted, _clock.UtcNow);
+                }
+            }
+
+            if (dossier.Status is RegistrationDossierStatus.Submitted)
+            {
+                dossier.TransitionTo(RegistrationDossierStatus.UnderAuthorityReview, _clock.UtcNow);
             }
 
             if (dossier.Status is not (RegistrationDossierStatus.UnderAuthorityReview or RegistrationDossierStatus.Resubmitted))
@@ -931,9 +979,12 @@ public sealed class RegulatoryAffairsService : IRegulatoryAffairsService
             }
 
             dossier.TransitionTo(RegistrationDossierStatus.Approved, _clock.UtcNow);
+            var proof = command.ResolutionStoredFileId is { } proofId && proofId != Guid.Empty
+                ? proofId.ToString("N")
+                : "none";
             dossier.RecordHistory(
                 "AuthorityApproval",
-                $"Registration={command.RegistrationNumber.Trim()}; Proof={command.ResolutionStoredFileId:N}",
+                $"Registration={command.RegistrationNumber.Trim()}; Proof={proof}",
                 command.RequestedByUserId,
                 command.IssuedOn);
 

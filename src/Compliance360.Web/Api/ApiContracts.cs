@@ -252,7 +252,7 @@ public sealed record ApproveDossierRequest(
     DateTimeOffset IssuedOn,
     DateTimeOffset? ExpiresOn,
     string? Notes,
-    Guid ResolutionStoredFileId,
+    Guid? ResolutionStoredFileId = null,
     string? EmergencyOverrideReason = null);
 public sealed record ApproveForSubmissionRequest(string? Notes = null, string? EmergencyOverrideReason = null);
 public sealed record SubmitDossierRequest(
@@ -412,6 +412,7 @@ public sealed record PreviewAlertScheduleRequest(
 public sealed record ChangeAlertScheduleStateRequest(bool IsActive);
 
 public sealed record AlertMessageOperationRequest(string Action);
+public sealed record AlertOccurrenceLifecycleRequest(string? Notes);
 
 public sealed record IngestAlertEventRequest(
     string EventCode,

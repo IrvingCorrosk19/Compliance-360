@@ -1,0 +1,96 @@
+{
+  "role": "Regulatory Specialist",
+  "email": "ra.spec@cert.local",
+  "passwordPolicy": "OwnerStart!2026",
+  "dossierId": "da4f0d26-c2cb-4004-9f68-b2b12f919de8",
+  "stamp": "00987930",
+  "verdict": "PASS",
+  "steps": [
+    {
+      "step": "SPEC-LOGIN-UI",
+      "pass": true,
+      "detail": "badge=Regulatory Affairs · SoD activo · perfil specialist"
+    },
+    {
+      "step": "SPEC-CREATE-PRODUCT",
+      "pass": true,
+      "detail": "http=200"
+    },
+    {
+      "step": "SPEC-AUTHORITY",
+      "pass": true,
+      "detail": "authorityId=2bd03b5e-3bad-488e-a324-aad9c4a86cf6"
+    },
+    {
+      "step": "SPEC-CREATE-DOSSIER",
+      "pass": true,
+      "detail": "http=200;status=Planning"
+    },
+    {
+      "step": "SPEC-TRANSITION-WaitingManufacturerDocuments",
+      "pass": true,
+      "detail": "http=200;status=WaitingManufacturerDocuments"
+    },
+    {
+      "step": "SPEC-TRANSITION-DocumentsReceived",
+      "pass": true,
+      "detail": "http=200;status=DocumentsReceived"
+    },
+    {
+      "step": "SPEC-TRANSITION-Assembling",
+      "pass": true,
+      "detail": "http=200;status=Assembling"
+    },
+    {
+      "step": "SPEC-PICK-REQUIREMENT",
+      "pass": true,
+      "detail": "code=LEGAL_ID"
+    },
+    {
+      "step": "SPEC-REMOVE-WITHOUT-EVIDENCE",
+      "pass": true,
+      "detail": "http=400;detail=This requirement has no evidence to remove."
+    },
+    {
+      "step": "SPEC-UPLOAD-EVIDENCE",
+      "pass": true,
+      "detail": "http=200;id=02f65e34-224f-4e62-8485-754cf4fb0e4e"
+    },
+    {
+      "step": "SPEC-ATTACH-EVIDENCE",
+      "pass": true,
+      "detail": "http=200;storedFileId=02f65e34-224f-4e62-8485-754cf4fb0e4e"
+    },
+    {
+      "step": "SPEC-REMOVE-SHORT-REASON",
+      "pass": true,
+      "detail": "http=400;detail=An audited reason of at least 8 characters is required to remove evidence."
+    },
+    {
+      "step": "SPEC-REMOVE-EVIDENCE",
+      "pass": true,
+      "detail": "http=200;reqStatus=Pending;file=null;historyHit=true"
+    },
+    {
+      "step": "SPEC-REMOVE-HISTORY",
+      "pass": true,
+      "detail": "historyHit=true"
+    },
+    {
+      "step": "SPEC-DOWNLOAD-AFTER-DELETE",
+      "pass": true,
+      "detail": "http=400"
+    },
+    {
+      "step": "VIEW-CREATE-DENIED",
+      "pass": true,
+      "detail": "http=403"
+    },
+    {
+      "step": "VIEW-REMOVE-DENIED",
+      "pass": true,
+      "detail": "http=403;detail="
+    }
+  ],
+  "at": "2026-07-21T02:30:07.924Z"
+}

@@ -310,11 +310,11 @@
     const mine = list.filter(filters[profile] || (() => true));
     body.innerHTML = `
       <div class="ra-card mb">
-        <h3>Cola contextual · ${esc(profile)}</h3>
-        <p>${mine.length} expediente(s) relevantes</p>
+        <h3>${esc(tr("Regulatory.ContextualQueueTitle", `Cola contextual · ${profile}`).replace("{profile}", profile))}</h3>
+        <p>${esc(tr("Regulatory.RelevantDossiers", "{count} expediente(s) relevantes").replace("{count}", String(mine.length)))}</p>
         <ul>${mine.slice(0, 12).map(d =>
           `<li><button type="button" class="ra-chip" data-open="${d.id}"><strong>${esc(d.caseNumber)}</strong> · ${esc(statusLabel(d.status))}</button></li>`
-        ).join("") || "<li>Sin pendientes</li>"}</ul>
+        ).join("") || `<li>${esc(tr("Regulatory.NoPending", "Sin pendientes"))}</li>`}</ul>
       </div>
       <div class="ra-grid">
         ${metric("Productos", dash.productsTotal)}
@@ -348,6 +348,7 @@
         <div class="ra-actions">
           ${canCreate ? `<button class="btn primary" id="ra-new-product" type="button">Nuevo producto + expediente</button>` : ""}
         </div>
+        <div class="ra-table-wrap">
         <table class="ra-table"><thead><tr>
           <th>Producto</th><th>Marca</th><th>Catálogo</th><th>Clase</th><th>CT/RS</th><th>Vence</th><th>Comercializable</th>
         </tr></thead><tbody>
@@ -358,6 +359,7 @@
             <td>${p.isCommercializable ? "Sí" : "No"}</td></tr>`;
         }).join("") || `<tr><td colspan="7">Sin productos</td></tr>`}
         </tbody></table>
+        </div>
       </div>`;
     body.querySelector("#ra-new-product")?.addEventListener("click", async () => {
       try {

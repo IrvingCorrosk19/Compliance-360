@@ -16,6 +16,7 @@ public interface IAlertEventIngestionService
 public interface IAlertEventRepository
 {
     Task<AlertOccurrence?> GetOccurrenceAsync(Guid tenantId, Guid occurrenceId, CancellationToken cancellationToken);
+    Task<IReadOnlyList<AlertOccurrence>> ListOccurrencesAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken);
     Task<AlertDefinition?> GetDefinitionAsync(Guid tenantId, Guid definitionId, CancellationToken cancellationToken);
     Task<AlertDefinitionVersion?> GetVersionAsync(Guid tenantId, Guid definitionId, Guid versionId, CancellationToken cancellationToken);
     Task<NotificationTemplateVersion?> GetPublishedTemplateAsync(Guid tenantId, string code, NotificationChannel channel, string? locale, CancellationToken cancellationToken);

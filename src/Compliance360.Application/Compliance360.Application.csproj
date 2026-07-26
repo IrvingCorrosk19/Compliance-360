@@ -16,4 +16,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Compliance360.Tests" />
+  </ItemGroup>
+
 </Project>
+

@@ -20,7 +20,10 @@ public enum AlertOccurrenceStatus
     NoRecipients = 3,
     Queued = 4,
     Completed = 5,
-    Failed = 6
+    Failed = 6,
+    Acknowledged = 7,
+    Resolved = 8,
+    Escalated = 9
 }
 
 public enum AlertUnknownPolicy
@@ -340,4 +343,63 @@ public sealed class AlertOccurrence : TenantEntity
         FailureReason = string.IsNullOrWhiteSpace(failureReason) ? null : Guard.AgainstNullOrWhiteSpace(failureReason, nameof(failureReason), 1_000);
         MarkUpdated(evaluatedAtUtc);
     }
+
+    public void Acknowledge(Guid actorUserId, DateTimeOffset acknowledgedAtUtc, string? notes = null)
+    {
+        Guard.AgainstEmpty(actorUserId, nameof(actorUserId));
+        EnsureOperatorTransitionAllowed(AlertOccurrenceStatus.Acknowledged);
+        Status = AlertOccurrenceStatus.Acknowledged;
+        FailureReason = NormalizeOperatorNotes(notes, $"Acknowledged by {actorUserId:D}");
+        MarkUpdated(acknowledgedAtUtc);
+    }
+
+    public void Resolve(Guid actorUserId, DateTimeOffset resolvedAtUtc, string? notes = null)
+    {
+        Guard.AgainstEmpty(actorUserId, nameof(actorUserId));
+        EnsureOperatorTransitionAllowed(AlertOccurrenceStatus.Resolved);
+        Status = AlertOccurrenceStatus.Resolved;
+        FailureReason = NormalizeOperatorNotes(notes, $"Resolved by {actorUserId:D}");
+        MarkUpdated(resolvedAtUtc);
+    }
+
+    public void Escalate(Guid actorUserId, DateTimeOffset escalatedAtUtc, string? notes = null)
+    {
+        Guard.AgainstEmpty(actorUserId, nameof(actorUserId));
+        EnsureOperatorTransitionAllowed(AlertOccurrenceStatus.Escalated);
+        Status = AlertOccurrenceStatus.Escalated;
+        FailureReason = NormalizeOperatorNotes(notes, $"Escalated by {actorUserId:D}");
+        MarkUpdated(escalatedAtUtc);
+    }
+
+    private void EnsureOperatorTransitionAllowed(AlertOccurrenceStatus target)
+    {
+        var allowed = target switch
+        {
+            AlertOccurrenceStatus.Acknowledged => Status is AlertOccurrenceStatus.Matched
+                or AlertOccurrenceStatus.Queued
+                or AlertOccurrenceStatus.Completed
+                or AlertOccurrenceStatus.Failed
+                or AlertOccurrenceStatus.Escalated,
+            AlertOccurrenceStatus.Resolved => Status is AlertOccurrenceStatus.Acknowledged
+                or AlertOccurrenceStatus.Escalated
+                or AlertOccurrenceStatus.Completed
+                or AlertOccurrenceStatus.Failed,
+            AlertOccurrenceStatus.Escalated => Status is AlertOccurrenceStatus.Matched
+                or AlertOccurrenceStatus.Queued
+                or AlertOccurrenceStatus.Completed
+                or AlertOccurrenceStatus.Acknowledged
+                or AlertOccurrenceStatus.Failed,
+            _ => false
+        };
+
+        if (!allowed)
+        {
+            throw new DomainException($"Alert occurrence in status {Status} cannot transition to {target}.");
+        }
+    }
+
+    private static string NormalizeOperatorNotes(string? notes, string fallback) =>
+        string.IsNullOrWhiteSpace(notes)
+            ? fallback
+            : Guard.AgainstNullOrWhiteSpace(notes, nameof(notes), 1_000);
 }

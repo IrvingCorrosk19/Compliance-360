@@ -57,6 +57,7 @@ public static class FoundationEndpoints
         MapAudit(api);
         MapStorage(api);
         MapNotifications(api);
+        MapAlertCenter(api);
         MapRegulatoryAffairs(api);
         MapEnterpriseWorkspaces(api);
         MapFormTemplates(api);
@@ -2010,6 +2011,74 @@ public static class FoundationEndpoints
                 ApiContext.UserId(httpContext)), cancellationToken)))
             .RequireAuthorization(PermissionPolicies.NotificationManage);
 
+        alertCenter.MapGet("/occurrences", async (
+            Guid tenantId,
+            HttpContext httpContext,
+            IAlertOccurrenceLifecycleService service,
+            CancellationToken cancellationToken,
+            int page = 1,
+            int pageSize = 50) =>
+            ApiResult.From(await service.ListAsync(
+                ApiContext.TenantId(httpContext, tenantId),
+                page,
+                pageSize,
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationRead);
+
+        alertCenter.MapGet("/occurrences/{occurrenceId:guid}", async (
+            Guid tenantId,
+            Guid occurrenceId,
+            HttpContext httpContext,
+            IAlertOccurrenceLifecycleService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.GetAsync(
+                ApiContext.TenantId(httpContext, tenantId),
+                occurrenceId,
+                cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationRead);
+
+        alertCenter.MapPost("/occurrences/{occurrenceId:guid}/acknowledge", async (
+            Guid tenantId,
+            Guid occurrenceId,
+            AlertOccurrenceLifecycleRequest request,
+            HttpContext httpContext,
+            IAlertOccurrenceLifecycleService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.AcknowledgeAsync(new AlertOccurrenceLifecycleCommand(
+                ApiContext.TenantId(httpContext, tenantId),
+                occurrenceId,
+                ApiContext.UserId(httpContext),
+                request?.Notes), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationManage);
+
+        alertCenter.MapPost("/occurrences/{occurrenceId:guid}/resolve", async (
+            Guid tenantId,
+            Guid occurrenceId,
+            AlertOccurrenceLifecycleRequest request,
+            HttpContext httpContext,
+            IAlertOccurrenceLifecycleService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.ResolveAsync(new AlertOccurrenceLifecycleCommand(
+                ApiContext.TenantId(httpContext, tenantId),
+                occurrenceId,
+                ApiContext.UserId(httpContext),
+                request?.Notes), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationManage);
+
+        alertCenter.MapPost("/occurrences/{occurrenceId:guid}/escalate", async (
+            Guid tenantId,
+            Guid occurrenceId,
+            AlertOccurrenceLifecycleRequest request,
+            HttpContext httpContext,
+            IAlertOccurrenceLifecycleService service,
+            CancellationToken cancellationToken) =>
+            ApiResult.From(await service.EscalateAsync(new AlertOccurrenceLifecycleCommand(
+                ApiContext.TenantId(httpContext, tenantId),
+                occurrenceId,
+                ApiContext.UserId(httpContext),
+                request?.Notes), cancellationToken)))
+            .RequireAuthorization(PermissionPolicies.NotificationManage);
+
         alertCenter.MapGet("/operations/export.csv", async (
             Guid tenantId,
             string? search,
@@ -2873,6 +2942,24 @@ public static class FoundationEndpoints
             ApiResult.From(await service.ExportAsync(new ExportReportCommand(ApiContext.TenantId(httpContext, tenantId), reportDefinitionId, request.ExecutionId, request.Format, ApiContext.UserId(httpContext), Permissions(httpContext)), cancellationToken)))
             .RequireAuthorization(PermissionPolicies.ReportExport);
 
+        reports.MapGet("/{reportDefinitionId:guid}/exports/{exportId:guid}/content", async (Guid tenantId, Guid reportDefinitionId, Guid exportId, HttpContext httpContext, IReportingEngineService service, CancellationToken cancellationToken) =>
+            {
+                var result = await service.GetExportContentAsync(
+                    ApiContext.TenantId(httpContext, tenantId),
+                    reportDefinitionId,
+                    exportId,
+                    Permissions(httpContext),
+                    ApiContext.UserId(httpContext),
+                    cancellationToken);
+                if (!result.IsSuccess || result.Value is null)
+                {
+                    return ApiResult.From(result);
+                }
+
+                return Results.File(result.Value.Content, result.Value.ContentType, result.Value.FileName);
+            })
+            .RequireAuthorization(PermissionPolicies.ReportExport);
+
         reports.MapPost("/{reportDefinitionId:guid}/schedules", async (Guid tenantId, Guid reportDefinitionId, ScheduleReportRequest request, HttpContext httpContext, IReportingEngineService service, CancellationToken cancellationToken) =>
             ApiResult.From(await service.ScheduleAsync(new ScheduleReportCommand(ApiContext.TenantId(httpContext, tenantId), reportDefinitionId, request.Frequency, request.NextRunUtc, ApiContext.UserId(httpContext), Permissions(httpContext)), cancellationToken)))
             .RequireAuthorization(PermissionPolicies.ReportSchedule);
@@ -2885,7 +2972,7 @@ public static class FoundationEndpoints
             ApiResult.From(await service.BindDashboardAsync(new BindReportDashboardCommand(ApiContext.TenantId(httpContext, tenantId), reportDefinitionId, request.DashboardKey, request.DatasetKey, ApiContext.UserId(httpContext)), cancellationToken)))
             .RequireAuthorization(PermissionPolicies.ReportManage);
 
-        reports.MapGet("/", async (Guid tenantId, string? searchText, ReportModule? module, ReportDefinitionStatus? status, int page, int pageSize, HttpContext httpContext, IReportingEngineService service, CancellationToken cancellationToken) =>
+        reports.MapGet("/", async (Guid tenantId, string? searchText, ReportModule? module, ReportDefinitionStatus? status, HttpContext httpContext, IReportingEngineService service, CancellationToken cancellationToken, int page = 1, int pageSize = 25) =>
             ApiResult.From(await service.SearchAsync(new ReportSearchQuery(ApiContext.TenantId(httpContext, tenantId), searchText, module, status, page, pageSize), cancellationToken)))
             .RequireAuthorization(PermissionPolicies.ReportRead);
 

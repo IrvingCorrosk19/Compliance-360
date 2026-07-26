@@ -37,6 +37,35 @@ public sealed class ReportingEngineTests
         Assert.Equal(25, output.Value!.RowCount);
         Assert.Equal(ReportFormat.Excel, export.Value!.Format);
         Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", export.Value.ContentType);
+        Assert.False(string.IsNullOrWhiteSpace(export.Value.DownloadPath));
+
+        var content = await fixture.Service.GetExportContentAsync(
+            fixture.TenantId,
+            definition.Value.Id,
+            export.Value.Id,
+            fixture.ExecuteClaims,
+            fixture.UserId);
+        Assert.True(content.IsSuccess);
+        Assert.NotNull(content.Value);
+        Assert.True(content.Value!.Content.Length > 0);
+        Assert.EndsWith(".xlsx", content.Value.FileName, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", content.Value.ContentType);
+        // OOXML packages are ZIP archives starting with PK
+        Assert.Equal((byte)'P', content.Value.Content[0]);
+        Assert.Equal((byte)'K', content.Value.Content[1]);
+        using (var zip = new System.IO.Compression.ZipArchive(new MemoryStream(content.Value.Content), System.IO.Compression.ZipArchiveMode.Read))
+        {
+            Assert.Contains(zip.Entries, e => e.FullName == "[Content_Types].xml");
+            Assert.Contains(zip.Entries, e => e.FullName == "xl/workbook.xml");
+            Assert.Contains(zip.Entries, e => e.FullName == "xl/worksheets/sheet1.xml");
+            Assert.Contains(zip.Entries, e => e.FullName == "xl/sharedStrings.xml");
+            var sst = zip.GetEntry("xl/sharedStrings.xml");
+            Assert.NotNull(sst);
+            using var reader = new StreamReader(sst!.Open());
+            var sstXml = await reader.ReadToEndAsync();
+            Assert.Contains("ReportCode", sstXml, StringComparison.Ordinal);
+            Assert.Contains(definition.Value.Code, sstXml, StringComparison.Ordinal);
+        }
         Assert.True(schedule.Value!.IsActive);
         Assert.Equal("qa@example.com", subscription.Value!.Recipient);
         Assert.Equal("dashboard.documents", binding.Value!.DashboardKey);

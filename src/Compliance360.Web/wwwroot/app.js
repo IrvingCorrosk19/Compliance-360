@@ -693,7 +693,7 @@ function shellView() {
             </datalist>
           </div>
           <div class="top-actions">
-            ${canNavigate("alert-center") ? `<button id="notification-bell" class="notification-bell" type="button" aria-label="Abrir Alert Center" title="Alert Center">
+            ${canNavigate("alert-center") ? `<button id="notification-bell" class="notification-bell" type="button" aria-label="${t("AlertCenter.OpenBell")}" title="${t("Nav.AlertCenter")}">
               <span aria-hidden="true">🔔</span><span id="notification-badge" class="notification-badge" hidden>0</span>
             </button>` : ""}
             <span class="session-chip" title="${escapeHtml(session.email)} · ${escapeHtml(session.role)}">
@@ -723,7 +723,7 @@ function bindLogin() {
     try {
       const step = state.auth.step;
       if (step === "email") {
-        setLoadingButton(button, true, "Identificando...");
+        setLoadingButton(button, true, t("Common.Identifying"));
         const email = String(form.get("email") || "").trim();
         const identify = await request("/auth/identify", {
           method: "POST",
@@ -738,7 +738,7 @@ function bindLogin() {
         state.auth.preselectedOrganizationId = identify.preselectedOrganizationId || null;
         state.auth.selectedOrganizationId = identify.preselectedOrganizationId || null;
         if (!state.auth.organizations.length) {
-          toast("No encontramos una organizacion para este correo. Verifica que el administrador te haya creado en el tenant.", "error");
+          toast(t("Login.NoOrganization"), "error");
           return;
         }
         if (identify.requiresOrganizationSelection) {
@@ -755,7 +755,7 @@ function bindLogin() {
         render();
         return;
       }
-      setLoadingButton(button, true, "Validando...");
+      setLoadingButton(button, true, t("Common.Validating"));
       const result = await request("/auth/login", {
         method: "POST",
         body: {
@@ -813,7 +813,7 @@ function bindLegacyLogin() {
     const button = event.currentTarget.querySelector("button[type='submit']");
     const form = new FormData(event.currentTarget);
     try {
-      setLoadingButton(button, true, "Validando...");
+      setLoadingButton(button, true, t("Common.Validating"));
       const result = await request("/auth/login", {
         method: "POST",
         body: {
@@ -869,9 +869,32 @@ function completeLogin(result) {
   if (state.displayName) localStorage.setItem("c360.displayName", state.displayName);
   else localStorage.removeItem("c360.displayName");
   localStorage.setItem("c360.rememberMe", state.auth.rememberMe ? "true" : "false");
+  const current = (location.hash || "").replace(/^#\/?/, "");
+  if (!current || current === "login" || current === "logout") {
+    const landing = resolvePostLoginLanding();
+    state.route = landing;
+    location.hash = `#/${landing}`;
+  } else {
+    state.route = current;
+  }
   toast(t("Login.SignedIn"), "success");
   scheduleSessionWatch();
   render();
+}
+
+function resolvePostLoginLanding() {
+  const role = String(state.role || "").toLowerCase();
+  const candidates = [];
+  if (role.includes("platform")) candidates.push("superadmin-platform");
+  if (role.includes("regulatory")) candidates.push("regulatory");
+  if (role.includes("tenant administrator") || role.includes("security")) candidates.push("tenant-administration");
+  if (role.includes("notification")) candidates.push("alert-center");
+  if (role.includes("reporting")) candidates.push("reports");
+  candidates.push("dashboard", "regulatory", "documents", "alert-center", "reports", "tenant-administration");
+  for (const route of candidates) {
+    if (canNavigate(route)) return route;
+  }
+  return "dashboard";
 }
 
 function bindMfaChallenge() {
@@ -880,7 +903,7 @@ function bindMfaChallenge() {
     const button = event.currentTarget.querySelector("button[type='submit']");
     const form = new FormData(event.currentTarget);
     try {
-      setLoadingButton(button, true, "Verificando...");
+      setLoadingButton(button, true, t("Common.Verifying"));
       const result = await request("/auth/mfa/complete", {
         method: "POST",
         body: {
@@ -894,7 +917,7 @@ function bindMfaChallenge() {
       });
       state.mfaChallenge = null;
       completeLogin(result);
-      toast("MFA validado. Sesion segura iniciada.", "success");
+      toast(t("Login.MfaValidated"), "success");
     } catch (error) {
       toast(friendlyErrorMessage(error), "error");
     } finally {
@@ -903,7 +926,7 @@ function bindMfaChallenge() {
   });
   document.querySelector("#cancel-mfa").addEventListener("click", () => {
     state.mfaChallenge = null;
-    toast("Challenge MFA cancelado.", "info");
+    toast(t("Login.MfaChallengeCancelled"), "info");
     render();
   });
 }
@@ -985,7 +1008,7 @@ function bindNotificationBell() {
       if (!badge) return;
       badge.textContent = counts.unread > 99 ? "99+" : String(counts.unread || 0);
       badge.hidden = !counts.unread;
-      bell.setAttribute("aria-label", `Abrir Alert Center; ${counts.unread || 0} no leídas`);
+      bell.setAttribute("aria-label", t("AlertCenter.OpenBellUnread", { count: counts.unread || 0 }));
     })
     .catch(() => {
       bell.classList.add("degraded");
@@ -1290,7 +1313,7 @@ async function renderIntegrationsAdministration(content) {
     try {
       setLoadingButton(button, true, "Probando...");
       await request(`/tenants/${state.tenantId}/storage/providers/${storage[0].id}/test`, { method: "POST", body: {}, loadingContext: "configuration" });
-      toast("Storage provider test ejecutado", "success");
+      toast(t("Dashboard.StorageProviderTestEjecutado"), "success");
       await renderRoute();
     } finally {
       setLoadingButton(button, false);
@@ -1300,7 +1323,7 @@ async function renderIntegrationsAdministration(content) {
 
 async function createDefaultStorageProvider(button) {
   try {
-    setLoadingButton(button, true, "Guardando...");
+    setLoadingButton(button, true, t("Common.Saving"));
     await request(`/tenants/${state.tenantId}/storage/providers`, {
       method: "POST",
       loadingContext: "configuration",
@@ -1314,7 +1337,7 @@ async function createDefaultStorageProvider(button) {
         settingsJson: JSON.stringify({ rootPath: "storage" })
       }
     });
-    toast("Storage provider creado", "success");
+    toast(t("Dashboard.StorageProviderCreado"), "success");
     await renderRoute();
   } finally {
     setLoadingButton(button, false);
@@ -1323,7 +1346,7 @@ async function createDefaultStorageProvider(button) {
 
 async function createDefaultEmailProvider(button) {
   try {
-    setLoadingButton(button, true, "Guardando...");
+    setLoadingButton(button, true, t("Common.Saving"));
     await request(`/tenants/${state.tenantId}/notifications/providers`, {
       method: "POST",
       loadingContext: "configuration",
@@ -1335,7 +1358,7 @@ async function createDefaultEmailProvider(button) {
         isEnabled: false
       }
     });
-    toast("Email provider creado", "success");
+    toast(t("Users.EmailProviderCreado"), "success");
     await renderRoute();
   } finally {
     setLoadingButton(button, false);
@@ -1363,6 +1386,12 @@ async function renderReports(content) {
         <select id="report-select" class="search-box" aria-label="Reporte a ejecutar">
           ${(rows.length ? rows : []).map(row => `<option value="${row.id}">${escapeHtml(row.name || row.code)} (${escapeHtml(row.code || "")})</option>`).join("")}
         </select>
+        <select id="report-export-format" class="search-box" aria-label="Formato de exportación">
+          <option value="0">PDF</option>
+          <option value="1">Excel</option>
+          <option value="3">CSV</option>
+          <option value="4">JSON</option>
+        </select>
         <button id="execute-report" class="btn primary" ${rows.length ? "" : "disabled"}>Ejecutar</button>
         <button id="schedule-report" class="btn" ${rows.length ? "" : "disabled"}>Programar mensual</button>
       </div>
@@ -1378,9 +1407,9 @@ async function renderReports(content) {
     ${tableCard("Catalogo enterprise obligatorio", standard, ["name", "code", "module", "datasetKey"])}`;
   document.querySelector("#seed-reports").addEventListener("click", async event => {
     try {
-      setLoadingButton(event.currentTarget, true, "Generando...");
+      setLoadingButton(event.currentTarget, true, t("Common.Generating"));
       await request(`/tenants/${state.tenantId}/reports/standard/seed`, { method: "POST", body: {}, loadingContext: "reports" });
-      toast("Reportes estandar creados o verificados.", "success");
+      toast(t("Dashboard.ReportsEstandarCreadosOVerificados"), "success");
       await renderRoute();
     } finally {
       setLoadingButton(event.currentTarget, false);
@@ -1395,7 +1424,7 @@ async function executeSelectedReport(button) {
   const reportId = document.querySelector("#report-select")?.value;
   if (!reportId) return;
   try {
-    setLoadingButton(button, true, "Generando...");
+    setLoadingButton(button, true, t("Common.Generating"));
     showProgressBanner("reports");
     const execution = await request(`/tenants/${state.tenantId}/reports/${reportId}/execute`, {
       method: "POST",
@@ -1411,12 +1440,18 @@ async function executeSelectedReport(button) {
         datasetDescriptorJson: JSON.stringify({ source: "Compliance360 UI", completedAtUtc: new Date().toISOString() })
       }
     });
-    await request(`/tenants/${state.tenantId}/reports/${reportId}/export`, {
+    const exported = await request(`/tenants/${state.tenantId}/reports/${reportId}/export`, {
       method: "POST",
       loadingContext: "export",
-      body: { executionId: execution.id, format: 0 }
+      body: { executionId: execution.id, format: Number(document.querySelector("#report-export-format")?.value || 0) }
     });
-    toast("Reporte ejecutado, completado y exportado.", "success");
+    if (exported?.downloadPath || exported?.id) {
+      const path = exported.downloadPath || `/tenants/${state.tenantId}/reports/${reportId}/exports/${exported.id}/content`;
+      await downloadProtectedBinary(path, exported.fileName || `report-${reportId}.bin`);
+      toast(t("Reports.Downloaded"), "success");
+    } else {
+      toast(t("Reports.ExecutedExported"), "success");
+    }
     await renderRoute();
   } finally {
     hideProgressBanner();
@@ -1428,14 +1463,14 @@ async function scheduleSelectedReport(button) {
   const reportId = document.querySelector("#report-select")?.value;
   if (!reportId) return;
   try {
-    setLoadingButton(button, true, "Programando...");
+    setLoadingButton(button, true, t("Common.Scheduling"));
     const nextRun = new Date(Date.now() + 86400000).toISOString();
     await request(`/tenants/${state.tenantId}/reports/${reportId}/schedules`, {
       method: "POST",
       loadingContext: "reports",
       body: { frequency: 2, nextRunUtc: nextRun }
     });
-    toast("Reporte programado correctamente.", "success");
+    toast(t("Dashboard.ReporteProgramadoCorrectamente"), "success");
   } finally {
     setLoadingButton(button, false);
   }
@@ -1499,7 +1534,7 @@ async function renderModule(content, key) {
       event.preventDefault();
       const button = actionForm.querySelector("button[type='submit']");
       try {
-        setLoadingButton(button, true, "Guardando...");
+        setLoadingButton(button, true, t("Common.Saving"));
         await runModuleAction(key, new FormData(actionForm));
       } finally {
         setLoadingButton(button, false);
@@ -1509,7 +1544,7 @@ async function renderModule(content, key) {
   document.querySelectorAll("[data-document-approve]").forEach(button => {
     button.addEventListener("click", async () => {
       try {
-        setLoadingButton(button, true, t("Common.Processing") || "Procesando...");
+        setLoadingButton(button, true, t("Common.Processing") || t("Common.Processing"));
         await request(`/tenants/${state.tenantId}/documents/${button.dataset.documentApprove}/decision`, {
           method: "POST",
           loadingContext: "save",
@@ -1714,7 +1749,7 @@ function bindCreateTenantForm() {
     const button = form.querySelector("button[type='submit']");
     const formData = new FormData(form);
     try {
-      setLoadingButton(button, true, "Creando...");
+      setLoadingButton(button, true, t("Common.Creating"));
       const tenant = await request("/tenants", {
         method: "POST",
         loadingContext: "save",
@@ -2517,7 +2552,7 @@ function bindTenantAdministrationCenter(tenant, center) {
   document.querySelectorAll("[data-tenant-state]").forEach(button => {
     button.addEventListener("click", async event => {
       try {
-        setLoadingButton(event.currentTarget, true, "Actualizando...");
+        setLoadingButton(event.currentTarget, true, t("Common.Updating"));
         await request(`/tenants/${state.tenantId}/${event.currentTarget.dataset.tenantState}`, { method: "POST", body: {}, loadingContext: "save" });
         toast("Estado del tenant actualizado.", "success");
         await renderRoute();
@@ -2570,9 +2605,9 @@ function bindTenantAction(selector, action) {
   document.querySelectorAll(selector).forEach(button => {
     button.addEventListener("click", async event => {
       try {
-        setLoadingButton(event.currentTarget, true, "Procesando...");
+        setLoadingButton(event.currentTarget, true, t("Common.Processing"));
         await action(event.currentTarget);
-        toast("Accion ejecutada y auditada.", "success");
+        toast(t("Dashboard.AccionEjecutadaYAuditada"), "success");
         await renderRoute();
       } catch (error) {
         toast(friendlyErrorMessage(error), "error");
@@ -2588,7 +2623,7 @@ function bindTenantForm(selector, submit) {
     event.preventDefault();
     const button = event.currentTarget.querySelector("button[type='submit']");
     try {
-      setLoadingButton(button, true, "Guardando...");
+      setLoadingButton(button, true, t("Common.Saving"));
       await submit(event);
       toast("Cambios guardados y auditados.", "success");
       await renderRoute();
@@ -2636,7 +2671,7 @@ function openTenantUserEditDialog(userId, email, fullName) {
     const button = event.currentTarget.querySelector("button[type='submit']");
     const form = new FormData(event.currentTarget);
     try {
-      setLoadingButton(button, true, "Guardando...");
+      setLoadingButton(button, true, t("Common.Saving"));
       await request(`/tenants/${state.tenantId}/users/${userId}`, {
         method: "PUT",
         loadingContext: "save",
@@ -2721,7 +2756,7 @@ function openAdminPasswordResetDialog(userId, userEmail) {
     const data = new FormData(form);
     const button = form.querySelector("button[type='submit']");
     try {
-      setLoadingButton(button, true, "Restableciendo...");
+      setLoadingButton(button, true, t("Common.Resetting"));
       await request(`/tenants/${state.tenantId}/users/${userId}/reset-password`, {
         method: "POST",
         loadingContext: "save",
@@ -3013,7 +3048,7 @@ async function renderEnterpriseWorkspace(content, key) {
     const form = new FormData(event.currentTarget);
     const button = event.currentTarget.querySelector("button[type='submit']");
     try {
-      setLoadingButton(button, true, "Guardando...");
+      setLoadingButton(button, true, t("Common.Saving"));
       await createEnterpriseWorkspaceItem(key, form);
     } finally {
       setLoadingButton(button, false);
@@ -3022,7 +3057,7 @@ async function renderEnterpriseWorkspace(content, key) {
   document.querySelector("#complete-first-item").addEventListener("click", async event => {
     if (!rows.length) return;
     try {
-      setLoadingButton(event.currentTarget, true, "Completando...");
+      setLoadingButton(event.currentTarget, true, t("Common.Completing"));
       await request(`/tenants/${state.tenantId}/enterprise-workspaces/${rows[0].id}/complete`, { method: "POST", body: {}, loadingContext: "save" });
       toast(`${workspace.title}: item completado.`, "success");
       await renderRoute();
@@ -3565,7 +3600,29 @@ async function downloadProtectedText(path, fileName) {
   link.download = fileName;
   link.click();
   URL.revokeObjectURL(url);
-  toast("Archivo exportado correctamente.", "success");
+  toast(t("Reports.Downloaded") || "Archivo exportado correctamente.", "success");
+}
+
+async function downloadProtectedBinary(path, fileName) {
+  const normalized = path.startsWith("/api/v1") ? path.slice("/api/v1".length) : path;
+  const response = await fetch(`${API}${normalized}`, {
+    headers: { Authorization: `Bearer ${state.token}` }
+  });
+  if (!response.ok) {
+    throw new Error(`${response.status} ${response.statusText}: ${await response.text()}`);
+  }
+  const blob = await response.blob();
+  if (!blob || blob.size <= 0) {
+    throw new Error("Export file was empty.");
+  }
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName || "report-export.bin";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
 }
 
 function ensureLoadingHost() {
@@ -3583,7 +3640,7 @@ function ensureLoadingHost() {
         </div>
         <div class="loading-copy">
           <strong id="global-loading-message">Procesando solicitud...</strong>
-          <p>Compliance 360 esta trabajando de forma segura.</p>
+          <p data-i18n="Ui.Compliance360WorkingSafely">${t("Ui.Compliance360WorkingSafely")}</p>
           <div class="indeterminate-bar" aria-hidden="true"><span></span></div>
         </div>
       </div>
@@ -3692,7 +3749,7 @@ function setLoadingButton(button, isLoading, text) {
     button.dataset.originalText = button.dataset.originalText || button.textContent.trim();
     button.disabled = true;
     button.classList.add("btn-loading");
-    button.innerHTML = `<span class="btn-progress" aria-hidden="true"></span><span>${escapeHtml(text || "Procesando...")}</span>`;
+    button.innerHTML = `<span class="btn-progress" aria-hidden="true"></span><span>${escapeHtml(text || t("Common.Processing"))}</span>`;
     return;
   }
   button.disabled = false;
@@ -3705,11 +3762,11 @@ function setLoadingButton(button, isLoading, text) {
 
 function loadingView(route = "default") {
   return `
-    <section class="loading-panel modern" aria-live="polite" aria-label="Cargando ${escapeHtml(currentRouteLabel())}">
+    <section class="loading-panel modern" aria-live="polite" aria-label="${escapeHtml(t("Common.LoadingLabel", { route: currentRouteLabel() }))}">
       <div class="loading-logo compact" aria-hidden="true"><span>C360</span><i></i></div>
       <div>
         <strong>${escapeHtml(resolveLoadingMessages(route)[0])}</strong>
-        <p>Consultando API v1, permisos y persistencia PostgreSQL.</p>
+        <p>${escapeHtml(t("Common.ConsultingApi"))}</p>
         <div class="indeterminate-bar" aria-hidden="true"><span></span></div>
       </div>
     </section>

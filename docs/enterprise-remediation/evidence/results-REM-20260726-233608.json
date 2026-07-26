@@ -1,0 +1,532 @@
+{
+  "generatedAt": "2026-07-26T23:36:12.264337+00:00",
+  "runId": "REM-20260726-233608",
+  "lab": {
+    "baseUrl": "http://localhost:5272",
+    "tenantId": "82af3877-2786-4d39-bce8-c981101c771d"
+  },
+  "meta": {
+    "runId": "REM-20260726-233608",
+    "baseUrl": "http://localhost:5272",
+    "tenantId": "82af3877-2786-4d39-bce8-c981101c771d",
+    "reportDefinitionId": "03fabf53-ec2e-4a6d-84fb-f468074b9f52",
+    "searchDossierId": "d2409288-5243-4bd5-b283-7f7b67143e04",
+    "searchCaseNumber": "RA-20260726-7864",
+    "remProductId": "e8d1a248-4830-4ba0-9336-61b60b09fdbf",
+    "remDossierId": "7c86b3ce-9596-4797-a1ca-873eabd47988",
+    "remCaseTag": "REM-20260726-8CAC",
+    "remCaseNumber": "RA-20260726-6417"
+  },
+  "summary": {
+    "planned": 32,
+    "executed": 32,
+    "PASS": 32,
+    "FAIL": 0,
+    "BLOCKED": 0,
+    "SKIPPED": 0
+  },
+  "tests": [
+    {
+      "testId": "ENV-LIVE",
+      "module": "Environment",
+      "role": "system",
+      "expected": "200 live",
+      "actual": "http=200",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:36:08.776364+00:00"
+    },
+    {
+      "testId": "AUTH-REGULATORY_SPECIALIST",
+      "module": "Auth",
+      "role": "Regulatory Specialist",
+      "expected": "login success",
+      "actual": "ok email=ra.spec@cert.local",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "email": "ra.spec@cert.local"
+      },
+      "at": "2026-07-26T23:36:08.914571+00:00"
+    },
+    {
+      "testId": "AUTH-REPORTING_MANAGER",
+      "module": "Auth",
+      "role": "Reporting Manager",
+      "expected": "login success",
+      "actual": "ok email=reporting@cert.local",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "email": "reporting@cert.local"
+      },
+      "at": "2026-07-26T23:36:09.013754+00:00"
+    },
+    {
+      "testId": "AUTH-NOTIFICATION_ADMINISTRATOR",
+      "module": "Auth",
+      "role": "Notification Administrator",
+      "expected": "login success",
+      "actual": "ok email=notifications@cert.local",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "email": "notifications@cert.local"
+      },
+      "at": "2026-07-26T23:36:09.112988+00:00"
+    },
+    {
+      "testId": "AUTH-TENANT_ADMINISTRATOR",
+      "module": "Auth",
+      "role": "Tenant Administrator",
+      "expected": "login success",
+      "actual": "ok email=irvingcorrosk19@gmail.com",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "email": "irvingcorrosk19@gmail.com"
+      },
+      "at": "2026-07-26T23:36:09.243944+00:00"
+    },
+    {
+      "testId": "AUTH-REGULATORY_VIEWER",
+      "module": "Auth",
+      "role": "Regulatory Viewer",
+      "expected": "login success",
+      "actual": "ok email=ra.view@cert.local",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "email": "ra.view@cert.local"
+      },
+      "at": "2026-07-26T23:36:09.362763+00:00"
+    },
+    {
+      "testId": "AUTH-REGULATORY_REVIEWER",
+      "module": "Auth",
+      "role": "Regulatory Reviewer",
+      "expected": "login success",
+      "actual": "ok email=ra.rev@cert.local",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "email": "ra.rev@cert.local"
+      },
+      "at": "2026-07-26T23:36:09.462324+00:00"
+    },
+    {
+      "testId": "AUTH-REGULATORY_APPROVER",
+      "module": "Auth",
+      "role": "Regulatory Approver",
+      "expected": "login success",
+      "actual": "ok email=ra.appr@cert.local",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "email": "ra.appr@cert.local"
+      },
+      "at": "2026-07-26T23:36:09.563341+00:00"
+    },
+    {
+      "testId": "AUTH-REGULATORY_SUBMITTER",
+      "module": "Auth",
+      "role": "Regulatory Submitter",
+      "expected": "login success",
+      "actual": "ok email=ra.sub@cert.local",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "email": "ra.sub@cert.local"
+      },
+      "at": "2026-07-26T23:36:09.696894+00:00"
+    },
+    {
+      "testId": "PROD-NEG-EMPTY",
+      "module": "Products",
+      "role": "Regulatory Specialist",
+      "expected": "empty rejected with 4xx",
+      "actual": "http=400",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+        "title": "Bad Request",
+        "status": 400,
+        "detail": "CountryCode is required."
+      },
+      "at": "2026-07-26T23:36:09.713673+00:00"
+    },
+    {
+      "testId": "RPT-LIST-MANAGER",
+      "module": "Reporting",
+      "role": "Reporting Manager",
+      "expected": "GET reports 200",
+      "actual": "http=200 count=24",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "count": 24
+      },
+      "at": "2026-07-26T23:36:09.747473+00:00"
+    },
+    {
+      "testId": "RPT-SEED",
+      "module": "Reporting",
+      "role": "Reporting Manager",
+      "expected": "seed if needed",
+      "actual": "skipped \u2014 reports already present",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:36:09.747473+00:00"
+    },
+    {
+      "testId": "RPT-EXECUTE",
+      "module": "Reporting",
+      "role": "Reporting Manager",
+      "expected": "execute report",
+      "actual": "http=200 executionId=a1231eb7-a10a-4853-80f0-ce367c2eef3f status=Running",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "id": "a1231eb7-a10a-4853-80f0-ce367c2eef3f",
+        "reportDefinitionId": "03fabf53-ec2e-4a6d-84fb-f468074b9f52",
+        "status": "Running",
+        "rowCount": 0,
+        "queuedAtUtc": "2026-07-26T23:36:09.8251374+00:00",
+        "completedAtUtc": null
+      },
+      "at": "2026-07-26T23:36:09.845584+00:00"
+    },
+    {
+      "testId": "RPT-COMPLETE",
+      "module": "Reporting",
+      "role": "Reporting Manager",
+      "expected": "complete execution if needed",
+      "actual": "http=200",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "id": "cb34fff3-c965-473f-9eb3-f8e4721b2762",
+        "reportDefinitionId": "03fabf53-ec2e-4a6d-84fb-f468074b9f52",
+        "reportExecutionId": "a1231eb7-a10a-4853-80f0-ce367c2eef3f",
+        "rowCount": 1,
+        "datasetDescriptorJson": "{\"columns\": [\"sample\"], \"rows\": [[\"remediation\"]]}"
+      },
+      "at": "2026-07-26T23:36:09.962139+00:00"
+    },
+    {
+      "testId": "RPT-EXPORT-CSV",
+      "module": "Reporting",
+      "role": "Reporting Manager",
+      "expected": "export Csv",
+      "actual": "http=200 exportId=07c82db8-3eca-41bb-99a3-c5c6403c6c4f ct=text/csv",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "id": "07c82db8-3eca-41bb-99a3-c5c6403c6c4f",
+        "reportDefinitionId": "03fabf53-ec2e-4a6d-84fb-f468074b9f52",
+        "reportExecutionId": "a1231eb7-a10a-4853-80f0-ce367c2eef3f",
+        "format": "Csv",
+        "fileName": "aud-open-v3.csv",
+        "contentType": "text/csv",
+        "downloadPath": "/api/v1/tenants/82af3877-2786-4d39-bce8-c981101c771d/reports/03fabf53-ec2e-4a6d-84fb-f468074b9f52/exports/07c82db8-3eca-41bb-99a3-c5c6403c6c4f/content"
+      },
+      "at": "2026-07-26T23:36:10.063302+00:00"
+    },
+    {
+      "testId": "RPT-CONTENT-CSV",
+      "module": "Reporting",
+      "role": "Reporting Manager",
+      "expected": "binary content size>0 + content-type (text/csv)",
+      "actual": "http=200 size=390 contentType=text/csv; charset=utf-8",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "size": 390,
+        "contentType": "text/csv; charset=utf-8",
+        "expected": "text/csv",
+        "ooxmlZip": null
+      },
+      "at": "2026-07-26T23:36:10.145965+00:00"
+    },
+    {
+      "testId": "RPT-EXPORT-EXCEL",
+      "module": "Reporting",
+      "role": "Reporting Manager",
+      "expected": "export Excel",
+      "actual": "http=200 exportId=0cc9253c-ad97-4a8a-8887-8bff73c84da0 ct=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "id": "0cc9253c-ad97-4a8a-8887-8bff73c84da0",
+        "reportDefinitionId": "03fabf53-ec2e-4a6d-84fb-f468074b9f52",
+        "reportExecutionId": "a1231eb7-a10a-4853-80f0-ce367c2eef3f",
+        "format": "Excel",
+        "fileName": "aud-open-v3.xlsx",
+        "contentType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "downloadPath": "/api/v1/tenants/82af3877-2786-4d39-bce8-c981101c771d/reports/03fabf53-ec2e-4a6d-84fb-f468074b9f52/exports/0cc9253c-ad97-4a8a-8887-8bff73c84da0/content"
+      },
+      "at": "2026-07-26T23:36:10.246474+00:00"
+    },
+    {
+      "testId": "RPT-CONTENT-EXCEL",
+      "module": "Reporting",
+      "role": "Reporting Manager",
+      "expected": "binary content size>0 + content-type (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)",
+      "actual": "http=200 size=2658 contentType=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "size": 2658,
+        "contentType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "expected": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "ooxmlZip": true
+      },
+      "at": "2026-07-26T23:36:10.329788+00:00"
+    },
+    {
+      "testId": "RPT-EXPORT-PDF",
+      "module": "Reporting",
+      "role": "Reporting Manager",
+      "expected": "export Pdf",
+      "actual": "http=200 exportId=1da1de6f-4fa2-406a-8f04-83e52c73cd65 ct=application/pdf",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "id": "1da1de6f-4fa2-406a-8f04-83e52c73cd65",
+        "reportDefinitionId": "03fabf53-ec2e-4a6d-84fb-f468074b9f52",
+        "reportExecutionId": "a1231eb7-a10a-4853-80f0-ce367c2eef3f",
+        "format": "Pdf",
+        "fileName": "aud-open-v3.pdf",
+        "contentType": "application/pdf",
+        "downloadPath": "/api/v1/tenants/82af3877-2786-4d39-bce8-c981101c771d/reports/03fabf53-ec2e-4a6d-84fb-f468074b9f52/exports/1da1de6f-4fa2-406a-8f04-83e52c73cd65/content"
+      },
+      "at": "2026-07-26T23:36:10.460386+00:00"
+    },
+    {
+      "testId": "RPT-CONTENT-PDF",
+      "module": "Reporting",
+      "role": "Reporting Manager",
+      "expected": "binary content size>0 + content-type (application/pdf)",
+      "actual": "http=200 size=949 contentType=application/pdf",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "size": 949,
+        "contentType": "application/pdf",
+        "expected": "application/pdf",
+        "ooxmlZip": null
+      },
+      "at": "2026-07-26T23:36:10.546511+00:00"
+    },
+    {
+      "testId": "RPT-LIST-TAC",
+      "module": "Reporting",
+      "role": "Tenant Administrator",
+      "expected": "GET reports 200 (has REPORT.READ)",
+      "actual": "http=200",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "count": 20
+      },
+      "at": "2026-07-26T23:36:10.562493+00:00"
+    },
+    {
+      "testId": "SEARCH-SEED-PRODUCT",
+      "module": "Search",
+      "role": "Regulatory Specialist",
+      "expected": "seed product for search",
+      "actual": "http=200 id=d25a3dd3-8138-490f-9b95-02cc3743a1f3",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:36:10.595704+00:00"
+    },
+    {
+      "testId": "SEARCH-PRODUCTS",
+      "module": "Search",
+      "role": "Regulatory Specialist",
+      "expected": "products searchText case-insensitive",
+      "actual": "http=200 hits=1 matched=True",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "query": "remsearchae99b8",
+        "productId": "d25a3dd3-8138-490f-9b95-02cc3743a1f3"
+      },
+      "at": "2026-07-26T23:36:10.612358+00:00"
+    },
+    {
+      "testId": "SEARCH-DOSSIERS",
+      "module": "Search",
+      "role": "Regulatory Specialist",
+      "expected": "dossiers searchText case-insensitive",
+      "actual": "http=200 hits=1 matched=True q=ra-20260726-7864",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "query": "ra-20260726-7864",
+        "dossierId": "d2409288-5243-4bd5-b283-7f7b67143e04",
+        "caseNumber": "RA-20260726-7864"
+      },
+      "at": "2026-07-26T23:36:10.996426+00:00"
+    },
+    {
+      "testId": "POST-LOGIN",
+      "module": "UX",
+      "role": "system",
+      "expected": "API N/A \u2014 browser skipped by design",
+      "actual": "resolvePostLoginLanding is client-side; no API assertion required for this recert harness",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "note": "Not needed in API; browser intentionally skipped"
+      },
+      "at": "2026-07-26T23:36:10.996426+00:00"
+    },
+    {
+      "testId": "REM-PRODUCT-CREATE",
+      "module": "Products",
+      "role": "Regulatory Specialist",
+      "expected": "create product REM-20260726-8CAC",
+      "actual": "http=200 id=e8d1a248-4830-4ba0-9336-61b60b09fdbf",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "catalogCode": "REM-20260726-8CAC",
+        "productId": "e8d1a248-4830-4ba0-9336-61b60b09fdbf"
+      },
+      "at": "2026-07-26T23:36:11.029552+00:00"
+    },
+    {
+      "testId": "REM-DOSSIER-CREATE",
+      "module": "Dossiers",
+      "role": "Regulatory Specialist",
+      "expected": "create dossier tagged REM-20260726-8CAC",
+      "actual": "http=200 id=7c86b3ce-9596-4797-a1ca-873eabd47988 caseNumber=RA-20260726-6417",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "caseTag": "REM-20260726-8CAC",
+        "caseNumber": "RA-20260726-6417",
+        "dossierId": "7c86b3ce-9596-4797-a1ca-873eabd47988",
+        "productId": "e8d1a248-4830-4ba0-9336-61b60b09fdbf"
+      },
+      "at": "2026-07-26T23:36:11.376388+00:00"
+    },
+    {
+      "testId": "OBS-OPEN-SHAPE",
+      "module": "Workflow",
+      "role": "Regulatory Specialist",
+      "expected": "OpenObservationResultDto: observation.id != dossier.id",
+      "actual": "http=200 obsId=4e089ce4-1677-4561-912c-c6ec7d669220 dossierId=dd436e8c-369c-46e0-81b5-e7dbcf2945f3 keys=['observation', 'dossier', 'id']",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "bodyKeys": [
+          "observation",
+          "dossier",
+          "id"
+        ],
+        "observationId": "4e089ce4-1677-4561-912c-c6ec7d669220",
+        "dossierId": "dd436e8c-369c-46e0-81b5-e7dbcf2945f3",
+        "targetDossier": "dd436e8c-369c-46e0-81b5-e7dbcf2945f3"
+      },
+      "at": "2026-07-26T23:36:11.563238+00:00"
+    },
+    {
+      "testId": "NOTIFY-SANDBOX",
+      "module": "Notifications",
+      "role": "Notification Administrator",
+      "expected": "sandbox-send + Mailpit receive",
+      "actual": "http=200 mailpitTotal=5 subjectHit=True",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "providerId": "659c0c11-a141-4e14-8537-810f13cb5c63",
+        "mailpitTotal": 5,
+        "subjectHit": true
+      },
+      "at": "2026-07-26T23:36:12.163232+00:00"
+    },
+    {
+      "testId": "MT-CROSS-TENANT",
+      "module": "Multitenancy",
+      "role": "Regulatory Specialist",
+      "expected": "foreign tenant access denied (403/404)",
+      "actual": "results=[{'path': '/tenants/dc7c46ee-cb25-4ed5-b0b4-800788f7f626/regulatory/products', 'status': 403, 'denied': True}, {'path': '/tenants/dc7c46ee-cb25-4ed5-b0b4-800788f7f626/reports', 'status': 403, 'denied': True}]",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": [
+        {
+          "path": "/tenants/dc7c46ee-cb25-4ed5-b0b4-800788f7f626/regulatory/products",
+          "status": 403,
+          "denied": true
+        },
+        {
+          "path": "/tenants/dc7c46ee-cb25-4ed5-b0b4-800788f7f626/reports",
+          "status": 403,
+          "denied": true
+        }
+      ],
+      "at": "2026-07-26T23:36:12.213665+00:00"
+    },
+    {
+      "testId": "NEG-EMPTY-PRODUCT-VIEWER",
+      "module": "Negative",
+      "role": "Regulatory Viewer",
+      "expected": "empty/unauthorized product create denied (4xx)",
+      "actual": "http=403",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:36:12.248558+00:00"
+    },
+    {
+      "testId": "NEG-EXPORT-UNAUTH",
+      "module": "Negative",
+      "role": "Regulatory Viewer",
+      "expected": "unauthorized export denied (not 2xx)",
+      "actual": "http=403",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": "",
+      "at": "2026-07-26T23:36:12.264337+00:00"
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "ALERT_INBOX_tac": {
+    "http": 200,
+    "sample": "{'items': [], 'total': 0, 'page': 1, 'pageSize': 10}"
+  },
+  "ALERT_INBOX_notif": {
+    "http": 200,
+    "sample": "{'items': [], 'total': 0, 'page': 1, 'pageSize': 10}"
+  },
+  "ALERT_INBOX_mgr": {
+    "http": 200,
+    "sample": "{'items': [], 'total': 0, 'page': 1, 'pageSize': 10}"
+  },
+  "ALERT_SETTINGS": {
+    "http": 403,
+    "keys": null
+  },
+  "CERT_UPLOAD": {
+    "http": 200,
+    "id": "91335686-2ffc-42ac-b007-cae2c10c4415"
+  },
+  "EXT_APPROVE_0": {
+    "http": 400,
+    "body": "{'type': 'https://tools.ietf.org/html/rfc9110#section-15.5.1', 'title': 'Bad Request', 'status': 400, 'detail': 'Stored file not found.'}",
+    "payloadKeys": [
+      "registrationNumber",
+      "issuedOn",
+      "expiresOn",
+      "notes",
+      "approvalCertificateStoredFileId"
+    ]
+  },
+  "EXT_APPROVE_1": {
+    "http": 400,
+    "body": "{'type': 'https://tools.ietf.org/html/rfc9110#section-15.5.1', 'title': 'Bad Request', 'status': 400, 'detail': 'Stored file not found.'}",
+    "payloadKeys": [
+      "registrationNumber",
+      "issuedOn",
+      "expiresOn",
+      "notes",
+      "storedFileId"
+    ]
+  },
+  "EXT_APPROVE_2": {
+    "http": 400,
+    "body": "{'type': 'https://tools.ietf.org/html/rfc9110#section-15.5.1', 'title': 'Bad Request', 'status': 400, 'detail': 'Stored file not found.'}",
+    "payloadKeys": [
+      "registrationNumber",
+      "issuedOn",
+      "expiresOn",
+      "notes",
+      "certificateStoredFileId"
+    ]
+  },
+  "DOS_STATUS": {
+    "http": 200,
+    "status": "Observed"
+  },
+  "REPORT_reports": {
+    "http": 404
+  },
+  "REPORT_report-center": {
+    "http": 404
+  }
+}

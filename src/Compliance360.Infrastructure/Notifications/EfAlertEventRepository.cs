@@ -19,6 +19,18 @@ public sealed class EfAlertEventRepository : IAlertEventRepository
             item => item.TenantId == tenantId && item.Id == occurrenceId,
             cancellationToken);
 
+    public async Task<IReadOnlyList<AlertOccurrence>> ListOccurrencesAsync(
+        Guid tenantId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken) =>
+        await _dbContext.AlertOccurrences.AsNoTracking()
+            .Where(item => item.TenantId == tenantId)
+            .OrderByDescending(item => item.OccurredAtUtc)
+            .Skip(Math.Max(0, (page - 1) * pageSize))
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
     public Task<AlertDefinition?> GetDefinitionAsync(Guid tenantId, Guid definitionId, CancellationToken cancellationToken) =>
         _dbContext.AlertDefinitions.AsNoTracking().SingleOrDefaultAsync(
             item => item.TenantId == tenantId && item.Id == definitionId,

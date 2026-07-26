@@ -141,7 +141,8 @@ public sealed class AlertCenterWorkerHealthCheck : IHealthCheck
         var age = DateTimeOffset.UtcNow - newestHeartbeat.LastSeenAtUtc;
         if (age > maximumAge || newestHeartbeat.Status == "Stopped")
         {
-            return HealthCheckResult.Unhealthy(
+            // Degraded (not Unhealthy): Web/API remains available; notifications surface via /health/notifications.
+            return HealthCheckResult.Degraded(
                 $"Alert Center worker heartbeat is stale ({Math.Round(age.TotalSeconds)} seconds) or stopped.");
         }
 

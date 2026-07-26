@@ -1,0 +1,1689 @@
+{
+  "summary": {
+    "runId": "EFC-20260726-233326",
+    "meta": {
+      "runId": "EFC-20260726-233326",
+      "baseUrl": "http://localhost:5272",
+      "tenantId": "82af3877-2786-4d39-bce8-c981101c771d",
+      "productCode": "EFC-D6E3D80B",
+      "productId": "2e3876b7-4ad0-4648-837e-c24a533a7248",
+      "dossierId": "b4311f40-2a34-4df9-8b36-227344ede714",
+      "initialStatus": "Planning",
+      "registrationNumber": "RS-EFC-8646D3",
+      "terminalStatus": "Active",
+      "dbStatus": "Closed",
+      "localizationCoverage": 100.0
+    },
+    "planned": 82,
+    "executed": 82,
+    "counts": {
+      "PASS": 82,
+      "FAIL": 0,
+      "BLOCKED": 0,
+      "SKIPPED": 0
+    },
+    "severityFails": {
+      "P0": 0,
+      "P1": 0,
+      "P2": 0,
+      "P3": 0,
+      "P4": 0
+    },
+    "modules": {
+      "Environment": {
+        "PASS": 2,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 2
+      },
+      "Auth/RBAC": {
+        "PASS": 10,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 10
+      },
+      "RBAC": {
+        "PASS": 14,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 14
+      },
+      "Administration": {
+        "PASS": 1,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 1
+      },
+      "Regulatory": {
+        "PASS": 1,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 1
+      },
+      "SoD": {
+        "PASS": 8,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 8
+      },
+      "Products": {
+        "PASS": 3,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 3
+      },
+      "Search": {
+        "PASS": 1,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 1
+      },
+      "Dossiers": {
+        "PASS": 1,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 1
+      },
+      "Requirements": {
+        "PASS": 1,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 1
+      },
+      "Documents": {
+        "PASS": 5,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 5
+      },
+      "Workflow": {
+        "PASS": 13,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 13
+      },
+      "Auditability": {
+        "PASS": 3,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 3
+      },
+      "Reliability": {
+        "PASS": 2,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 2
+      },
+      "Negative": {
+        "PASS": 1,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 1
+      },
+      "Multitenancy": {
+        "PASS": 2,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 2
+      },
+      "Reporting": {
+        "PASS": 2,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 2
+      },
+      "Alert Engine": {
+        "PASS": 3,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 3
+      },
+      "Registrations": {
+        "PASS": 1,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 1
+      },
+      "Licenses": {
+        "PASS": 1,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 1
+      },
+      "Manufacturers": {
+        "PASS": 1,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 1
+      },
+      "Persistence": {
+        "PASS": 1,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 1
+      },
+      "Security": {
+        "PASS": 1,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 1
+      },
+      "Database": {
+        "PASS": 3,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 3
+      },
+      "Localization": {
+        "PASS": 1,
+        "FAIL": 0,
+        "BLOCKED": 0,
+        "SKIPPED": 0,
+        "total": 1
+      }
+    },
+    "scores": {
+      "Functional Completeness": 100,
+      "Regulatory Workflow": 100,
+      "Configurability": 100,
+      "RBAC": 100,
+      "SoD": 100,
+      "Auditability": 100,
+      "Document Management": 100,
+      "Alert Engine": 100,
+      "Notifications": 62,
+      "Reporting": 100,
+      "Search": 100,
+      "Administration": 100,
+      "Multitenancy": 100,
+      "Localization": 100,
+      "UX Functional Quality": 70,
+      "Performance": 75,
+      "Reliability": 100
+    },
+    "enterpriseFunctionalScore": 97,
+    "level": "Enterprise Premium",
+    "productionVerdict": "ENTERPRISE PREMIUM PRODUCTION READY",
+    "perf": [
+      {
+        "op": "HEALTH_LIVE",
+        "ms": 10.6,
+        "class": "Excellent"
+      },
+      {
+        "op": "LOGIN:Tenant Administrator",
+        "ms": 158.6,
+        "class": "Excellent"
+      },
+      {
+        "op": "LOGIN:Regulatory Administrator",
+        "ms": 101.9,
+        "class": "Excellent"
+      },
+      {
+        "op": "LOGIN:Regulatory Manager",
+        "ms": 104.9,
+        "class": "Excellent"
+      },
+      {
+        "op": "LOGIN:Regulatory Specialist",
+        "ms": 122.2,
+        "class": "Excellent"
+      },
+      {
+        "op": "LOGIN:Regulatory Reviewer",
+        "ms": 110.8,
+        "class": "Excellent"
+      },
+      {
+        "op": "LOGIN:Regulatory Approver",
+        "ms": 122.0,
+        "class": "Excellent"
+      },
+      {
+        "op": "LOGIN:Regulatory Submitter",
+        "ms": 122.4,
+        "class": "Excellent"
+      },
+      {
+        "op": "LOGIN:Regulatory Viewer",
+        "ms": 115.3,
+        "class": "Excellent"
+      },
+      {
+        "op": "LOGIN:Quality Manager",
+        "ms": 116.3,
+        "class": "Excellent"
+      },
+      {
+        "op": "LOGIN:Platform Administrator",
+        "ms": 131.4,
+        "class": "Excellent"
+      },
+      {
+        "op": "CREATE_PRODUCT",
+        "ms": 57.9,
+        "class": "Excellent"
+      },
+      {
+        "op": "LIST_PRODUCTS",
+        "ms": 58.1,
+        "class": "Excellent"
+      },
+      {
+        "op": "CREATE_DOSSIER",
+        "ms": 752.5,
+        "class": "Excellent"
+      },
+      {
+        "op": "APPROVE_INTERNAL",
+        "ms": 226.7,
+        "class": "Excellent"
+      },
+      {
+        "op": "SUBMIT",
+        "ms": 369.6,
+        "class": "Excellent"
+      },
+      {
+        "op": "DASHBOARD",
+        "ms": 131.2,
+        "class": "Excellent"
+      }
+    ],
+    "localizationCoverage": 100.0
+  },
+  "results": [
+    {
+      "testId": "ENV-001",
+      "module": "Environment",
+      "role": "system",
+      "expected": "200 live",
+      "actual": "http=200 11ms",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:26.306203+00:00"
+    },
+    {
+      "testId": "ENV-002",
+      "module": "Environment",
+      "role": "system",
+      "expected": "health reachable",
+      "actual": "http=200 status=Healthy",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "health": {
+          "service": "Compliance360.Enterprise",
+          "status": "Healthy",
+          "utc": "2026-07-26T23:33:26.3142919+00:00"
+        }
+      },
+      "at": "2026-07-26T23:33:26.317940+00:00"
+    },
+    {
+      "testId": "AUTH-TENANT_ADMINISTRATOR",
+      "module": "Auth/RBAC",
+      "role": "Tenant Administrator",
+      "expected": "login success + JWT",
+      "actual": "ok perms=27 159ms",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "email": "irvingcorrosk19@gmail.com",
+        "permCount": 27,
+        "samplePerms": [
+          "AUDIT.READ",
+          "IDENTITY.MANAGE",
+          "NOTIFICATION.READ",
+          "RBAC.MANAGE",
+          "REGULATORY.CONFIGURE",
+          "REGULATORY.DOSSIER.READ",
+          "REGULATORY.LICENSE.READ",
+          "REGULATORY.MANUFACTURER_DOCUMENT.READ",
+          "REGULATORY.PRODUCT.READ",
+          "REGULATORY.REGISTRATION.READ",
+          "REGULATORY.REPORT.READ",
+          "REGULATORY.SOD.MANAGE"
+        ]
+      },
+      "at": "2026-07-26T23:33:26.474213+00:00"
+    },
+    {
+      "testId": "AUTH-REGULATORY_ADMINISTRATOR",
+      "module": "Auth/RBAC",
+      "role": "Regulatory Administrator",
+      "expected": "login success + JWT",
+      "actual": "ok perms=14 102ms",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "email": "ra.admin@cert.local",
+        "permCount": 14,
+        "samplePerms": [
+          "NOTIFICATION.READ",
+          "REGULATORY.CONFIGURE",
+          "REGULATORY.DOSSIER.CREATE",
+          "REGULATORY.DOSSIER.READ",
+          "REGULATORY.LICENSE.MANAGE",
+          "REGULATORY.LICENSE.READ",
+          "REGULATORY.MANUFACTURER_DOCUMENT.MANAGE",
+          "REGULATORY.MANUFACTURER_DOCUMENT.READ",
+          "REGULATORY.PRODUCT.MANAGE",
+          "REGULATORY.PRODUCT.READ",
+          "REGULATORY.REGISTRATION.READ",
+          "REGULATORY.REPORT.READ"
+        ]
+      },
+      "at": "2026-07-26T23:33:26.572966+00:00"
+    },
+    {
+      "testId": "AUTH-REGULATORY_MANAGER",
+      "module": "Auth/RBAC",
+      "role": "Regulatory Manager",
+      "expected": "login success + JWT",
+      "actual": "ok perms=13 105ms",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "email": "ra.mgr@cert.local",
+        "permCount": 13,
+        "samplePerms": [
+          "NOTIFICATION.READ",
+          "REGULATORY.DOSSIER.APPROVE",
+          "REGULATORY.DOSSIER.READ",
+          "REGULATORY.DOSSIER.UPDATE",
+          "REGULATORY.LICENSE.READ",
+          "REGULATORY.OBSERVATION.MANAGE",
+          "REGULATORY.PRODUCT.READ",
+          "REGULATORY.REGISTRATION.MANAGE",
+          "REGULATORY.REGISTRATION.READ",
+          "REGULATORY.REPORT.READ",
+          "REGULATORY.SOD.EMERGENCY_OVERRIDE",
+          "REGULATORY.SOD.MANAGE"
+        ]
+      },
+      "at": "2026-07-26T23:33:26.683612+00:00"
+    },
+    {
+      "testId": "AUTH-REGULATORY_SPECIALIST",
+      "module": "Auth/RBAC",
+      "role": "Regulatory Specialist",
+      "expected": "login success + JWT",
+      "actual": "ok perms=14 122ms",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "email": "ra.spec@cert.local",
+        "permCount": 14,
+        "samplePerms": [
+          "NOTIFICATION.READ",
+          "REGULATORY.DOSSIER.CREATE",
+          "REGULATORY.DOSSIER.READ",
+          "REGULATORY.DOSSIER.UPDATE",
+          "REGULATORY.LICENSE.READ",
+          "REGULATORY.MANUFACTURER_DOCUMENT.MANAGE",
+          "REGULATORY.MANUFACTURER_DOCUMENT.READ",
+          "REGULATORY.OBSERVATION.MANAGE",
+          "REGULATORY.PRODUCT.MANAGE",
+          "REGULATORY.PRODUCT.READ",
+          "REGULATORY.REGISTRATION.READ",
+          "REGULATORY.REPORT.READ"
+        ]
+      },
+      "at": "2026-07-26T23:33:26.806336+00:00"
+    },
+    {
+      "testId": "AUTH-REGULATORY_REVIEWER",
+      "module": "Auth/RBAC",
+      "role": "Regulatory Reviewer",
+      "expected": "login success + JWT",
+      "actual": "ok perms=8 111ms",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "email": "ra.rev@cert.local",
+        "permCount": 8,
+        "samplePerms": [
+          "NOTIFICATION.READ",
+          "REGULATORY.DOSSIER.READ",
+          "REGULATORY.DOSSIER.REVIEW",
+          "REGULATORY.PRODUCT.READ",
+          "REGULATORY.REGISTRATION.READ",
+          "REGULATORY.REPORT.READ",
+          "REGULATORY.REQUIREMENT.MANAGE",
+          "TENANT.READ"
+        ]
+      },
+      "at": "2026-07-26T23:33:26.916918+00:00"
+    },
+    {
+      "testId": "AUTH-REGULATORY_APPROVER",
+      "module": "Auth/RBAC",
+      "role": "Regulatory Approver",
+      "expected": "login success + JWT",
+      "actual": "ok perms=7 122ms",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "email": "ra.appr@cert.local",
+        "permCount": 7,
+        "samplePerms": [
+          "NOTIFICATION.READ",
+          "REGULATORY.DOSSIER.APPROVE_FOR_SUBMISSION",
+          "REGULATORY.DOSSIER.READ",
+          "REGULATORY.PRODUCT.READ",
+          "REGULATORY.REGISTRATION.READ",
+          "REGULATORY.REPORT.READ",
+          "TENANT.READ"
+        ]
+      },
+      "at": "2026-07-26T23:33:27.038997+00:00"
+    },
+    {
+      "testId": "AUTH-REGULATORY_SUBMITTER",
+      "module": "Auth/RBAC",
+      "role": "Regulatory Submitter",
+      "expected": "login success + JWT",
+      "actual": "ok perms=7 122ms",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "email": "ra.sub@cert.local",
+        "permCount": 7,
+        "samplePerms": [
+          "NOTIFICATION.READ",
+          "REGULATORY.DOSSIER.READ",
+          "REGULATORY.DOSSIER.SUBMIT",
+          "REGULATORY.PRODUCT.READ",
+          "REGULATORY.REGISTRATION.READ",
+          "REGULATORY.REPORT.READ",
+          "TENANT.READ"
+        ]
+      },
+      "at": "2026-07-26T23:33:27.156117+00:00"
+    },
+    {
+      "testId": "AUTH-REGULATORY_VIEWER",
+      "module": "Auth/RBAC",
+      "role": "Regulatory Viewer",
+      "expected": "login success + JWT",
+      "actual": "ok perms=8 115ms",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "email": "ra.view@cert.local",
+        "permCount": 8,
+        "samplePerms": [
+          "NOTIFICATION.READ",
+          "REGULATORY.DOSSIER.READ",
+          "REGULATORY.LICENSE.READ",
+          "REGULATORY.MANUFACTURER_DOCUMENT.READ",
+          "REGULATORY.PRODUCT.READ",
+          "REGULATORY.REGISTRATION.READ",
+          "REGULATORY.REPORT.READ",
+          "TENANT.READ"
+        ]
+      },
+      "at": "2026-07-26T23:33:27.273279+00:00"
+    },
+    {
+      "testId": "AUTH-QUALITY_MANAGER",
+      "module": "Auth/RBAC",
+      "role": "Quality Manager",
+      "expected": "login success + JWT",
+      "actual": "ok perms=25 116ms",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "email": "ra.qm@cert.local",
+        "permCount": 25,
+        "samplePerms": [
+          "AUDIT.READ",
+          "AUDITMANAGEMENT.READ",
+          "CAPA.APPROVE",
+          "CAPA.CLOSE",
+          "CAPA.READ",
+          "DOCUMENT.APPROVE",
+          "DOCUMENT.READ",
+          "INDICATOR.APPROVE",
+          "INDICATOR.READ",
+          "NOTIFICATION.READ",
+          "REGULATORY.DOSSIER.APPROVE",
+          "REGULATORY.DOSSIER.READ"
+        ]
+      },
+      "at": "2026-07-26T23:33:27.389521+00:00"
+    },
+    {
+      "testId": "AUTH-PLATFORM_ADMINISTRATOR",
+      "module": "Auth/RBAC",
+      "role": "Platform Administrator",
+      "expected": "login success + JWT",
+      "actual": "ok perms=33 131ms",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "email": "admin@compliance360.local",
+        "permCount": 33,
+        "samplePerms": [
+          "IDENTITY.MANAGE",
+          "PLATFORM.AI.MANAGE",
+          "PLATFORM.AUDIT.EXPORT",
+          "PLATFORM.AUDIT.READ",
+          "PLATFORM.BACKUP.READ",
+          "PLATFORM.CONFIGURATION.MANAGE",
+          "PLATFORM.DASHBOARD.READ",
+          "PLATFORM.DATABASE.READ",
+          "PLATFORM.DEVOPS.READ",
+          "PLATFORM.LICENSE.MANAGE",
+          "PLATFORM.MODULE.MANAGE",
+          "PLATFORM.OBSERVABILITY.READ"
+        ]
+      },
+      "at": "2026-07-26T23:33:27.523580+00:00"
+    },
+    {
+      "testId": "CLAIM-SPEC-NO-SUBMIT",
+      "module": "RBAC",
+      "role": "Regulatory Specialist",
+      "expected": "REGULATORY.DOSSIER.SUBMIT absent",
+      "actual": "has=False",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:27.523580+00:00"
+    },
+    {
+      "testId": "CLAIM-SPEC-NO-APPR",
+      "module": "RBAC",
+      "role": "Regulatory Specialist",
+      "expected": "REGULATORY.DOSSIER.APPROVE_FOR_SUBMISSION absent",
+      "actual": "has=False",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:27.523580+00:00"
+    },
+    {
+      "testId": "CLAIM-SPEC-NO-EXT",
+      "module": "RBAC",
+      "role": "Regulatory Specialist",
+      "expected": "REGULATORY.DOSSIER.APPROVE absent",
+      "actual": "has=False",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:27.523580+00:00"
+    },
+    {
+      "testId": "CLAIM-REV-HAS-REVIEW",
+      "module": "RBAC",
+      "role": "Regulatory Reviewer",
+      "expected": "REGULATORY.DOSSIER.REVIEW present",
+      "actual": "has=True",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:27.523580+00:00"
+    },
+    {
+      "testId": "CLAIM-REV-NO-SUBMIT",
+      "module": "RBAC",
+      "role": "Regulatory Reviewer",
+      "expected": "REGULATORY.DOSSIER.SUBMIT absent",
+      "actual": "has=False",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:27.523580+00:00"
+    },
+    {
+      "testId": "CLAIM-APPR-HAS",
+      "module": "RBAC",
+      "role": "Regulatory Approver",
+      "expected": "REGULATORY.DOSSIER.APPROVE_FOR_SUBMISSION present",
+      "actual": "has=True",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:27.523580+00:00"
+    },
+    {
+      "testId": "CLAIM-APPR-NO-SUB",
+      "module": "RBAC",
+      "role": "Regulatory Approver",
+      "expected": "REGULATORY.DOSSIER.SUBMIT absent",
+      "actual": "has=False",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:27.523580+00:00"
+    },
+    {
+      "testId": "CLAIM-SUB-HAS",
+      "module": "RBAC",
+      "role": "Regulatory Submitter",
+      "expected": "REGULATORY.DOSSIER.SUBMIT present",
+      "actual": "has=True",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:27.523580+00:00"
+    },
+    {
+      "testId": "CLAIM-SUB-NO-APPR",
+      "module": "RBAC",
+      "role": "Regulatory Submitter",
+      "expected": "REGULATORY.DOSSIER.APPROVE_FOR_SUBMISSION absent",
+      "actual": "has=False",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:27.523580+00:00"
+    },
+    {
+      "testId": "CLAIM-VIEW-READ",
+      "module": "RBAC",
+      "role": "Regulatory Viewer",
+      "expected": "REGULATORY.DOSSIER.READ present",
+      "actual": "has=True",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:27.523580+00:00"
+    },
+    {
+      "testId": "CLAIM-VIEW-NO-CREATE",
+      "module": "RBAC",
+      "role": "Regulatory Viewer",
+      "expected": "REGULATORY.DOSSIER.CREATE absent",
+      "actual": "has=False",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:27.523580+00:00"
+    },
+    {
+      "testId": "CFG-BOOTSTRAP",
+      "module": "Administration",
+      "role": "Regulatory Administrator",
+      "expected": "<300",
+      "actual": "http=200",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:27.672954+00:00"
+    },
+    {
+      "testId": "RA-AUTH-LIST",
+      "module": "Regulatory",
+      "role": "Regulatory Specialist",
+      "expected": "authorities available",
+      "actual": "http=200 id=2bd03b5e-3bad-488e-a324-aad9c4a86cf6",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:27.707542+00:00"
+    },
+    {
+      "testId": "SOD-SETTINGS",
+      "module": "SoD",
+      "role": "Regulatory Administrator",
+      "expected": "preventSelfReview=true",
+      "actual": "http=200 preventSelfReview=True body_keys=['preventSelfReview', 'preventSelfApproval', 'separateApproverAndSubmitter', 'separateDocumentUploaderAndReviewer', 'requireSecondApprovalForCriticalWaiver', 'requireApprovalForCriticalityChange', 'requireApprovalForExternalDecisionRecording', 'allowEmergencyOverride', 'emergencyOverrideRequiresReason', 'emergencyOverrideRequiresSecondaryReview', 'requireInternalApprovalBeforeSubmission']",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "preventSelfReview": true,
+        "preventSelfApproval": true,
+        "separateApproverAndSubmitter": true,
+        "separateDocumentUploaderAndReviewer": true,
+        "requireSecondApprovalForCriticalWaiver": true,
+        "requireApprovalForCriticalityChange": true,
+        "requireApprovalForExternalDecisionRecording": false,
+        "allowEmergencyOverride": true,
+        "emergencyOverrideRequiresReason": true,
+        "emergencyOverrideRequiresSecondaryReview": true,
+        "requireInternalApprovalBeforeSubmission": true
+      },
+      "at": "2026-07-26T23:33:27.763965+00:00"
+    },
+    {
+      "testId": "PROD-CREATE",
+      "module": "Products",
+      "role": "Regulatory Specialist",
+      "expected": "create product <300",
+      "actual": "http=200 id=2e3876b7-4ad0-4648-837e-c24a533a7248 58ms",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "code": "EFC-D6E3D80B",
+        "productId": "2e3876b7-4ad0-4648-837e-c24a533a7248"
+      },
+      "at": "2026-07-26T23:33:27.821385+00:00"
+    },
+    {
+      "testId": "PROD-DUP",
+      "module": "Products",
+      "role": "Regulatory Specialist",
+      "expected": "duplicate catalog rejected or controlled",
+      "actual": "http=400",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:27.852959+00:00"
+    },
+    {
+      "testId": "PROD-NEG-EMPTY",
+      "module": "Products",
+      "role": "Regulatory Specialist",
+      "expected": "empty rejected with 4xx",
+      "actual": "http=400",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:27.881630+00:00"
+    },
+    {
+      "testId": "PROD-LIST",
+      "module": "Search",
+      "role": "Regulatory Specialist",
+      "expected": "list products",
+      "actual": "http=200 58ms",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:27.939922+00:00"
+    },
+    {
+      "testId": "RBAC-VIEW-CREATE-PROD",
+      "module": "RBAC",
+      "role": "Regulatory Viewer",
+      "expected": "403/deny create",
+      "actual": "http=403",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:27.965944+00:00"
+    },
+    {
+      "testId": "DOS-CREATE",
+      "module": "Dossiers",
+      "role": "Regulatory Specialist",
+      "expected": "create dossier with requirements",
+      "actual": "http=200 id=b4311f40-2a34-4df9-8b36-227344ede714 status=Planning reqs=22 752ms",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:28.717932+00:00"
+    },
+    {
+      "testId": "REQ-PACKS",
+      "module": "Requirements",
+      "role": "Regulatory Specialist",
+      "expected": "packs listable",
+      "actual": "http=200",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "reqCountOnDossier": 22
+      },
+      "at": "2026-07-26T23:33:28.756105+00:00"
+    },
+    {
+      "testId": "SOD-001-SELF-ACCEPT",
+      "module": "SoD",
+      "role": "Regulatory Specialist",
+      "expected": "deny self-accept critical",
+      "actual": "http=403 ",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:28.789230+00:00"
+    },
+    {
+      "testId": "SOD-002-SPEC-APPROVE",
+      "module": "SoD",
+      "role": "Regulatory Specialist",
+      "expected": "deny approve-for-submission",
+      "actual": "http=403",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:28.802212+00:00"
+    },
+    {
+      "testId": "SOD-013-SPEC-SUBMIT",
+      "module": "SoD",
+      "role": "Regulatory Specialist",
+      "expected": "deny submit",
+      "actual": "http=403",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:28.817906+00:00"
+    },
+    {
+      "testId": "DOC-UPLOAD",
+      "module": "Documents",
+      "role": "Regulatory Specialist",
+      "expected": "upload PDF evidence",
+      "actual": "http=200 id=3f48920a-566a-4982-b67b-ae0b53509c3c 608.9ms",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "id": "3f48920a-566a-4982-b67b-ae0b53509c3c",
+        "tenantId": "82af3877-2786-4d39-bce8-c981101c771d",
+        "storageProvider": "Local",
+        "containerName": "tenant-documents",
+        "objectKey": "82af387727864d39bce8c981101c771d/RegistrationDossier/b4311f402a344df98b36227344ede714/8e7d057fc599467a95ca10f8113a4518",
+        "originalFileName": "EFC-20260726-233326-evidence.pdf",
+        "contentType": "application/pdf",
+        "sizeBytes": 79,
+        "sha256Hash": "9B14099A35F39F4531FD9307F9EFF70CD74DB25D4F4DF100D514B57D01018BEB",
+        "ownerEntityName": "RegistrationDossier",
+        "ownerEntityId": "b4311f40-2a34-4df9-8b36-227344ede714",
+        "versionEntityId": null,
+        "status": "PendingScan"
+      },
+      "at": "2026-07-26T23:33:29.414246+00:00"
+    },
+    {
+      "testId": "DOC-DOWNLOAD",
+      "module": "Documents",
+      "role": "Regulatory Specialist",
+      "expected": "download evidence content",
+      "actual": "http=200",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:29.573522+00:00"
+    },
+    {
+      "testId": "DOC-INVALID-EXT",
+      "module": "Documents",
+      "role": "Regulatory Specialist",
+      "expected": "reject invalid extension",
+      "actual": "http=400",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:29.646087+00:00"
+    },
+    {
+      "testId": "DOC-REJECT-TXT",
+      "module": "Documents",
+      "role": "Regulatory Specialist",
+      "expected": "reject non-PDF text",
+      "actual": "http=400",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:29.697694+00:00"
+    },
+    {
+      "testId": "WF-TRANS-WaitingManufacturerDocuments",
+      "module": "Workflow",
+      "role": "Regulatory Specialist",
+      "expected": "transition to WaitingManufacturerDocuments",
+      "actual": "http=200 status=WaitingManufacturerDocuments",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:29.814213+00:00"
+    },
+    {
+      "testId": "WF-TRANS-DocumentsReceived",
+      "module": "Workflow",
+      "role": "Regulatory Specialist",
+      "expected": "transition to DocumentsReceived",
+      "actual": "http=200 status=DocumentsReceived",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:29.970491+00:00"
+    },
+    {
+      "testId": "WF-TRANS-Assembling",
+      "module": "Workflow",
+      "role": "Regulatory Specialist",
+      "expected": "transition to Assembling",
+      "actual": "http=200 status=Assembling",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:30.274325+00:00"
+    },
+    {
+      "testId": "DOC-ATTACH-REQUIRED",
+      "module": "Documents",
+      "role": "Regulatory Specialist",
+      "expected": "attach evidence to required requirements as Received",
+      "actual": "attached=22 fail=0",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:37.030673+00:00"
+    },
+    {
+      "testId": "WF-V2-START-REVIEW",
+      "module": "Workflow",
+      "role": "Regulatory Specialist",
+      "expected": "UnderTechnicalReview",
+      "actual": "http=200 status=UnderTechnicalReview",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:37.373158+00:00"
+    },
+    {
+      "testId": "REV-ACCEPT-REQUIRED",
+      "module": "Workflow",
+      "role": "Regulatory Reviewer",
+      "expected": "required accepted",
+      "actual": "pending=0",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:40.385718+00:00"
+    },
+    {
+      "testId": "WF-V2-COMPLETE-REVIEW",
+      "module": "Workflow",
+      "role": "Regulatory Reviewer",
+      "expected": "ReadyForSubmission",
+      "actual": "http=200 status=ReadyForSubmission",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:40.931764+00:00"
+    },
+    {
+      "testId": "SOD-003-REV-APPROVE",
+      "module": "SoD",
+      "role": "Regulatory Reviewer",
+      "expected": "deny approve-for-submission",
+      "actual": "http=403",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:40.947397+00:00"
+    },
+    {
+      "testId": "SOD-017-REV-SUBMIT",
+      "module": "SoD",
+      "role": "Regulatory Reviewer",
+      "expected": "deny submit",
+      "actual": "http=403",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:40.963962+00:00"
+    },
+    {
+      "testId": "WF-V2-READ",
+      "module": "Workflow",
+      "role": "Regulatory Reviewer",
+      "expected": "workflow v2 readable",
+      "actual": "http=200",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "keys": [
+          "dossierId",
+          "status",
+          "revision",
+          "availableActions",
+          "locks",
+          "openCorrection"
+        ]
+      },
+      "at": "2026-07-26T23:33:41.047205+00:00"
+    },
+    {
+      "testId": "WF-V2-TIMELINE",
+      "module": "Auditability",
+      "role": "Regulatory Reviewer",
+      "expected": "timeline readable",
+      "actual": "http=200",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:41.097208+00:00"
+    },
+    {
+      "testId": "APPR-INTERNAL",
+      "module": "Workflow",
+      "role": "Regulatory Approver",
+      "expected": "ApprovedForSubmission",
+      "actual": "http=200 status=ApprovedForSubmission 227ms detail={\"id\":\"b4311f40-2a34-4df9-8b36-227344ede714\",\"caseNumber\":\"RA-20260726-9622\",\"productId\":\"2e3876b7-4ad0-4648-837e-c24a533a7248\",\"authorityId\":\"2bd03b5e-3bad-488",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:41.315941+00:00"
+    },
+    {
+      "testId": "CONC-DOUBLE-APPROVE",
+      "module": "Reliability",
+      "role": "Regulatory Approver",
+      "expected": "second approve controlled",
+      "actual": "http=400 {\"type\":\"https://tools.ietf.org/html/rfc9110#section-15.5.1\",\"title\":\"Bad Request\",\"status\":400,\"detail\":\"Dossier must b",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:41.517551+00:00"
+    },
+    {
+      "testId": "SOD-APPR-NO-SUBMIT",
+      "module": "SoD",
+      "role": "Regulatory Approver",
+      "expected": "deny submit",
+      "actual": "http=403",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:41.589507+00:00"
+    },
+    {
+      "testId": "SOD-SUB-NO-APPR",
+      "module": "SoD",
+      "role": "Regulatory Submitter",
+      "expected": "deny approve-for-submission",
+      "actual": "http=403",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:41.652415+00:00"
+    },
+    {
+      "testId": "SUB-SUBMIT",
+      "module": "Workflow",
+      "role": "Regulatory Submitter",
+      "expected": "Submitted",
+      "actual": "http=200 status=Submitted 370ms {\"id\":\"b4311f40-2a34-4df9-8b36-227344ede714\",\"caseNumber\":\"RA-20260726-9622\",\"productId\":\"2e3876b7-4ad0-4648-837e-c24a53",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:42.274991+00:00"
+    },
+    {
+      "testId": "CONC-DOUBLE-SUBMIT",
+      "module": "Reliability",
+      "role": "Regulatory Submitter",
+      "expected": "second submit controlled",
+      "actual": "http=400",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:42.472327+00:00"
+    },
+    {
+      "testId": "MGR-AUTH-REVIEW",
+      "module": "Workflow",
+      "role": "Regulatory Manager",
+      "expected": "UnderAuthorityReview",
+      "actual": "http=200 status=UnderAuthorityReview {\"id\":\"b4311f40-2a34-4df9-8b36-227344ede714\",\"caseNumber\":\"RA-20260726-9622\",\"productId\":\"2e3876b7-4ad0-4648-837e-c24a533a7248\",\"authorityId",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:42.697832+00:00"
+    },
+    {
+      "testId": "OBS-CREATE",
+      "module": "Workflow",
+      "role": "Regulatory Manager",
+      "expected": "create observation",
+      "actual": "http=200 id=f9954be6-428c-4f89-a4bc-4418aa415f52 {\"observation\":{\"id\":\"f9954be6-428c-4f89-a4bc-4418aa415f52\",\"observationNumber\":1,\"receivedOn\":\"0001-01-01T00:00:00+00:0",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:43.050527+00:00"
+    },
+    {
+      "testId": "OBS-RESPOND",
+      "module": "Workflow",
+      "role": "Regulatory Specialist",
+      "expected": "respond observation",
+      "actual": "http=200",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:43.285105+00:00"
+    },
+    {
+      "testId": "NEG-EXT-APPROVE-EMPTY",
+      "module": "Negative",
+      "role": "Regulatory Manager",
+      "expected": "reject empty registration",
+      "actual": "http=400",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:43.486175+00:00"
+    },
+    {
+      "testId": "MGR-EXT-APPROVE",
+      "module": "Workflow",
+      "role": "Regulatory Manager",
+      "expected": "external approve / terminal",
+      "actual": "http=200 status=Active reg=RS-EFC-8646D3 {\"id\":\"459c8dd4-3c3f-4312-a39b-2334d02cafbc\",\"productId\":\"2e3876b7-4ad0-4648-837e-c24a533a7248\",\"authorityId\":\"2bd03b5e-3bad-488e-a324-aad9c4a86cf6\",\"registrati",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "registrationNumber": "RS-EFC-8646D3",
+        "status": "Active"
+      },
+      "at": "2026-07-26T23:33:43.872162+00:00"
+    },
+    {
+      "testId": "RBAC-VIEW-CREATE-DOS",
+      "module": "RBAC",
+      "role": "Regulatory Viewer",
+      "expected": "deny create dossier",
+      "actual": "http=403",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:43.899207+00:00"
+    },
+    {
+      "testId": "RBAC-VIEW-READ-DOS",
+      "module": "RBAC",
+      "role": "Regulatory Viewer",
+      "expected": "allow read dossier",
+      "actual": "http=200",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:44.124577+00:00"
+    },
+    {
+      "testId": "MT-CROSS-FAKE-TENANT",
+      "module": "Multitenancy",
+      "role": "Regulatory Specialist",
+      "expected": "deny access other tenant",
+      "actual": "http=403",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:44.152017+00:00"
+    },
+    {
+      "testId": "MT-CROSS-PLATFORM",
+      "module": "Multitenancy",
+      "role": "Regulatory Specialist",
+      "expected": "deny platform tenant data with business token",
+      "actual": "http=403",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:44.183008+00:00"
+    },
+    {
+      "testId": "DASH-READ",
+      "module": "Reporting",
+      "role": "Regulatory Manager",
+      "expected": "dashboard data",
+      "actual": "http=200 131ms keys=['productsTotal', 'registrationsActive', 'registrationsExpiring', 'registrationsExpired', 'registrationsExpiringThisMonth', 'dossiersInProgress', 'dossiersOverdue', 'dossiersStuckOver14Days', 'pendingCriticalRequirements', 'manufacturerCertificatesExpiring', 'licensesExpiring', 'opportunityAmountTotal', 'bottleneckStatus', 'bottleneckCount', 'dossiersByAuthority']",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "productsTotal": 256,
+        "registrationsActive": 62,
+        "registrationsExpiring": 0,
+        "registrationsExpired": 0,
+        "registrationsExpiringThisMonth": 0,
+        "dossiersInProgress": 158,
+        "dossiersOverdue": 0,
+        "dossiersStuckOver14Days": 0,
+        "pendingCriticalRequirements": 1529,
+        "manufacturerCertificatesExpiring": 0,
+        "licensesExpiring": 0,
+        "opportunityAmountTotal": 2017880.0,
+        "bottleneckStatus": "Planning",
+        "bottleneckCount": 77,
+        "dossiersByAuthority": {
+          "CSS": 183,
+          "MINSA": 61
+        },
+        "productsByRiskClass": {
+          "A": 120,
+          "B": 136
+        },
+        "dossiersByStatus": {
+          "Planning": 77,
+          "ReadyForSubmission": 25,
+          "Submitted": 27,
+          "Closed": 33,
+          "Draft": 30,
+          "ApprovedForSubmission": 1,
+          "Assembling": 22,
+          "CorrectionRequested": 17,
+          "UnderTechnicalReview": 5,
+          "CorrectingObservation": 3,
+          "Observed": 4
+        },
+        "opportunityByStatus": {
+          "Planning": 108240.0,
+          "ReadyForSubmission": 1650000.0,
+          "Submitted": 0.0,
+          "Closed": 300.0,
+          "Draft": 0.0,
+          "ApprovedForSubmission": 0,
+          "Assembling": 150100.0,
+          "CorrectionRequested": 0.0,
+          "UnderTechnicalReview": 0.0,
+          "CorrectingObservation": 200.0,
+          "Observed": 100.0
+        }
+      },
+      "at": "2026-07-26T23:33:44.323502+00:00"
+    },
+    {
+      "testId": "ALERT-EVAL",
+      "module": "Alert Engine",
+      "role": "Regulatory Administrator",
+      "expected": "evaluate alerts",
+      "actual": "http=200",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:44.570757+00:00"
+    },
+    {
+      "testId": "ALERT-SETTINGS",
+      "module": "Alert Engine",
+      "role": "Regulatory Administrator",
+      "expected": "settings readable",
+      "actual": "http=200",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "thresholdsCsv": "120,90,60,30,7,0",
+        "thresholdsDays": [
+          120,
+          90,
+          60,
+          30,
+          7,
+          0
+        ]
+      },
+      "at": "2026-07-26T23:33:44.644213+00:00"
+    },
+    {
+      "testId": "ALERT-CENTER-LIST",
+      "module": "Alert Engine",
+      "role": "Tenant Administrator",
+      "expected": "list occurrences",
+      "actual": "http=200",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:44.763349+00:00"
+    },
+    {
+      "testId": "REG-LIST",
+      "module": "Registrations",
+      "role": "Regulatory Manager",
+      "expected": "list",
+      "actual": "http=200",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:44.780294+00:00"
+    },
+    {
+      "testId": "LIC-LIST",
+      "module": "Licenses",
+      "role": "Regulatory Manager",
+      "expected": "list",
+      "actual": "http=200",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:44.820834+00:00"
+    },
+    {
+      "testId": "MFG-LIST",
+      "module": "Manufacturers",
+      "role": "Regulatory Manager",
+      "expected": "list",
+      "actual": "http=200",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:44.866299+00:00"
+    },
+    {
+      "testId": "DB-PERSIST-DOS",
+      "module": "Persistence",
+      "role": "system",
+      "expected": "dossier in DB",
+      "actual": "status=Closed tenant=82af3877-2786-4d39-bce8-c981101c771d",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:44.896912+00:00"
+    },
+    {
+      "testId": "AUDIT-TRAIL-DOS",
+      "module": "Auditability",
+      "role": "system",
+      "expected": "audit events for dossier actions",
+      "actual": "rows=30 sample=['Updated', 'Updated', 'Created', 'Created', 'Created', 'Created', 'Created', 'Created']",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": [
+        {
+          "action": "Updated",
+          "user": "ra.mgr@cert.local",
+          "entity": "DossierMilestone",
+          "ok": true,
+          "at": "2026-07-26 16:33:43.744129-07:00"
+        },
+        {
+          "action": "Updated",
+          "user": "ra.mgr@cert.local",
+          "entity": "RegistrationDossier",
+          "ok": true,
+          "at": "2026-07-26 16:33:43.744102-07:00"
+        },
+        {
+          "action": "Created",
+          "user": "ra.mgr@cert.local",
+          "entity": "DossierHistoryEvent",
+          "ok": true,
+          "at": "2026-07-26 16:33:43.744012-07:00"
+        },
+        {
+          "action": "Created",
+          "user": "ra.mgr@cert.local",
+          "entity": "DossierHistoryEvent",
+          "ok": true,
+          "at": "2026-07-26 16:33:43.744006-07:00"
+        },
+        {
+          "action": "Created",
+          "user": "ra.mgr@cert.local",
+          "entity": "DossierHistoryEvent",
+          "ok": true,
+          "at": "2026-07-26 16:33:43.744001-07:00"
+        },
+        {
+          "action": "Created",
+          "user": "ra.mgr@cert.local",
+          "entity": "DossierHistoryEvent",
+          "ok": true,
+          "at": "2026-07-26 16:33:43.743996-07:00"
+        },
+        {
+          "action": "Created",
+          "user": "ra.mgr@cert.local",
+          "entity": "DossierHistoryEvent",
+          "ok": true,
+          "at": "2026-07-26 16:33:43.743991-07:00"
+        },
+        {
+          "action": "Created",
+          "user": "ra.mgr@cert.local",
+          "entity": "DossierHistoryEvent",
+          "ok": true,
+          "at": "2026-07-26 16:33:43.743985-07:00"
+        },
+        {
+          "action": "Updated",
+          "user": "ra.spec@cert.local",
+          "entity": "AuthorityObservation",
+          "ok": true,
+          "at": "2026-07-26 16:33:43.223060-07:00"
+        },
+        {
+          "action": "Updated",
+          "user": "ra.spec@cert.local",
+          "entity": "RegistrationDossier",
+          "ok": true,
+          "at": "2026-07-26 16:33:43.222989-07:00"
+        },
+        {
+          "action": "Created",
+          "user": "ra.spec@cert.local",
+          "entity": "DossierHistoryEvent",
+          "ok": true,
+          "at": "2026-07-26 16:33:43.222859-07:00"
+        },
+        {
+          "action": "Updated",
+          "user": "ra.mgr@cert.local",
+          "entity": "DossierMilestone",
+          "ok": true,
+          "at": "2026-07-26 16:33:42.939652-07:00"
+        },
+        {
+          "action": "Updated",
+          "user": "ra.mgr@cert.local",
+          "entity": "RegistrationDossier",
+          "ok": true,
+          "at": "2026-07-26 16:33:42.939622-07:00"
+        },
+        {
+          "action": "Created",
+          "user": "ra.mgr@cert.local",
+          "entity": "AuthorityObservation",
+          "ok": true,
+          "at": "2026-07-26 16:33:42.939510-07:00"
+        },
+        {
+          "action": "Updated",
+          "user": "ra.mgr@cert.local",
+          "entity": "RegistrationDossier",
+          "ok": true,
+          "at": "2026-07-26 16:33:42.619442-07:00"
+        }
+      ],
+      "at": "2026-07-26T23:33:44.950631+00:00"
+    },
+    {
+      "testId": "AUDIT-DOS-HISTORY",
+      "module": "Auditability",
+      "role": "system",
+      "expected": "history rows",
+      "actual": "cols=['Id', 'DossierId', 'EventType', 'Summary', 'ActorUserId', 'OccurredAtUtc', 'CreatedAtUtc', 'UpdatedAtUtc', 'TenantId'] rows=5",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "cols": [
+          "Id",
+          "DossierId",
+          "EventType",
+          "Summary",
+          "ActorUserId",
+          "OccurredAtUtc",
+          "CreatedAtUtc",
+          "UpdatedAtUtc",
+          "TenantId"
+        ],
+        "n": 5
+      },
+      "at": "2026-07-26T23:33:45.036144+00:00"
+    },
+    {
+      "testId": "RPT-LIST",
+      "module": "Reporting",
+      "role": "Tenant Administrator",
+      "expected": "reports list",
+      "actual": "http=200",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:45.075386+00:00"
+    },
+    {
+      "testId": "ERR-NO-LEAK",
+      "module": "Security",
+      "role": "Regulatory Specialist",
+      "expected": "no stack/SQL leak on 404",
+      "actual": "http=404 leaked=False body={\"type\":\"https://tools.ietf.org/html/rfc9110#section-15.5.5\",\"title\":\"Not Found\",\"status\":404,\"detail\":\"Dossier not found.\"}",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:45.149047+00:00"
+    },
+    {
+      "testId": "DB-ORPHAN-REQ",
+      "module": "Database",
+      "role": "system",
+      "expected": "count==0",
+      "actual": "count=0",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:45.315660+00:00"
+    },
+    {
+      "testId": "DB-IMPOSSIBLE-STATUS",
+      "module": "Database",
+      "role": "system",
+      "expected": "count==0",
+      "actual": "count=0",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:45.365790+00:00"
+    },
+    {
+      "testId": "DB-PRODUCT-TENANT",
+      "module": "Database",
+      "role": "system",
+      "expected": "count==0",
+      "actual": "count=0",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:45.398983+00:00"
+    },
+    {
+      "testId": "I18N-KEY-PARITY",
+      "module": "Localization",
+      "role": "system",
+      "expected": "ES/EN key parity",
+      "actual": "coverage=100.0% missing_en=0 missing_es=0",
+      "result": "PASS",
+      "severity": null,
+      "defectId": null,
+      "evidence": {
+        "coverage": 100.0,
+        "missingEnSample": [],
+        "missingEsSample": []
+      },
+      "at": "2026-07-26T23:33:45.398983+00:00"
+    }
+  ]
+}

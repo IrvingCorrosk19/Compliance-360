@@ -397,11 +397,14 @@ public sealed class DevelopmentBootstrapRunner
                 }
             }
 
-            var health = await scope.ServiceProvider.GetRequiredService<HealthCheckService>().CheckHealthAsync(cancellationToken);
-            AddCheck(checks, "Health", health.Status == HealthStatus.Healthy ? DevelopmentBootstrapStatus.Healthy : health.Status == HealthStatus.Degraded ? DevelopmentBootstrapStatus.Warning : DevelopmentBootstrapStatus.Error, $"Health checks completed with status {health.Status}.");
+            // Align bootstrap with /health/ready: worker/notification degradation must not block Web startup.
+            var health = await scope.ServiceProvider.GetRequiredService<HealthCheckService>().CheckHealthAsync(
+                check => check.Tags.Contains("ready") || check.Tags.Contains("live"),
+                cancellationToken);
+            AddCheck(checks, "Health", health.Status == HealthStatus.Healthy ? DevelopmentBootstrapStatus.Healthy : health.Status == HealthStatus.Degraded ? DevelopmentBootstrapStatus.Warning : DevelopmentBootstrapStatus.Error, $"Readiness health checks completed with status {health.Status}.");
             if (health.Status == HealthStatus.Unhealthy)
             {
-                DevelopmentBootstrapConsole.WriteFatal("One or more required health checks are unhealthy.");
+                DevelopmentBootstrapConsole.WriteFatal("One or more required readiness health checks are unhealthy.");
                 return DevelopmentBootstrapResult.Stop();
             }
 

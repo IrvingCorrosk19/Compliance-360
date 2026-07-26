@@ -145,12 +145,45 @@ public sealed class ReportingEngineService : IReportingEngineService
             await _repository.NormalizeNewReportChildStatesAsync(cancellationToken);
             await AuditAsync(command.TenantId, definition.Id, AuditAction.ReportExported, command.RequestedByUserId, "Report export generated.", cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
-            return Result<ReportExportSummary>.Success(ToSummary(export));
+            return Result<ReportExportSummary>.Success(ToSummary(export, command.TenantId));
         }
         catch (DomainException exception)
         {
             return Result<ReportExportSummary>.Failure(exception.Message);
         }
+    }
+
+    public async Task<Result<ReportExportContent>> GetExportContentAsync(
+        Guid tenantId,
+        Guid reportDefinitionId,
+        Guid exportId,
+        IReadOnlyCollection<string> permissions,
+        Guid requestedByUserId,
+        CancellationToken cancellationToken = default)
+    {
+        var definition = await _repository.GetDefinitionAsync(tenantId, reportDefinitionId, cancellationToken);
+        if (definition is null)
+        {
+            return Result<ReportExportContent>.Failure("Report definition not found.");
+        }
+
+        if (!definition.CanExport(permissions, requestedByUserId))
+        {
+            return Result<ReportExportContent>.Failure("Report export permission denied.");
+        }
+
+        var export = definition.Executions.SelectMany(execution => execution.Exports).FirstOrDefault(item => item.Id == exportId);
+        if (export is null || export.TenantId != tenantId)
+        {
+            return Result<ReportExportContent>.Failure("Report export not found.");
+        }
+
+        var execution = definition.Executions.First(item => item.Id == export.ReportExecutionId);
+        var output = execution.Outputs.OrderByDescending(item => item.CreatedAtUtc).FirstOrDefault();
+        var content = ReportExportContentBuilder.Build(definition, execution, output, export);
+        await AuditAsync(tenantId, definition.Id, AuditAction.ReportExported, requestedByUserId, $"Report export downloaded ({export.Format}).", cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return Result<ReportExportContent>.Success(content);
     }
 
     public async Task<Result<ReportScheduleSummary>> ScheduleAsync(ScheduleReportCommand command, CancellationToken cancellationToken = default)
@@ -272,7 +305,18 @@ public sealed class ReportingEngineService : IReportingEngineService
     private static ReportPermissionSummary ToSummary(ReportPermission permission) => new(permission.Id, permission.ReportDefinitionId, permission.Scope, permission.Subject, permission.CanExecute, permission.CanExport, permission.CanSchedule);
     private static ReportExecutionSummary ToSummary(ReportExecution execution) => new(execution.Id, execution.ReportDefinitionId, execution.Status, execution.RowCount, execution.QueuedAtUtc, execution.CompletedAtUtc);
     private static ReportOutputSummary ToSummary(ReportOutput output) => new(output.Id, output.ReportDefinitionId, output.ReportExecutionId, output.RowCount, output.DatasetDescriptorJson);
-    private static ReportExportSummary ToSummary(ReportExport export) => new(export.Id, export.ReportDefinitionId, export.ReportExecutionId, export.Format, export.FileName, export.ContentType);
+    private static ReportExportSummary ToSummary(ReportExport export) => ToSummary(export, export.TenantId);
+
+    private static ReportExportSummary ToSummary(ReportExport export, Guid tenantId) =>
+        new(
+            export.Id,
+            export.ReportDefinitionId,
+            export.ReportExecutionId,
+            export.Format,
+            export.FileName,
+            export.ContentType,
+            $"/api/v1/tenants/{tenantId:D}/reports/{export.ReportDefinitionId:D}/exports/{export.Id:D}/content");
+
     private static ReportScheduleSummary ToSummary(ReportSchedule schedule) => new(schedule.Id, schedule.ReportDefinitionId, schedule.Frequency, schedule.NextRunUtc, schedule.IsActive);
     private static ReportSubscriptionSummary ToSummary(ReportSubscription subscription) => new(subscription.Id, subscription.ReportDefinitionId, subscription.Recipient, subscription.Format, subscription.IsActive);
     private static ReportDashboardBindingSummary ToSummary(ReportDashboardBinding binding) => new(binding.Id, binding.ReportDefinitionId, binding.DashboardKey, binding.DatasetKey);

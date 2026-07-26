@@ -1,0 +1,370 @@
+{
+  "runId": "FINAL-20260726-233311",
+  "at": "2026-07-26T23:33:21.098504+00:00",
+  "baseUrl": "http://localhost:5272",
+  "meta": {
+    "runId": "FINAL-20260726-233311",
+    "baseUrl": "http://localhost:5272",
+    "certTenantId": "82af3877-2786-4d39-bce8-c981101c771d",
+    "platformTenantId": "dc7c46ee-cb25-4ed5-b0b4-800788f7f626",
+    "alphaTenantId": "3f9d3eb0-4f32-4e99-a3c1-3ecaa2dcce35",
+    "betaTenantId": "78b95536-6b47-4f25-8cac-f6e6831fffa8",
+    "alphaSource": "created",
+    "xlsxEvidence": "report-excel-FINAL-20260726-233311.xlsx"
+  },
+  "counts": {
+    "total": 26,
+    "PASS": 26,
+    "FAIL": 0,
+    "SKIPPED": 0,
+    "BLOCKED": 0
+  },
+  "verdict": "PASS",
+  "results": [
+    {
+      "testId": "ENV-LIVE",
+      "module": "Environment",
+      "role": "system",
+      "expected": "200 live",
+      "actual": "http=200",
+      "result": "PASS",
+      "severity": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:11.037509+00:00"
+    },
+    {
+      "testId": "CERT-AUTH-REGULATORY_SPECIALIST",
+      "module": "Auth",
+      "role": "Regulatory Specialist",
+      "expected": "login success on CERT tenant",
+      "actual": "ok email=ra.spec@cert.local",
+      "result": "PASS",
+      "severity": null,
+      "evidence": {
+        "email": "ra.spec@cert.local",
+        "tenantId": "82af3877-2786-4d39-bce8-c981101c771d"
+      },
+      "at": "2026-07-26T23:33:11.716904+00:00"
+    },
+    {
+      "testId": "CERT-AUTH-REPORTING_MANAGER",
+      "module": "Auth",
+      "role": "Reporting Manager",
+      "expected": "login success on CERT tenant",
+      "actual": "ok email=reporting@cert.local",
+      "result": "PASS",
+      "severity": null,
+      "evidence": {
+        "email": "reporting@cert.local",
+        "tenantId": "82af3877-2786-4d39-bce8-c981101c771d"
+      },
+      "at": "2026-07-26T23:33:11.868421+00:00"
+    },
+    {
+      "testId": "CERT-AUTH-TENANT_ADMINISTRATOR",
+      "module": "Auth",
+      "role": "Tenant Administrator",
+      "expected": "login success on CERT tenant",
+      "actual": "ok email=irvingcorrosk19@gmail.com",
+      "result": "PASS",
+      "severity": null,
+      "evidence": {
+        "email": "irvingcorrosk19@gmail.com",
+        "tenantId": "82af3877-2786-4d39-bce8-c981101c771d"
+      },
+      "at": "2026-07-26T23:33:12.068247+00:00"
+    },
+    {
+      "testId": "MT-PLATFORM-LOGIN",
+      "module": "Multitenancy",
+      "role": "Platform Administrator",
+      "expected": "platform login",
+      "actual": "ok",
+      "result": "PASS",
+      "severity": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:12.249971+00:00"
+    },
+    {
+      "testId": "MT-TENANT-ALPHA-CREATE",
+      "module": "Multitenancy",
+      "role": "Platform Administrator",
+      "expected": "create slug final-alpha-233311",
+      "actual": "http=200 id=3f9d3eb0-4f32-4e99-a3c1-3ecaa2dcce35",
+      "result": "PASS",
+      "severity": null,
+      "evidence": {
+        "slug": "final-alpha-233311",
+        "adminEmail": "admin.alpha.20260726@final.local"
+      },
+      "at": "2026-07-26T23:33:15.153019+00:00"
+    },
+    {
+      "testId": "MT-TENANT-ALPHA-ACTIVATE",
+      "module": "Multitenancy",
+      "role": "Platform Administrator",
+      "expected": "tenant Active",
+      "actual": "http=204",
+      "result": "PASS",
+      "severity": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:15.282020+00:00"
+    },
+    {
+      "testId": "MT-TENANT-BETA-CREATE",
+      "module": "Multitenancy",
+      "role": "Platform Administrator",
+      "expected": "create slug final-beta-233311",
+      "actual": "http=200 id=78b95536-6b47-4f25-8cac-f6e6831fffa8",
+      "result": "PASS",
+      "severity": null,
+      "evidence": {
+        "slug": "final-beta-233311",
+        "adminEmail": "admin.beta.20260726@final.local"
+      },
+      "at": "2026-07-26T23:33:16.966214+00:00"
+    },
+    {
+      "testId": "MT-TENANT-BETA-ACTIVATE",
+      "module": "Multitenancy",
+      "role": "Platform Administrator",
+      "expected": "tenant Active",
+      "actual": "http=204",
+      "result": "PASS",
+      "severity": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:17.016379+00:00"
+    },
+    {
+      "testId": "MT-USER-ALPHA-SPEC",
+      "module": "Multitenancy",
+      "role": "Regulatory Specialist",
+      "expected": "create + login specialist",
+      "actual": "email=spec.alpha.20260726@final.local",
+      "result": "PASS",
+      "severity": null,
+      "evidence": {
+        "email": "spec.alpha.20260726@final.local",
+        "roleId": "2d90f23a-f4f4-40bb-88e7-9a064c1cbec3"
+      },
+      "at": "2026-07-26T23:33:17.297544+00:00"
+    },
+    {
+      "testId": "MT-USER-BETA-SPEC",
+      "module": "Multitenancy",
+      "role": "Regulatory Specialist",
+      "expected": "create + login specialist",
+      "actual": "email=spec.beta.20260726@final.local",
+      "result": "PASS",
+      "severity": null,
+      "evidence": {
+        "email": "spec.beta.20260726@final.local",
+        "roleId": "6a96eba2-a105-487d-94ab-f60845fe351b"
+      },
+      "at": "2026-07-26T23:33:17.549349+00:00"
+    },
+    {
+      "testId": "MT-PRODUCT-ALPHA",
+      "module": "Products",
+      "role": "Regulatory Specialist",
+      "expected": "seed catalogCode ALPHA-MARKER-20260726-233311",
+      "actual": "http=200 id=8cf3f273-697c-4a7b-970a-a66c110ded5c",
+      "result": "PASS",
+      "severity": null,
+      "evidence": {
+        "catalogCode": "ALPHA-MARKER-20260726-233311",
+        "productId": "8cf3f273-697c-4a7b-970a-a66c110ded5c"
+      },
+      "at": "2026-07-26T23:33:17.699738+00:00"
+    },
+    {
+      "testId": "MT-PRODUCT-BETA",
+      "module": "Products",
+      "role": "Regulatory Specialist",
+      "expected": "seed catalogCode BETA-MARKER-20260726-233311",
+      "actual": "http=200 id=d65bcd56-db19-41fc-b532-2a282eef0c02",
+      "result": "PASS",
+      "severity": null,
+      "evidence": {
+        "catalogCode": "BETA-MARKER-20260726-233311",
+        "productId": "d65bcd56-db19-41fc-b532-2a282eef0c02"
+      },
+      "at": "2026-07-26T23:33:17.749755+00:00"
+    },
+    {
+      "testId": "MT-ISO-ALPHA-SEARCH-BETA",
+      "module": "Multitenancy",
+      "role": "Regulatory Specialist",
+      "expected": "search BETA-MARKER-20260726-233311 returns 0",
+      "actual": "http=200 itemHits=0 textHits=0",
+      "result": "PASS",
+      "severity": null,
+      "evidence": {
+        "status": 200,
+        "itemHits": 0
+      },
+      "at": "2026-07-26T23:33:17.799684+00:00"
+    },
+    {
+      "testId": "MT-ISO-ALPHA-GET-PRODUCT-BETA",
+      "module": "Multitenancy",
+      "role": "Regulatory Specialist",
+      "expected": "GET foreign product denied (403/404)",
+      "actual": "http=404",
+      "result": "PASS",
+      "severity": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:17.866823+00:00"
+    },
+    {
+      "testId": "MT-ISO-ALPHA-GET-DOSSIER-BETA",
+      "module": "Multitenancy",
+      "role": "Regulatory Specialist",
+      "expected": "GET foreign dossier/product id denied (403/404)",
+      "actual": "http=404",
+      "result": "PASS",
+      "severity": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:17.983197+00:00"
+    },
+    {
+      "testId": "MT-ISO-ALPHA-PATH-BETA",
+      "module": "Multitenancy",
+      "role": "Regulatory Specialist",
+      "expected": "foreign tenant path denied",
+      "actual": "http=403",
+      "result": "PASS",
+      "severity": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:18.014229+00:00"
+    },
+    {
+      "testId": "MT-ISO-BETA-SEARCH-ALPHA",
+      "module": "Multitenancy",
+      "role": "Regulatory Specialist",
+      "expected": "search ALPHA-MARKER-20260726-233311 returns 0",
+      "actual": "http=200 itemHits=0 textHits=0",
+      "result": "PASS",
+      "severity": null,
+      "evidence": {
+        "status": 200,
+        "itemHits": 0
+      },
+      "at": "2026-07-26T23:33:18.049942+00:00"
+    },
+    {
+      "testId": "MT-ISO-BETA-GET-PRODUCT-ALPHA",
+      "module": "Multitenancy",
+      "role": "Regulatory Specialist",
+      "expected": "GET foreign product denied (403/404)",
+      "actual": "http=404",
+      "result": "PASS",
+      "severity": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:18.081876+00:00"
+    },
+    {
+      "testId": "MT-ISO-BETA-GET-DOSSIER-ALPHA",
+      "module": "Multitenancy",
+      "role": "Regulatory Specialist",
+      "expected": "GET foreign dossier/product id denied (403/404)",
+      "actual": "http=404",
+      "result": "PASS",
+      "severity": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:18.132643+00:00"
+    },
+    {
+      "testId": "MT-ISO-BETA-PATH-ALPHA",
+      "module": "Multitenancy",
+      "role": "Regulatory Specialist",
+      "expected": "foreign tenant path denied",
+      "actual": "http=403",
+      "result": "PASS",
+      "severity": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:18.167220+00:00"
+    },
+    {
+      "testId": "MT-USER-ALPHA-RPT",
+      "module": "Multitenancy",
+      "role": "Reporting Manager",
+      "expected": "create + login reporting user",
+      "actual": "email=rpt.alpha.20260726@final.local login=ok",
+      "result": "PASS",
+      "severity": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:18.416142+00:00"
+    },
+    {
+      "testId": "MT-RPT-ALPHA-SEED",
+      "module": "Reporting",
+      "role": "Reporting Manager",
+      "expected": "seed standard reports",
+      "actual": "http=200 count=24",
+      "result": "PASS",
+      "severity": null,
+      "evidence": null,
+      "at": "2026-07-26T23:33:19.733358+00:00"
+    },
+    {
+      "testId": "MT-RPT-ALPHA-NO-LEAK-CSV",
+      "module": "Reporting",
+      "role": "Reporting Manager",
+      "expected": "Csv must not contain peer tenant id",
+      "actual": "http=200 size=384 leak=False",
+      "result": "PASS",
+      "severity": null,
+      "evidence": {
+        "exportId": "af48ac77-986e-438d-ab03-e953e8bd6dcf",
+        "size": 384,
+        "foreignTenantId": "78b95536-6b47-4f25-8cac-f6e6831fffa8"
+      },
+      "at": "2026-07-26T23:33:20.415345+00:00"
+    },
+    {
+      "testId": "MT-RPT-ALPHA-NO-LEAK-EXCEL",
+      "module": "Reporting",
+      "role": "Reporting Manager",
+      "expected": "Excel must not contain peer tenant id",
+      "actual": "http=200 size=2651 leak=False",
+      "result": "PASS",
+      "severity": null,
+      "evidence": {
+        "exportId": "d21ced22-4817-4a2e-a976-d94ff7896e61",
+        "size": 2651,
+        "foreignTenantId": "78b95536-6b47-4f25-8cac-f6e6831fffa8"
+      },
+      "at": "2026-07-26T23:33:20.616118+00:00"
+    },
+    {
+      "testId": "XLSX-OOXML",
+      "module": "Reporting",
+      "role": "Reporting Manager",
+      "expected": "ZIP has Content_Types, workbook, sheet1, sharedStrings",
+      "actual": "size=2655 parts_ok=True entries=7",
+      "result": "PASS",
+      "severity": null,
+      "evidence": {
+        "required": [
+          "[Content_Types].xml",
+          "xl/workbook.xml",
+          "xl/worksheets/sheet1.xml",
+          "xl/sharedStrings.xml"
+        ],
+        "names": [
+          "[Content_Types].xml",
+          "_rels/.rels",
+          "xl/workbook.xml",
+          "xl/_rels/workbook.xml.rels",
+          "xl/worksheets/sheet1.xml",
+          "xl/sharedStrings.xml",
+          "xl/styles.xml"
+        ],
+        "saved": "report-excel-FINAL-20260726-233311.xlsx",
+        "contentType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      },
+      "at": "2026-07-26T23:33:21.098504+00:00"
+    }
+  ]
+}

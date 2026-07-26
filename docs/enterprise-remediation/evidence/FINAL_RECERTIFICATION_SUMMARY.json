@@ -1,0 +1,45 @@
+{
+  "generatedAt": "2026-07-26T23:15:00Z",
+  "baselinePreserved": "docs/enterprise-functional-certification/evidence/FINAL_CERTIFICATION_SUMMARY.json",
+  "baselineScore": 81,
+  "afterScore": 95,
+  "improvement": 14,
+  "level": "Enterprise Premium",
+  "productionVerdict": "PRODUCTION READY — residual hardening recommended",
+  "tests": {
+    "asIsHarnessRerun": { "planned": 82, "executed": 82, "PASS": 82, "FAIL": 0, "BLOCKED": 0, "SKIPPED": 0, "evidence": "docs/enterprise-functional-certification/evidence/results-EFC-20260726-231320.json" },
+    "remediationHarness": { "planned": 32, "executed": 32, "PASS": 32, "FAIL": 0, "BLOCKED": 0, "SKIPPED": 0 },
+    "unitTests": { "PASS": 317, "total": 317 },
+    "playwrightSod": { "PASS": 1, "total": 1 },
+    "buildRelease": "PASS"
+  },
+  "severityOpen": { "P0": 0, "P1": 0, "P2": 0, "P3": 3, "P4": 1 },
+  "scoresAfter": {
+    "Functional Completeness": 94,
+    "Regulatory Workflow": 96,
+    "Configurability": 88,
+    "RBAC": 100,
+    "SoD": 100,
+    "Auditability": 95,
+    "Document Management": 95,
+    "Alert Engine": 94,
+    "Notifications": 93,
+    "Reporting": 97,
+    "Search": 94,
+    "Administration": 90,
+    "Multitenancy": 96,
+    "Localization": 86,
+    "UX": 88,
+    "Performance": 90,
+    "Reliability": 95
+  },
+  "externalConfigurationRequired": [
+    "SendGrid/Mailgun/Resend production secrets (Mailpit/local SMTP certified)"
+  ],
+  "whyNot100": [
+    "Runtime ES/EN mix not fully dual-language browser certified",
+    "Responsive tablet/mobile not deeply re-certified",
+    "Second populated business tenant search/export not fully dual-dataset",
+    "Excel export is SpreadsheetML (.xls) not OOXML (.xlsx)"
+  ]
+}

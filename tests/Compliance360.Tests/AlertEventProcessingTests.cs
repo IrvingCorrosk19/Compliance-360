@@ -124,6 +124,8 @@ public sealed class AlertEventProcessingTests
         }
 
         public Task<AlertOccurrence?> GetOccurrenceAsync(Guid tenantId, Guid occurrenceId, CancellationToken cancellationToken) => Task.FromResult<AlertOccurrence?>(_occurrence);
+        public Task<IReadOnlyList<AlertOccurrence>> ListOccurrencesAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken) =>
+            Task.FromResult<IReadOnlyList<AlertOccurrence>>(new[] { _occurrence });
         public Task<AlertDefinition?> GetDefinitionAsync(Guid tenantId, Guid definitionId, CancellationToken cancellationToken) => Task.FromResult<AlertDefinition?>(_definition);
         public Task<AlertDefinitionVersion?> GetVersionAsync(Guid tenantId, Guid definitionId, Guid versionId, CancellationToken cancellationToken) => Task.FromResult<AlertDefinitionVersion?>(_version);
         public Task<NotificationTemplateVersion?> GetPublishedTemplateAsync(Guid tenantId, string code, NotificationChannel channel, string? locale, CancellationToken cancellationToken) => Task.FromResult<NotificationTemplateVersion?>(_template);

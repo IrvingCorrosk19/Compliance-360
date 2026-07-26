@@ -32,6 +32,14 @@
       .replaceAll("'", "&#039;");
   }
 
+  function tr(key, fallback) {
+    if (typeof window.t === "function") {
+      const value = window.t(key);
+      if (value && value !== key) return value;
+    }
+    return fallback;
+  }
+
   async function api(path, options = {}) {
     const token = localStorage.getItem("c360.token");
     const response = await fetch(`/api/v2/tenants/${tenantId()}/alert-center${path}`, {
@@ -44,7 +52,7 @@
     });
     if (!response.ok) {
       const text = await response.text();
-      let message = "No se pudo completar la operación.";
+      let message = tr("AlertCenter.OperationFailed", "No se pudo completar la operación.");
       try {
         const payload = JSON.parse(text);
         message = payload.detail || payload.title || payload.error || message;
@@ -68,12 +76,22 @@
   }
 
   function priorityLabel(priority) {
-    const labels = { Low: "Baja", Normal: "Normal", High: "Alta", Critical: "Crítica" };
+    const labels = {
+      Low: tr("AlertCenter.PriorityLow", "Baja"),
+      Normal: tr("AlertCenter.PriorityNormal", "Normal"),
+      High: tr("AlertCenter.PriorityHigh", "Alta"),
+      Critical: tr("AlertCenter.PriorityCritical", "Crítica")
+    };
     return labels[priority] || priority;
   }
 
   function stateLabel(state) {
-    const labels = { Unread: "No leída", Read: "Leída", Archived: "Archivada", Deleted: "Eliminada" };
+    const labels = {
+      Unread: tr("AlertCenter.StateUnread", "No leída"),
+      Read: tr("AlertCenter.StateRead", "Leída"),
+      Archived: tr("AlertCenter.StateArchived", "Archivada"),
+      Deleted: tr("AlertCenter.StateDeleted", "Eliminada")
+    };
     return labels[state] || state;
   }
 
@@ -102,8 +120,8 @@
           <span class="alert-inbox-meta">${escapeHtml(item.channel)} · ${escapeHtml(stateLabel(item.state))} · ${escapeHtml(formatDate(item.receivedAtUtc))}</span>
         </button>
         <div class="alert-inbox-actions">
-          <button class="btn subtle small" type="button" data-inbox-action="${item.isFavorite ? "Unfavorite" : "Favorite"}" data-inbox-id="${escapeHtml(item.id)}" aria-label="${item.isFavorite ? "Quitar favorito" : "Marcar favorito"}">${item.isFavorite ? "★" : "☆"}</button>
-          <button class="btn subtle small" type="button" data-inbox-action="${item.state === "Archived" ? "MarkRead" : "Archive"}" data-inbox-id="${escapeHtml(item.id)}">${item.state === "Archived" ? "Restaurar" : "Archivar"}</button>
+          <button class="btn subtle small" type="button" data-inbox-action="${item.isFavorite ? "Unfavorite" : "Favorite"}" data-inbox-id="${escapeHtml(item.id)}" aria-label="${item.isFavorite ? tr("AlertCenter.UnmarkFavorite", "Quitar favorito") : tr("AlertCenter.MarkFavorite", "Marcar favorito")}">${item.isFavorite ? "★" : "☆"}</button>
+          <button class="btn subtle small" type="button" data-inbox-action="${item.state === "Archived" ? "MarkRead" : "Archive"}" data-inbox-id="${escapeHtml(item.id)}">${item.state === "Archived" ? escapeHtml(tr("AlertCenter.Restore", "Restaurar")) : escapeHtml(tr("AlertCenter.Archive", "Archivar"))}</button>
         </div>
       </article>`;
   }
@@ -112,7 +130,7 @@
     content.innerHTML = `
       <section class="module-page alert-center-page" aria-busy="true">
         <div class="page-heading">
-          <div><span class="eyebrow">Enterprise Alert Center</span><h1>Inbox</h1><p>Cargando notificaciones persistentes…</p></div>
+          <div><span class="eyebrow">Enterprise Alert Center</span><h1>Inbox</h1><p>${escapeHtml(tr("AlertCenter.LoadingInbox", "Cargando notificaciones persistentes…"))}</p></div>
         </div>
         <div class="skeleton-grid">${"<span class=\"skeleton-card\"></span>".repeat(4)}</div>
       </section>`;
@@ -128,30 +146,30 @@
         <div class="page-heading alert-center-heading">
           <div>
             <span class="eyebrow">Enterprise Alert Center</span>
-            <h1>Inbox de notificaciones</h1>
-            <p>Alertas regulatorias persistentes, aisladas por tenant y usuario.</p>
+            <h1>${escapeHtml(tr("AlertCenter.InboxTitle", "Inbox de notificaciones"))}</h1>
+            <p>${escapeHtml(tr("AlertCenter.InboxSubtitle", "Alertas regulatorias persistentes, aisladas por tenant y usuario."))}</p>
           </div>
           <div class="button-row">
-            ${can("NOTIFICATION.TEMPLATE") || can("NOTIFICATION.ADMIN") ? `<button id="alert-open-templates" class="btn" type="button">Template Center</button>` : ""}
-            ${can("NOTIFICATION.MANAGE") ? `<button id="alert-open-rules" class="btn" type="button">Reglas</button>` : ""}
-            ${can("NOTIFICATION.MANAGE") ? `<button id="alert-open-operations" class="btn" type="button">Operaciones</button>` : ""}
-            ${can("NOTIFICATION.ADMIN") ? `<button id="alert-open-providers" class="btn" type="button">Proveedores</button>` : ""}
-            ${can("NOTIFICATION.MANAGE") ? `<button id="alert-open-recipients" class="btn" type="button">Destinatarios</button>` : ""}
-            <button id="alert-refresh" class="btn" type="button">Actualizar</button>
-            <button id="alert-mark-selected" class="btn" type="button" ${view.selected.size ? "" : "disabled"}>Marcar selección leída</button>
-            <button id="alert-mark-all" class="btn primary" type="button" ${counts.unread ? "" : "disabled"}>Marcar todas leídas</button>
+            ${can("NOTIFICATION.TEMPLATE") || can("NOTIFICATION.ADMIN") ? `<button id="alert-open-templates" class="btn" type="button">${escapeHtml(tr("AlertCenter.TemplateCenter", "Template Center"))}</button>` : ""}
+            ${can("NOTIFICATION.MANAGE") ? `<button id="alert-open-rules" class="btn" type="button">${escapeHtml(tr("AlertCenter.Rules", "Reglas"))}</button>` : ""}
+            ${can("NOTIFICATION.MANAGE") ? `<button id="alert-open-operations" class="btn" type="button">${escapeHtml(tr("AlertCenter.Operations", "Operaciones"))}</button>` : ""}
+            ${can("NOTIFICATION.ADMIN") ? `<button id="alert-open-providers" class="btn" type="button">${escapeHtml(tr("AlertCenter.Providers", "Proveedores"))}</button>` : ""}
+            ${can("NOTIFICATION.MANAGE") ? `<button id="alert-open-recipients" class="btn" type="button">${escapeHtml(tr("AlertCenter.Recipients", "Destinatarios"))}</button>` : ""}
+            <button id="alert-refresh" class="btn" type="button">${escapeHtml(tr("AlertCenter.Refresh", "Actualizar"))}</button>
+            <button id="alert-mark-selected" class="btn" type="button" ${view.selected.size ? "" : "disabled"}>${escapeHtml(tr("AlertCenter.MarkSelectionRead", "Marcar selección leída"))}</button>
+            <button id="alert-mark-all" class="btn primary" type="button" ${counts.unread ? "" : "disabled"}>${escapeHtml(tr("AlertCenter.MarkAllRead", "Marcar todas leídas"))}</button>
           </div>
         </div>
 
         <div class="metric-grid alert-center-metrics">
-          <article class="metric-card"><span>No leídas</span><strong>${counts.unread}</strong></article>
-          <article class="metric-card"><span>Leídas</span><strong>${counts.read}</strong></article>
-          <article class="metric-card"><span>Archivadas</span><strong>${counts.archived}</strong></article>
-          <article class="metric-card"><span>Favoritas</span><strong>${counts.favorites}</strong></article>
+          <article class="metric-card"><span>${escapeHtml(tr("AlertCenter.UnreadMetric", "No leídas"))}</span><strong>${counts.unread}</strong></article>
+          <article class="metric-card"><span>${escapeHtml(tr("AlertCenter.StateRead", "Leídas"))}</span><strong>${counts.read}</strong></article>
+          <article class="metric-card"><span>${escapeHtml(tr("AlertCenter.StateArchived", "Archivadas"))}</span><strong>${counts.archived}</strong></article>
+          <article class="metric-card"><span>${escapeHtml(tr("AlertCenter.FavoritesMetric", "Favoritas"))}</span><strong>${counts.favorites}</strong></article>
         </div>
 
         <form id="alert-inbox-filters" class="alert-inbox-filters">
-          <label>Buscar<input name="search" type="search" value="${escapeHtml(view.search)}" placeholder="Asunto o contenido" /></label>
+          <label>${escapeHtml(tr("AlertCenter.Search", "Buscar"))}<input name="search" type="search" value="${escapeHtml(view.search)}" placeholder="${escapeHtml(tr("AlertCenter.SearchPlaceholder", "Asunto o contenido"))}" /></label>
           <label>Estado<select name="state">
             <option value="">Activas</option>
             ${["Unread", "Read", "Archived", "Deleted"].map(value => `<option value="${value}" ${view.state === value ? "selected" : ""}>${stateLabel(value)}</option>`).join("")}
@@ -164,7 +182,7 @@
           <label>Por página<select name="pageSize">
             ${[10, 25, 50, 100].map(value => `<option value="${value}" ${view.pageSize === value ? "selected" : ""}>${value}</option>`).join("")}
           </select></label>
-          <button class="btn primary" type="submit">Aplicar filtros</button>
+          <button class="btn primary" type="submit">${escapeHtml(tr("AlertCenter.ApplyFilters", "Aplicar filtros"))}</button>
         </form>
 
         <div class="alert-inbox-toolbar">
@@ -175,13 +193,13 @@
         <div class="alert-inbox-list">
           ${page.items.length
             ? page.items.map(inboxItem).join("")
-            : `<div class="empty-state"><h2>Sin notificaciones</h2><p>No hay elementos que coincidan con los filtros seleccionados.</p></div>`}
+            : `<div class="empty-state"><h2>${escapeHtml(tr("AlertCenter.EmptyTitle", "Sin notificaciones"))}</h2><p>${escapeHtml(tr("AlertCenter.EmptyBody", "No hay elementos que coincidan con los filtros seleccionados."))}</p></div>`}
         </div>
 
         <nav class="alert-pagination" aria-label="Paginación del inbox">
-          <button id="alert-previous" class="btn" type="button" ${page.page <= 1 ? "disabled" : ""}>Anterior</button>
+          <button id="alert-previous" class="btn" type="button" ${page.page <= 1 ? "disabled" : ""}>${escapeHtml(tr("AlertCenter.Previous", "Anterior"))}</button>
           <span>Página ${page.page} de ${totalPages}</span>
-          <button id="alert-next" class="btn" type="button" ${page.page >= totalPages ? "disabled" : ""}>Siguiente</button>
+          <button id="alert-next" class="btn" type="button" ${page.page >= totalPages ? "disabled" : ""}>${escapeHtml(tr("AlertCenter.Next", "Siguiente"))}</button>
         </nav>
       </section>`;
 
@@ -737,7 +755,7 @@
           <article class="metric-card"><span>Throughput 24h</span><strong>${dashboard.throughputLast24Hours}</strong></article>
         </div>
         <form id="ops-filters" class="alert-inbox-filters">
-          <label>Buscar<input name="search" value="${escapeHtml(filters.search || "")}" placeholder="Asunto, destinatario o idempotencia" /></label>
+          <label>${escapeHtml(tr("AlertCenter.Search", "Buscar"))}<input name="search" value="${escapeHtml(filters.search || "")}" placeholder="Asunto, destinatario o idempotencia" /></label>
           <label>Estado<select name="status"><option value="">Todos</option>${["Queued","Processing","Sent","Delivered","Failed","Retried","Cancelled","DeadLetter"].map(value => `<option value="${value}" ${filters.status === value ? "selected" : ""}>${value}</option>`).join("")}</select></label>
           <label>Canal<select name="channel"><option value="">Todos</option>${["InApp","Email","Sms","WhatsApp","Push","Webhook"].map(value => `<option value="${value}" ${filters.channel === value ? "selected" : ""}>${value}</option>`).join("")}</select></label>
           <button class="btn primary" type="submit">Aplicar</button>

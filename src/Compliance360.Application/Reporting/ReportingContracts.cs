@@ -15,6 +15,7 @@ public interface IReportingEngineService
     Task<Result<ReportExecutionSummary>> ExecuteAsync(ExecuteReportCommand command, CancellationToken cancellationToken = default);
     Task<Result<ReportOutputSummary>> CompleteExecutionAsync(CompleteReportExecutionCommand command, CancellationToken cancellationToken = default);
     Task<Result<ReportExportSummary>> ExportAsync(ExportReportCommand command, CancellationToken cancellationToken = default);
+    Task<Result<ReportExportContent>> GetExportContentAsync(Guid tenantId, Guid reportDefinitionId, Guid exportId, IReadOnlyCollection<string> permissions, Guid requestedByUserId, CancellationToken cancellationToken = default);
     Task<Result<ReportScheduleSummary>> ScheduleAsync(ScheduleReportCommand command, CancellationToken cancellationToken = default);
     Task<Result<ReportSubscriptionSummary>> SubscribeAsync(SubscribeReportCommand command, CancellationToken cancellationToken = default);
     Task<Result<ReportDashboardBindingSummary>> BindDashboardAsync(BindReportDashboardCommand command, CancellationToken cancellationToken = default);
@@ -62,7 +63,8 @@ public sealed record ReportParameterSummary(Guid Id, Guid ReportDefinitionId, st
 public sealed record ReportPermissionSummary(Guid Id, Guid ReportDefinitionId, ReportPermissionScope Scope, string Subject, bool CanExecute, bool CanExport, bool CanSchedule);
 public sealed record ReportExecutionSummary(Guid Id, Guid ReportDefinitionId, ReportExecutionStatus Status, int RowCount, DateTimeOffset QueuedAtUtc, DateTimeOffset? CompletedAtUtc);
 public sealed record ReportOutputSummary(Guid Id, Guid ReportDefinitionId, Guid ReportExecutionId, int RowCount, string DatasetDescriptorJson);
-public sealed record ReportExportSummary(Guid Id, Guid ReportDefinitionId, Guid ReportExecutionId, ReportFormat Format, string FileName, string ContentType);
+public sealed record ReportExportSummary(Guid Id, Guid ReportDefinitionId, Guid ReportExecutionId, ReportFormat Format, string FileName, string ContentType, string? DownloadPath = null);
+public sealed record ReportExportContent(string FileName, string ContentType, byte[] Content);
 public sealed record ReportScheduleSummary(Guid Id, Guid ReportDefinitionId, ReportScheduleFrequency Frequency, DateTimeOffset NextRunUtc, bool IsActive);
 public sealed record ReportSubscriptionSummary(Guid Id, Guid ReportDefinitionId, string Recipient, ReportFormat Format, bool IsActive);
 public sealed record ReportDashboardBindingSummary(Guid Id, Guid ReportDefinitionId, string DashboardKey, string DatasetKey);

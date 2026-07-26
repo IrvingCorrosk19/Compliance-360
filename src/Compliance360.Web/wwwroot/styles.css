@@ -48,6 +48,8 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 body {
@@ -58,6 +60,7 @@ body {
     var(--bg);
   color: var(--text);
   min-height: 100vh;
+  max-width: 100%;
   overflow-x: clip;
 }
 
@@ -368,6 +371,9 @@ h3 { font-size: clamp(15px, 1.6vw, 18px); }
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
   transition: grid-template-columns 220ms ease;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: clip;
 }
 
 .sidebar {
@@ -746,8 +752,10 @@ h3 { font-size: clamp(15px, 1.6vw, 18px); }
   padding: 26px;
   display: grid;
   gap: 22px;
-  max-width: 1680px;
+  max-width: min(1680px, 100%);
   width: 100%;
+  min-width: 0;
+  overflow-x: clip;
   animation: pageIn 220ms ease-out;
 }
 
@@ -1056,7 +1064,10 @@ h3 { font-size: clamp(15px, 1.6vw, 18px); }
 }
 
 .table-wrap {
-  overflow: auto;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
@@ -1082,6 +1093,9 @@ h3 { font-size: clamp(15px, 1.6vw, 18px); }
 table {
   width: 100%;
   border-collapse: collapse;
+}
+
+.table-wrap table {
   min-width: 640px;
 }
 

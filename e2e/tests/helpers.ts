@@ -73,7 +73,19 @@ export async function login(page: Page, tenantId: string, email: string, passwor
 }
 
 export async function logout(page: Page) {
-  await page.click("#logout");
+  await page.setViewportSize({ width: 1440, height: 900 }).catch(() => undefined);
+  await page.locator(".sidebar").evaluate((el) => {
+    el.scrollTop = el.scrollHeight;
+  }).catch(() => undefined);
+  const clicked = await page.evaluate(() => {
+    const btn = document.getElementById("logout") as HTMLButtonElement | null;
+    if (!btn) return false;
+    btn.click();
+    return true;
+  });
+  if (!clicked) {
+    await page.locator("#logout").click({ force: true, timeout: 5000 });
+  }
   await page.waitForSelector("#login-form, #legacy-login-form", { timeout: 15000 });
   await page.evaluate(() => {
     localStorage.clear();

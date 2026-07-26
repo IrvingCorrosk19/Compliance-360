@@ -129,6 +129,7 @@ public static class DependencyInjection
         services.AddScoped<IAlertSchedulerService, AlertSchedulerService>();
         services.AddScoped<IAlertSchedulerProcessor, AlertSchedulerProcessor>();
         services.AddScoped<IAlertOperationsService, AlertOperationsService>();
+        services.AddScoped<IAlertOccurrenceLifecycleService, AlertOccurrenceLifecycleService>();
         services.AddScoped<IAlertEventProcessor, AlertEventProcessor>();
         services.AddScoped<IAlertEventIngestionService, AlertEventIngestionService>();
         services.AddScoped<ITenantManagementService, TenantManagementService>();

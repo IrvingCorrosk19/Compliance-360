@@ -1,0 +1,17 @@
+{
+  "email": "ra.spec@cert.local",
+  "tenantId": "82af3877-2786-4d39-bce8-c981101c771d",
+  "routes": [
+    "dashboard",
+    "regulatory",
+    "reports",
+    "alert-center"
+  ],
+  "spanishMarkersChecked": [
+    "Guardando...",
+    "Identificando...",
+    "Inbox de notificaciones"
+  ],
+  "langAfterReload": "es",
+  "when": "2026-07-26T23:53:05.352Z"
+}

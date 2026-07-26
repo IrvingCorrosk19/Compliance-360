@@ -1,114 +1,114 @@
 {
   "scenario": {
-    "stamp": "1784420262124",
-    "productId": "4c1fe2c4-55fe-4577-b2be-227094060fa4",
-    "dossierId": "e10df409-b314-411e-9016-23978284ca39",
-    "caseNumber": "RA-20260719-8846",
+    "stamp": "1785109320877",
+    "productId": "30e17c5a-dc50-420e-b3a4-786b8a21ad8b",
+    "dossierId": "aa143d66-4aca-458b-b85d-10a5d2d9e87c",
+    "caseNumber": "RA-20260726-1087",
     "revision": 56,
     "staleConflictStatus": 409,
-    "scopedRequirementId": "70681987-5f0a-4585-b490-c8dc65a3826d",
-    "outOfScopeRequirementId": "c0f14186-8a97-4489-8f6e-93544d68a20e",
-    "correctionId": "21d15539-577e-41b2-b12c-df1a5c283043",
-    "terminalDossierId": "3d2157b6-6b38-4b68-a984-17b22a3d2861",
-    "archiveDossierId": "e10df409-b314-411e-9016-23978284ca39",
-    "renewalDossierId": "c8300c53-ea61-42e6-938c-43f42c9e7008"
+    "scopedRequirementId": "af732c99-f88f-47c1-9de2-ca0746563d4e",
+    "outOfScopeRequirementId": "39709eff-cf8d-4412-94b6-f1099fc1e764",
+    "correctionId": "131c5851-3eea-480f-92cf-7d754c600f5b",
+    "terminalDossierId": "32ba1c69-7b72-431b-ba06-c3c9e6291186",
+    "archiveDossierId": "aa143d66-4aca-458b-b85d-10a5d2d9e87c",
+    "renewalDossierId": "060e73ee-a190-40ba-82d7-3351444241bc"
   },
   "phases": [
     {
       "phase": "RA-SPEC UI creates product and Draft dossier",
       "passed": true,
       "detail": "PASS",
-      "at": "2026-07-19T00:17:49.791Z"
+      "at": "2026-07-26T23:42:04.793Z"
     },
     {
       "phase": "RA-SPEC persists and edits V2 metadata with revision",
       "passed": true,
       "detail": "PASS",
-      "at": "2026-07-19T00:17:50.823Z"
+      "at": "2026-07-26T23:42:05.205Z"
     },
     {
       "phase": "stale expectedRevision returns exact HTTP 409",
       "passed": true,
       "detail": "PASS",
-      "at": "2026-07-19T00:17:51.500Z"
+      "at": "2026-07-26T23:42:05.489Z"
     },
     {
       "phase": "RA-SPEC advances Draft to UnderTechnicalReview",
       "passed": true,
       "detail": "PASS",
-      "at": "2026-07-19T00:18:06.216Z"
+      "at": "2026-07-26T23:42:13.791Z"
     },
     {
       "phase": "RA-REV requests scoped correction",
       "passed": true,
       "detail": "PASS",
-      "at": "2026-07-19T00:18:09.457Z"
+      "at": "2026-07-26T23:42:15.094Z"
     },
     {
       "phase": "RA-SPEC rejects out-of-scope evidence without persistence",
       "passed": true,
       "detail": "PASS",
-      "at": "2026-07-19T00:18:12.760Z"
+      "at": "2026-07-26T23:42:16.390Z"
     },
     {
       "phase": "RA-SPEC uploads real SHA-256 V1 and V2 evidence",
       "passed": true,
       "detail": "PASS",
-      "at": "2026-07-19T00:18:14.696Z"
+      "at": "2026-07-26T23:42:17.252Z"
     },
     {
       "phase": "RA-SPEC submits correction and RA-REV completes review",
       "passed": true,
       "detail": "PASS",
-      "at": "2026-07-19T00:18:26.403Z"
+      "at": "2026-07-26T23:42:23.270Z"
     },
     {
       "phase": "Viewer is 403 on every V2 mutation family",
       "passed": true,
       "detail": "PASS",
-      "at": "2026-07-19T00:18:29.762Z"
+      "at": "2026-07-26T23:42:24.403Z"
     },
     {
       "phase": "TAC and RA-ADM cannot review, approve or override",
       "passed": true,
       "detail": "PASS",
-      "at": "2026-07-19T00:18:34.845Z"
+      "at": "2026-07-26T23:42:26.195Z"
     },
     {
       "phase": "timeline is append-only, sequential and complete",
       "passed": true,
       "detail": "PASS",
-      "at": "2026-07-19T00:18:36.732Z"
+      "at": "2026-07-26T23:42:26.907Z"
     },
     {
       "phase": "certification-only dossier reaches Cancelled for controlled reopening",
       "passed": true,
       "detail": "PASS",
-      "at": "2026-07-19T00:18:39.448Z"
+      "at": "2026-07-26T23:42:28.344Z"
     },
     {
       "phase": "main dossier produces CT/RS and a renewal certification case",
       "passed": true,
       "detail": "PASS",
-      "at": "2026-07-19T00:18:46.773Z"
+      "at": "2026-07-26T23:42:32.108Z"
     },
     {
       "phase": "reopen enforces requester separation and two distinct approvers",
       "passed": true,
       "detail": "PASS",
-      "at": "2026-07-19T00:18:55.049Z"
+      "at": "2026-07-26T23:42:35.718Z"
     },
     {
       "phase": "override enforces requester separation and two distinct approvers",
       "passed": true,
       "detail": "PASS",
-      "at": "2026-07-19T00:19:02.731Z"
+      "at": "2026-07-26T23:42:39.403Z"
     },
     {
       "phase": "soft archive preserves the complete timeline",
       "passed": true,
       "detail": "PASS",
-      "at": "2026-07-19T00:19:05.561Z"
+      "at": "2026-07-26T23:42:40.589Z"
     }
   ]
 }

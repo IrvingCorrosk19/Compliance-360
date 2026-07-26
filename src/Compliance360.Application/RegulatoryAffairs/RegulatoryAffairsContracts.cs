@@ -33,7 +33,7 @@ public interface IRegulatoryAffairsService
     Task<Result<DossierDetailDto>> UpdateDossierDatesAsync(UpdateDossierDatesCommand command, CancellationToken ct = default);
     Task<Result<DossierDetailDto>> UpdateRequirementAsync(UpdateRequirementCommand command, CancellationToken ct = default);
     Task<Result<DossierDetailDto>> RemoveRequirementEvidenceAsync(RemoveRequirementEvidenceCommand command, CancellationToken ct = default);
-    Task<Result<DossierDetailDto>> OpenObservationAsync(OpenObservationCommand command, CancellationToken ct = default);
+    Task<Result<OpenObservationResultDto>> OpenObservationAsync(OpenObservationCommand command, CancellationToken ct = default);
     Task<Result<DossierDetailDto>> RespondObservationAsync(RespondObservationCommand command, CancellationToken ct = default);
     Task<Result<RegistrationDto>> ApproveDossierAsync(ApproveDossierCommand command, CancellationToken ct = default);
     Task<Result<RegulatorySoDSettingsDto>> GetSoDSettingsAsync(Guid tenantId, CancellationToken ct = default);
@@ -163,7 +163,7 @@ public sealed record ApproveDossierCommand(
     DateTimeOffset IssuedOn,
     DateTimeOffset? ExpiresOn,
     string? Notes,
-    Guid ResolutionStoredFileId,
+    Guid? ResolutionStoredFileId,
     Guid RequestedByUserId,
     string? EmergencyOverrideReason = null);
 public sealed record UpdateSoDSettingsCommand(
@@ -201,6 +201,12 @@ public sealed record RequirementPackDto(Guid Id, string Code, string Name, strin
 public sealed record RequirementDto(Guid Id, string Code, string Name, string Category, bool IsRequired, bool IsCritical, DossierRequirementStatus Status, Guid? StoredFileId, Guid? CurrentDocumentId, string? ValidationNotes, int Order);
 public sealed record MilestoneDto(Guid Id, DossierMilestoneType MilestoneType, DateTimeOffset? PlannedDate, DateTimeOffset? ActualDate, MilestoneCompletionStatus Status);
 public sealed record ObservationDto(Guid Id, int ObservationNumber, DateTimeOffset ReceivedOn, DateTimeOffset? DueOn, string Description, AuthorityObservationStatus Status, DateTimeOffset? ResponseSubmittedOn, DateTimeOffset? ClosedOn, string? Notes);
+/// <summary>Explicit observation open contract so clients do not confuse dossier.id with observation.id.</summary>
+public sealed record OpenObservationResultDto(ObservationDto Observation, DossierDetailDto Dossier)
+{
+    /// <summary>Legacy/convenience observation id for clients that expected a top-level <c>id</c>.</summary>
+    public Guid Id => Observation.Id;
+}
 public sealed record DossierSummaryDto(Guid Id, string CaseNumber, Guid ProductId, Guid AuthorityId, RegistrationProcessType ProcessType, RegistrationDossierStatus Status, string? Priority, decimal? OpportunityAmount, DateTimeOffset? SubmittedOn, DateTimeOffset? ApprovedOn, DateTimeOffset? MaximumReceptionOn, DateTimeOffset CreatedAtUtc, int DaysInStatus);
 public sealed record DossierDetailDto(Guid Id, string CaseNumber, Guid ProductId, Guid AuthorityId, RegistrationProcessType ProcessType, Guid? ExistingRegistrationId, RegistrationDossierStatus Status, string? Priority, Guid? RegulatoryOwnerUserId, string? Comments, string? SalesMarketingInput, decimal? OpportunityAmount, string Currency, Guid? RequirementPackId, string? RequirementPackVersionLabel, Guid? ResultingRegistrationId, DateTimeOffset? RequestedFromFactoryOn, DateTimeOffset? EstimatedReceptionOn, DateTimeOffset? MaximumReceptionOn, DateTimeOffset? ReceivedOn, DateTimeOffset? AssembledOn, DateTimeOffset? EstimatedSubmissionOn, DateTimeOffset? SubmittedOn, Guid? SubmittedByUserId, string? SubmissionProcedureNumber, string? SubmissionExternalNumber, Guid? SubmissionProofStoredFileId, DateTimeOffset? ObservationReceivedOn, DateTimeOffset? EstimatedApprovalOn, DateTimeOffset? ApprovedOn, DateTimeOffset? TargetExpirationOn, IReadOnlyCollection<RequirementDto> Requirements, IReadOnlyCollection<MilestoneDto> Milestones, IReadOnlyCollection<ObservationDto> Observations, IReadOnlyCollection<DossierHistoryDto> History, long Revision = 0);
 public sealed record DossierHistoryDto(Guid Id, string EventType, string Summary, Guid? ActorUserId, DateTimeOffset OccurredAtUtc);
